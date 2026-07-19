@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="only light">
+  <meta name="description" content="Detailed MHCS Member user-flow diagram.">
+  <title>MHCS Member Journey</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../assets/journey.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Diagram navigation">
+      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <div class="nav-links">
+        <a href="./" aria-current="page">Member</a>
+        <a href="../operator/">Operator</a>
+        <a href="../doctor/">Doctor</a>
+        <a href="../bpmn/">Technical BPMN</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Detailed user flow · Member</p>
+        <h1>From account access to imaging results</h1>
+        <p class="intro">
+          Registration creates a pending account that requires an initial payment before activation.
+        </p>
+      </div>
+      <p class="screenshot-note">Best captured as a full-page screenshot</p>
+    </section>
+
+    <!-- <div class="legend" aria-label="Status legend">
+      <span class="chip chip-current">Current verified foundation</span>
+      <span class="chip chip-target">Approved or requested target</span>
+    </div> -->
+
+    <section class="journey-grid" aria-label="Member journey phases">
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">01</span>
+          <div><h2>Account access</h2><p class="phase-subtitle">Register or sign in</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-decision">
+            <span class="step-label">Decision</span>
+            <h3>Does the member already have an account?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No — Register</strong><span>Name, email, phone, password, optional referral code, and terms.</span></div>
+              <div class="branch"><strong>Yes — Login</strong><span>Continue with an identifier and password.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Login</span>
+            <h3>Enter email or NIK and password</h3>
+            <p>Members can log in using their email or NIK.</p>
+            <!-- <span class="inline-status">Email: current · NIK: target</span> -->
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Validation</span>
+            <h3>Are the credentials valid?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Show error, retry, or reset the password by email.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Regenerate the session and check account status.</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">02</span>
+          <div><h2>Account activation</h2><p class="phase-subtitle">Initial payment gate</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-system">
+            <span class="step-label">New registration</span>
+            <h3>Create a pending member account</h3>
+            <p>The member is signed in but cannot enter the active-member area yet.</p>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Required action</span>
+            <h3>Complete the initial payment / top-up</h3>
+            <p>This activates both a new account and an upgraded walk-in account.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Payment result</span>
+            <h3>Was payment successful?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Keep the account pending and allow payment retry.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Activate the member and open the dashboard.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-warning">
+            <span class="step-label">Exception</span>
+            <h3>Suspended account</h3>
+            <p>Stop access and direct the member to support or an administrator.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">03</span>
+          <div><h2>Booking & attendance</h2><p class="phase-subtitle">Choose and pay for care</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-action">
+            <span class="step-label">Service choice</span>
+            <h3>Select examination and result options</h3>
+            <p>Choose AI-only, doctor-only, or both when offered by the catalogue.</p>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Schedule</span>
+            <h3>Select an available date and shift</h3>
+            <p>The booking must still meet capacity and cut-off rules.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Balance check</span>
+            <h3>Is the member balance sufficient?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Top up, then return to the booking.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Confirm the booking and reserve the shift.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Handoff</span>
+            <h3>Attend the examination</h3>
+            <p>Operator Core receives authorised attendance information. Walk-ins must be registered and paid first.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">04</span>
+          <div><h2>Images & reports</h2><p class="phase-subtitle">Independent publication</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-system">
+            <span class="step-label">Processing</span>
+            <h3>Wait for the complete image set</h3>
+            <p>Partial multi-capture results remain hidden until every submitted capture succeeds.</p>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Images ready</span>
+            <h3>View images and export TIFF, JPG, or PDF</h3>
+            <p>The member does not receive raw NPZ or download raw DICOM.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Selected results</span>
+            <h3>Which reports were purchased?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>AI report</strong><span>Publish automatically when the AI result finishes.</span></div>
+              <div class="branch"><strong>Doctor report</strong><span>Publish automatically when the doctor submits it.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Later update</span>
+            <h3>Receive corrected doctor report</h3>
+            <p>The corrected version becomes current, the original remains in history, and the member is notified.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

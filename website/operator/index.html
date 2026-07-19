@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="only light">
+  <meta name="description" content="Detailed MHCS Operator user-flow diagram.">
+  <title>MHCS Operator Journey</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../assets/journey.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Diagram navigation">
+      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <div class="nav-links">
+        <a href="../member/">Member</a>
+        <a href="./" aria-current="page">Operator</a>
+        <a href="../doctor/">Doctor</a>
+        <a href="../bpmn/">Technical BPMN</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Detailed user flow · Operator</p>
+        <h1>From staff login to processed images</h1>
+        <p class="intro">
+          The access, arrival, queue, and upload.
+        </p>
+      </div>
+      <p class="screenshot-note">Best captured as a full-page screenshot</p>
+    </section>
+
+    <!-- <div class="legend" aria-label="Status legend">
+      <span class="chip chip-current">Current verified foundation</span>
+      <span class="chip chip-target">Approved target</span>
+    </div> -->
+
+    <section class="journey-grid" aria-label="Operator journey phases">
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">01</span>
+          <div><h2>Staff access</h2><p class="phase-subtitle">Authenticate and select work</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-action">
+            <span class="step-label">Login</span>
+            <h3>Enter email and password</h3>
+            <p>Operator authentication currently uses email.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Account gate</span>
+            <h3>Are the account and assignment valid?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Inactive or unassigned staff must contact an administrator.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Open the assigned operational project.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-system">
+            <span class="step-label">Work context</span>
+            <h3>Load today’s attendance list</h3>
+            <p>Use the selected organisation or project and current date.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">02</span>
+          <div><h2>Arrival & queue</h2><p class="phase-subtitle">Confirm eligibility first</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-decision">
+            <span class="step-label">Eligibility</span>
+            <h3>Is the member registered and paid?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Send registration or payment back to Member Core.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Continue with arrival confirmation.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Front desk</span>
+            <h3>Confirm arrival and assign queue number</h3>
+            <p>The member moves from not arrived to waiting.</p>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Call</span>
+            <h3>Call one examination to the booth</h3>
+            <p>Select it as the active examination and record the responsible operator.</p>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Identity source</span>
+            <h3>Use the active examination identity</h3>
+            <p>Never infer patient identity from an NPZ filename.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">03</span>
+          <div><h2>Capture & review</h2><p class="phase-subtitle">Build one complete draft</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-action">
+            <span class="step-label">Capture</span>
+            <h3>Create patient-free NPZ images</h3>
+            <p>Grabber may remain offline while the operator uses its dedicated computer.</p>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Upload</span>
+            <h3>Add one or more captures to the examination</h3>
+            <p>Every capture remains part of a draft until Submit.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Quality check</span>
+            <h3>Is every capture acceptable?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Remove the poor capture, retake it, and review again.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Keep all accepted captures in the draft set.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Ready</span>
+            <h3>Submit the complete set once</h3>
+            <p>One Submit action includes every NPZ remaining in the draft.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">04</span>
+          <div><h2>Completion & status</h2><p class="phase-subtitle">Continue asynchronously</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-system">
+            <span class="step-label">Gateway handoff</span>
+            <h3>Send captures and frozen examination data</h3>
+            <p>Durable Image Gateway acceptance closes the active queue item.</p>
+          </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Processing</span>
+            <h3>Did every capture produce DICOM?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Show pending/failed status; platform retries failed captures.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Show the complete processed image set.</span></div>
+            </div>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Payment event</span>
+            <h3>Make operator earning eligible</h3>
+            <p>This happens after all submitted captures succeed, not merely after gateway acceptance.</p>
+          </div>
+        </div>
+        <p class="restriction">
+          Operator restriction: may view processing status and completed images, but not AI diagnoses,
+          doctor reports, raw NPZ, or raw DICOM downloads.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
