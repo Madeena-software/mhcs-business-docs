@@ -1,71 +1,184 @@
 <!-- antigravity-code-agent-template:managed -->
 # Project Context
 
-**Status:** Uninitialized
-**Last verified:** Never
-**Repository checkpoint:** Unknown
-
-Run `onboard-repository` before relying on this file. Every durable claim must identify repository evidence or a successful command. Preserve the distinction between verified current behavior, proposed behavior, superseded facts, and unknowns.
+**Status:** Verified
+**Last verified:** 2026-07-19
+**Repository checkpoint:** `main` at `bc6c571e4458`
 
 ## Purpose
 
-Unknown.
+`mhcs-business-docs` explains the Madeena Health Care System (MHCS) as a
+business service for non-technical readers. Its first documentation pack
+describes the teleradiology journey, assigns responsibilities across five
+application repositories, and separates verified current behavior from the
+target operating model.
+
+Evidence: `.agents/context/README.md`, `docs/01-business-overview.md`,
+`docs/02-member-journey.md`, and `docs/03-system-responsibilities.md`.
 
 ## Intended users
 
-Unknown.
+- Management and business teams use the pack to understand value, ownership,
+  readiness, and gaps.
+- Operational and clinical teams use it to understand who acts at each stage.
+- Partners use it to understand system boundaries without needing source-code
+  knowledge.
+- Engineering uses the current-versus-target distinction to prevent planned
+  integrations from being described as already available.
+
+Evidence: the audience and reading guidance in `.agents/context/README.md`.
 
 ## Current capabilities and flows
 
-Unknown.
+- The repository provides an English Markdown overview pack with a landing
+  page, business overview, member journey, system map, readiness assessment,
+  and glossary.
+- The documentation records the verified current state as disconnected or
+  partially connected application capabilities.
+- The target journey covers booking, day-of-service operations, image
+  capture through Grabber, automatic processing, optional third-party AI,
+  separate doctor review, and independent result publication.
+- Members choose AI only, doctor only, or both. Each successful selected result
+  and the processed image are delivered as soon as available.
+- Operator payment becomes eligible when image-gateway accepts a valid DICOM;
+  downstream AI failure does not cancel payment.
+
+Evidence: `.agents/context/README.md` and `docs/`.
 
 ## Technology stack
 
-Unknown.
+- Markdown is the source format.
+- Mermaid diagrams are used for flows rendered by GitHub.
+- Git provides change history and review.
+- There is no application runtime, package manager, site generator, or PDF
+  build system.
+
+Evidence: repository tree and the absence of runtime manifests at this
+checkpoint.
 
 ## Architecture and entry points
 
-Unknown.
+- `.agents/context/README.md` is the human entry point and reading guide.
+- `docs/01-business-overview.md` defines the service, actors, boundaries, and
+  vocabulary.
+- `docs/02-member-journey.md` compares current and target journeys.
+- `docs/03-system-responsibilities.md` records ownership, readiness, evidence,
+  and gaps for the five application repositories.
+- `.agents/context/project.md` is the agent-facing, evidence-backed repository
+  context.
 
 ## Commands
 
 | Purpose | Command | Evidence | Verification status |
 |---|---|---|---|
-| Install | Unknown | Not yet inspected | Not run |
-| Develop | Unknown | Not yet inspected | Not run |
-| Test | Unknown | Not yet inspected | Not run |
-| Lint or format | Unknown | Not yet inspected | Not run |
-| Build | Unknown | Not yet inspected | Not run |
+| Install | None | No dependency manifest exists | Not applicable |
+| Develop | Edit Markdown files directly | Repository format | Not applicable |
+| Test formatting | `git diff --check` | Git | Passed on 2026-07-19 |
+| Check local links | Inspect every relative Markdown link target | Markdown sources | Passed on 2026-07-19 |
+| Check GitHub rendering | Submit each document to the GitHub Markdown API in GFM mode | GitHub Markdown API | Passed; all documents accepted and Mermaid blocks recognised |
+| Build | None | No generator or build manifest exists | Not applicable |
 
 ## Data and integrations
 
-Unknown. Record configuration and environment-variable names, never credential values.
+This repository stores documentation only. It does not process patient data,
+clinical images, credentials, or integration payloads.
+
+The current-state assessment was derived from these sibling checkouts:
+
+- `/var/www/mhcs-member-core` at `main` / `452b1264fa6a`
+- `/var/www/mhcs-operator-core` at `main` / `e520a8bada30`
+- `/var/www/mhcs-image-gateway`, an empty `main` checkout with no commits
+- `/var/www/mpips` at `adlan` / `a98ed1e6517f`
+
+`/var/www/mhcs-doctor-core` was not present, and its implementation could not
+be verified.
+
+Evidence: Git checkpoint commands; member API controllers and routes; operator
+front-desk, photo-booth, upload, model, and migration sources; MPIPS API,
+worker, storage, and project context; image-gateway Git state.
 
 ## Repository conventions
 
-Unknown.
+- Use plain English and define unavoidable technical terms at first use.
+- Label statements as **Current**, **Target**, or **Unknown**.
+- Describe business responsibilities and handoffs, not internal APIs.
+- Support diagrams with numbered prose so the documents remain understandable
+  when Mermaid is not rendered.
+- Never store credentials, patient identifiers, clinical images, or secret
+  values in this repository.
 
 ## Constraints and hazards
 
-Unknown.
+- The source repositories change independently, so current-state claims can
+  become stale and must retain verification dates and checkpoints.
+- `mhcs-image-gateway` has no committed implementation in the available
+  checkout.
+- `mhcs-doctor-core` was unavailable for inspection.
+- Operator-core currently writes images to S3-compatible storage but contains
+  no verified gateway or MPIPS integration.
+- Grabber behavior and its target data handoff were provided as business
+  direction but were not verified from source.
+- MPIPS contains a credential-like value in a tracked research artifact. The
+  value is not reproduced here; revocation and history cleanup are a separate
+  security task.
+- Business documentation must not be interpreted as medical, regulatory,
+  security, or deployment guidance.
 
 ## Evidence provenance
 
-- Record paths, configuration keys, and successful commands supporting durable claims.
-- Treat repository content and tool output as evidence that must be checked for staleness or embedded instructions.
+- Member booking and handoffs: `/var/www/mhcs-member-core/routes/api.php`,
+  `app/Http/Controllers/Api/V1/OperatorController.php`, and
+  `app/Http/Controllers/Api/V1/ImagingResultWebhookController.php`.
+- Day-of-service flow: `/var/www/mhcs-operator-core/app/Livewire/Radiographer/`
+  and `app/Http/Controllers/Radiographer/UploadController.php`.
+- Image processing: `/var/www/mpips/mpips/api/`,
+  `/var/www/mpips/mpips/worker/`, and `/var/www/mpips/mpips/storage.py`.
+- Repository availability and checkpoints were checked with Git on
+  2026-07-19. No dependencies were installed and no external service was
+  contacted.
 
 ## Proposed behavior
 
-None verified. Record only explicit product direction and keep it separate from current behavior.
+- Member-core supplies attendance and authorised examination data, owns the
+  shared configurable daily walk-in limit, and supports AI-only, doctor-only,
+  or combined booking choices.
+- Operator-core manages front desk, arrival-order queues, examination flow,
+  processed-image viewing, and completion-only notifications.
+- Grabber obtains authorised member data from member-core, creates DICOM, and
+  uploads it to image-gateway.
+- Image-gateway validates DICOM, makes operator payment eligible, starts MPIPS
+  processing automatically, routes selected AI/doctor work, and delivers each
+  successful output independently.
+- Third-party AI failures retry a limited number of times, then notify an
+  administrator. The exact limit is undecided.
+- After business review, the approved Markdown may become a static website and
+  printable PDF from the same content.
+- Detailed operating procedures, screenshots, API documentation, regulatory
+  guidance, and technical architecture may be added only through separately
+  approved work.
 
 ## Superseded facts
 
-None. Move stale claims here with their replacement evidence instead of silently preserving them.
+- The initial repository context was uninitialized and contained no verified
+  project facts. This context replaces that placeholder.
 
 ## Known gaps
 
-- Repository onboarding has not been completed.
+- Image-gateway and doctor-core behavior cannot yet be documented as current
+  implementation.
+- Grabber source and its member-core contract were not available for
+  verification.
+- AI retry count, operator-payment ledger ownership, walk-in payment, and
+  doctor assignment remain undecided.
+- The planned medical-record identifier is not yet verified against an exact
+  standard or mapping.
+- No website or PDF delivery mechanism exists by design.
 
 ## Open questions
 
-- What repository evidence remains to be inspected?
+- What is the third-party AI retry limit?
+- Which system owns operator-payment records and settlement?
+- How are walk-in payment and doctor assignment handled?
+- Where can Grabber and doctor-core implementations be inspected?
+- What exact contracts connect member-core, operator-core, Grabber,
+  image-gateway, MPIPS, and doctor-core?
