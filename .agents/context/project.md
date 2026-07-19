@@ -1,212 +1,111 @@
 <!-- antigravity-code-agent-template:managed -->
 # Project Context
 
-**Status:** Verified
+**Status:** Verified documentation context
 **Last verified:** 2026-07-19
-**Repository checkpoint:** `main` working tree based on `05f511167026`
+**Repository checkpoint:** `main` working tree based on
+`ff2f1dde0a8a1002e51283361c71a7e905cf22e2`
 
 ## Purpose
 
-`mhcs-business-docs` explains the Madeena Health Care System (MHCS) as a
-business service for non-technical readers. Its first documentation pack
-describes the teleradiology journey, assigns responsibilities across five
-application repositories, records SATUSEHAT as an unimplemented future
-possibility, and separates verified current behavior from the target operating
-model.
+`mhcs-business-docs` records the approved MHCS teleradiology business flow and
+routes later technical planning to the correct application repository.
 
-Evidence: `.agents/context/README.md`, `docs/01-business-overview.md`,
-`docs/02-member-journey.md`, `docs/03-system-responsibilities.md`, and
-`docs/04-satusehat-readiness.md`.
+Detailed business decisions live under `docs/`; this file remains a concise
+agent orientation and must not duplicate them.
 
-## Intended users
+## Entry points
 
-- Management and business teams use the pack to understand value, ownership,
-  readiness, and gaps.
-- Operational and clinical teams use it to understand who acts at each stage.
-- Partners use it to understand system boundaries without needing source-code
-  knowledge.
-- Engineering uses the current-versus-target distinction to prevent planned
-  integrations from being described as already available.
+- `.agents/context/README.md`: human reading guide
+- `docs/01-business-overview.md`: approved business flow
+- `docs/02-member-journey.md`: current and target journey
+- `docs/03-system-responsibilities.md`: ownership and readiness
+- `docs/04-satusehat-readiness.md`: FHIR and SATUSEHAT boundary
+- `docs/<repository>/project.md`: repository-specific business foundation
 
-Evidence: the audience and reading guidance in `.agents/context/README.md`.
+## Repository facts
 
-## Current capabilities and flows
+- Source format: Markdown
+- Diagrams: Mermaid
+- Runtime or build system: none
+- Dependency installation: none
+- Stored patient or clinical data: none
+- Website, PDF generator, or deployment: none
 
-- The repository provides an English four-document Markdown pack with a landing
-  page, business overview, member journey, system map, readiness assessments,
-  and glossary.
-- The documentation records the verified current state as disconnected or
-  partially connected application capabilities.
-- The target journey covers booking, day-of-service operations, image
-  capture through Grabber, automatic processing, optional third-party AI,
-  separate doctor review, and independent result publication.
-- Members choose AI only, doctor only, or both. Each successful selected result
-  and the processed image are delivered as soon as available.
-- Operator payment becomes eligible when image-gateway accepts a valid DICOM;
-  downstream AI failure does not cancel payment.
-- SATUSEHAT is documented as a future possibility, not an implemented
-  capability or approved target commitment. Available material consists of
-  proposed work and uncompleted submission templates.
+## Available application evidence
 
-Evidence: `.agents/context/README.md` and `docs/`.
+Current-state documentation was derived from:
 
-## Technology stack
+- `/var/www/mhcs-member-core` at `main` /
+  `452b1264fa6a2ddf0f5d1d92224db09b33677d6f`
+- `/var/www/mhcs-operator-core` at `main` /
+  `e520a8bada30b3f527ddbc23ae07a087fa236379`
+- `/var/www/mpips` at `adlan` /
+  `a98ed1e6517fc181a1e44a5cd6e034d9eaf12848`
+- `/var/www/mhcs-image-gateway`, an empty checkout with no commits
 
-- Markdown is the source format.
-- Mermaid diagrams are used for flows rendered by GitHub.
-- Git provides change history and review.
-- There is no application runtime, package manager, site generator, or PDF
-  build system.
+`/var/www/mhcs-doctor-core` was unavailable.
 
-Evidence: repository tree and the absence of runtime manifests at this
-checkpoint.
+## Documentation structure
 
-## Architecture and entry points
+The repository contains four cross-system documents and five application
+foundations:
 
-- `.agents/context/README.md` is the human entry point and reading guide.
-- `docs/01-business-overview.md` defines the service, actors, boundaries, and
-  vocabulary.
-- `docs/02-member-journey.md` compares current and target journeys.
-- `docs/03-system-responsibilities.md` records ownership, readiness, evidence,
-  and gaps for the five application repositories.
-- `docs/04-satusehat-readiness.md` records the unimplemented SATUSEHAT status,
-  missing evidence, ownership boundary, and approval gates.
-- `.agents/context/project.md` is the agent-facing, evidence-backed repository
-  context.
+- Member Core
+- Operator Core
+- Doctor Core
+- Image Gateway
+- MPIPS additions required by MHCS
+
+The MPIPS document is intentionally a delta and must not duplicate MPIPS's
+existing project context.
+
+## Conventions
+
+- Use plain English.
+- Clearly separate **Current**, **Target**, **Unknown**, and **Future
+  possibility**.
+- Describe business ownership and observable handoffs, not API schemas.
+- Keep detailed decisions in `docs/`, not `.agents/context/`.
+- Support diagrams with prose.
+- Do not store patient data, clinical files, credentials, or secrets.
+- Do not create repository implementation plans until the user separately
+  approves the technical phase.
+
+## Key constraints
+
+- Source repositories change independently; retain evidence checkpoints.
+- Image Gateway has no verified implementation.
+- Doctor Core and Grabber source were unavailable.
+- Operator Core accepts NPZ but its current paths remain DICOM-oriented.
+- MPIPS contains NPZ workflow code, but the exact MHCS production contract is
+  unverified.
+- The inspected NPZ reader enables pickle for trusted metadata, so production
+  input trust is a mandatory later security concern.
+- FHIR compatibility is an approved direction; SATUSEHAT integration remains
+  future scope and is not a compliance claim.
 
 ## Commands
 
-| Purpose | Command | Evidence | Verification status |
-|---|---|---|---|
-| Install | None | No dependency manifest exists | Not applicable |
-| Develop | Edit Markdown files directly | Repository format | Not applicable |
-| Test formatting | `git diff --check` | Git | Passed on 2026-07-19 |
-| Check local links | Inspect every relative Markdown link target | Markdown sources | Passed on 2026-07-19 |
-| Check GitHub rendering | Submit each document to the GitHub Markdown API in GFM mode | GitHub Markdown API | Not run for the four-document pack |
-| Build | None | No generator or build manifest exists | Not applicable |
+| Check | Command | Current-change status |
+|---|---|---|
+| Whitespace | `git diff --check` | Passed on 2026-07-19 |
+| Relative links | Validate each relative Markdown link target | Passed on 2026-07-19 |
+| Superseded terms | Search for obsolete Grabber/DICOM and payment rules | Passed on 2026-07-19 |
 
-## Data and integrations
+## Technical gaps
 
-This repository stores documentation only. It does not process patient data,
-clinical images, credentials, or integration payloads.
+Technical planning remains deferred. Known areas include:
 
-The current-state assessment was derived from these sibling checkouts:
+- Image Gateway and Doctor Core implementation;
+- exact Grabber/MPIPS NPZ compatibility;
+- FHIR and DICOM mappings;
+- service authentication, authorisation, idempotency, and callbacks;
+- retry intervals and temporary-link expiry;
+- storage, audit, monitoring, deployment, and tests.
 
-- `/var/www/mhcs-member-core` at `main` / `452b1264fa6a`
-- `/var/www/mhcs-operator-core` at `main` / `e520a8bada30`
-- `/var/www/mhcs-image-gateway`, an empty `main` checkout with no commits
-- `/var/www/mpips` at `adlan` / `a98ed1e6517f`
+## Authority boundary
 
-`/var/www/mhcs-doctor-core` was not present, and its implementation could not
-be verified.
-
-SATUSEHAT readiness was derived from reference material under the Member Core
-and Operator Core `.agents/context/satusehat/` directories. Those repositories
-document SATUSEHAT as not implemented; the facility list, declaration, security
-assessment, manual, and sandbox evidence remain absent or template-only.
-
-Evidence: Git checkpoint commands; member API controllers and routes; operator
-front-desk, photo-booth, upload, model, and migration sources; MPIPS API,
-worker, storage, and project context; image-gateway Git state.
-
-## Repository conventions
-
-- Use plain English and define unavoidable technical terms at first use.
-- Label statements as **Current**, **Target**, **Unknown**, or **Future
-  possibility**.
-- Describe business responsibilities and handoffs, not internal APIs.
-- Support diagrams with numbered prose so the documents remain understandable
-  when Mermaid is not rendered.
-- Never store credentials, patient identifiers, clinical images, or secret
-  values in this repository.
-
-## Constraints and hazards
-
-- The source repositories change independently, so current-state claims can
-  become stale and must retain verification dates and checkpoints.
-- `mhcs-image-gateway` has no committed implementation in the available
-  checkout.
-- `mhcs-doctor-core` was unavailable for inspection.
-- Operator-core currently writes images to S3-compatible storage but contains
-  no verified gateway or MPIPS integration.
-- Grabber behavior and its target data handoff were provided as business
-  direction but were not verified from source.
-- SATUSEHAT has no verified implementation, approved scope, owner, sandbox
-  evidence, or completed submission package in the available repositories.
-- External SATUSEHAT requirements, templates, links, and regulatory
-  interpretation were not revalidated.
-- MPIPS contains a credential-like value in a tracked research artifact. The
-  value is not reproduced here; revocation and history cleanup are a separate
-  security task.
-- Business documentation must not be interpreted as medical, regulatory,
-  security, or deployment guidance.
-
-## Evidence provenance
-
-- Member booking and handoffs: `/var/www/mhcs-member-core/routes/api.php`,
-  `app/Http/Controllers/Api/V1/OperatorController.php`, and
-  `app/Http/Controllers/Api/V1/ImagingResultWebhookController.php`.
-- Day-of-service flow: `/var/www/mhcs-operator-core/app/Livewire/Radiographer/`
-  and `app/Http/Controllers/Radiographer/UploadController.php`.
-- Image processing: `/var/www/mpips/mpips/api/`,
-  `/var/www/mpips/mpips/worker/`, and `/var/www/mpips/mpips/storage.py`.
-- SATUSEHAT status:
-  `/var/www/mhcs-member-core/.agents/context/satusehat/`,
-  `/var/www/mhcs-operator-core/.agents/context/satusehat/`, and both verified
-  project-context files.
-- Repository availability and checkpoints were checked with Git on
-  2026-07-19. No dependencies were installed and no external service was
-  contacted.
-
-## Proposed behavior
-
-- Member-core supplies attendance and authorised examination data, owns the
-  shared configurable daily walk-in limit, and supports AI-only, doctor-only,
-  or combined booking choices.
-- Operator-core manages front desk, arrival-order queues, examination flow,
-  processed-image viewing, and completion-only notifications.
-- Grabber obtains authorised member data from member-core, creates DICOM, and
-  uploads it to image-gateway.
-- Image-gateway validates DICOM, makes operator payment eligible, starts MPIPS
-  processing automatically, routes selected AI/doctor work, and delivers each
-  successful output independently.
-- Third-party AI failures retry a limited number of times, then notify an
-  administrator. The exact limit is undecided.
-- SATUSEHAT remains a future possibility until its business scope, clinical/RME
-  owner, data mappings, implementation, evidence, and approvals are agreed.
-- After business review, the approved Markdown may become a static website and
-  printable PDF from the same content.
-- Detailed operating procedures, screenshots, API documentation, regulatory
-  guidance, and technical architecture may be added only through separately
-  approved work.
-
-## Superseded facts
-
-- The initial repository context was uninitialized and contained no verified
-  project facts. This context replaces that placeholder.
-
-## Known gaps
-
-- Image-gateway and doctor-core behavior cannot yet be documented as current
-  implementation.
-- Grabber source and its member-core contract were not available for
-  verification.
-- AI retry count, operator-payment ledger ownership, walk-in payment, and
-  doctor assignment remain undecided.
-- The planned medical-record identifier is not yet verified against an exact
-  standard or mapping.
-- SATUSEHAT integration, sandbox verification, security evidence, facility
-  list, signed declaration, and system manual are not available.
-- No website or PDF delivery mechanism exists by design.
-
-## Open questions
-
-- What is the third-party AI retry limit?
-- Which system owns operator-payment records and settlement?
-- How are walk-in payment and doctor assignment handled?
-- Where can Grabber and doctor-core implementations be inspected?
-- What exact contracts connect member-core, operator-core, Grabber,
-  image-gateway, MPIPS, and doctor-core?
-- Will SATUSEHAT enter approved MHCS scope?
-- Which clinical or RME application and business owner would be accountable for
-  SATUSEHAT?
+The detailed approved business rules are in `docs/`. Current implementation
+claims must still be reverified in the relevant sibling repository before
+technical work begins.

@@ -1,15 +1,55 @@
-# SATUSEHAT Readiness
+# SATUSEHAT and FHIR Readiness
 
 ## Status
 
-**Future possibility — Not implemented.**
+**SATUSEHAT: Future possibility — Not implemented.**
+**FHIR-compatible clinical structures: Approved target direction.**
 
-SATUSEHAT is not part of the current MHCS service and is not an approved target
-commitment. Available repository material describes possible future work and
-submission preparation; it does not prove integration, compliance,
-certification, or successful sandbox testing.
+Using a SATUSEHAT-aligned medical-record identifier and FHIR-compatible
+clinical structures does not mean MHCS is integrated with SATUSEHAT.
 
-## What is available
+MHCS must keep these statements separate:
+
+- **FHIR-compatible** means clinical information is shaped for standard
+  exchange and future interoperability.
+- **SATUSEHAT-integrated** would require approved scope, current mappings,
+  authentication, submissions, testing, evidence, and organisational
+  approval.
+
+Only the first is an approved MHCS target today.
+
+## Approved FHIR boundary
+
+FHIR-compatible structures apply to clinical information:
+
+- patient identity;
+- examinations;
+- imaging studies; and
+- clinical reports.
+
+FHIR does not need to represent:
+
+- operational queues;
+- member, operator, or doctor payments;
+- retry control;
+- staff administration; or
+- storage administration.
+
+Those remain ordinary application workflows.
+
+## Medical-record identifier
+
+Member Core owns and generates a medical-record ID that is globally unique
+across all MHCS organisations.
+
+The identifier is intended to be compatible with future SATUSEHAT needs, but
+its exact profile, system URI, mapping, validation, and acceptance have not
+been externally verified.
+
+No document should describe the identifier as SATUSEHAT-approved until that
+evidence exists.
+
+## What is currently available
 
 The Member Core and Operator Core context folders contain:
 
@@ -22,70 +62,73 @@ The Member Core and Operator Core context folders contain:
 
 These are planning and submission templates, not completed evidence.
 
+No verified SATUSEHAT authentication, clinical submission, or successful
+sandbox test was found in the available MHCS repositories.
+
 ## Current readiness
 
 | Area | Current status | What is missing |
 |---|---|---|
-| Business scope | Future possibility | Approval to include SATUSEHAT in the MHCS target model |
-| Owning application | Undecided | An approved clinical electronic medical-record owner |
-| Technical integration | Not implemented | OAuth service authentication, FHIR-format health-data mappings, submission, status tracking, and retry handling |
-| Clinical submissions | Not implemented | Verified `Encounter` and `Condition` flows |
-| Sandbox evidence | Not available | Successful tests, screenshots, recording, and sanitised supporting evidence |
-| Facility information | Template only | Completed list of healthcare facilities using the system |
-| Variable and metadata declaration | Template only | Completed, signed, and approved declaration |
-| Security assessment | Template only | Scores, supporting evidence, remediation, and approval |
-| System manual | Not available | Reviewed feature documentation and required submission attachments |
-| Compliance claim | Not established | Current external validation and formal organisational approval |
+| FHIR business boundary | Approved target direction | Exact profiles, mappings, validation, and implementation |
+| Global medical-record ID | Approved target direction | Verified format, namespace, mapping, and implementation |
+| SATUSEHAT business scope | Future possibility | Approval to include integration in the MHCS target |
+| Owning integration application | Undecided | Approved clinical/RME owner |
+| Authentication | Not implemented | Verified service authentication and credential governance |
+| Clinical submission | Not implemented | Approved and tested resource mappings and submission flows |
+| Sandbox evidence | Not available | Successful tests and sanitised evidence |
+| Facility information | Template only | Completed facility list |
+| Variable and metadata declaration | Template only | Completed and approved declaration |
+| Security assessment | Template only | Scores, evidence, remediation, and approval |
+| System manual | Not available | Reviewed documentation and required attachments |
+| Compliance claim | Not established | Current external validation and formal approval |
 
-## Possible future ownership
+## Application boundaries
 
-No application currently owns SATUSEHAT integration.
+If SATUSEHAT later enters approved scope:
 
-If it enters approved scope:
+- Member Core supplies authorised member identity and booking context.
+- Operator Core supplies examination-day operational context.
+- Doctor Core supplies doctor-authored clinical reports.
+- Image Gateway supplies imaging-study and result-distribution context.
+- MPIPS remains an image-processing engine and does not own SATUSEHAT.
 
-- Member Core may supply authorised member and booking information, but should
-  not own clinical diagnoses or clinical health-data submission.
-- Operator Core or another designated clinical electronic medical-record (RME)
-  application may become the owner of visits, practitioners, diagnoses,
-  mappings, and submission status.
-- Image Gateway should remain focused on radiology images and safe result
-  publication.
-- MPIPS should remain focused on scientific image processing.
-- Doctor Core responsibilities cannot be assessed until its implementation is
-  available.
+The accountable clinical/RME integration owner remains undecided. FHIR
+compatibility in individual applications does not settle that ownership.
 
-These are candidate boundaries, not an approved architecture.
+## Decisions required before SATUSEHAT approval
 
-## Decisions required before approval
-
-1. Confirm that SATUSEHAT belongs in the MHCS business scope.
-2. Appoint the clinical or RME application and accountable business owner.
-3. Approve the patient, practitioner, organisation, location, visit, and
-   diagnosis data mappings.
-4. Confirm deployment, data-location, privacy, security, logging, backup, and
-   incident-response evidence.
-5. Implement and verify sandbox authentication and clinical submission flows.
-6. Complete the facility list, declaration, security assessment, system manual,
-   and supporting evidence.
-7. Obtain business, clinical, security, and compliance approval before making
-   any external readiness claim.
+1. Approve SATUSEHAT as an MHCS business scope.
+2. Appoint the accountable clinical/RME application and business owner.
+3. Revalidate current external requirements.
+4. Approve patient, practitioner, organisation, location, encounter, imaging,
+   and report mappings.
+5. Implement and verify authentication and sandbox submissions.
+6. Confirm privacy, security, logging, storage, backup, and incident-response
+   evidence.
+7. Complete the facility list, declaration, security assessment, system
+   manual, and supporting evidence.
+8. Obtain business, clinical, security, and compliance approval.
 
 ## What may be said today
 
-MHCS may state that SATUSEHAT reference material and preparation templates
-exist, and that integration is a future possibility under consideration.
+MHCS may state:
+
+- it is designing clinical structures to be FHIR-compatible;
+- it intends to use a globally unique medical-record ID; and
+- SATUSEHAT integration remains a future possibility.
 
 MHCS must not state that it:
 
 - is integrated with SATUSEHAT;
-- has completed successful sandbox testing;
+- has an identifier approved by SATUSEHAT;
+- has completed successful SATUSEHAT sandbox testing;
 - is SATUSEHAT-compliant or certified;
-- can currently submit clinical visits or diagnoses; or
+- can currently submit required clinical resources; or
 - is ready for production SATUSEHAT use.
 
 ## Evidence boundary
 
-This assessment reflects locally available repository documentation reviewed on
-19 July 2026. External requirements, links, templates, regulations, and
-submission procedures were not revalidated. They require a separate current
-review before any implementation or submission work begins.
+This assessment reflects locally available repository evidence reviewed on
+19 July 2026. SATUSEHAT requirements, profiles, links, submission procedures,
+and compliance interpretations require a separate current external review
+before implementation or submission work begins.

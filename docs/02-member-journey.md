@@ -1,146 +1,186 @@
 # Member Journey
 
-This document separates what is available today from the intended
-end-to-end service. The target journey must not be treated as a statement of
-current production readiness.
+This document separates verified current behavior from the approved target
+journey. The target must not be presented as current production readiness.
 
 ## Current verified situation
 
-The available applications have useful capabilities, but they do not yet form
-one connected member journey.
+The available applications contain useful foundations but are not connected
+into the approved end-to-end flow.
 
 ```mermaid
 flowchart LR
-    Member[Member] --> MC[Member application<br/>Account and booking]
-    Staff[Operator] --> OC[Operator application<br/>Arrival, queue, examination]
-    OC --> Storage[(Private image storage)]
+    Member[Member] --> MC[Member Core<br/>Account and booking]
+    Staff[Operator] --> OC[Operator Core<br/>Front desk, queue, upload]
+    OC --> Storage[(Operator private storage)]
     Client[Processing client] --> MPIPS[MPIPS<br/>Image processing]
     MPIPS --> Storage
-    Gateway[Image gateway<br/>No committed implementation] -. planned result notice .-> MC
-    Doctor[Doctor application<br/>Not available for verification]
+    Gateway[Image Gateway<br/>No committed implementation]
+    Doctor[Doctor Core<br/>Unavailable for verification]
+    Gateway -. planned publication .-> MC
 ```
 
-### What happens today
+### What exists today
 
-1. **Member booking is available.** The member application manages accounts,
-   profiles, booking, and related member services.
-2. **A limited bridge is available but not connected.** The member application
-   offers a controlled way for an operator system to read today's confirmed
-   bookings and update their status. No use of that bridge was found in the
-   available operator application.
-3. **Examination-day operations are available separately.** The operator
-   application manages projects, participants, arrivals, queues, examinations,
-   and completion.
-4. **Images are stored directly by the operator application.** The current
-   operator workflow uploads captured files to private, S3-compatible storage
-   and marks completed examinations as waiting for AI.
-5. **The gateway connection is not available.** The image-gateway checkout has
-   no committed application code.
-6. **Image processing is available separately.** MPIPS can accept queued image
-   jobs, process them, store outputs, and report job status, but no connection
-   from operator-core or image-gateway was verified.
-7. **The member application is ready to receive a publication notice.** It can
-   store result information sent by an authorised image gateway and notify a
-   member when the status is published. The sending gateway is not yet
-   implemented in the available checkout.
-8. **Doctor workflow is unknown.** Doctor-core was not available for
-   inspection.
+1. **Member booking exists.** Member Core manages accounts, profiles,
+   bookings, payments, and related member services.
+2. **A limited operator bridge exists.** Member Core exposes controlled
+   attendance and status capabilities, but their use by Operator Core was not
+   verified.
+3. **Examination-day operations exist separately.** Operator Core manages
+   projects, participants, arrivals, queues, examinations, uploads, and
+   completion.
+4. **Operator Core accepts NPZ and DICOM extensions.** Files are stored in
+   private S3-compatible storage, but the current record and preview paths are
+   still DICOM-oriented and do not represent the approved multi-capture
+   submission model.
+5. **Image Gateway is not implemented in the available checkout.**
+6. **MPIPS processing exists separately.** Its repository contains API,
+   workers, storage support, and NPZ radiography workflow code. The exact
+   Image Gateway-to-MPIPS NPZ production contract was not verified.
+7. **Member Core can receive result metadata.** The sending Image Gateway is
+   not implemented.
+8. **Doctor Core is unknown.** Its repository was unavailable.
 
-## Target member journey
-
-The intended flow connects the five applications while keeping each
-responsibility focused.
+## Approved target journey
 
 ```mermaid
 flowchart LR
-    Member[1. Member] --> MC[2. Member application<br/>Booking]
-    MC --> OC[3. Operator application<br/>Arrival and queue]
-    OC --> Grabber[4. Grabber<br/>X-ray capture and DICOM]
-    MC --> Grabber
-    Grabber --> Gateway[5. Image gateway<br/>Validation and routing]
-    Gateway --> MPIPS[6. MPIPS<br/>Automatic image processing]
+    Member[1. Member<br/>Book and pay] --> MC[2. Member Core<br/>Identity and service choice]
+    MC --> OC[3. Operator Core<br/>Front desk and queue]
+    Grabber[4. Offline Grabber<br/>Patient-free NPZ captures] --> OC
+    OC -->|5. Complete NPZ set<br/>plus frozen metadata| Gateway[6. Image Gateway<br/>Store and coordinate]
+    Gateway -->|7. Object references and metadata| MPIPS[MPIPS<br/>NPZ to DICOM]
     MPIPS --> Gateway
-    Gateway --> AI[7a. Third-party AI<br/>When selected]
-    Gateway --> DC[7b. Doctor application<br/>When selected]
+    Gateway --> AI[8a. AI service<br/>When selected]
+    Gateway --> DC[8b. Doctor Core<br/>When selected]
     AI --> Gateway
     DC --> Gateway
     Gateway --> MC
     Gateway --> OC
-    MC --> Result[8. Image and selected results]
+    MC --> Result[9. Complete images<br/>and independent results]
 ```
 
 ### Intended steps
 
-1. **Book and choose:** The member pays during booking and selects AI diagnosis
-   only, doctor review only, or both. Image processing is automatic for every
-   option.
-2. **Prepare arrivals:** Operator-core requests the expected attendance list
-   from member-core.
-3. **Handle walk-ins:** Front desk may register a new walk-in member. One
-   configurable global limit applies across all operators, locations, and
-   devices, resets daily, and consumes normal booking capacity.
-4. **Queue:** Staff confirm arrivals and serve members in arrival order.
-5. **Capture:** In the examination room, the operator uses Grabber. Grabber
-   obtains authorised member information from member-core, creates the DICOM,
-   and uploads it to image-gateway.
-6. **Accept and process:** Image-gateway validates the DICOM. Acceptance makes
-   the operator payment eligible. MPIPS processing starts automatically.
-7. **Route selected services:** Image-gateway requests third-party AI diagnosis
-   and/or doctor review according to the booking choice.
-8. **Deliver independently:** The member receives the processed image and each
-   completed selected result immediately. When both were selected, neither
-   result waits for the other.
-9. **Inform operations:** Operator-core receives processing completion status
-   and may show the processed image, but it does not receive AI diagnosis or
-   doctor-report details.
+1. **Register, choose, and pay.** The member selects AI-only, doctor-only, or
+   both according to the service catalogue and completes payment.
+2. **Prepare attendance.** Operator Core receives the authorised attendance
+   and examination list from Member Core.
+3. **Handle walk-ins.** A walk-in must be registered in Member Core, receive a
+   globally unique medical-record ID, and complete payment before Operator Core
+   confirms the examination.
+4. **Queue.** Front desk confirms arrival, and staff call one active
+   examination at a time.
+5. **Capture.** Offline Grabber produces one or more patient-free NPZ files.
+6. **Review the draft set.** The operator uploads the files into the selected
+   active examination. Incorrect captures may be removed and retaken.
+7. **Submit once.** The operator clicks Submit for every NPZ remaining in the
+   complete draft set.
+8. **Accept.** Operator Core sends the capture set and frozen
+   member/examination snapshot to Image Gateway. Durable gateway acceptance
+   closes the operator queue item.
+9. **Convert.** MPIPS creates DICOM for every submitted capture.
+10. **Retry failures.** Image Gateway preserves successful results and retries
+    only a failed capture, for up to three total attempts.
+11. **Complete the image set.** The examination is image-complete only when
+    every submitted capture has successfully produced DICOM.
+12. **Make operator payment eligible.** Image Gateway notifies Operator Core
+    only after the complete DICOM set succeeds.
+13. **Route selected services.** AI and/or doctor work starts according to the
+    booked service.
+14. **Deliver independently.** The complete image set becomes visible without
+    waiting for AI or doctor results. AI and doctor results become visible
+    independently when each finishes.
 
-## Doctor and AI relationship
+## Multi-capture failure behavior
 
-Doctor review and AI output are separate branches.
+Every submitted capture is part of the examination.
 
-This means:
+If one capture fails:
 
-- AI does not replace the doctor workflow.
-- Members explicitly choose AI only, doctor only, or both.
-- The doctor may see AI output when it is available.
-- The doctor may complete a review before AI finishes.
-- Each successful result is delivered as soon as it is ready.
-- A successful result is still delivered if the other selected service fails.
+- successful sibling DICOM files are preserved;
+- only the failed capture is retried;
+- the member does not see an incomplete image set;
+- operator payment is not yet eligible; and
+- after the third failed attempt, an administrator receives an email.
 
-The third-party AI must retry failures a limited number of times. The exact
-retry count is still **Unknown**. After the final failure, an administrator is
-notified so the provider can be contacted. Downstream AI failure does not
-cancel operator payment.
+Telegram administrator notification is a later enhancement.
 
-## Examination identity
+## Image and result access
 
-The target flow uses a medical-record identifier rather than NIK as the
-primary examination link. Its exact format and mapping have not been decided.
-Any future SATUSEHAT compatibility would require a separately approved mapping:
-no SATUSEHAT integration, mapping, or compliance has been implemented or
-verified. See [SATUSEHAT readiness](04-satusehat-readiness.md).
+### Member
 
-## What must be connected
+- Views the complete processed image set.
+- Exports TIFF, JPG, or PDF.
+- Does not download raw DICOM or access raw NPZ.
+- Receives AI and doctor results automatically when selected and complete.
 
-The target journey requires agreed handoffs for:
+### Operator
 
-- a booking moving from member operations to examination-day operations;
-- member data moving safely from member-core to Grabber;
-- an examination and its image moving to the image gateway;
-- processing requests and status updates between the gateway and MPIPS;
-- optional AI requests and outputs;
-- doctor work assignments and review outputs; and
-- processed images and selected results returning to the member application;
-- completion-only status returning to operator-core; and
-- gateway acceptance making operator payment eligible.
+- Sees processing status and the complete processed image set.
+- Does not see AI diagnoses or doctor reports.
+- Does not download raw DICOM or access raw NPZ.
 
-These are business handoffs. Their technical contracts are outside this
-overview pack. SATUSEHAT is not part of this current or approved target journey;
-it remains a separate future possibility.
+### Doctor
 
-## How to recognise completion
+- Views the study in Doctor Core.
+- May explicitly download raw DICOM through a short-lived, audited link when
+  clinically necessary.
+- Never accesses raw NPZ.
+- May see available AI output but does not wait for it.
 
-The target journey is not complete merely because every application exists.
-It is complete only when one authorised test case can move from booking to
-publication without staff re-entering identifiers, moving files through an
-uncontrolled channel, or losing its status between applications.
+## Doctor report journey
+
+1. Eligible studies enter a shared doctor queue.
+2. A doctor claims a study, or later releases it.
+3. An administrator may reassign it.
+4. The doctor edits a draft report.
+5. Submit finalises the report, makes doctor payment eligible, and starts
+   automatic member publication.
+6. The submitted report is immutable.
+7. A clinically necessary amendment may be issued at any later time.
+8. The amendment preserves the original and records its reason, doctor,
+   timestamp, and signature.
+9. The member receives the corrected version and a notification.
+
+An amendment does not create an additional doctor payment.
+
+## AI and doctor relationship
+
+AI and doctor review are separate products:
+
+- AI does not require doctor approval before publication.
+- A doctor report does not wait for AI.
+- A successful AI result is final for the current scope and is not rerun.
+- Automatic retry applies to failed execution, not to successful AI output.
+- Failure in one selected branch does not block a successful result from the
+  other.
+
+## Examination identity and FHIR
+
+Member Core owns a globally unique medical-record ID used across all MHCS
+organisations.
+
+NPZ remains patient-free. The clinical identity used to create DICOM comes
+from the frozen submission snapshot.
+
+Patient, examination, imaging-study, and report information should use
+FHIR-compatible structures. Queues, payments, retries, and administration use
+ordinary application contracts.
+
+SATUSEHAT integration remains a future possibility. Compatibility must not be
+presented as integration or compliance.
+
+## How to recognise target completion
+
+The target journey is complete only when an authorised multi-capture test
+examination can move from booking to image and selected-result publication
+without:
+
+- staff re-entering or inferring patient identity from filenames;
+- uncontrolled file transfer;
+- duplicate permanent clinical-file copies;
+- lost processing or report-version status;
+- exposure of raw NPZ to end users; or
+- payment becoming eligible before its approved business trigger.

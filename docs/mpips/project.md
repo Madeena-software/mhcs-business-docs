@@ -1,0 +1,111 @@
+# MPIPS Additions Required by MHCS
+
+**Status:** Approved MHCS delta; not a standalone MPIPS project context
+**Last reviewed:** 19 July 2026
+
+This document contains only the additions and integration boundaries MPIPS
+needs for MHCS. It deliberately does not repeat MPIPS's existing purpose,
+architecture, processors, commands, or non-MHCS use cases.
+
+Its contents may later be merged into MPIPS's verified
+`.agents/context/project.md` through separately approved work.
+
+## MHCS purpose
+
+For MHCS, MPIPS converts patient-free NPZ captures produced by Grabber into
+DICOM files using separately supplied member and examination metadata.
+
+MHCS treats NPZ-to-DICOM conversion as a ready MPIPS capability. Gain,
+calibration, and conversion details remain an internal Grabber/MPIPS concern,
+not an MHCS business responsibility.
+
+## MHCS caller
+
+Only Image Gateway coordinates MHCS processing with MPIPS.
+
+Operator Core, Member Core, and Doctor Core do not call MPIPS directly.
+
+## Input required from Image Gateway
+
+For each submitted capture, MPIPS receives:
+
+- an authorised reference to the patient-free NPZ;
+- the organisation and examination context;
+- the globally unique medical-record ID;
+- the frozen clinical metadata needed to create DICOM; and
+- an external execution identity that allows safe status correlation.
+
+The clinical portion should be FHIR-compatible. Queue, payment, retry, and
+administrative data do not need to be represented as FHIR.
+
+## Output required by Image Gateway
+
+For each capture, MPIPS produces:
+
+- the generated DICOM object in authorised storage;
+- processing status;
+- output identity and integrity information; and
+- failure information sufficient for Image Gateway to decide whether to retry.
+
+Image Gateway, not MPIPS, decides when the whole multi-capture examination is
+complete and when operator payment becomes eligible.
+
+## Multi-capture and failure boundary
+
+- Every submitted NPZ is processed.
+- A capture succeeds or fails independently.
+- Successful outputs remain available when another capture fails.
+- Image Gateway requests up to three total attempts for a failed capture.
+- MPIPS must make repeated execution safely correlatable with the original
+  capture.
+
+Exact retry timing and technical idempotency are deferred.
+
+## Storage boundary
+
+Image Gateway owns permanent NPZ and DICOM storage and retention policy.
+MPIPS reads and writes only authorised objects within the submitting
+organisation's isolated namespace.
+
+MPIPS does not publish files directly to members, operators, or doctors.
+
+## Current evidence and integration gap
+
+The available MPIPS repository contains an NPZ radiography workflow and tests,
+along with service, worker, callback, and S3-compatible storage foundations.
+
+The current generic HTTP DAG input path was not verified as exposing the
+Madeena radiograph NPZ workflow required by MHCS. Therefore:
+
+- NPZ-to-DICOM processing capability is treated as available business
+  capability; but
+- the exact Image Gateway-to-MPIPS production contract remains a technical
+  integration gap.
+
+The current NPZ reader uses NumPy object arrays with pickle enabled and
+explicitly requires trusted files. A safe production trust boundary must be
+verified before the MHCS integration is considered ready. This security
+requirement is not optional, but its solution belongs to technical planning.
+
+## Does not become MPIPS ownership
+
+The MHCS addition does not make MPIPS responsible for:
+
+- member identity ownership;
+- booking or service choices;
+- front-desk or examination queues;
+- permanent clinical-record retention;
+- AI-provider selection;
+- doctor work queues;
+- result publication;
+- member, operator, or doctor payments; or
+- SATUSEHAT integration.
+
+## Completion condition for this delta
+
+The MHCS addition is ready only when Image Gateway can submit an authorised NPZ
+and frozen clinical snapshot, receive a correlated DICOM result and status,
+and safely retry a failed capture without duplicating a successful result.
+
+API schemas, authentication, object-key rules, FHIR mapping, deployment, and
+tests belong to a later technical plan.

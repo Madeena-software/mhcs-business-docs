@@ -4,161 +4,224 @@
 
 MHCS is a teleradiology platform in development.
 
-In simple terms, teleradiology allows radiology work to be handled across
-different locations. A member can book a service, an operator can carry out
-the examination, image-processing systems can prepare the image, and a doctor
-can review the study without every person using the same application.
+It connects member booking, examination-day operations, offline image capture,
+automatic image processing, optional AI, doctor review, and member results
+without forcing every user into one application.
 
-MHCS is not one large application. It is a group of focused applications that
-are intended to work together.
+## The approved business flow
 
-## The business goal
+1. A member books and pays for an examination.
+2. Front desk confirms the member and manages the operator queue.
+3. Offline Grabber software captures one or more X-ray images as patient-free
+   NPZ files.
+4. The operator selects the active examination, reviews the capture set, and
+   clicks Submit.
+5. Operator Core sends the complete NPZ set and a frozen member/examination
+   snapshot to Image Gateway.
+6. Image Gateway stores the submission and coordinates MPIPS.
+7. MPIPS creates DICOM for every submitted NPZ.
+8. Image Gateway routes selected AI and doctor work.
+9. The complete image set and each selected result become available according
+   to their independent completion rules.
 
-The intended service should make the radiology journey easier to follow from
-beginning to end:
+The logical chain is appropriate because each application has a distinct
+business responsibility. The clinical file should be stored once and shared
+through controlled references rather than copied repeatedly between
+applications.
 
-1. A member books a service.
-2. Staff manage the member's arrival and examination.
-3. Grabber software connected to the X-ray equipment creates a DICOM image.
-4. The captured image is sent safely for automatic image processing.
-5. AI diagnosis and doctor review run when selected by the member.
-6. Each completed output is published without waiting for the other.
+The [member journey](02-member-journey.md) separates this target from current
+verified behavior.
 
-This target journey is only partially connected today. The
-[member journey](02-member-journey.md) shows the difference between the
-current and target states.
+## People and systems
 
-## Who is involved
-
-| Actor | What they need from MHCS |
+| Actor or system | Role |
 |---|---|
-| Member | Book a service, attend the examination, and receive published information |
-| Operator or radiographer | Manage arrivals, queues, examinations, and image capture |
-| Doctor | Review a study through a dedicated clinical workflow |
-| Grabber | Obtain authorised member data, control image capture, create DICOM, and upload it |
-| Business administrator | Manage services, schedules, projects, participants, and staff |
-| Business and support team | See where each case is in its journey and understand failures |
-| Technology partner | Exchange the correct information with the correct MHCS application |
+| Member | Books, pays, attends, views images, and receives selected results |
+| Front-desk staff | Confirms eligible members and manages arrival |
+| Operator or radiographer | Manages the queue, capture set, and Submit action |
+| Grabber | Captures X-ray images as patient-free NPZ while its software may remain offline |
+| Image Gateway | Stores clinical files and coordinates processing, access, and publication |
+| MPIPS | Converts NPZ captures to DICOM |
+| AI service | Produces an automatic result when selected |
+| Doctor | Claims a study, reviews it, and submits a separate clinical report |
+| Administrator | Manages the relevant application and receives final processing-failure notifications |
 
-## The five applications
+## The five application repositories
 
-| Application | Plain-language role |
-|---|---|
-| `mhcs-member-core` | The member's application for accounts, booking, and published results |
-| `mhcs-operator-core` | The staff application for examination-day operations |
-| `mhcs-image-gateway` | The intended traffic controller for radiology images and results |
-| `mpips` | The image-processing engine |
-| `mhcs-doctor-core` | The intended doctor application for a separate review workflow |
+| Application | Plain-language role | Foundation |
+|---|---|---|
+| `mhcs-member-core` | Member identity, booking, member payment, choices, notifications, and results | [Member Core foundation](mhcs-member-core/project.md) |
+| `mhcs-operator-core` | Front desk, queues, capture-set submission, image viewing, and operator earnings | [Operator Core foundation](mhcs-operator-core/project.md) |
+| `mhcs-image-gateway` | Permanent image storage, processing coordination, routing, and controlled distribution | [Image Gateway foundation](mhcs-image-gateway/project.md) |
+| `mpips` | NPZ-to-DICOM processing for MHCS within a broader processing product | [MPIPS MHCS additions](mpips/project.md) |
+| `mhcs-doctor-core` | Shared doctor work queue, study review, reports, amendments, and doctor earnings | [Doctor Core foundation](mhcs-doctor-core/project.md) |
 
-The detailed ownership and readiness map is available in
-[System responsibilities](03-system-responsibilities.md).
+Grabber is separate device software rather than an MHCS application
+repository.
 
-## Important business boundaries
+## Member Core boundary
 
-### Member application
+Member Core owns:
 
-The member application should own member-facing activities. It should not
-become the storage or processing location for raw clinical images.
+- the globally unique medical-record ID;
+- member registration and profiles;
+- booking and member payments;
+- the service catalogue and choices available for an examination;
+- current AI-only, doctor-only, and combined choices;
+- walk-in registration and payment;
+- member notifications; and
+- member-facing images and results.
 
-At booking, the member chooses one of three result services:
+Future choices may vary by body part or examination type. Member Core owns
+those catalogue rules.
 
-- AI diagnosis only;
-- doctor review only; or
-- both AI diagnosis and doctor review.
+A walk-in must receive a Member Core medical-record ID and complete payment
+before Operator Core confirms the examination.
 
-Automatic image processing is part of every option. The member receives the
-processed image and each selected result as soon as that result is ready.
+## Operator Core boundary
 
-### Operator application
+Operator Core owns examination-day work:
 
-The operator application should own the work performed on examination day. It
-should not become the long-term image-processing or AI orchestration system.
+- front desk, arrivals, and queues;
+- selection of the active examination;
+- upload of one or more NPZ captures from the Grabber computer;
+- a draft capture set that allows removal and retake;
+- one Submit action for the complete set;
+- processing status and processed-image viewing; and
+- operator earnings.
 
-It obtains the expected attendance list from member-core, records arrivals,
-creates a first-arrival-first-served queue, moves the member into the
-examination room, and receives a completion notification. Operators may see
-the processed X-ray image but not AI diagnosis or doctor-report details.
+Gateway acceptance closes the operational queue item. Operator payment becomes
+eligible later, only after every submitted capture has successfully produced
+DICOM.
 
-Front desk may register a new walk-in member. Walk-ins share one configurable
-daily limit across every operator, location, and device, and consume normal
-booking capacity.
+Operators see images, not AI diagnoses or doctor reports. They cannot access
+raw NPZ or download raw DICOM.
 
-### Grabber
+## Grabber boundary
 
-Grabber is separate software associated with the X-ray equipment; it is not
-part of operator-core. It obtains the authorised member data needed to create
-the DICOM image, captures the image, and uploads the DICOM to image-gateway.
+Grabber only captures images. It may remain offline and produces patient-free
+NPZ.
 
-### Image gateway
+The active examination selected in Operator Core supplies patient identity.
+Patient identity is not taken from the NPZ filename or embedded in the NPZ.
 
-The image gateway is intended to coordinate image movement and processing
-requests. It should be the controlled connection between operational systems,
-processing systems, doctor review, and published result information.
+Gain, calibration, and capture internals remain a Grabber/MPIPS concern, not an
+MHCS business responsibility.
 
-Every accepted DICOM is processed automatically. AI diagnosis is requested
-only when the member selected an AI option. Doctor review is requested only
-when selected.
+## Image Gateway boundary
 
-### MPIPS
+Image Gateway is a Python backend with administrator-only internal access.
 
-MPIPS processes images. It does not own booking, queues, member communication,
-or doctor workflow.
+It owns:
 
-### Doctor application
+- durable acceptance of the complete submission;
+- permanent NPZ and DICOM storage;
+- organisation-isolated storage namespaces;
+- MPIPS coordination;
+- retrying only failed captures, up to three total attempts;
+- initial final-failure notification by email;
+- AI and doctor routing;
+- temporary authorised file links;
+- publication and report-version traceability; and
+- the event that makes operator payment eligible.
 
-Doctor review and AI output are separate target products. The current business
-direction does not require a doctor's approval before AI output can be
-published. When both are selected, the doctor may see available AI output but
-may also finish before AI completes.
+Telegram failure notification is a later enhancement.
 
-Each successful output is delivered immediately. A failure in one selected
-service does not block a successful output from the other.
+The approved policy retains NPZ and DICOM indefinitely with no routine user
+deletion. Only an authorised compliance administrator may delete or anonymise
+a record when legally required, and the action must be fully audited.
 
-## What this pack does not decide
+## MPIPS boundary
 
-This pack does not decide:
+For MHCS, MPIPS turns every submitted NPZ into DICOM using the separately
+supplied frozen member/examination metadata.
 
-- how many times a failed third-party AI request is retried;
-- how a doctor is assigned;
-- how walk-in payment is collected;
-- whether SATUSEHAT becomes an approved integration or which application owns it;
-- medical or regulatory rules;
-- detailed integration contracts;
-- staff operating procedures; or
-- deployment and security architecture.
+MHCS treats that conversion as a ready MPIPS capability. The production
+contract between Image Gateway and MPIPS remains to be verified technically.
 
-Those decisions require their own owners and approval.
+MPIPS does not own booking, queues, permanent storage policy, publication,
+doctor workflow, or payments.
 
-## SATUSEHAT status
+## Doctor Core boundary
 
-SATUSEHAT is a **Future possibility**, not a current capability or approved
-target commitment. No SATUSEHAT authentication, clinical data mapping,
-`Encounter` submission, or `Condition` submission is implemented in the
-available MHCS repositories.
+Doctor Core shares Operator Core's technical foundation and visual conventions
+but not its front-desk workflow.
 
-The available SATUSEHAT material consists of planning documents and uncompleted
-submission templates. It must not be treated as proof of integration,
-compliance, certification, or successful sandbox testing. See
+- Eligible studies appear in a shared queue.
+- A doctor claims a study and may release it.
+- Administrators may reassign studies.
+- The doctor may see available AI output but does not wait for it.
+- Submit finalises the report and makes doctor payment eligible.
+- A submitted report becomes visible to the member automatically.
+- A necessary correction may be issued at any time without overwriting the
+  original.
+- Corrections do not create an additional doctor payment.
+
+Doctors view studies inside Doctor Core. An authorised doctor may explicitly
+download raw DICOM for clinical use through a short-lived, audited link.
+
+## Publication rules
+
+- The processed image set becomes member-visible only after every submitted
+  capture has successfully produced DICOM.
+- A partially successful multi-capture examination remains hidden until
+  resolved.
+- Once complete, images become visible without waiting for AI or doctor work.
+- Completed AI and doctor results are published automatically.
+- When both are selected, neither waits for the other.
+- Members view images and may export TIFF, JPG, or PDF; they do not download
+  raw DICOM.
+
+“Published” means available inside the authenticated member application, not
+publicly available on the internet.
+
+## FHIR and SATUSEHAT
+
+MHCS should use FHIR-compatible structures for clinical information:
+
+- patient identity;
+- examinations;
+- imaging studies; and
+- clinical reports.
+
+Queues, payments, retries, and administration remain ordinary application
+workflows and do not need FHIR.
+
+SATUSEHAT remains a **Future possibility**. FHIR-compatible data and a
+SATUSEHAT-aligned identifier are preparation for future interoperability, not
+proof of integration, compliance, certification, or sandbox success. See
 [SATUSEHAT readiness](04-satusehat-readiness.md).
+
+## What remains outside this pack
+
+This pack does not define:
+
+- API schemas or transport protocols;
+- exact FHIR resource mappings;
+- retry intervals;
+- authentication or short-lived-link expiry;
+- storage object-key design;
+- deployment or infrastructure;
+- detailed staff procedures; or
+- technical implementation plans.
 
 ## Glossary
 
 | Term | Meaning in this documentation |
 |---|---|
-| AI | Software that may assist with image analysis; it is described separately from doctor review |
-| Current | Behavior verified in the available source code |
-| Doctor review | A clinical review performed through the intended doctor application |
-| DICOM | The standard image file created by Grabber for the examination |
-| Future possibility | An option under consideration that is not an approved target commitment |
-| Grabber | Software connected to the X-ray equipment that creates and uploads DICOM images |
-| Image gateway | The intended coordinator between image capture, processing, review, and publication |
-| Image processing | Preparing or analysing an image so it can be used by another system or person |
+| AI | Software that produces an automatic analysis separately from doctor review |
+| Amendment | A traceable new version of a submitted doctor report |
+| Current | Behavior verified in available source code |
+| DICOM | The clinical imaging file MPIPS creates from a submitted NPZ |
+| FHIR | A standard structure for exchanging clinical information |
+| Future possibility | An option not included in current implementation scope |
+| Grabber | Offline-capable software that captures X-ray images as patient-free NPZ |
+| Image Gateway | The backend that stores, coordinates, routes, and distributes clinical imaging |
 | Member | The person receiving the service |
-| MPIPS | Madeena's image-processing service |
-| Operator | Staff who manage the examination-day workflow |
-| Published result | Information deliberately made available to the member application |
-| SATUSEHAT | A possible future integration referenced by readiness material but not implemented in MHCS |
-| Study | The images and related information from an examination |
-| Target | Intended behavior that is not yet fully available |
-| Teleradiology | Radiology work performed across locations using digital systems |
-| Unknown | A capability or rule that could not be verified |
+| MPIPS | Madeena's image-processing product; MHCS uses its NPZ-to-DICOM capability |
+| NPZ | The patient-free capture file produced by Grabber |
+| Operator | Staff who manage examination-day work |
+| Published | Deliberately available inside an authorised application |
+| Study | The complete set of images and context for one examination |
+| Target | Approved behavior not yet fully implemented or connected |
+| Unknown | A fact that could not be verified |

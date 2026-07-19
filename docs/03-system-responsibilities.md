@@ -1,220 +1,227 @@
 # System Responsibilities and Readiness
 
-This document explains what each application owns, what it should not own, and
-what could be verified on 19 July 2026.
+This document records application ownership, target handoffs, and what could be
+verified on 19 July 2026.
 
-## Responsibility and readiness map
+## Responsibility map
 
-| Application | Business responsibility | Receives | Produces | Status |
+| Application or component | Owns | Receives | Produces | Readiness |
 |---|---|---|---|---|
-| `mhcs-member-core` | Member account, booking choices, payment, walk-in policy, member data, and result display | Member activity and authorised result notices | Attendance list, authorised Grabber data, and member-facing information | **Current:** core member workflow exists; expanded target handoffs remain unverified |
-| `mhcs-operator-core` | Front desk, arrivals, global walk-in use, queues, examination flow, image viewing, and completion notices | Attendance list and gateway completion status | Arrival order, examination status, and walk-in registration | **Current:** operational workflow exists; target cross-system handoffs were not found |
-| Grabber | X-ray capture and DICOM creation | Authorised member and examination data | DICOM uploaded to image-gateway | **Target integration:** separate device software; implementation was not inspected |
-| `mhcs-image-gateway` | Controlled image routing, processing coordination, result collection, and publication | Completed studies and processing/review updates | Processing requests, status, and safe publication notices | **Target:** available checkout contains no commits |
-| `mpips` | Scientific image-processing execution | Authorised image-processing jobs and stored image references | Processed images, job status, and callbacks | **Current:** processing service exists; MHCS gateway integration was not found |
-| `mhcs-doctor-core` | Separate doctor worklist and review workflow | Assigned studies and available supporting outputs | Doctor review output and status | **Unknown:** repository was unavailable for verification |
+| `mhcs-member-core` | Member identity, medical-record ID, catalogue, booking, member payment, notifications, and result presentation | Member activity and member-safe result references | Attendance, examination snapshot, and member-facing information | **Current foundation:** core member workflow exists; expanded target handoffs remain unverified |
+| `mhcs-operator-core` | Front desk, queues, multi-capture draft and Submit, image viewing, and operator earnings | Attendance, gateway acceptance, image status, and payment-eligibility event | Queue state, complete NPZ submission, frozen metadata, and operator status | **Current foundation:** operational workflow and uploads exist; target cross-system flow is not verified |
+| Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free NPZ captures | **Business direction:** source was not inspected |
+| `mhcs-image-gateway` | Permanent NPZ/DICOM storage, processing coordination, routing, access, publication, and audit | Complete submissions and downstream statuses/results | MPIPS work, authorised references, completion, and publication events | **Target only:** available checkout has no commits |
+| `mpips` | NPZ-to-DICOM processing execution for MHCS | Authorised NPZ reference and frozen clinical metadata | DICOM and correlated processing status | **Current capability:** NPZ workflow exists; MHCS production contract is unverified |
+| `mhcs-doctor-core` | Shared doctor queue, study review, reports, amendments, and doctor earnings | Eligible studies and supporting output | Doctor report, revisions, and status | **Unknown/target:** repository was unavailable |
 
-## `mhcs-member-core`
+Detailed foundations:
+
+- [Member Core](mhcs-member-core/project.md)
+- [Operator Core](mhcs-operator-core/project.md)
+- [Image Gateway](mhcs-image-gateway/project.md)
+- [MPIPS additions required by MHCS](mpips/project.md)
+- [Doctor Core](mhcs-doctor-core/project.md)
+
+## Member Core
 
 ### Owns
 
-- member registration and account access;
-- member profile information;
-- booking and cancellation;
-- selection of AI only, doctor only, or both;
-- payment during normal booking;
-- the configurable global daily walk-in limit;
-- points and related member services;
+- globally unique medical-record IDs;
+- member accounts and profiles;
+- booking, cancellation, member charges, and payment;
+- walk-in registration and payment;
+- service choices per examination type or body part;
 - member notifications; and
-- display of result information deliberately published to the member.
+- member image and result experience.
 
-### Verified current state
+### Target handoffs
 
-The application contains a member booking flow. It also provides controlled
-integration entry points for:
+Member Core supplies authorised attendance and examination information to
+Operator Core. It receives temporary image references, AI results, doctor
+reports, and amendments through Image Gateway.
 
-- reading today's confirmed shifts and bookings;
-- updating a confirmed booking as completed or not attended; and
-- receiving result status and member-safe information from an authorised image
-  gateway.
+Members view completed images and export TIFF, JPG, or PDF. Member Core does
+not store raw NPZ or permanent DICOM copies.
 
-The application can notify a member when received result information is marked
-as published.
+### Current evidence
 
-In the target flow, member-core also supplies the attendance list to
-operator-core and the authorised member data Grabber needs to create a DICOM.
-Front desk may register a new walk-in member. The shared daily walk-in limit
-applies across every operator, location, and device and consumes normal
-booking capacity.
+Core member, booking, payment, notification, operator-integration, and
+image-result receiving foundations exist. The approved target flow is not
+verified end to end.
 
-### Does not own
-
-- examination-day queues;
-- raw clinical image processing;
-- AI orchestration;
-- doctor worklists; or
-- long-term storage of raw clinical image files.
-
-## `mhcs-operator-core`
+## Operator Core
 
 ### Owns
 
-- organisations, projects, and operational participant lists;
-- staff assignments;
-- arrival confirmation and queue numbers;
-- first-arrival-first-served queue order;
-- moving a participant into the examination;
-- using separate Grabber software during image capture;
-- showing the processed X-ray image without diagnostic detail; and
-- receiving processing completion notifications.
+- front desk, arrivals, and queue order;
+- selection of the active examination;
+- multi-capture NPZ draft set;
+- removal and retake before Submit;
+- one Submit action for the complete set;
+- processing status and image viewing; and
+- operator earnings.
 
-### Verified current state
+### Target handoffs
 
-The application moves a screening through four stages:
+Operator Core sends patient-free NPZ files plus a frozen member/examination
+snapshot to Image Gateway.
 
-1. not arrived;
-2. waiting in the queue;
-3. examination in progress; and
-4. completed.
+Gateway acceptance closes the active queue item. All DICOM files succeeding
+later makes operator payment eligible.
 
-Captured files are uploaded directly to private, S3-compatible storage.
-Completion marks the record as waiting for AI.
+### Current evidence
 
-No verified code connects this workflow to member-core, image-gateway, or
-MPIPS.
+Front desk, queues, examination status, and private uploads exist. The current
+upload path accepts NPZ and DICOM extensions but still uses DICOM-oriented
+record and preview paths. No verified gateway or MPIPS connection exists.
 
-### Does not own
+## Grabber
 
-- member accounts, wallet, or booking rules;
-- the target image-processing control plane;
-- scientific image-processing algorithms; or
-- the target doctor application.
+Grabber captures images only. It may remain offline and produces patient-free
+NPZ. The operator opens Operator Core on the Grabber computer and uploads the
+captures into the active examination.
 
-## `mhcs-image-gateway`
+Gain and calibration details remain inside the Grabber/MPIPS boundary.
 
-### Target ownership
+Grabber does not fetch member data, create DICOM, or publish results.
 
-The image gateway should be the controlled coordinator for:
-
-- accepting a completed study from operator-core;
-- accepting and validating a DICOM uploaded by Grabber;
-- retaining traceable references to the study;
-- automatically requesting processing from MPIPS;
-- requesting third-party AI only when selected;
-- sending studies to doctor-core for separate review;
-- collecting progress and output references; and
-- delivering the processed image and each selected result to member-core;
-- notifying operator-core of completion without diagnostic detail;
-- making operator payment eligible when a valid DICOM is accepted; and
-- retrying third-party AI failures before notifying an administrator.
-
-### Verified current state
-
-The available local checkout is an empty Git repository with no commits.
-Therefore, every image-gateway capability in this pack is **Target**, not
-**Current**.
-
-### Does not own
-
-- member booking and wallet rules;
-- examination-day queue management;
-- MPIPS processing algorithms; or
-- the doctor's clinical workflow.
-
-## `mpips`
+## Image Gateway
 
 ### Owns
 
-- accepting authorised image-processing jobs;
-- running defined processing steps;
-- keeping processing jobs separated by tenant;
-- reading and writing image objects in compatible storage;
-- reporting progress and final status; and
-- sending signed status callbacks when requested.
+- durable acceptance of a complete submission;
+- indefinite NPZ and DICOM storage;
+- organisation-isolated storage;
+- MPIPS coordination;
+- three total attempts for a failed capture;
+- email notification after final failure;
+- AI and doctor routing;
+- temporary authorised links;
+- complete-image publication;
+- report-version distribution; and
+- the operator-payment eligibility event.
 
-### Verified current state
+### Completion boundary
 
-MPIPS is an implemented Python service with an API and background workers.
-It can queue, inspect, and cancel image-processing jobs. It includes multiple
-image-processing operations and S3-compatible storage support.
+The complete image set is published only after every submitted NPZ has
+produced DICOM. Successful sibling files are preserved during a partial
+failure, but the incomplete set remains hidden from the member.
 
-No verified code connects MPIPS to the current operator or image-gateway
-applications.
+### Current evidence
 
-### Does not own
+The available repository has no commits. Every responsibility is target
+behavior.
 
-- member experience;
-- booking or examination queues;
-- doctor worklists;
-- clinical approval policy; or
-- deciding what a member may see.
+## MPIPS
 
-## `mhcs-doctor-core`
+### MHCS responsibility
 
-### Target ownership
+MPIPS receives an authorised NPZ reference and frozen clinical metadata from
+Image Gateway and creates a DICOM result for each capture.
 
-The intended doctor application should provide:
+Image Gateway owns retries, permanent storage policy, whole-examination
+completion, publication, and payment meaning.
 
-- a doctor worklist;
-- access to assigned studies and relevant supporting outputs;
-- a separate doctor review process; and
-- review status and output returned to the image gateway.
+### Current evidence
 
-When both services were selected, the doctor may see available AI output but
-does not need to wait for it before completing the review.
+MPIPS contains an implemented service foundation and NPZ workflow code. The
+generic API path was not verified as the required production NPZ contract.
+The current NPZ reader also requires trusted pickle-enabled files, which is a
+technical security boundary to resolve.
 
-### Verified current state
+The [MPIPS document](mpips/project.md) contains only the additions required by
+MHCS and is intended for a later merge into MPIPS's existing project context.
 
-**Unknown.** `/var/www/mhcs-doctor-core` was not present, and its source could
-not be inspected. This pack intentionally makes no claim about its current
-features.
+## Doctor Core
 
-### Boundary
+### Owns
 
-Doctor review is separate from AI output. This pack does not define doctor
-approval as a mandatory gate for all AI output, and it does not define which
-doctor output is member-visible.
+- a shared work queue that doctors claim from;
+- case release and administrator reassignment;
+- study viewing;
+- explicit, audited DICOM download when clinically necessary;
+- draft, final, corrected, and amended reports; and
+- doctor earnings.
+
+### Report and payment boundary
+
+Submit finalises a report, makes doctor payment eligible, and starts automatic
+member publication.
+
+A submitted report is immutable. A necessary correction may be issued at any
+time, preserves the original, and does not create another payment.
+
+### Current evidence
+
+Unknown. Doctor Core source was unavailable.
+
+## Payment ownership and triggers
+
+| Payment area | Owning application | Eligibility trigger |
+|---|---|---|
+| Member charge and payment | Member Core | According to booking; walk-in payment completes before operator confirmation |
+| Operator earning | Operator Core | Every submitted NPZ has successfully produced DICOM |
+| Doctor earning | Doctor Core | Doctor submits the completed report |
+
+Gateway acceptance closes operator work but does not yet make operator payment
+eligible.
+
+## Access map
+
+| User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
+|---|---:|---:|---:|---:|---:|
+| Member | No | Yes | No | When selected | When selected |
+| Operator | No | Yes | No | No | No |
+| Doctor | No | Yes | Explicit, audited clinical need | If available | Own workflow |
+| Image Gateway administrator | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
+
+Members may export TIFF, JPG, or PDF.
+
+## FHIR boundary
+
+FHIR-compatible clinical structures apply to:
+
+- patient identity;
+- examinations;
+- imaging studies; and
+- clinical reports.
+
+Queues, payments, retries, storage administration, and other non-clinical
+operations use ordinary application contracts.
+
+This direction prepares MHCS for future interoperability. It does not make
+SATUSEHAT a current integration.
 
 ## Readiness summary
 
 | Area | Readiness | Main gap |
 |---|---|---|
-| Member booking | Available within member-core | Result-choice and Grabber handoffs remain target behavior |
-| Walk-in registration | Confirmed target behavior | Global limit enforcement and payment flow are not implemented or fully specified |
-| Day-of-service operations | Available within operator-core | Uses its own participants rather than a verified member booking connection |
-| Image capture and storage | Available within operator-core | Target Grabber-to-gateway flow is not implemented in the available repositories |
-| Image-gateway coordination | Not implemented in the available checkout | Gateway application must be built |
-| Image processing | Available within MPIPS | Gateway-to-MPIPS integration must be built |
-| AI diagnosis | Target third-party service | Provider contract, retry count, and final-failure handling must be implemented |
-| Doctor review | Unknown or target | Doctor-core source and workflow need verification |
-| Member result publication | Receiving capability exists in member-core | Gateway delivery of image and independently completed selected results is missing |
-| Operator payment eligibility | Confirmed target rule | Ledger owner and implementation are unknown |
-| SATUSEHAT integration | Future possibility; not implemented | Business scope, clinical electronic medical-record owner, implementation, sandbox evidence, and approval are missing |
+| Member booking and payment | Available foundation | Target catalogue, identifier, walk-in, and result handoffs require verification |
+| Front desk and queue | Available foundation | Member attendance connection is unverified |
+| Multi-capture NPZ submission | Partial current upload foundation | Draft set, complete Submit, and gateway acceptance are target |
+| Image Gateway | Not implemented in available checkout | Entire target backend remains to be built or provided |
+| NPZ-to-DICOM capability | Available MPIPS workflow foundation | Production gateway contract and safe trust boundary are unverified |
+| AI routing | Target | Provider contract and routing implementation are unverified |
+| Doctor review | Unknown/target | Repository and implementation are unavailable |
+| Member images and results | Receiving foundation exists | Complete image/reference and independent-result delivery are missing |
+| Payment events | Approved target rules | Cross-system implementation is missing |
+| FHIR-compatible clinical exchange | Approved direction | Exact profiles and mappings are deferred |
+| SATUSEHAT | Future possibility; not implemented | Scope, mappings, implementation, evidence, and approval remain absent |
 
-## SATUSEHAT
+## Remaining technical decisions
 
-SATUSEHAT has no current owning application in MHCS. Member Core and Operator
-Core contain reference material and uncompleted submission templates, but no
-verified authentication, clinical mapping, `Encounter`, or `Condition`
-implementation.
+The following are intentionally deferred to repository-specific technical
+plans:
 
-Operator Core or another designated clinical electronic medical-record
-application is a possible future owner. That boundary has not been approved,
-and SATUSEHAT is not part of the approved target journey in this pack. See
-[SATUSEHAT readiness](04-satusehat-readiness.md).
+- exact FHIR profiles and field mappings;
+- API authentication and authorisation;
+- upload, object-reference, checksum, and idempotency contracts;
+- retry intervals;
+- notification configuration;
+- temporary-link expiry;
+- DICOM metadata construction;
+- deployment and storage infrastructure; and
+- automated verification.
 
-## Decisions still required
-
-The following decisions remain open:
-
-- What is the exact AI retry limit?
-- Which system records and pays the operator entitlement?
-- How does a walk-in pay?
-- How is a doctor assigned?
-- What notifications and service-level expectations apply to delayed work?
-- What is the exact medical-record identifier format and mapping?
-- Does SATUSEHAT enter approved MHCS scope?
-- Which clinical or RME application and business owner would be accountable for it?
-
-Until those decisions are approved, the target flow should be described as a
-direction rather than a customer promise.
+The business ownership and triggers above are approved and should not be
+reopened merely because technical work has not started.
