@@ -102,6 +102,11 @@ raw NPZ or download raw DICOM.
 Grabber only captures images. It may remain offline and produces patient-free
 NPZ.
 
+The operator opens Operator Core from a dedicated Grabber computer restricted
+to authorised staff. The user-described target NPZ contains TIFF image data
+and capture gain data prepared by Grabber; the exact NPZ schema remains a
+technical verification item.
+
 The active examination selected in Operator Core supplies patient identity.
 Patient identity is not taken from the NPZ filename or embedded in the NPZ.
 

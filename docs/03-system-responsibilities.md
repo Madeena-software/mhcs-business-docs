@@ -3,6 +3,23 @@
 This document records application ownership, target handoffs, and what could be
 verified on 19 July 2026.
 
+## Evidence scope and checkpoints
+
+Current-state findings were inspected at these repository checkpoints:
+
+- `mhcs-member-core`: `main` at
+  `452b1264fa6a2ddf0f5d1d92224db09b33677d6f`;
+- `mhcs-operator-core`: `main` at
+  `e520a8bada30b3f527ddbc23ae07a087fa236379`;
+- `mpips`: `adlan` at
+  `a98ed1e6517fc181a1e44a5cd6e034d9eaf12848`;
+- `mhcs-image-gateway`: empty `main` checkout with no commits; and
+- `mhcs-doctor-core`: unavailable for inspection.
+
+The Grabber source was not inspected. Target behavior records explicit
+business decisions approved on 19 July 2026 and must not be presented as
+implemented behavior.
+
 ## Responsibility map
 
 | Application or component | Owns | Receives | Produces | Readiness |
@@ -71,9 +88,15 @@ later makes operator payment eligible.
 
 ### Current evidence
 
-Front desk, queues, examination status, and private uploads exist. The current
-upload path accepts NPZ and DICOM extensions but still uses DICOM-oriented
-record and preview paths. No verified gateway or MPIPS connection exists.
+Front desk, queues, examination status, and private S3-compatible uploads
+exist. The current upload path accepts `.npz`, `.dcm`, and `.dicom` files up
+to 100 MB using extension validation. It writes an NPZ object key to both
+`npz_path` and `original_dicom_path`, then the operator and administrator
+preview paths send that object to a DICOM preview script. NPZ preview is
+therefore expected to fail, and extension validation does not prove the NPZ
+schema or content.
+
+No verified gateway or MPIPS connection exists.
 
 ## Grabber
 
@@ -81,7 +104,13 @@ Grabber captures images only. It may remain offline and produces patient-free
 NPZ. The operator opens Operator Core on the Grabber computer and uploads the
 captures into the active examination.
 
-Gain and calibration details remain inside the Grabber/MPIPS boundary.
+The Grabber computer is dedicated to authorised staff. The target NPZ is
+described as containing TIFF image data and gain data prepared by Grabber, but
+the Grabber source and exact NPZ schema were not verified.
+
+Gain and calibration details remain inside the Grabber/MPIPS boundary. Grabber
+may supply calibration data and the MPIPS technical team may validate it
+without making those internals an MHCS responsibility.
 
 Grabber does not fetch member data, create DICOM, or publish results.
 
@@ -124,10 +153,21 @@ completion, publication, and payment meaning.
 
 ### Current evidence
 
-MPIPS contains an implemented service foundation and NPZ workflow code. The
-generic API path was not verified as the required production NPZ contract.
-The current NPZ reader also requires trusted pickle-enabled files, which is a
-technical security boundary to resolve.
+MPIPS contains an implemented service foundation, an importable/CLI
+radiography NPZ workflow, and batch-processing tests. The generic HTTP DAG
+path handles standard image formats and was not verified as exposing the
+Madeena radiography NPZ workflow required by MHCS.
+
+The inspected reader expects fields such as `rawimage`, `gainid`,
+`xrayparams`, and `cameraparams`; processing also checks gain ID, detector
+mode, dimensions, and camera serial. Exact compatibility with the
+user-described Grabber NPZ remains unverified.
+
+The reader calls `numpy.load(..., allow_pickle=True)` for object-array
+metadata and explicitly requires trusted files. A malicious pickle may execute
+before later schema validation, so extension or post-load validation is not a
+sufficient production trust boundary. Technical planning must either adopt a
+non-pickle schema or define an isolated trusted conversion boundary.
 
 The [MPIPS document](mpips/project.md) contains only the additions required by
 MHCS and is intended for a later merge into MPIPS's existing project context.
@@ -208,20 +248,59 @@ SATUSEHAT a current integration.
 | FHIR-compatible clinical exchange | Approved direction | Exact profiles and mappings are deferred |
 | SATUSEHAT | Future possibility; not implemented | Scope, mappings, implementation, evidence, and approval remain absent |
 
+## Superseded assumptions
+
+- Grabber no longer creates DICOM or uploads directly to Image Gateway;
+  Grabber creates patient-free NPZ, Operator Core owns the examination-scoped
+  Submit action, and MPIPS creates DICOM.
+- Gateway acceptance closes operator work but does not make operator payment
+  eligible; every submitted capture must first produce DICOM.
+- One image path is insufficient; an examination supports multiple draft
+  captures and every submitted capture is processed.
+- Doctors are not assigned by an unspecified process; they claim cases from a
+  shared queue, may release them, and administrators may reassign them.
+- Retry count is not unknown; each failed capture receives three total
+  attempts.
+- Walk-in payment is not optional or pending at operator confirmation; it must
+  complete in Member Core first.
+
 ## Remaining technical decisions
 
 The following are intentionally deferred to repository-specific technical
 plans:
 
+- whether the Grabber NPZ contains TIFF bytes, a raw numeric image array, or
+  both, and whether it matches MPIPS's required fields;
 - exact FHIR profiles and field mappings;
+- exact DICOM metadata mapping and validation;
+- exact SATUSEHAT identifier mapping and any future approved compliance scope;
 - API authentication and authorisation;
 - upload, object-reference, checksum, and idempotency contracts;
 - retry intervals;
 - notification configuration;
-- temporary-link expiry;
-- DICOM metadata construction;
+- short-lived-link authorisation, expiry, and audit details;
+- exact AI provider and body-part routing definitions in code;
+- Doctor Core's current behavior when its repository becomes available;
 - deployment and storage infrastructure; and
 - automated verification.
 
 The business ownership and triggers above are approved and should not be
 reopened merely because technical work has not started.
+
+## Evidence sources
+
+The current findings came from Member Core routes, services, models,
+migrations, tests, and project context; Operator Core upload, photo-booth,
+screening-record, migration, and preview paths; and MPIPS NPZ workflow, tests,
+API, DAG executor, worker, storage, and project context.
+
+The approved doctor-access and report-amendment rules were informed by:
+
+- [DICOM WADO-RS rendered retrieval](https://dicom.nema.org/medical/Dicom/2016d/output/chtml/part18/sect_6.5.8.html);
+- [DICOM WADO-RS study retrieval](https://dicom.nema.org/medical/dicom/2017b/output/chtml/part18/sect_6.5.html);
+- [HL7 FHIR DiagnosticReport](https://hl7.org/fhir/diagnosticreport.html);
+- [Indonesian Ministry of Health Regulation No. 24 of 2022](https://jdih.kemkes.go.id/common/dokumen/2022permenkes024.pdf); and
+- [ACR Practice Parameter for Communication of Diagnostic Imaging Findings](https://www.acr.org/-/media/acr/files/practice-parameters/communicationdiag.pdf).
+
+Those sources informed business decisions; external requirements must be
+revalidated before technical implementation or a compliance claim.

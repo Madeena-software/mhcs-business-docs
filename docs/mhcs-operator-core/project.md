@@ -1,7 +1,7 @@
 # Operator Core Business Project Foundation
 
 **Status:** Approved target foundation
-**Last reviewed:** 19 July 2026
+**Last reviewed:** 20 July 2026
 
 This document defines the MHCS-specific business responsibilities that belong
 to `mhcs-operator-core`. It is not an implementation plan.
@@ -23,12 +23,14 @@ Submit action, processed-image viewing, and operator earnings.
 
 The available application manages projects, participants, arrivals, queues,
 examinations, uploads, private S3-compatible storage, and completion status.
-The current upload path accepts NPZ and DICOM extensions.
+The current upload path accepts `.npz`, `.dcm`, and `.dicom` files up to
+100 MB using extension validation.
 
 No verified end-to-end connection to Member Core, Image Gateway, or MPIPS was
-found. The current data model also treats uploaded NPZ files through
-DICOM-named paths, so present behavior must not be confused with the approved
-target flow.
+found. The current data model writes an NPZ key into both `npz_path` and
+`original_dicom_path`. Operator and administrator preview paths then send the
+stored object to a DICOM preview script, so NPZ preview is expected to fail.
+Present behavior must not be confused with the approved target flow.
 
 ## Target examination flow
 
@@ -37,8 +39,9 @@ target flow.
 2. Front desk confirms arrival and places the member in the operational queue.
 3. The operator calls one examination and selects that active examination.
 4. Grabber captures X-ray images and writes patient-free NPZ files.
-5. On the Grabber computer, an authorised operator opens Operator Core and
-   uploads one or more NPZ files into the selected examination.
+5. On the dedicated Grabber computer, which is restricted to authorised staff,
+   an operator opens Operator Core and uploads one or more NPZ files into the
+   selected examination.
 6. The capture set remains a draft. Incorrect or poor-quality captures may be
    removed and retaken.
 7. Every NPZ remaining in the draft set is included when the operator clicks
@@ -131,6 +134,11 @@ Operator Core does not own:
 **Target:** Multi-capture drafts, a single all-files Submit action, Member Core
 attendance, durable gateway submission, payment events, and completed-image
 viewing require verification or implementation.
+
+Extension validation does not prove the internal NPZ schema or content. A
+production upload boundary requires HTTPS, authenticated operator sessions,
+examination-scoped authorisation, an explicit upload limit, and server-side
+content/schema validation.
 
 Exact APIs, upload mechanics, idempotency, validation, authorisation, and tests
 belong to a later technical plan.

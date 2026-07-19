@@ -1,7 +1,7 @@
 # Image Gateway Business Project Foundation
 
 **Status:** Approved target foundation; no current implementation verified
-**Last reviewed:** 19 July 2026
+**Last reviewed:** 20 July 2026
 
 This document defines the MHCS business foundation for
 `mhcs-image-gateway`. The available repository contains no commits, so every
@@ -79,8 +79,9 @@ Image Gateway owns long-term storage for:
 - processing and publication history; and
 - report versions needed for traceability.
 
-The approved policy is indefinite retention with no routine user deletion.
-Each organisation is isolated in a separate storage namespace.
+The approved policy is indefinite retention for audit and future reprocessing,
+with no routine user deletion. Each organisation is isolated in a separate
+storage namespace.
 
 Only an authorised compliance administrator may delete or anonymise a record
 when legally required. The action must be fully audited.

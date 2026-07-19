@@ -1,7 +1,7 @@
 # MPIPS Additions Required by MHCS
 
 **Status:** Approved MHCS delta; not a standalone MPIPS project context
-**Last reviewed:** 19 July 2026
+**Last reviewed:** 20 July 2026
 
 This document contains only the additions and integration boundaries MPIPS
 needs for MHCS. It deliberately does not repeat MPIPS's existing purpose,
@@ -18,6 +18,11 @@ DICOM files using separately supplied member and examination metadata.
 MHCS treats NPZ-to-DICOM conversion as a ready MPIPS capability. Gain,
 calibration, and conversion details remain an internal Grabber/MPIPS concern,
 not an MHCS business responsibility.
+
+The target NPZ is described as containing TIFF image data and gain data
+prepared by Grabber. Grabber may also supply calibration data, while the MPIPS
+technical team owns compatibility validation. The exact on-disk schema remains
+to be verified against both products.
 
 ## MHCS caller
 
@@ -86,6 +91,17 @@ The current NPZ reader uses NumPy object arrays with pickle enabled and
 explicitly requires trusted files. A safe production trust boundary must be
 verified before the MHCS integration is considered ready. This security
 requirement is not optional, but its solution belongs to technical planning.
+
+The inspected workflow expects fields including `rawimage`, `gainid`,
+`xrayparams`, and `cameraparams`, and checks gain ID, detector mode, image
+dimensions, and camera serial. It remains unknown whether the Grabber NPZ
+contains TIFF bytes, a raw numeric image array, or both, and whether its schema
+matches these expectations.
+
+Because a malicious pickle may execute while loading, before post-load schema
+validation, technical planning must choose either a non-pickle NPZ schema or
+an isolated trusted conversion boundary. Extension checking alone is
+insufficient.
 
 ## Does not become MPIPS ownership
 

@@ -1,7 +1,7 @@
 # Doctor Core Business Project Foundation
 
 **Status:** Approved target foundation; current implementation unknown
-**Last reviewed:** 19 July 2026
+**Last reviewed:** 20 July 2026
 
 This document defines the intended MHCS business foundation for
 `mhcs-doctor-core`. The repository was not available for verification, so no
@@ -59,6 +59,12 @@ AI result but does not wait for AI before completing the report.
    possible.
 
 There is no arbitrary time limit that prevents a necessary correction.
+
+These access and lifecycle rules were approved after review of DICOMweb
+rendered/native retrieval, HL7 FHIR `DiagnosticReport` revision states,
+Indonesian electronic-medical-record requirements, and the ACR communication
+practice parameter. The source links are retained in
+[System Responsibilities and Readiness](../03-system-responsibilities.md#evidence-sources).
 
 ## Payment boundary
 

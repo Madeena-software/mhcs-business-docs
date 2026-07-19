@@ -1,7 +1,7 @@
 # Member Core Business Project Foundation
 
 **Status:** Approved target foundation
-**Last reviewed:** 19 July 2026
+**Last reviewed:** 20 July 2026
 
 This document defines the MHCS-specific business responsibilities that belong
 to `mhcs-member-core`. It is not an implementation plan or proof that every
@@ -50,6 +50,11 @@ Member Core owns:
 
 The exact AI provider is not chosen by the member. It is selected by
 application code under administrator control.
+
+Future catalogue rules may vary by body part or examination type. For example,
+a hand examination may offer AI-only while a thorax examination offers AI
+plus doctor review; these are illustrative future rules, not current catalogue
+configuration.
 
 ## Walk-in rule
 
