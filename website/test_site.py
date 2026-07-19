@@ -7,11 +7,11 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).parent
 PAGES = {
-    "index.html": ("MHCS Actor Journey Maps", "user flow / actor journey map"),
+    "index.html": ("Read the care process by role.", "MHCS Actor Journey Maps"),
     "member/index.html": ("Member", "NIK", "initial payment"),
     "operator/index.html": ("Operator", "complete set", "payment"),
     "doctor/index.html": ("Doctor", "shared queue", "amendment"),
-    "bpmn/index.html": ("MHCS Teleradiology BPMN", "Journey diagrams"),
+    "bpmn/index.html": ("Technical BPMN", "All journeys"),
 }
 
 
