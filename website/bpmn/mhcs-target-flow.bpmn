@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0"
+  id="Definitions_MHCS_Target"
+  targetNamespace="https://mhcs.example/bpmn">
+  <bpmn:process id="Process_MHCS_Target" name="MHCS Teleradiology Target Flow" isExecutable="false">
+    <bpmn:documentation>
+      Approved actor-focused target flow. Processing retries, earnings, and report
+      amendments are intentionally outside this diagram.
+    </bpmn:documentation>
+
+    <bpmn:laneSet id="LaneSet_MHCS">
+      <bpmn:lane id="Lane_Member" name="Member">
+        <bpmn:flowNodeRef>StartEvent_Booking</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BookPay</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewImages</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewAIReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Complete</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Operator" name="Operator">
+        <bpmn:flowNodeRef>Task_ConfirmAttendance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CaptureReview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SubmitSet</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Platform" name="MHCS Platform">
+        <bpmn:flowNodeRef>Task_ProcessSet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_IndependentResults</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DoctorSelected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RouteDoctor</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublishAIReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublishReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AIMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DoctorMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ResultJoin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Doctor" name="Doctor">
+        <bpmn:flowNodeRef>Task_ClaimStudy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviewStudy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SubmitReport</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_AIService" name="AI Service">
+        <bpmn:flowNodeRef>Gateway_AISelected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateAIReport</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_Booking" name="Examination needed">
+      <bpmn:outgoing>Flow_Start_Book</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_BookPay" name="Book, choose service, and pay">
+      <bpmn:incoming>Flow_Start_Book</bpmn:incoming>
+      <bpmn:outgoing>Flow_Book_Confirm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ConfirmAttendance" name="Confirm attendance and queue examination">
+      <bpmn:incoming>Flow_Book_Confirm</bpmn:incoming>
+      <bpmn:outgoing>Flow_Confirm_Capture</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_CaptureReview" name="Capture and review image set">
+      <bpmn:incoming>Flow_Confirm_Capture</bpmn:incoming>
+      <bpmn:outgoing>Flow_Capture_Submit</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_SubmitSet" name="Submit complete capture set">
+      <bpmn:incoming>Flow_Capture_Submit</bpmn:incoming>
+      <bpmn:outgoing>Flow_Submit_Process</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_ProcessSet" name="Accept and process complete image set">
+      <bpmn:incoming>Flow_Submit_Process</bpmn:incoming>
+      <bpmn:outgoing>Flow_Process_Split</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_IndependentResults">
+      <bpmn:incoming>Flow_Process_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Split_Images</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_DoctorChoice</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_AIChoice</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:userTask id="Task_ViewImages" name="View complete image set">
+      <bpmn:incoming>Flow_Split_Images</bpmn:incoming>
+      <bpmn:outgoing>Flow_Images_Join</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_AISelected" name="AI report selected?" default="Flow_AI_No">
+      <bpmn:incoming>Flow_Split_AIChoice</bpmn:incoming>
+      <bpmn:outgoing>Flow_AI_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AI_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_GenerateAIReport" name="Generate AI report">
+      <bpmn:incoming>Flow_AI_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_GenerateAI_Publish</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_PublishAIReport" name="Publish AI report automatically">
+      <bpmn:incoming>Flow_GenerateAI_Publish</bpmn:incoming>
+      <bpmn:outgoing>Flow_PublishAI_View</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_ViewAIReport" name="View AI report">
+      <bpmn:incoming>Flow_PublishAI_View</bpmn:incoming>
+      <bpmn:outgoing>Flow_ViewAI_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_AIMerge">
+      <bpmn:incoming>Flow_AI_No</bpmn:incoming>
+      <bpmn:incoming>Flow_ViewAI_Merge</bpmn:incoming>
+      <bpmn:outgoing>Flow_AIMerge_Join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_DoctorSelected" name="Doctor review selected?" default="Flow_Doctor_No">
+      <bpmn:incoming>Flow_Split_DoctorChoice</bpmn:incoming>
+      <bpmn:outgoing>Flow_Doctor_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Doctor_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_RouteDoctor" name="Route study for doctor review">
+      <bpmn:incoming>Flow_Doctor_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Route_Claim</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_ClaimStudy" name="Claim study">
+      <bpmn:incoming>Flow_Route_Claim</bpmn:incoming>
+      <bpmn:outgoing>Flow_Claim_Review</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ReviewStudy" name="Review study and draft report">
+      <bpmn:incoming>Flow_Claim_Review</bpmn:incoming>
+      <bpmn:outgoing>Flow_Review_SubmitReport</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_SubmitReport" name="Submit final report">
+      <bpmn:incoming>Flow_Review_SubmitReport</bpmn:incoming>
+      <bpmn:outgoing>Flow_SubmitReport_Publish</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_PublishReport" name="Publish report automatically">
+      <bpmn:incoming>Flow_SubmitReport_Publish</bpmn:incoming>
+      <bpmn:outgoing>Flow_Publish_ViewReport</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_ViewReport" name="View doctor report">
+      <bpmn:incoming>Flow_Publish_ViewReport</bpmn:incoming>
+      <bpmn:outgoing>Flow_ViewReport_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_DoctorMerge">
+      <bpmn:incoming>Flow_Doctor_No</bpmn:incoming>
+      <bpmn:incoming>Flow_ViewReport_Merge</bpmn:incoming>
+      <bpmn:outgoing>Flow_DoctorMerge_Join</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_ResultJoin">
+      <bpmn:incoming>Flow_Images_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_AIMerge_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_DoctorMerge_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_Join_End</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:endEvent id="EndEvent_Complete" name="Journey complete">
+      <bpmn:incoming>Flow_Join_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_Start_Book" sourceRef="StartEvent_Booking" targetRef="Task_BookPay" />
+    <bpmn:sequenceFlow id="Flow_Book_Confirm" sourceRef="Task_BookPay" targetRef="Task_ConfirmAttendance" />
+    <bpmn:sequenceFlow id="Flow_Confirm_Capture" sourceRef="Task_ConfirmAttendance" targetRef="Task_CaptureReview" />
+    <bpmn:sequenceFlow id="Flow_Capture_Submit" sourceRef="Task_CaptureReview" targetRef="Task_SubmitSet" />
+    <bpmn:sequenceFlow id="Flow_Submit_Process" sourceRef="Task_SubmitSet" targetRef="Task_ProcessSet" />
+    <bpmn:sequenceFlow id="Flow_Process_Split" sourceRef="Task_ProcessSet" targetRef="Gateway_IndependentResults" />
+    <bpmn:sequenceFlow id="Flow_Split_Images" sourceRef="Gateway_IndependentResults" targetRef="Task_ViewImages" />
+    <bpmn:sequenceFlow id="Flow_Images_Join" sourceRef="Task_ViewImages" targetRef="Gateway_ResultJoin" />
+    <bpmn:sequenceFlow id="Flow_Split_AIChoice" sourceRef="Gateway_IndependentResults" targetRef="Gateway_AISelected" />
+    <bpmn:sequenceFlow id="Flow_AI_Yes" name="Yes" sourceRef="Gateway_AISelected" targetRef="Task_GenerateAIReport">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${aiAnalysisSelected}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AI_No" name="No" sourceRef="Gateway_AISelected" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_GenerateAI_Publish" sourceRef="Task_GenerateAIReport" targetRef="Task_PublishAIReport" />
+    <bpmn:sequenceFlow id="Flow_PublishAI_View" sourceRef="Task_PublishAIReport" targetRef="Task_ViewAIReport" />
+    <bpmn:sequenceFlow id="Flow_ViewAI_Merge" sourceRef="Task_ViewAIReport" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_AIMerge_Join" sourceRef="Gateway_AIMerge" targetRef="Gateway_ResultJoin" />
+    <bpmn:sequenceFlow id="Flow_Split_DoctorChoice" sourceRef="Gateway_IndependentResults" targetRef="Gateway_DoctorSelected" />
+    <bpmn:sequenceFlow id="Flow_Doctor_Yes" name="Yes" sourceRef="Gateway_DoctorSelected" targetRef="Task_RouteDoctor">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${doctorReviewSelected}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Doctor_No" name="No" sourceRef="Gateway_DoctorSelected" targetRef="Gateway_DoctorMerge" />
+    <bpmn:sequenceFlow id="Flow_Route_Claim" sourceRef="Task_RouteDoctor" targetRef="Task_ClaimStudy" />
+    <bpmn:sequenceFlow id="Flow_Claim_Review" sourceRef="Task_ClaimStudy" targetRef="Task_ReviewStudy" />
+    <bpmn:sequenceFlow id="Flow_Review_SubmitReport" sourceRef="Task_ReviewStudy" targetRef="Task_SubmitReport" />
+    <bpmn:sequenceFlow id="Flow_SubmitReport_Publish" sourceRef="Task_SubmitReport" targetRef="Task_PublishReport" />
+    <bpmn:sequenceFlow id="Flow_Publish_ViewReport" sourceRef="Task_PublishReport" targetRef="Task_ViewReport" />
+    <bpmn:sequenceFlow id="Flow_ViewReport_Merge" sourceRef="Task_ViewReport" targetRef="Gateway_DoctorMerge" />
+    <bpmn:sequenceFlow id="Flow_DoctorMerge_Join" sourceRef="Gateway_DoctorMerge" targetRef="Gateway_ResultJoin" />
+    <bpmn:sequenceFlow id="Flow_Join_End" sourceRef="Gateway_ResultJoin" targetRef="EndEvent_Complete" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_MHCS_Target">
+    <bpmndi:BPMNPlane id="BPMNPlane_MHCS_Target" bpmnElement="Process_MHCS_Target">
+      <bpmndi:BPMNShape id="Lane_Member_di" bpmnElement="Lane_Member" isHorizontal="true" bioc:fill="#EFF6FF" bioc:stroke="#334155">
+        <dc:Bounds x="40" y="80" width="2300" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Operator_di" bpmnElement="Lane_Operator" isHorizontal="true" bioc:fill="#FFF7ED" bioc:stroke="#334155">
+        <dc:Bounds x="40" y="250" width="2300" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Platform_di" bpmnElement="Lane_Platform" isHorizontal="true" bioc:fill="#F5F3FF" bioc:stroke="#334155">
+        <dc:Bounds x="40" y="420" width="2300" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Doctor_di" bpmnElement="Lane_Doctor" isHorizontal="true" bioc:fill="#ECFDF5" bioc:stroke="#334155">
+        <dc:Bounds x="40" y="590" width="2300" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_AIService_di" bpmnElement="Lane_AIService" isHorizontal="true" bioc:fill="#ECFEFF" bioc:stroke="#334155">
+        <dc:Bounds x="40" y="760" width="2300" height="170" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="StartEvent_Booking_di" bpmnElement="StartEvent_Booking" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="90" y="147" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="67" y="188" width="82" height="34" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BookPay_di" bpmnElement="Task_BookPay" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="160" y="115" width="165" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ConfirmAttendance_di" bpmnElement="Task_ConfirmAttendance" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="380" y="285" width="155" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CaptureReview_di" bpmnElement="Task_CaptureReview" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="580" y="285" width="165" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SubmitSet_di" bpmnElement="Task_SubmitSet" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="790" y="285" width="155" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ProcessSet_di" bpmnElement="Task_ProcessSet" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
+        <dc:Bounds x="990" y="455" width="170" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IndependentResults_di" bpmnElement="Gateway_IndependentResults" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
+        <dc:Bounds x="1200" y="480" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewImages_di" bpmnElement="Task_ViewImages" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="1330" y="115" width="165" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AISelected_di" bpmnElement="Gateway_AISelected" isMarkerVisible="true" bioc:fill="#ECFEFF" bioc:stroke="#0E7490">
+        <dc:Bounds x="1300" y="820" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="782" width="110" height="34" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateAIReport_di" bpmnElement="Task_GenerateAIReport" bioc:fill="#CFFAFE" bioc:stroke="#0E7490">
+        <dc:Bounds x="1410" y="795" width="150" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PublishAIReport_di" bpmnElement="Task_PublishAIReport" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
+        <dc:Bounds x="1610" y="455" width="165" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewAIReport_di" bpmnElement="Task_ViewAIReport" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="1700" y="115" width="150" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AIMerge_di" bpmnElement="Gateway_AIMerge" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
+        <dc:Bounds x="2110" y="420" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DoctorSelected_di" bpmnElement="Gateway_DoctorSelected" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
+        <dc:Bounds x="1300" y="480" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="442" width="110" height="34" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RouteDoctor_di" bpmnElement="Task_RouteDoctor" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
+        <dc:Bounds x="1410" y="455" width="155" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ClaimStudy_di" bpmnElement="Task_ClaimStudy" bioc:fill="#D1FAE5" bioc:stroke="#047857">
+        <dc:Bounds x="1590" y="625" width="140" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewStudy_di" bpmnElement="Task_ReviewStudy" bioc:fill="#D1FAE5" bioc:stroke="#047857">
+        <dc:Bounds x="1760" y="625" width="165" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SubmitReport_di" bpmnElement="Task_SubmitReport" bioc:fill="#D1FAE5" bioc:stroke="#047857">
+        <dc:Bounds x="1955" y="625" width="150" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PublishReport_di" bpmnElement="Task_PublishReport" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
+        <dc:Bounds x="1950" y="455" width="160" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewReport_di" bpmnElement="Task_ViewReport" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="1955" y="115" width="150" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DoctorMerge_di" bpmnElement="Gateway_DoctorMerge" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
+        <dc:Bounds x="2110" y="500" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ResultJoin_di" bpmnElement="Gateway_ResultJoin" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
+        <dc:Bounds x="2190" y="480" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Complete_di" bpmnElement="EndEvent_Complete" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
+        <dc:Bounds x="2270" y="147" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2248" y="188" width="80" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_Start_Book_di" bpmnElement="Flow_Start_Book" bioc:stroke="#475569">
+        <di:waypoint x="126" y="165" />
+        <di:waypoint x="160" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Book_Confirm_di" bpmnElement="Flow_Book_Confirm" bioc:stroke="#475569">
+        <di:waypoint x="325" y="165" />
+        <di:waypoint x="353" y="165" />
+        <di:waypoint x="353" y="335" />
+        <di:waypoint x="380" y="335" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Confirm_Capture_di" bpmnElement="Flow_Confirm_Capture" bioc:stroke="#475569">
+        <di:waypoint x="535" y="335" />
+        <di:waypoint x="580" y="335" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Capture_Submit_di" bpmnElement="Flow_Capture_Submit" bioc:stroke="#475569">
+        <di:waypoint x="745" y="335" />
+        <di:waypoint x="790" y="335" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Submit_Process_di" bpmnElement="Flow_Submit_Process" bioc:stroke="#475569">
+        <di:waypoint x="945" y="335" />
+        <di:waypoint x="968" y="335" />
+        <di:waypoint x="968" y="505" />
+        <di:waypoint x="990" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Process_Split_di" bpmnElement="Flow_Process_Split" bioc:stroke="#475569">
+        <di:waypoint x="1160" y="505" />
+        <di:waypoint x="1200" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Images_di" bpmnElement="Flow_Split_Images" bioc:stroke="#475569">
+        <di:waypoint x="1225" y="480" />
+        <di:waypoint x="1225" y="165" />
+        <di:waypoint x="1330" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Images_Join_di" bpmnElement="Flow_Images_Join" bioc:stroke="#475569">
+        <di:waypoint x="1495" y="165" />
+        <di:waypoint x="1518" y="165" />
+        <di:waypoint x="1518" y="400" />
+        <di:waypoint x="2215" y="400" />
+        <di:waypoint x="2215" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_AIChoice_di" bpmnElement="Flow_Split_AIChoice" bioc:stroke="#475569">
+        <di:waypoint x="1225" y="530" />
+        <di:waypoint x="1225" y="845" />
+        <di:waypoint x="1300" y="845" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AI_Yes_di" bpmnElement="Flow_AI_Yes" bioc:stroke="#475569">
+        <di:waypoint x="1350" y="845" />
+        <di:waypoint x="1410" y="845" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1369" y="823" width="20" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AI_No_di" bpmnElement="Flow_AI_No" bioc:stroke="#475569">
+        <di:waypoint x="1325" y="870" />
+        <di:waypoint x="2170" y="870" />
+        <di:waypoint x="2170" y="445" />
+        <di:waypoint x="2160" y="445" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1340" y="849" width="16" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_GenerateAI_Publish_di" bpmnElement="Flow_GenerateAI_Publish" bioc:stroke="#475569">
+        <di:waypoint x="1485" y="795" />
+        <di:waypoint x="1485" y="580" />
+        <di:waypoint x="1693" y="580" />
+        <di:waypoint x="1693" y="555" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PublishAI_View_di" bpmnElement="Flow_PublishAI_View" bioc:stroke="#475569">
+        <di:waypoint x="1693" y="455" />
+        <di:waypoint x="1693" y="235" />
+        <di:waypoint x="1775" y="235" />
+        <di:waypoint x="1775" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ViewAI_Merge_di" bpmnElement="Flow_ViewAI_Merge" bioc:stroke="#475569">
+        <di:waypoint x="1775" y="115" />
+        <di:waypoint x="1775" y="95" />
+        <di:waypoint x="2135" y="95" />
+        <di:waypoint x="2135" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AIMerge_Join_di" bpmnElement="Flow_AIMerge_Join" bioc:stroke="#475569">
+        <di:waypoint x="2135" y="470" />
+        <di:waypoint x="2135" y="475" />
+        <di:waypoint x="2190" y="475" />
+        <di:waypoint x="2190" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_DoctorChoice_di" bpmnElement="Flow_Split_DoctorChoice" bioc:stroke="#475569">
+        <di:waypoint x="1250" y="505" />
+        <di:waypoint x="1300" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Doctor_Yes_di" bpmnElement="Flow_Doctor_Yes" bioc:stroke="#475569">
+        <di:waypoint x="1350" y="505" />
+        <di:waypoint x="1410" y="505" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1369" y="483" width="20" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Doctor_No_di" bpmnElement="Flow_Doctor_No" bioc:stroke="#475569">
+        <di:waypoint x="1325" y="530" />
+        <di:waypoint x="1325" y="570" />
+        <di:waypoint x="2135" y="570" />
+        <di:waypoint x="2135" y="550" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1340" y="549" width="16" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Route_Claim_di" bpmnElement="Flow_Route_Claim" bioc:stroke="#475569">
+        <di:waypoint x="1488" y="555" />
+        <di:waypoint x="1488" y="675" />
+        <di:waypoint x="1590" y="675" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Claim_Review_di" bpmnElement="Flow_Claim_Review" bioc:stroke="#475569">
+        <di:waypoint x="1730" y="675" />
+        <di:waypoint x="1760" y="675" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Review_SubmitReport_di" bpmnElement="Flow_Review_SubmitReport" bioc:stroke="#475569">
+        <di:waypoint x="1925" y="675" />
+        <di:waypoint x="1955" y="675" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SubmitReport_Publish_di" bpmnElement="Flow_SubmitReport_Publish" bioc:stroke="#475569">
+        <di:waypoint x="2030" y="625" />
+        <di:waypoint x="2030" y="555" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Publish_ViewReport_di" bpmnElement="Flow_Publish_ViewReport" bioc:stroke="#475569">
+        <di:waypoint x="2030" y="455" />
+        <di:waypoint x="2030" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ViewReport_Merge_di" bpmnElement="Flow_ViewReport_Merge" bioc:stroke="#475569">
+        <di:waypoint x="2105" y="165" />
+        <di:waypoint x="2135" y="165" />
+        <di:waypoint x="2135" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DoctorMerge_Join_di" bpmnElement="Flow_DoctorMerge_Join" bioc:stroke="#475569">
+        <di:waypoint x="2160" y="525" />
+        <di:waypoint x="2175" y="525" />
+        <di:waypoint x="2175" y="505" />
+        <di:waypoint x="2190" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Join_End_di" bpmnElement="Flow_Join_End" bioc:stroke="#475569">
+        <di:waypoint x="2240" y="505" />
+        <di:waypoint x="2288" y="505" />
+        <di:waypoint x="2288" y="183" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
