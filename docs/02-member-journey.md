@@ -115,9 +115,10 @@ cancel operator payment.
 ## Examination identity
 
 The target flow uses a medical-record identifier rather than NIK as the
-primary examination link. The identifier is intended to follow a standard
-format comparable to SATUSEHAT conventions, but the exact format and mapping
-have not been verified and must not be claimed as compliant yet.
+primary examination link. Its exact format and mapping have not been decided.
+Any future SATUSEHAT compatibility would require a separately approved mapping:
+no SATUSEHAT integration, mapping, or compliance has been implemented or
+verified. See [SATUSEHAT readiness](04-satusehat-readiness.md).
 
 ## What must be connected
 
@@ -134,7 +135,8 @@ The target journey requires agreed handoffs for:
 - gateway acceptance making operator payment eligible.
 
 These are business handoffs. Their technical contracts are outside this
-overview pack.
+overview pack. SATUSEHAT is not part of this current or approved target journey;
+it remains a separate future possibility.
 
 ## How to recognise completion
 

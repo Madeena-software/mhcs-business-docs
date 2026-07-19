@@ -121,12 +121,25 @@ This pack does not decide:
 - how many times a failed third-party AI request is retried;
 - how a doctor is assigned;
 - how walk-in payment is collected;
+- whether SATUSEHAT becomes an approved integration or which application owns it;
 - medical or regulatory rules;
 - detailed integration contracts;
 - staff operating procedures; or
 - deployment and security architecture.
 
 Those decisions require their own owners and approval.
+
+## SATUSEHAT status
+
+SATUSEHAT is a **Future possibility**, not a current capability or approved
+target commitment. No SATUSEHAT authentication, clinical data mapping,
+`Encounter` submission, or `Condition` submission is implemented in the
+available MHCS repositories.
+
+The available SATUSEHAT material consists of planning documents and uncompleted
+submission templates. It must not be treated as proof of integration,
+compliance, certification, or successful sandbox testing. See
+[SATUSEHAT readiness](04-satusehat-readiness.md).
 
 ## Glossary
 
@@ -136,6 +149,7 @@ Those decisions require their own owners and approval.
 | Current | Behavior verified in the available source code |
 | Doctor review | A clinical review performed through the intended doctor application |
 | DICOM | The standard image file created by Grabber for the examination |
+| Future possibility | An option under consideration that is not an approved target commitment |
 | Grabber | Software connected to the X-ray equipment that creates and uploads DICOM images |
 | Image gateway | The intended coordinator between image capture, processing, review, and publication |
 | Image processing | Preparing or analysing an image so it can be used by another system or person |
@@ -143,6 +157,7 @@ Those decisions require their own owners and approval.
 | MPIPS | Madeena's image-processing service |
 | Operator | Staff who manage the examination-day workflow |
 | Published result | Information deliberately made available to the member application |
+| SATUSEHAT | A possible future integration referenced by readiness material but not implemented in MHCS |
 | Study | The images and related information from an examination |
 | Target | Intended behavior that is not yet fully available |
 | Teleradiology | Radiology work performed across locations using digital systems |

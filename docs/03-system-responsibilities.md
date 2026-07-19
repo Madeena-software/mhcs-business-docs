@@ -189,6 +189,19 @@ doctor output is member-visible.
 | Doctor review | Unknown or target | Doctor-core source and workflow need verification |
 | Member result publication | Receiving capability exists in member-core | Gateway delivery of image and independently completed selected results is missing |
 | Operator payment eligibility | Confirmed target rule | Ledger owner and implementation are unknown |
+| SATUSEHAT integration | Future possibility; not implemented | Business scope, clinical electronic medical-record owner, implementation, sandbox evidence, and approval are missing |
+
+## SATUSEHAT
+
+SATUSEHAT has no current owning application in MHCS. Member Core and Operator
+Core contain reference material and uncompleted submission templates, but no
+verified authentication, clinical mapping, `Encounter`, or `Condition`
+implementation.
+
+Operator Core or another designated clinical electronic medical-record
+application is a possible future owner. That boundary has not been approved,
+and SATUSEHAT is not part of the approved target journey in this pack. See
+[SATUSEHAT readiness](04-satusehat-readiness.md).
 
 ## Decisions still required
 
@@ -200,6 +213,8 @@ The following decisions remain open:
 - How is a doctor assigned?
 - What notifications and service-level expectations apply to delayed work?
 - What is the exact medical-record identifier format and mapping?
+- Does SATUSEHAT enter approved MHCS scope?
+- Which clinical or RME application and business owner would be accountable for it?
 
 Until those decisions are approved, the target flow should be described as a
 direction rather than a customer promise.

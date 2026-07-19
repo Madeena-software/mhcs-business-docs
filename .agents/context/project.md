@@ -3,18 +3,20 @@
 
 **Status:** Verified
 **Last verified:** 2026-07-19
-**Repository checkpoint:** `main` at `bc6c571e4458`
+**Repository checkpoint:** `main` working tree based on `05f511167026`
 
 ## Purpose
 
 `mhcs-business-docs` explains the Madeena Health Care System (MHCS) as a
 business service for non-technical readers. Its first documentation pack
 describes the teleradiology journey, assigns responsibilities across five
-application repositories, and separates verified current behavior from the
-target operating model.
+application repositories, records SATUSEHAT as an unimplemented future
+possibility, and separates verified current behavior from the target operating
+model.
 
 Evidence: `.agents/context/README.md`, `docs/01-business-overview.md`,
-`docs/02-member-journey.md`, and `docs/03-system-responsibilities.md`.
+`docs/02-member-journey.md`, `docs/03-system-responsibilities.md`, and
+`docs/04-satusehat-readiness.md`.
 
 ## Intended users
 
@@ -30,8 +32,8 @@ Evidence: the audience and reading guidance in `.agents/context/README.md`.
 
 ## Current capabilities and flows
 
-- The repository provides an English Markdown overview pack with a landing
-  page, business overview, member journey, system map, readiness assessment,
+- The repository provides an English four-document Markdown pack with a landing
+  page, business overview, member journey, system map, readiness assessments,
   and glossary.
 - The documentation records the verified current state as disconnected or
   partially connected application capabilities.
@@ -42,6 +44,9 @@ Evidence: the audience and reading guidance in `.agents/context/README.md`.
   and the processed image are delivered as soon as available.
 - Operator payment becomes eligible when image-gateway accepts a valid DICOM;
   downstream AI failure does not cancel payment.
+- SATUSEHAT is documented as a future possibility, not an implemented
+  capability or approved target commitment. Available material consists of
+  proposed work and uncompleted submission templates.
 
 Evidence: `.agents/context/README.md` and `docs/`.
 
@@ -64,6 +69,8 @@ checkpoint.
 - `docs/02-member-journey.md` compares current and target journeys.
 - `docs/03-system-responsibilities.md` records ownership, readiness, evidence,
   and gaps for the five application repositories.
+- `docs/04-satusehat-readiness.md` records the unimplemented SATUSEHAT status,
+  missing evidence, ownership boundary, and approval gates.
 - `.agents/context/project.md` is the agent-facing, evidence-backed repository
   context.
 
@@ -75,7 +82,7 @@ checkpoint.
 | Develop | Edit Markdown files directly | Repository format | Not applicable |
 | Test formatting | `git diff --check` | Git | Passed on 2026-07-19 |
 | Check local links | Inspect every relative Markdown link target | Markdown sources | Passed on 2026-07-19 |
-| Check GitHub rendering | Submit each document to the GitHub Markdown API in GFM mode | GitHub Markdown API | Passed; all documents accepted and Mermaid blocks recognised |
+| Check GitHub rendering | Submit each document to the GitHub Markdown API in GFM mode | GitHub Markdown API | Not run for the four-document pack |
 | Build | None | No generator or build manifest exists | Not applicable |
 
 ## Data and integrations
@@ -93,6 +100,11 @@ The current-state assessment was derived from these sibling checkouts:
 `/var/www/mhcs-doctor-core` was not present, and its implementation could not
 be verified.
 
+SATUSEHAT readiness was derived from reference material under the Member Core
+and Operator Core `.agents/context/satusehat/` directories. Those repositories
+document SATUSEHAT as not implemented; the facility list, declaration, security
+assessment, manual, and sandbox evidence remain absent or template-only.
+
 Evidence: Git checkpoint commands; member API controllers and routes; operator
 front-desk, photo-booth, upload, model, and migration sources; MPIPS API,
 worker, storage, and project context; image-gateway Git state.
@@ -100,7 +112,8 @@ worker, storage, and project context; image-gateway Git state.
 ## Repository conventions
 
 - Use plain English and define unavoidable technical terms at first use.
-- Label statements as **Current**, **Target**, or **Unknown**.
+- Label statements as **Current**, **Target**, **Unknown**, or **Future
+  possibility**.
 - Describe business responsibilities and handoffs, not internal APIs.
 - Support diagrams with numbered prose so the documents remain understandable
   when Mermaid is not rendered.
@@ -118,6 +131,10 @@ worker, storage, and project context; image-gateway Git state.
   no verified gateway or MPIPS integration.
 - Grabber behavior and its target data handoff were provided as business
   direction but were not verified from source.
+- SATUSEHAT has no verified implementation, approved scope, owner, sandbox
+  evidence, or completed submission package in the available repositories.
+- External SATUSEHAT requirements, templates, links, and regulatory
+  interpretation were not revalidated.
 - MPIPS contains a credential-like value in a tracked research artifact. The
   value is not reproduced here; revocation and history cleanup are a separate
   security task.
@@ -133,6 +150,10 @@ worker, storage, and project context; image-gateway Git state.
   and `app/Http/Controllers/Radiographer/UploadController.php`.
 - Image processing: `/var/www/mpips/mpips/api/`,
   `/var/www/mpips/mpips/worker/`, and `/var/www/mpips/mpips/storage.py`.
+- SATUSEHAT status:
+  `/var/www/mhcs-member-core/.agents/context/satusehat/`,
+  `/var/www/mhcs-operator-core/.agents/context/satusehat/`, and both verified
+  project-context files.
 - Repository availability and checkpoints were checked with Git on
   2026-07-19. No dependencies were installed and no external service was
   contacted.
@@ -151,6 +172,8 @@ worker, storage, and project context; image-gateway Git state.
   successful output independently.
 - Third-party AI failures retry a limited number of times, then notify an
   administrator. The exact limit is undecided.
+- SATUSEHAT remains a future possibility until its business scope, clinical/RME
+  owner, data mappings, implementation, evidence, and approvals are agreed.
 - After business review, the approved Markdown may become a static website and
   printable PDF from the same content.
 - Detailed operating procedures, screenshots, API documentation, regulatory
@@ -172,6 +195,8 @@ worker, storage, and project context; image-gateway Git state.
   doctor assignment remain undecided.
 - The planned medical-record identifier is not yet verified against an exact
   standard or mapping.
+- SATUSEHAT integration, sandbox verification, security evidence, facility
+  list, signed declaration, and system manual are not available.
 - No website or PDF delivery mechanism exists by design.
 
 ## Open questions
@@ -182,3 +207,6 @@ worker, storage, and project context; image-gateway Git state.
 - Where can Grabber and doctor-core implementations be inspected?
 - What exact contracts connect member-core, operator-core, Grabber,
   image-gateway, MPIPS, and doctor-core?
+- Will SATUSEHAT enter approved MHCS scope?
+- Which clinical or RME application and business owner would be accountable for
+  SATUSEHAT?
