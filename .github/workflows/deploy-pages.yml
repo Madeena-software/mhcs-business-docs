@@ -33,6 +33,12 @@ jobs:
         run: python website/test_site.py
 
       - name: Setup Pages
+        id: setup_pages
+        continue-on-error: true
+        uses: actions/configure-pages@v4
+
+      - name: Setup Pages (retry)
+        if: steps.setup_pages.outcome == 'failure'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
