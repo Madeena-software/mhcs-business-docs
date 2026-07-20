@@ -17,8 +17,8 @@ agent orientation and must not duplicate them.
 ## Entry points
 
 - `.agents/context/README.md`: human reading guide
-- `docs/01-business-overview.md`: approved business flow
-- `docs/02-member-journey.md`: current and target journey
+- `docs/01-business-overview.md`: end-to-end business flow, actor journeys,
+  responsibilities, and rules
 - `docs/03-system-responsibilities.md`: ownership and readiness
 - `docs/04-satusehat-readiness.md`: FHIR and SATUSEHAT boundary
 - `docs/<repository>/project.md`: repository-specific business foundation
@@ -48,7 +48,7 @@ Current-state documentation was derived from:
 
 ## Documentation structure
 
-The repository contains four cross-system documents and five application
+The repository contains three cross-system documents and five application
 foundations:
 
 - Member Core

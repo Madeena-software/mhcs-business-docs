@@ -11,20 +11,19 @@ teleradiology service.
 
 | Document | Purpose |
 |---|---|
-| [Business overview](../../docs/01-business-overview.md) | Approved flow, actors, and boundaries |
-| [Member journey](../../docs/02-member-journey.md) | Current state and target journey |
-| [System responsibilities](../../docs/03-system-responsibilities.md) | Ownership, readiness, access, and payment triggers |
-| [SATUSEHAT and FHIR readiness](../../docs/04-satusehat-readiness.md) | FHIR direction and future SATUSEHAT scope |
+| [Business overview and actor journeys](docs/01-business-overview.md) | End-to-end business flow, actor journeys, responsibilities, and rules |
+| [System responsibilities](docs/03-system-responsibilities.md) | Ownership, readiness, access, and payment triggers |
+| [SATUSEHAT and FHIR readiness](docs/04-satusehat-readiness.md) | FHIR direction and future SATUSEHAT scope |
 
 ## Repository foundations
 
 | Repository | Foundation |
 |---|---|
-| `mhcs-member-core` | [Member Core](../../docs/mhcs-member-core/project.md) |
-| `mhcs-operator-core` | [Operator Core](../../docs/mhcs-operator-core/project.md) |
-| `mhcs-doctor-core` | [Doctor Core](../../docs/mhcs-doctor-core/project.md) |
-| `mhcs-image-gateway` | [Image Gateway](../../docs/mhcs-image-gateway/project.md) |
-| `mpips` | [MHCS additions only](../../docs/mpips/project.md) |
+| `mhcs-member-core` | [Member Core](docs/mhcs-member-core/project.md) |
+| `mhcs-operator-core` | [Operator Core](docs/mhcs-operator-core/project.md) |
+| `mhcs-doctor-core` | [Doctor Core](docs/mhcs-doctor-core/project.md) |
+| `mhcs-image-gateway` | [Image Gateway](docs/mhcs-image-gateway/project.md) |
+| `mpips` | [MHCS additions only](docs/mpips/project.md) |
 
 The MPIPS document is a delta for a later merge into MPIPS's existing project
 context.

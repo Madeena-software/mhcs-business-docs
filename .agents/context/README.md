@@ -11,8 +11,7 @@ teleradiology service.
 
 | Document | Purpose |
 |---|---|
-| [Business overview](../../docs/01-business-overview.md) | Approved flow, actors, and boundaries |
-| [Member journey](../../docs/02-member-journey.md) | Current state and target journey |
+| [Business overview and actor journeys](../../docs/01-business-overview.md) | End-to-end business flow, actor journeys, responsibilities, and rules |
 | [System responsibilities](../../docs/03-system-responsibilities.md) | Ownership, readiness, access, and payment triggers |
 | [SATUSEHAT and FHIR readiness](../../docs/04-satusehat-readiness.md) | FHIR direction and future SATUSEHAT scope |
 
