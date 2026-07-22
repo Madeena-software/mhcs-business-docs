@@ -30,7 +30,8 @@ Member Core is the member-facing application and the authority for:
 - member identity and the MHCS medical-record number;
 - member registration, including operator-assisted walk-ins;
 - examination sites, service offerings, schedules, and bookings;
-- member charges, payments, points, and refunds;
+- B2B and B2C booking authority;
+- member charges, payments, source-restricted Madeena Points, and refunds;
 - the attendance list supplied to Operator Core;
 - member notifications; and
 - member-safe presentation of processed images, AI results, and doctor reports.
@@ -43,8 +44,8 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 - Members use the member-facing Blade application.
 - Member administrators use the Filament panel at `/admin`.
 - The admin panel manages members, examination sites, service offerings,
-  schedules, bookings, member payments, points, promotions, settings, and
-  service credentials.
+  schedules, B2B and B2C bookings, member payments, point reservations,
+  promotions, settings, and service credentials.
 - Operator Core uses an organization/site-scoped service credential. It never
   receives direct database access.
 
@@ -78,9 +79,69 @@ NIK is an optional official identifier, not the primary key. A member without
 NIK must not be assigned an invented NIK.
 
 NIK and family-card number are sensitive lookup values. Member Core stores an
-encrypted value for authorized display and a keyed lookup hash for exact match,
-uniqueness, and login. They must not appear in logs, URLs, analytics, or API
-responses unless the receiving role and purpose explicitly require them.
+encrypted value for authorized display and a keyed lookup hash for exact match
+and uniqueness; only NIK is also used for login. They must not appear in logs,
+URLs, analytics, or API responses unless the receiving role and purpose
+explicitly require them.
+
+KK groups members into a family but is not a login identifier. A member who
+has no email or phone may log in with NIK and password. If that member forgets
+the password, an MHCS administrator performs assisted recovery after verifying
+NIK and KK; the recovery flow must not disclose protected values or account
+existence to an unauthorised requester.
+
+## B2B-first commercial model
+
+Member Core supports B2B and B2C simultaneously through the same member
+account and individual wallet. B2B is the initial commercial priority.
+
+### Initial B2B provisioning
+
+After a business agreement and its member data are available, an MHCS
+developer will use a later manual import script. The import creates or matches
+members, allocates the agreed annual Madeena Points, and creates the agreed
+entitlements and any bookings whose schedules are already known. No import
+script or fixed input format is specified before real agreement data are
+available.
+
+Each imported account receives a unique random temporary password generated
+with a cryptographically secure source. The account is active but must force a
+password change immediately after the first successful login. Plaintext
+temporary passwords must not be logged or stored after the one-time handoff.
+MHCS sends the credential document to one designated business contact outside
+Member Core; credential-document delivery is not an application feature.
+
+### Booking and points rules
+
+- The business centrally pays the annual fee for each covered member. Its
+  agreed value becomes business-funded Madeena Points in that member's
+  individual wallet.
+- Business-funded points are reserved for the agreed B2B entitlements or
+  bookings and cannot pay for a personal B2C booking. When scheduling follows
+  later, the reservation remains locked until its booking is created.
+- The agreement must provision the complete B2B cost before its entitlement or
+  booking is created. A funding mismatch is an administrative data error and
+  must never take points from the member's personal balance.
+- The business determines the examination, selected result service, location,
+  date, and shift. A member cannot cancel or reschedule a B2B booking.
+- An MHCS administrator may change or cancel a B2B booking only after an
+  official request from the business, with the request and action audited.
+- A B2B no-show remains paid and consumes the agreed examination quota.
+  Employee attendance consequences belong to the business, not MHCS.
+- A member may top up personal points and create additional B2C bookings in the
+  same account. Personal points fund these member-controlled bookings.
+
+The points ledger must preserve funding source, reservation, allocation, and
+consumption history even though the member sees one wallet. Booking records
+must preserve whether their authority and funding are B2B or B2C; changing a
+label must never convert one type into the other.
+
+### Family participation
+
+Employee family members use B2C. MHCS may create their accounts from submitted
+NIK and KK data, or they may self-register and link to an existing protected
+family record after verification. Their accounts and wallets remain individual;
+family grouping does not share balances or make KK a login identifier.
 
 ## Organization and examination-site rule
 
@@ -105,7 +166,7 @@ erDiagram
     OPERATOR_ORGANIZATION_REFS ||--o{ EXAMINATION_SITES : "operates"
     EXAMINATION_SITES ||--o{ SHIFT_SCHEDULES : "hosts"
     SERVICE_OFFERINGS ||--o{ SHIFT_SCHEDULES : "scheduled as"
-    MEMBERS ||--o{ BOOKINGS : "makes"
+    MEMBERS ||--o{ BOOKINGS : "receives"
     SHIFT_SCHEDULES ||--o{ BOOKINGS : "contains"
     SERVICE_OFFERINGS ||--o{ BOOKINGS : "selected"
     BOOKINGS ||--o{ PAYMENTS : "charged through"
@@ -233,6 +294,9 @@ migration syntax. Supporting framework tables are omitted.
 - Operator organization references and examination sites are first-class
   records.
 - Every shift schedule and booking belongs to one site.
+- Every booking preserves B2B or B2C authority and funding provenance.
+- The points ledger preserves business-funded reservations separately from
+  personal top-ups while exposing one member wallet.
 - Each service records whether it includes AI, doctor review, or both.
 - Price and selected-service behavior are immutable booking snapshots.
 - Identifiers exchanged between services are stable UUIDs.
@@ -259,6 +323,10 @@ online | walk_in | administrator
 
 It must never be used as an account state.
 
+The initial developer-run B2B import uses the existing administrator
+registration source. First-login password replacement is an authentication
+requirement independent of account and registration state.
+
 ## Booking states
 
 The approved booking lifecycle is:
@@ -271,9 +339,12 @@ pending_payment -> confirmed -> completed
         +--------------------- -> cancelled
 ```
 
-Exact cancellation and forfeiture transitions still require business approval.
-Until decided, an agent must preserve existing behavior and report the
-unresolved decision.
+B2B bookings cannot be cancelled or rescheduled by a member. An MHCS
+administrator may change them only on an official business request, and a
+no-show remains paid and consumes the business quota. Exact B2C cancellation,
+refund, and forfeiture transitions still require business approval; until
+decided, an agent must preserve existing B2C behavior and report the unresolved
+decision.
 
 ## Operator attendance API
 
@@ -464,6 +535,9 @@ Rules:
   never committed as plaintext.
 - Passwords are hashed with the framework's approved adaptive password hasher;
   NIK and KK lookup hashes are keyed and separate from encrypted display values.
+- Imported temporary passwords use cryptographically secure randomness, force
+  replacement on first login, and are never logged or retained in plaintext
+  after their one-time handoff.
 - Login is rate limited and returns the same failure response for an unknown
   identifier and an incorrect password.
 - Every cross-service request is authenticated and audit logged.
@@ -475,6 +549,8 @@ Rules:
 - Result URLs are short-lived or resolved through an authorized proxy.
 - Database transactions and row locks protect booking quotas, points, and
   idempotent walk-in creation.
+- A B2B booking cannot consume personal points, and a B2C booking cannot
+  consume reserved business-funded points.
 
 ## FHIR R5 boundary
 
@@ -655,6 +731,8 @@ Member administrators must be able to manage:
 
 - member identity reconciliation and account activation;
 - protected NIK/KK reconciliation, family grouping, and verification assets;
+- B2B agreement references, member import reconciliation, point reservations,
+  and audited business-requested booking changes;
 - Operator organizations and examination sites;
 - site-scoped service credentials and revocation;
 - service offerings and AI/doctor inclusion flags;
@@ -669,7 +747,11 @@ Sensitive administrative actions require authorization and audit history.
 Member Core does not satisfy this specification until tests demonstrate that:
 
 - an online registration creates linked user and member records;
+- a B2B import creates or matches one member account, requires temporary-password
+  replacement on first login, and never retains the plaintext password;
 - login works with email or NIK without requiring a phone;
+- assisted recovery for a member without email or phone requires authorised
+  NIK/KK verification;
 - login errors do not disclose whether a NIK or email exists;
 - an idempotent operator walk-in request creates at most one member and booking;
 - a credential cannot retrieve attendance for another site;
@@ -684,6 +766,11 @@ Member Core does not satisfy this specification until tests demonstrate that:
   release and profile;
 - non-R5 or unversioned resources are rejected by the R5 interface;
 - booking capacity remains correct under concurrent requests;
+- B2B bookings consume only their fully provisioned reserved points and cannot
+  be changed by a member;
+- B2C bookings consume only personal points, including when the same member has
+  B2B entitlements;
+- a B2B no-show remains paid and consumes its agreed quota;
 - account suspension preserves bookings and clinical references; and
 - FHIR mapping uses the member identity without renaming the internal domain.
 
@@ -692,7 +779,9 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - Which identity fields are mandatory when a walk-in has no NIK?
 - May a member without NIK/email/phone log in with MRN and password?
 - What are the approved KTP/profile-photo retention and deletion periods?
-- What are the exact cancellation, refund, and forfeiture transitions?
+- What are the exact B2C cancellation, refund, and forfeiture transitions?
+- What real import file format and field mapping will the first signed B2B
+  agreement require?
 - Is one service credential issued per deployed Operator Core instance or per
   site regardless of deployment?
 

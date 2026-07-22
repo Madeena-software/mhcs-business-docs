@@ -53,7 +53,7 @@
     <bpmn:startEvent id="StartEvent_Booking" name="Examination needed">
       <bpmn:outgoing>Flow_Start_Book</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:userTask id="Task_BookPay" name="Book, choose service, and pay">
+    <bpmn:userTask id="Task_BookPay" name="Confirm booking and points payment">
       <bpmn:incoming>Flow_Start_Book</bpmn:incoming>
       <bpmn:outgoing>Flow_Book_Confirm</bpmn:outgoing>
     </bpmn:userTask>

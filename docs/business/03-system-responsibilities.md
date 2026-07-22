@@ -24,7 +24,7 @@ implemented behavior.
 
 | Application or component | Owns | Receives | Produces | Readiness |
 |---|---|---|---|---|
-| `mhcs-member-core` | Member identity, medical-record ID, catalogue, booking, member payment, notifications, and result presentation | Member activity and member-safe result references | Attendance, examination snapshot, and member-facing information | **Current foundation:** core member workflow exists; expanded target handoffs remain unverified |
+| `mhcs-member-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, source-restricted points, payment, notifications, and result presentation | Member activity and member-safe result references | Attendance, examination snapshot, and member-facing information | **Current foundation:** core member workflow exists; expanded B2B rules and target handoffs remain unverified |
 | `mhcs-operator-core` | Front desk, queues, multi-capture draft and Submit, image viewing, and operator earnings | Attendance, gateway acceptance, image status, and payment-eligibility event | Queue state, complete NPZ submission, frozen metadata, and operator status | **Current foundation:** operational workflow and uploads exist; target cross-system flow is not verified |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free NPZ captures | **Business direction:** source was not inspected |
 | `mhcs-image-gateway` | Permanent NPZ/DICOM storage, processing coordination, routing, access, publication, and audit | Complete submissions and downstream statuses/results | MPIPS work, authorised references, completion, and publication events | **Target only:** available checkout has no commits |
@@ -45,7 +45,9 @@ Detailed foundations:
 
 - globally unique medical-record IDs;
 - member accounts and profiles;
-- booking, cancellation, member charges, and payment;
+- B2B and B2C booking, cancellation rules, member charges, and payment;
+- individual Madeena Points wallets with business-funded reservations kept
+  separate from personal top-ups;
 - walk-in registration and payment;
 - service choices per examination type or body part;
 - member notifications; and
@@ -59,6 +61,28 @@ reports, and amendments through Image Gateway.
 
 Members view completed images and export TIFF, JPG, or PDF. Member Core does
 not store raw NPZ or permanent DICOM copies.
+
+### B2B and B2C target rules
+
+B2B is the initial commercial priority, but the same member account also
+supports B2C. After an agreement and its data exist, an MHCS developer will use
+a later manual script to import the business's members and complete bookings.
+The business pays annual member fees centrally; their value becomes reserved
+Madeena Points in each member's individual wallet. The business determines the
+service, location, date, and shift, and the member cannot cancel or reschedule
+that booking. Only an MHCS administrator acting on an official business request
+may change it. A no-show remains paid and consumes the business quota.
+
+Members may add personal points and create additional B2C bookings in the same
+account. Business-funded points cannot pay for B2C bookings, and personal points
+never cover a B2B funding mismatch. Family accounts are B2C accounts grouped by
+protected KK data; email and phone remain optional.
+
+Imported members receive unique random temporary passwords and must change
+them on first login. MHCS distributes a credentials document to the designated
+business contact outside Member Core. Members without email or phone use NIK
+to log in and contact an MHCS administrator for recovery with NIK/KK
+verification.
 
 ### Current evidence
 
@@ -201,7 +225,8 @@ Unknown. Doctor Core source was unavailable.
 
 | Payment area | Owning application | Eligibility trigger |
 |---|---|---|
-| Member charge and payment | Member Core | According to booking; walk-in payment completes before operator confirmation |
+| Business-funded member charge | Member Core | Central annual payment becomes member-specific reserved points allocated to the agreed B2B entitlement or booking |
+| Personal member charge | Member Core | Personal Madeena Points fund B2C bookings; walk-in payment completes before operator confirmation |
 | Operator earning | Operator Core | AI selected: AI report delivery to the member, or terminal failure after both AI processing and fallback fail. Doctor-only: DICOM study enters the Doctor Core dashboard queue before claim |
 | Doctor earning | Doctor Core | Doctor submits the completed report |
 
@@ -236,7 +261,7 @@ operations use ordinary application contracts.
 
 | Area | Readiness | Main gap |
 |---|---|---|
-| Member booking and payment | Available foundation | Target catalogue, identifier, walk-in, and result handoffs require verification |
+| Member booking and payment | Available foundation | B2B imports, point-source restrictions, locked bookings, target catalogue, identifier, walk-in, and result handoffs require verification |
 | Front desk and queue | Available foundation | Member attendance connection is unverified |
 | Multi-capture NPZ submission | Partial current upload foundation | Draft set, complete Submit, and gateway acceptance are target |
 | Image Gateway | Not implemented in available checkout | Entire target backend remains to be built or provided |

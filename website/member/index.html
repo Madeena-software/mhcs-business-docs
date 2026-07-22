@@ -34,28 +34,28 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">01</span>
-          <div><h2>Account access</h2><p class="phase-subtitle">Register or sign in</p></div>
+          <div><h2>Account access</h2><p class="phase-subtitle">One account for B2B and B2C</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-decision">
             <span class="step-label">Decision</span>
-            <h3>Does the member already have an account?</h3>
+            <h3>How was the account created?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No — Register</strong><span>Name, email, phone, password, optional referral code, and terms.</span></div>
-              <div class="branch"><strong>Yes — Login</strong><span>Continue with an identifier and password.</span></div>
+              <div class="branch"><strong>B2B import</strong><span>MHCS creates the agreed member account and booking after the business data are available.</span></div>
+              <div class="branch"><strong>B2C registration</strong><span>The member self-registers, including a family member linking through verified NIK and KK data.</span></div>
             </div>
           </div>
           <div class="flow-step step-action">
             <span class="step-label">Login</span>
             <h3>Enter email or NIK and password</h3>
-            <p>Members can log in using their email or NIK.</p>
+            <p>Email and phone are optional. KK groups a family but is not a login identifier.</p>
           </div>
           <div class="flow-step step-decision">
             <span class="step-label">Validation</span>
             <h3>Are the credentials valid?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No</strong><span>Show error, retry, or reset the password by email.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Regenerate the session and check account status.</span></div>
+              <div class="branch"><strong>No</strong><span>Show a generic error. Without email or phone, contact an MHCS administrator for NIK/KK-verified recovery.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Regenerate the session, check account status, and enforce any required password change.</span></div>
             </div>
           </div>
         </div>
@@ -64,25 +64,25 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">02</span>
-          <div><h2>Account activation</h2><p class="phase-subtitle">Initial payment gate</p></div>
+          <div><h2>Funding & first login</h2><p class="phase-subtitle">Keep business and personal points separate</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-system">
-            <span class="step-label">New registration</span>
-            <h3>Create a pending member account</h3>
-            <p>The member is signed in but cannot enter the active-member area yet.</p>
+            <span class="step-label">B2B provisioning</span>
+            <h3>Receive an active account and reserved points</h3>
+            <p>The business pays centrally. Its annual value becomes reserved Madeena Points in the member's individual wallet.</p>
           </div>
           <div class="flow-step step-action">
             <span class="step-label">Required action</span>
-            <h3>Complete the initial payment / top-up</h3>
-            <p>This activates both a new account and an upgraded walk-in account.</p>
+            <h3>Replace the temporary password</h3>
+            <p>MHCS delivers credentials to the designated business contact outside Member Core. The imported member must change the random temporary password at first login.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Payment result</span>
-            <h3>Was payment successful?</h3>
+            <span class="step-label">Wallet rule</span>
+            <h3>Which points may pay?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No</strong><span>Keep the account pending and allow payment retry.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Activate the member and open the dashboard.</span></div>
+              <div class="branch"><strong>B2B booking</strong><span>Use only its fully provisioned business-funded reservation.</span></div>
+              <div class="branch"><strong>B2C booking</strong><span>Use only personal Madeena Points added by the member.</span></div>
             </div>
           </div>
           <div class="flow-step step-warning">
@@ -96,31 +96,34 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">03</span>
-          <div><h2>Booking & attendance</h2><p class="phase-subtitle">Choose and pay for care</p></div>
+          <div><h2>Booking & attendance</h2><p class="phase-subtitle">Assigned B2B or self-service B2C</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-action">
-            <span class="step-label">Service choice</span>
-            <h3>Select examination and result options</h3>
-            <p>Choose AI-only, doctor-only, or both when offered by the catalogue.</p>
+            <span class="step-label">Booking source</span>
+            <h3>Is this booking B2B or B2C?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>B2B</strong><span>The business determines the examination, result option, location, date, and shift.</span></div>
+              <div class="branch"><strong>B2C</strong><span>The member chooses an additional examination and pays with personal points.</span></div>
+            </div>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Schedule</span>
-            <h3>Select an available date and shift</h3>
-            <p>The booking must still meet capacity and cut-off rules.</p>
+            <span class="step-label">Change control</span>
+            <h3>Can the booking be changed?</h3>
+            <p>A member cannot change a B2B booking. An MHCS administrator may act only on an official business request; B2C follows member booking rules.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Balance check</span>
-            <h3>Is the member balance sufficient?</h3>
+            <span class="step-label">Attendance result</span>
+            <h3>Did the member attend?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No</strong><span>Top up, then return to the booking.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Confirm the booking and reserve the shift.</span></div>
+              <div class="branch"><strong>No — B2B</strong><span>The paid booking and quota remain consumed; attendance consequences belong to the business.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Operator Core receives the authorised paid booking.</span></div>
             </div>
           </div>
           <div class="flow-step step-success">
             <span class="step-label">Handoff</span>
             <h3>Attend the examination</h3>
-            <p>Operator Core receives authorised attendance information. Walk-ins must be registered and paid first.</p>
+            <p>Walk-ins and additional B2C bookings must still be registered and paid before operator confirmation.</p>
           </div>
         </div>
       </article>

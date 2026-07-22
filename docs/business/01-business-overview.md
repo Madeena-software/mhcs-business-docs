@@ -1,9 +1,8 @@
 # MHCS Business Overview and Actor Journeys
 
-MHCS is a teleradiology platform. It connects member booking, examination-day
-operations, offline image capture, automatic image processing, optional AI,
-doctor review, and member results without forcing every user into one
-application.
+MHCS is a teleradiology platform. It supports B2B and B2C service through one
+member account, wallet, and clinical journey. B2B is the initial commercial
+priority, while B2C registration and self-booking remain available.
 
 ## 1. How MHCS works
 
@@ -11,7 +10,7 @@ application.
 
 | Step | Owner | Action and outcome |
 |---:|---|---|
-| 1 | Member and Member Core | The member registers, chooses an examination and AI-only, doctor-only, or combined results, then completes payment. |
+| 1 | Business or member, and Member Core | For B2B, MHCS provisions the agreed members, services, locations, dates, shifts, and reserved Madeena Points. For B2C, the member registers, chooses, and pays independently. |
 | 2 | Member Core | Member Core supplies the authorised attendance and examination information to Operator Core. |
 | 3 | Front desk | Staff confirm that the member is registered and paid. A walk-in must first be registered and paid in Member Core. |
 | 4 | Operator | Staff confirm arrival, manage the queue, and select one active examination. |
@@ -37,7 +36,8 @@ creating permanent copies in every application.
 
 | Actor or system | Business role |
 |---|---|
-| Member | Books, pays, attends, views images, and receives selected results. |
+| Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
+| Member | Receives B2B bookings, may create additional B2C bookings, attends, views images, and receives selected results. |
 | Front-desk staff | Confirm eligible members and manage arrival and queue order. |
 | Operator or radiographer | Selects the active examination, manages the capture set, submits it, and monitors image processing. |
 | Grabber | Captures X-ray images as patient-free NPZ while its software may remain offline. |
@@ -45,13 +45,13 @@ creating permanent copies in every application.
 | MPIPS | Converts each submitted NPZ capture into DICOM. |
 | AI service | Produces an automatic result when selected. |
 | Doctor | Claims a study, reviews it, and submits a separate clinical report. |
-| Administrator | Manages the relevant application and receives final processing-failure notifications. |
+| MHCS administrator | Manages the relevant application, performs approved B2B booking changes and assisted account recovery, and receives final processing-failure notifications. |
 
 ### Application responsibilities
 
 | Application | Business responsibility |
 |---|---|
-| Member Core | Member identity, booking, member payment, choices, notifications, and results |
+| Member Core | Member identity, B2B and B2C booking, Madeena Points, payment, choices, notifications, and results |
 | Operator Core | Front desk, queues, capture-set submission, image viewing, and operator earnings |
 | Image Gateway | Permanent image storage, processing coordination, routing, and controlled distribution |
 | MPIPS | NPZ-to-DICOM processing |
@@ -63,7 +63,7 @@ Member Core owns:
 
 - the globally unique medical-record ID;
 - member registration, accounts, and profiles;
-- booking, member charges, and payment;
+- B2B and B2C booking, member charges, payment, and Madeena Points;
 - the service catalogue and the choices available for an examination;
 - AI-only, doctor-only, and combined choices;
 - walk-in registration and payment;
@@ -75,6 +75,44 @@ those rules.
 
 A walk-in must receive a Member Core medical-record ID and complete payment
 before Operator Core confirms the examination.
+
+### B2B-first operating model
+
+MHCS uses one account and one individual Madeena Points wallet per member:
+
+- After a B2B agreement and its member data are available, an MHCS developer
+  uses a later manual import script to create the agreed accounts, annual point
+  allocations, entitlements, and complete bookings. That script is not part of
+  the current scope.
+- The business pays the annual member fee centrally. Member Core converts the
+  agreed value into points in each member's individual wallet and reserves
+  those points for the agreed B2B entitlements or bookings.
+- Business-funded points cannot pay for personal B2C bookings. A B2B booking
+  cannot draw any shortfall from personal points; the agreement must provision
+  its full cost before the entitlement or booking is created.
+- The business determines the examination, selected result service, location,
+  date, and shift. If the schedule is agreed later, its reserved points remain
+  unavailable for personal use until the booking is completed.
+- Members cannot cancel or reschedule B2B bookings. An MHCS administrator may
+  do so only following an official business request.
+- A B2B no-show remains paid and consumes the agreed examination quota. The
+  business, not MHCS, owns employee attendance consequences.
+- Members may top up personal points and use the same account for additional
+  B2C bookings. These personal bookings follow the ordinary member-controlled
+  B2C flow.
+
+Initial B2B accounts use unique random temporary passwords and require a
+password change on first login. Credential delivery is outside Member Core:
+MHCS sends a credential document to the designated business contact for secure
+distribution. The temporary password must be generated with a cryptographically
+secure source and must not be logged or retained in plaintext after handoff.
+
+Family members participate through B2C. MHCS may create their accounts from
+submitted NIK and KK data, or they may self-register and link to the protected
+family record. Email and phone remain optional. A member without either may
+log in with NIK and password; password recovery is assisted by an MHCS
+administrator after NIK and KK verification. KK groups a family but is not a
+login identifier.
 
 ### Operator Core boundary
 
@@ -160,10 +198,12 @@ These tables describe the business journey for each role.
 
 | Phase | Member action or decision | System outcome |
 |---|---|---|
-| Account access | Register or sign in. Invalid credentials lead to retry or password recovery. | A new account begins pending; a valid active account opens the member area. |
-| Activation and payment | Complete the required initial payment or top-up. | Successful payment activates an eligible account. A failed payment remains retryable; a suspended account cannot continue. |
-| Booking | Choose the examination, available result option, date, and shift. Top up if the balance is insufficient. | Member Core confirms the booking and reserves the available service. |
+| Account access | Use an imported B2B account or self-register for B2C, then sign in. An imported member changes the temporary password immediately. | A valid active account opens one member area for both B2B and B2C. A member without email or phone uses NIK; assisted recovery verifies NIK and KK. |
+| Funding | Receive reserved business-funded points and optionally add personal points. | The individual wallet preserves each point source. Reserved business points and personal points cannot fund the other booking type. |
+| B2B booking | View the examination, result option, location, date, and shift assigned by the business. | The fully funded booking is confirmed. Only an MHCS administrator acting on an official business request may change it. |
+| B2C booking | Choose an additional examination, result option, date, and shift, then top up if necessary. | Member Core charges personal points and confirms the member-controlled booking. |
 | Attendance | Attend the examination. A walk-in registers and pays before operator confirmation. | Operator Core receives authorised attendance and examination information. |
+| B2B no-show | Miss an assigned examination. | The booking remains paid and consumes the business quota; the business owns any attendance consequence. |
 | Image processing | Wait while every submitted capture is converted. | A partial multi-capture result remains hidden until the complete image set succeeds. |
 | Images ready | View the complete processed image set and export TIFF, JPG, or PDF. | Raw NPZ remains inaccessible and raw DICOM is not offered for download. |
 | Selected results | Receive AI and doctor results when each purchased service completes. | Each result publishes automatically and neither waits for the other. |
@@ -246,7 +286,8 @@ Members may export TIFF, JPG, or PDF.
 
 | Payment area | Owning application | Business trigger |
 |---|---|---|
-| Member charge and payment | Member Core | According to booking; walk-in payment completes before operator confirmation. |
+| Business-funded member charge | Member Core | Central annual payment becomes reserved points in each member wallet and is allocated in full to the agreed B2B entitlement or booking. |
+| Personal member charge | Member Core | Personal points fund B2C bookings; walk-in payment completes before operator confirmation. |
 | Operator earning | Operator Core | If the selected service includes AI: the AI report is delivered to the member, or both AI processing and its fallback reach terminal failure. If doctor-only: the DICOM study enters the Doctor Core dashboard queue, before claim. |
 | Doctor earning | Doctor Core | The doctor submits the completed report. |
 
@@ -273,10 +314,14 @@ moves from booking to image and selected-result publication without:
 |---|---|
 | AI | Software that produces an automatic analysis separately from doctor review |
 | Amendment | A traceable new version of a submitted doctor report |
+| B2B booking | A fully business-determined and business-funded booking that the member cannot change |
+| B2C booking | A member-selected booking paid from personal Madeena Points |
+| Business customer | The organisation that funds annual member entitlements and determines B2B bookings |
 | DICOM | The clinical imaging file MPIPS creates from a submitted NPZ |
 | Grabber | Offline-capable software that captures X-ray images as patient-free NPZ |
 | Image Gateway | The backend that stores, coordinates, routes, and distributes clinical imaging |
 | Member | The person receiving the service |
+| Reserved points | Business-funded Madeena Points restricted to an agreed B2B entitlement or booking |
 | MPIPS | Madeena's image-processing product; MHCS uses its NPZ-to-DICOM capability |
 | NPZ | The patient-free capture file produced by Grabber |
 | Operator | Staff who manage examination-day work |
