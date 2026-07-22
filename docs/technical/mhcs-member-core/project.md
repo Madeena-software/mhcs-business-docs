@@ -1,26 +1,26 @@
 # Member Core Project Specification
 
-**Specification status:** Working technical draft
+**Specification status:** Expected end-state specification
 **Business foundation:** Approved
 **Last reviewed:** 22 July 2026
-**Current implementation evidence:** `/var/www/mhcs-member-core` at
-`452b1264fa6a2ddf0f5d1d92224db09b33677d6f`
 
-This is the central specification for `mhcs-member-core`. After approval, a
-repository-local copy will replace that repository's
+This is the central specification for `mhcs-member-core`. It defines how the
+system must work and is the expected state that implementation work must move
+toward. A repository-local copy will replace that repository's
 `.agents/context/project.md`.
 
 ## Agent rules
 
-- **CURRENT** means verified in the implementation checkpoint above.
-- **TARGET** means required behavior approved in this specification.
-- **GAP** means work is required; never describe it as implemented.
+- Treat every requirement in this document as the expected state that the
+  implementation must satisfy.
+- When the implementation differs from this specification, adapt the
+  implementation toward the specification. Do not weaken the specification to
+  match existing code.
+- Verify source and tests before claiming that a requirement is implemented.
 - Do not invent database columns, API fields, states, or service ownership.
 - Internal names do not have to match FHIR resource names. MHCS uses `Member`
   internally and maps it to FHIR `Patient` only at an external boundary.
-- HL7 FHIR R5 `5.0.0` is the only active MHCS interoperability target.
-- Reverify current source before implementation if its Git checkpoint differs
-  from the checkpoint above.
+- HL7 FHIR R5 `5.0.0` is the only active MHCS interoperability standard.
 
 ## Purpose and ownership
 
@@ -48,13 +48,6 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 - Operator Core uses an organization/site-scoped service credential. It never
   receives direct database access.
 
-**CURRENT:** A Filament panel exists at `/admin` and is restricted to verified
-users with the `Super Admin` role. Resources exist for members, bookings,
-services, schedules, shift templates, and promotions.
-
-**GAP:** Examination-site management and scoped Operator Core credentials are
-not represented in the current admin resources.
-
 ## Identity model
 
 MHCS uses two records created through one member-registration operation:
@@ -68,7 +61,7 @@ The business and UI term remains **Member** even when an external integration
 maps the record to FHIR `Patient`.
 
 A member logs in with either email and password or NIK and password. Email and
-phone are optional because the target population includes people who have
+phone are optional because the population includes people who have
 neither. Authentication must use one generic `identifier` input and a generic
 failure response so the login form does not reveal whether an email or NIK is
 registered.
@@ -84,7 +77,7 @@ Identifiers have distinct purposes:
 NIK is an optional official identifier, not the primary key. A member without
 NIK must not be assigned an invented NIK.
 
-NIK and family-card number are sensitive lookup values. The target stores an
+NIK and family-card number are sensitive lookup values. Member Core stores an
 encrypted value for authorized display and a keyed lookup hash for exact match,
 uniqueness, and login. They must not appear in logs, URLs, analytics, or API
 responses unless the receiving role and purpose explicitly require them.
@@ -102,7 +95,7 @@ Member Core owns the bookable site record. Operator Core owns its operational
 organization record. Their stable external identifiers are stored as opaque
 references; there are no cross-service database foreign keys.
 
-## Target data model
+## Required data model
 
 ```mermaid
 erDiagram
@@ -227,42 +220,26 @@ erDiagram
 The diagram defines the required ownership and relations, not final Laravel
 migration syntax. Supporting framework tables are omitted.
 
-### Current schema
+### Schema requirements
 
-**CURRENT:** `users` currently combines authentication, member identity,
-member lifecycle, points, and walk-in origin. `services`, `shift_templates`,
-`shift_schedules`, `bookings`, `payments`, `point_transactions`, `referrals`,
-`imaging_results`, `settings`, notifications, roles, and Sanctum tokens exist.
-
-`shift_schedules` currently has no examination site. `bookings` relates
-directly to `users`, and `user_type` mixes registration source (`walk_in`) with
-account state (`member_pending`, `member_active`, `member_suspended`).
-
-### Required schema changes
-
-**TARGET:**
-
-- Split member demographics and MRN into `members`, linked one-to-one to
+- Member demographics and the MRN belong to `members`, linked one-to-one to
   `users`.
-- Allow a nullable email and authenticate by normalized email or NIK.
-- Replace mixed `user_type` meaning with independent account status and member
-  registration source.
-- Add a family record keyed by protected KK number and associate members with
-  it; KK is not a login identifier.
-- Store KTP and profile photos as private verification assets, never public
-  URLs or inline database blobs.
-- Add Operator organization references and examination sites.
-- Attach every shift schedule and booking to one site.
-- Represent whether a service includes AI, doctor review, or both.
-- Preserve price and selected-service behavior as immutable booking snapshots.
-- Use stable UUIDs for identifiers exchanged between services.
-- Preserve bookings and clinical history when login access is suspended.
-- Store basic health measurements as timestamped history linked to the member,
-  booking, site, and recorder; never overwrite a `members` table column with
-  the latest value.
-
-**GAP:** None of these target schema changes is implemented at the verified
-checkpoint.
+- Email is nullable; authentication uses normalized email or NIK.
+- Account status and member registration source are independent fields.
+- A family record is keyed by a protected KK number and associated with its
+  members; KK is not a login identifier.
+- KTP and profile photos are private verification assets, never public URLs or
+  inline database blobs.
+- Operator organization references and examination sites are first-class
+  records.
+- Every shift schedule and booking belongs to one site.
+- Each service records whether it includes AI, doctor review, or both.
+- Price and selected-service behavior are immutable booking snapshots.
+- Identifiers exchanged between services are stable UUIDs.
+- Suspending login access preserves bookings and clinical history.
+- Basic health measurements are timestamped history linked to the member,
+  booking, site, and recorder; the latest value never overwrites a `members`
+  table column.
 
 ## Account and member states
 
@@ -295,7 +272,8 @@ pending_payment -> confirmed -> completed
 ```
 
 Exact cancellation and forfeiture transitions still require business approval.
-Until decided, an agent must preserve existing behavior and report the gap.
+Until decided, an agent must preserve existing behavior and report the
+unresolved decision.
 
 ## Operator attendance API
 
@@ -319,7 +297,7 @@ Rules:
 - Email, phone, address, account state, points, and payment details are not
   returned.
 
-Target response:
+Response example:
 
 ```json
 {
@@ -343,13 +321,6 @@ Target response:
   }
 }
 ```
-
-**CURRENT:** `GET /api/v1/operator/shifts/today` returns today's confirmed
-shifts and bookings under a Sanctum `operator` ability. It uses Member Core's
-server date, has no site scope, and exposes member email and phone.
-
-**GAP:** Replace the current broad response with the approved site-scoped,
-timestamp-based contract and implement its consumer in Operator Core.
 
 ## Operator-assisted walk-in API
 
@@ -487,12 +458,6 @@ Rules:
 - Corrections create a new record referencing the superseded record.
 - Timestamps require an explicit offset and are normalized to UTC.
 
-**CURRENT:** No vital-sign history or Operator Core measurement API exists at
-the verified checkpoint.
-
-**GAP:** Implement the target storage, scoped API, audit history, and FHIR
-mapping before claiming structured vital-sign support.
-
 ## Security and privacy invariants
 
 - Service credentials are stored hashed, scoped to one site, revocable, and
@@ -547,7 +512,7 @@ Member Core initially supports the R5 resources it owns:
 | `Bundle`, `OperationOutcome` | transaction/search results and standard errors |
 
 The `CapabilityStatement` is authoritative for the final interaction and
-search list. This table is the minimum target, not evidence of implementation.
+search list. This table is the minimum required capability.
 
 Internal names remain business-oriented:
 
@@ -577,7 +542,7 @@ in the MHCS profiles and mapper, not in UI code.
 
 ### Required radiology chain
 
-The target radiology relationship is:
+The required radiology relationship is:
 
 ```text
 Member/Patient
@@ -680,12 +645,11 @@ resource version, and `AuditEvent` records security-relevant access. These
 resources do not replace MHCS authorization checks or immutable local audit
 logs.
 
-FHIR R5 conformance is the approved target but is not implemented at the
-verified checkpoint. Local entities remain authoritative for MHCS operations;
-the R5 API is a strict interoperable representation with explicit profiles,
-validation, history, and security.
+FHIR R5 conformance is required. Local entities remain authoritative for MHCS
+operations; the R5 API is a strict interoperable representation with explicit
+profiles, validation, history, and security.
 
-## Admin-panel target
+## Admin panel
 
 Member administrators must be able to manage:
 
@@ -702,7 +666,7 @@ Sensitive administrative actions require authorization and audit history.
 
 ## Acceptance criteria
 
-The Member Core target is not complete until tests demonstrate that:
+Member Core does not satisfy this specification until tests demonstrate that:
 
 - an online registration creates linked user and member records;
 - login works with email or NIK without requiring a phone;
