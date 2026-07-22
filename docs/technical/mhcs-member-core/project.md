@@ -43,9 +43,9 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 
 - Members use the member-facing Blade application.
 - Member administrators use the Filament panel at `/admin`.
-- The admin panel manages members, examination sites, service offerings,
-  schedules, B2B and B2C bookings, member payments, point reservations,
-  promotions, settings, and service credentials.
+- The admin panel manages members, service offerings, schedules, B2B and B2C
+  bookings, member payments, point reservations, promotions, settings, and
+  service credentials for examination sites synchronized from Operator Core.
 - Operator Core uses an organization/site-scoped service credential. It never
   receives direct database access.
 

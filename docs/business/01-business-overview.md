@@ -12,8 +12,8 @@ priority, while B2C registration and self-booking remain available.
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions the agreed members, services, locations, dates, shifts, and reserved Madeena Points. For B2C, the member registers, chooses, and pays independently. |
 | 2 | Member Core | Member Core supplies the authorised attendance and examination information to Operator Core. |
-| 3 | Front desk | Staff confirm that the member is registered and paid. A walk-in must first be registered and paid in Member Core. |
-| 4 | Operator | Staff confirm arrival, manage the queue, and select one active examination. |
+| 3 | Operator | The assigned operator uses the front-desk features to confirm that the member is registered, paid, and verified. A walk-in must first be registered and paid in Member Core. |
+| 4 | Operator | The same operator confirms arrival, manages the queue, and selects one active examination. |
 | 5 | Grabber and Operator | Offline-capable Grabber software creates one or more patient-free NPZ captures. The operator reviews the draft set and may remove or retake captures. |
 | 6 | Operator Core | The operator submits the complete NPZ set once, together with a frozen member and examination snapshot. |
 | 7 | Image Gateway | Durable acceptance closes the operator queue item. Image Gateway stores the submission and coordinates processing. |
@@ -21,9 +21,9 @@ priority, while B2C registration and self-booking remain available.
 | 9 | Image Gateway | Failed captures are retried independently while successful sibling results are preserved. |
 | 10 | Image Gateway and Operator Core | When every capture has produced DICOM, the complete image set is ready. |
 | 11 | Image Gateway | The selected AI and doctor services start independently. |
-| 12 | AI service | A selected AI result is published automatically when it completes. Delivery to the member makes operator payment eligible; if AI processing and its fallback both fail, terminal fallback failure makes the payment eligible instead. |
-| 13 | Doctor Core | For a doctor-only service, the DICOM study enters the shared doctor dashboard queue and makes operator payment eligible before any doctor claims it. |
-| 14 | Doctor | A doctor claims the study, reviews it, and submits a separate clinical report. |
+| 12 | AI service | A selected AI result is published automatically when it completes. Delivery makes the AI-stage operator earning eligible; if AI processing and fallback both fail, terminal fallback failure is the trigger instead. |
+| 13 | Doctor Core | A doctor-selected study enters the shared dashboard queue. Queue entry does not yet make the doctor-stage operator earning eligible. |
+| 14 | Doctor | A doctor claims the study, confirms whether the images are diagnostically usable, and submits a separate clinical report. Quality acceptance makes the doctor-stage operator earning eligible. |
 | 15 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
 
 Each application has a distinct business responsibility. Image Gateway stores
@@ -38,8 +38,7 @@ creating permanent copies in every application.
 |---|---|
 | Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
 | Member | Receives B2B bookings, may create additional B2C bookings, attends, views images, and receives selected results. |
-| Front-desk staff | Confirm eligible members and manage arrival and queue order. |
-| Operator or radiographer | Selects the active examination, manages the capture set, submits it, and monitors image processing. |
+| Operator or radiographer | Uses the same application for front-desk verification, queue management, examination, capture submission, and processing status. |
 | Grabber | Captures X-ray images as patient-free NPZ while its software may remain offline. |
 | Image Gateway | Stores clinical files and coordinates processing, access, routing, and publication. |
 | MPIPS | Converts each submitted NPZ capture into DICOM. |
@@ -52,7 +51,7 @@ creating permanent copies in every application.
 | Application | Business responsibility |
 |---|---|
 | Member Core | Member identity, B2B and B2C booking, Madeena Points, payment, choices, notifications, and results |
-| Operator Core | Front desk, queues, capture-set submission, image viewing, and operator earnings |
+| Operator Core | Physical sites, operator staffing, front-desk features, queues, capture-set submission, image viewing, operator earnings, and payouts |
 | Image Gateway | Permanent image storage, processing coordination, routing, and controlled distribution |
 | MPIPS | NPZ-to-DICOM processing |
 | Doctor Core | Shared doctor work queue, study review, reports, amendments, and doctor earnings |
@@ -118,19 +117,20 @@ login identifier.
 
 Operator Core owns examination-day work:
 
-- front desk, arrivals, and queues;
+- physical-site master data and operator shift assignment;
+- front-desk features, arrivals, identity verification, and queues;
 - selection of the active examination;
 - upload of one or more NPZ captures from the Grabber computer;
 - a draft capture set that allows removal and retake;
 - one Submit action for the complete set;
 - processing status and processed-image viewing; and
-- operator earnings.
+- operator earnings and automated rupiah payouts.
 
-Gateway acceptance closes the operational queue item. Operator payment becomes
-eligible later according to the selected result service: AI delivery to the member (or
-terminal failure after the AI fallback also fails) for any service that
-includes AI, or entry into the Doctor Core dashboard queue for a doctor-only
-service.
+Gateway acceptance closes the operational queue item. AI-stage operator
+earnings become eligible after AI delivery to the member or terminal failure
+after fallback. Doctor-stage earnings become eligible only after a doctor
+confirms that the images are diagnostically usable. A combined service pays the
+two configured stages independently.
 
 Operators see images, not AI diagnoses or doctor reports. They cannot access
 raw NPZ or download raw DICOM.
@@ -213,7 +213,7 @@ These tables describe the business journey for each role.
 
 | Phase | Operator action or decision | System outcome |
 |---|---|---|
-| Staff access | Sign in and open the assigned operational project. | Valid active staff can load the relevant attendance list; inactive or unassigned staff cannot continue. |
+| Staff access | Sign in and open the assigned site and shift. | Valid active staff can load the relevant attendance list; inactive or unassigned staff cannot continue. |
 | Eligibility and arrival | Confirm that the member is registered and paid. | An ineligible member returns to Member Core; an eligible member can be marked as arrived. |
 | Queue | Assign a queue number and call one examination to the booth. | The selected examination becomes active and records the responsible operator. |
 | Identity | Use the identity supplied by the active examination. | Patient identity is never inferred from an NPZ filename or embedded NPZ data. |
@@ -223,7 +223,7 @@ These tables describe the business journey for each role.
 | Gateway acceptance | Wait for durable acceptance. | Acceptance closes the active queue item but does not yet make operator payment eligible. |
 | Processing status | Monitor whether every capture produced DICOM. | Failed captures remain pending or failed while the platform retries them; successful sibling results are preserved. |
 | Completion | View the complete processed image set. | When every submitted capture succeeds, the selected result workflow continues. |
-| Payment | Wait for the selected result milestone. | A service that includes AI becomes eligible when the AI report is delivered to the member, or when both AI processing and its fallback have failed. A doctor-only service becomes eligible when its DICOM study enters the Doctor Core dashboard queue, before claim. |
+| Payment | Wait for the selected result milestone. | The AI stage becomes eligible after AI delivery or terminal fallback failure. The doctor stage becomes eligible only after the doctor confirms diagnostic usability. Automatic rupiah payouts are handled by Operator Core. |
 
 Operators may view processing status and completed images. They do not see AI
 diagnoses or doctor reports and cannot access raw NPZ or download raw DICOM.
@@ -288,11 +288,11 @@ Members may export TIFF, JPG, or PDF.
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes reserved points in each member wallet and is allocated in full to the agreed B2B entitlement or booking. |
 | Personal member charge | Member Core | Personal points fund B2C bookings; walk-in payment completes before operator confirmation. |
-| Operator earning | Operator Core | If the selected service includes AI: the AI report is delivered to the member, or both AI processing and its fallback reach terminal failure. If doctor-only: the DICOM study enters the Doctor Core dashboard queue, before claim. |
+| Operator earning and payout | Operator Core | AI stage: AI delivery or terminal fallback failure. Doctor stage: doctor confirmation of diagnostic usability. A combined service pays both configured stages independently. |
 | Doctor earning | Doctor Core | The doctor submits the completed report. |
 
-Gateway acceptance and DICOM completion alone do not make operator payment
-eligible, except that DICOM queueing is the trigger for a doctor-only service.
+Gateway acceptance, DICOM completion, and doctor-queue entry alone do not make
+operator earnings eligible.
 
 ## 5. Service completion and glossary
 

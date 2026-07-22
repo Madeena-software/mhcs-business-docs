@@ -121,10 +121,13 @@ when legally required. The action must be fully audited.
 - The AI provider is selected by application code, not by the member.
 - A successful AI result becomes visible to the member automatically.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
-  report delivery to the member, or terminal failure after the fallback also fails, makes
-  operator payment eligible.
-- For a doctor-only service, placing the DICOM study in the Doctor Core
-  dashboard queue makes operator payment eligible before claim.
+  report delivery to the member, or terminal failure after the fallback also
+  fails, makes the AI-stage operator earning eligible.
+- For a doctor-selected service, placing the DICOM study in the Doctor Core
+  dashboard queue starts review but does not make the doctor-stage operator
+  earning eligible. Doctor confirmation of diagnostic usability is the trigger.
+- A combined service emits separate AI-stage and doctor-stage eligibility
+  events.
 - A submitted doctor report becomes visible automatically.
 - AI and doctor outputs are independent and neither waits for the other.
 - A doctor may see available AI output but may finish first.

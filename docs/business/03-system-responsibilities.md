@@ -17,7 +17,7 @@ Current-state findings were inspected at these repository checkpoints:
 - `mhcs-doctor-core`: unavailable for inspection.
 
 The Grabber source was not inspected. Target behavior records explicit
-business decisions approved through 22 July 2026 and must not be presented as
+business decisions approved through 23 July 2026 and must not be presented as
 implemented behavior.
 
 ## Responsibility map
@@ -25,7 +25,7 @@ implemented behavior.
 | Application or component | Owns | Receives | Produces | Readiness |
 |---|---|---|---|---|
 | `mhcs-member-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, source-restricted points, payment, notifications, and result presentation | Member activity and member-safe result references | Attendance, examination snapshot, and member-facing information | **Current foundation:** core member workflow exists; expanded B2B rules and target handoffs remain unverified |
-| `mhcs-operator-core` | Front desk, queues, multi-capture draft and Submit, image viewing, and operator earnings | Attendance, gateway acceptance, image status, and payment-eligibility event | Queue state, complete NPZ submission, frozen metadata, and operator status | **Current foundation:** operational workflow and uploads exist; target cross-system flow is not verified |
+| `mhcs-operator-core` | Physical sites, operator staffing, front-desk features, queues, multi-capture Submit, image viewing, operator earnings, and payouts | Attendance, gateway acceptance, image status, quality decisions, and payment events | Site data, queue state, complete NPZ submission, frozen metadata, and operator status | **Current foundation:** operational workflow and uploads exist; target cross-system flow is not verified |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free NPZ captures | **Business direction:** source was not inspected |
 | `mhcs-image-gateway` | Permanent NPZ/DICOM storage, processing coordination, routing, access, publication, and audit | Complete submissions and downstream statuses/results | MPIPS work, authorised references, completion, and publication events | **Target only:** available checkout has no commits |
 | `mpips` | NPZ-to-DICOM processing execution for MHCS | Authorised NPZ reference and frozen clinical metadata | DICOM and correlated processing status | **Current capability:** NPZ workflow exists; MHCS production contract is unverified |
@@ -94,23 +94,24 @@ verified end to end.
 
 ### Owns
 
-- front desk, arrivals, and queue order;
+- physical-site master data and operator shift assignment;
+- front-desk features, arrivals, identity verification, and queue order;
 - selection of the active examination;
 - multi-capture NPZ draft set;
 - removal and retake before Submit;
 - one Submit action for the complete set;
 - processing status and image viewing; and
-- operator earnings.
+- operator earnings and automated rupiah payouts.
 
 ### Target handoffs
 
 Operator Core sends patient-free NPZ files plus a frozen member/examination
 snapshot to Image Gateway.
 
-Gateway acceptance closes the active queue item. Operator payment becomes
-eligible later: after AI report delivery to the member (or terminal failure of both AI
-processing and its fallback) when AI was selected, or after the DICOM study
-enters the Doctor Core dashboard queue when the service is doctor-only.
+Gateway acceptance closes the active queue item. An AI-stage earning becomes
+eligible after AI delivery to the member or terminal failure after fallback. A
+doctor-stage earning becomes eligible only after a doctor confirms diagnostic
+usability. A combined service pays both configured stages independently.
 
 ### Current evidence
 
@@ -227,12 +228,11 @@ Unknown. Doctor Core source was unavailable.
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes member-specific reserved points allocated to the agreed B2B entitlement or booking |
 | Personal member charge | Member Core | Personal Madeena Points fund B2C bookings; walk-in payment completes before operator confirmation |
-| Operator earning | Operator Core | AI selected: AI report delivery to the member, or terminal failure after both AI processing and fallback fail. Doctor-only: DICOM study enters the Doctor Core dashboard queue before claim |
+| Operator earning and payout | Operator Core | AI stage: AI delivery or terminal fallback failure. Doctor stage: doctor confirmation of diagnostic usability. Combined service: both configured stages independently |
 | Doctor earning | Doctor Core | Doctor submits the completed report |
 
-Gateway acceptance closes operator work but does not make operator payment
-eligible. DICOM completion alone is also insufficient unless it results in a
-doctor-only study entering the Doctor Core dashboard queue.
+Gateway acceptance closes operator work but does not make an earning eligible.
+DICOM completion and doctor-queue entry alone are also insufficient.
 
 ## Access map
 
@@ -279,8 +279,8 @@ operations use ordinary application contracts.
   Submit action, and MPIPS creates DICOM.
 - Gateway acceptance closes operator work but does not make operator payment
   eligible. The selected result service determines the later trigger: AI
-  delivery to the member or terminal AI fallback failure, or doctor-queue entry for a
-  doctor-only service.
+  delivery or terminal AI fallback failure for the AI stage, and doctor
+  confirmation of diagnostic usability for the doctor stage.
 - One image path is insufficient; an examination supports multiple draft
   captures and every submitted capture is processed.
 - Doctors are not assigned by an unspecified process; they claim cases from a

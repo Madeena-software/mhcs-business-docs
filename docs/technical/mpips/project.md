@@ -70,7 +70,8 @@ For each capture, MPIPS produces:
 - failure information sufficient for Image Gateway to decide whether to retry.
 
 Image Gateway, not MPIPS, decides when the whole multi-capture examination is
-complete and when operator payment becomes eligible.
+complete. Operator Core decides earning eligibility from authenticated AI and
+doctor-stage events; MPIPS has no payment responsibility.
 
 ## Multi-capture and failure boundary
 
