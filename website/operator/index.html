@@ -144,7 +144,10 @@
           <div class="flow-step step-success">
             <span class="step-label">Payment event</span>
             <h3>Make operator earning eligible</h3>
-            <p>This happens after all submitted captures succeed, not merely after gateway acceptance.</p>
+            <div class="branch-grid">
+              <div class="branch"><strong>AI selected</strong><span>Pay after AI report delivery to the member, or after both AI processing and its fallback fail.</span></div>
+              <div class="branch"><strong>Doctor-only</strong><span>Pay when the DICOM study enters the Doctor Core dashboard queue, before claim.</span></div>
+            </div>
           </div>
         </div>
         <p class="restriction">

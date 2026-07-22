@@ -1,7 +1,7 @@
 # Image Gateway Business Project Foundation
 
 **Status:** Approved target foundation; no current implementation verified
-**Last reviewed:** 20 July 2026
+**Last reviewed:** 22 July 2026
 
 This document defines the MHCS business foundation for
 `mhcs-image-gateway`. The available repository contains no commits, so every
@@ -64,7 +64,7 @@ Only then does Image Gateway:
 
 - make the complete image set available to Member Core, Operator Core, and
   Doctor Core as authorised references; and
-- notify Operator Core that operator payment is eligible.
+- start each selected result workflow.
 
 A partially successful image set remains hidden from the member until the
 examination is resolved.
@@ -105,6 +105,11 @@ when legally required. The action must be fully audited.
 - Doctor review is requested only when selected.
 - The AI provider is selected by application code, not by the member.
 - A successful AI result becomes visible to the member automatically.
+- If AI processing fails, Image Gateway invokes the configured fallback. AI
+  report delivery to the member, or terminal failure after the fallback also fails, makes
+  operator payment eligible.
+- For a doctor-only service, placing the DICOM study in the Doctor Core
+  dashboard queue makes operator payment eligible before claim.
 - A submitted doctor report becomes visible automatically.
 - AI and doctor outputs are independent and neither waits for the other.
 - A doctor may see available AI output but may finish first.

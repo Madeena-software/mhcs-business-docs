@@ -20,11 +20,12 @@ application.
 | 7 | Image Gateway | Durable acceptance closes the operator queue item. Image Gateway stores the submission and coordinates processing. |
 | 8 | MPIPS | MPIPS creates one DICOM file for every submitted NPZ capture. |
 | 9 | Image Gateway | Failed captures are retried independently while successful sibling results are preserved. |
-| 10 | Image Gateway and Operator Core | When every capture has produced DICOM, the complete image set is ready and operator payment becomes eligible. |
+| 10 | Image Gateway and Operator Core | When every capture has produced DICOM, the complete image set is ready. |
 | 11 | Image Gateway | The selected AI and doctor services start independently. |
-| 12 | AI service | A selected AI result is published automatically when it completes. |
-| 13 | Doctor | A doctor claims the study, reviews it, and submits a separate clinical report. |
-| 14 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
+| 12 | AI service | A selected AI result is published automatically when it completes. Delivery to the member makes operator payment eligible; if AI processing and its fallback both fail, terminal fallback failure makes the payment eligible instead. |
+| 13 | Doctor Core | For a doctor-only service, the DICOM study enters the shared doctor dashboard queue and makes operator payment eligible before any doctor claims it. |
+| 14 | Doctor | A doctor claims the study, reviews it, and submits a separate clinical report. |
+| 15 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
 
 Each application has a distinct business responsibility. Image Gateway stores
 each clinical file once and shares it through controlled references instead of
@@ -88,8 +89,10 @@ Operator Core owns examination-day work:
 - operator earnings.
 
 Gateway acceptance closes the operational queue item. Operator payment becomes
-eligible later, only after every submitted capture has successfully produced
-DICOM.
+eligible later according to the selected result service: AI delivery to the member (or
+terminal failure after the AI fallback also fails) for any service that
+includes AI, or entry into the Doctor Core dashboard queue for a doctor-only
+service.
 
 Operators see images, not AI diagnoses or doctor reports. They cannot access
 raw NPZ or download raw DICOM.
@@ -179,7 +182,8 @@ These tables describe the business journey for each role.
 | Submit | Submit the complete draft set once. | Operator Core sends every remaining NPZ and a frozen examination snapshot to Image Gateway. |
 | Gateway acceptance | Wait for durable acceptance. | Acceptance closes the active queue item but does not yet make operator payment eligible. |
 | Processing status | Monitor whether every capture produced DICOM. | Failed captures remain pending or failed while the platform retries them; successful sibling results are preserved. |
-| Completion | View the complete processed image set. | When every submitted capture succeeds, operator payment becomes eligible. |
+| Completion | View the complete processed image set. | When every submitted capture succeeds, the selected result workflow continues. |
+| Payment | Wait for the selected result milestone. | A service that includes AI becomes eligible when the AI report is delivered to the member, or when both AI processing and its fallback have failed. A doctor-only service becomes eligible when its DICOM study enters the Doctor Core dashboard queue, before claim. |
 
 Operators may view processing status and completed images. They do not see AI
 diagnoses or doctor reports and cannot access raw NPZ or download raw DICOM.
@@ -243,11 +247,11 @@ Members may export TIFF, JPG, or PDF.
 | Payment area | Owning application | Business trigger |
 |---|---|---|
 | Member charge and payment | Member Core | According to booking; walk-in payment completes before operator confirmation. |
-| Operator earning | Operator Core | Every submitted NPZ has successfully produced DICOM. |
+| Operator earning | Operator Core | If the selected service includes AI: the AI report is delivered to the member, or both AI processing and its fallback reach terminal failure. If doctor-only: the DICOM study enters the Doctor Core dashboard queue, before claim. |
 | Doctor earning | Doctor Core | The doctor submits the completed report. |
 
-Gateway acceptance closes operator work but does not make operator payment
-eligible.
+Gateway acceptance and DICOM completion alone do not make operator payment
+eligible, except that DICOM queueing is the trigger for a doctor-only service.
 
 ## 5. Service completion and glossary
 

@@ -1,7 +1,7 @@
 # Operator Core Business Project Foundation
 
 **Status:** Approved target foundation
-**Last reviewed:** 20 July 2026
+**Last reviewed:** 22 July 2026
 
 This document defines the MHCS-specific business responsibilities that belong
 to `mhcs-operator-core`. It is not an implementation plan.
@@ -73,12 +73,18 @@ confirms the examination.
 
 Gateway acceptance closes the operational queue item.
 
-Operator payment has a separate trigger: it becomes eligible only after MPIPS
-successfully creates DICOM for every submitted capture. Operator Core owns the
-operator earning record.
+Operator payment has a separate trigger based on the member's selected result
+service:
 
-If any capture remains failed after all retries, the operator earning is not
-yet eligible.
+- If the service includes an AI report, payment becomes eligible after that AI
+  report is delivered to the member. If AI processing fails, its fallback must run; payment
+  becomes eligible only after delivery or after the fallback also reaches
+  terminal failure.
+- If the service is doctor-only, payment becomes eligible when the DICOM study
+  enters the Doctor Core dashboard queue, before any doctor claims it.
+
+Operator Core owns the operator earning record. Gateway acceptance alone never
+makes it eligible.
 
 ## Operator result access
 

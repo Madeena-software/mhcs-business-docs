@@ -17,7 +17,7 @@ Current-state findings were inspected at these repository checkpoints:
 - `mhcs-doctor-core`: unavailable for inspection.
 
 The Grabber source was not inspected. Target behavior records explicit
-business decisions approved on 19 July 2026 and must not be presented as
+business decisions approved through 22 July 2026 and must not be presented as
 implemented behavior.
 
 ## Responsibility map
@@ -83,8 +83,10 @@ verified end to end.
 Operator Core sends patient-free NPZ files plus a frozen member/examination
 snapshot to Image Gateway.
 
-Gateway acceptance closes the active queue item. All DICOM files succeeding
-later makes operator payment eligible.
+Gateway acceptance closes the active queue item. Operator payment becomes
+eligible later: after AI report delivery to the member (or terminal failure of both AI
+processing and its fallback) when AI was selected, or after the DICOM study
+enters the Doctor Core dashboard queue when the service is doctor-only.
 
 ### Current evidence
 
@@ -200,11 +202,12 @@ Unknown. Doctor Core source was unavailable.
 | Payment area | Owning application | Eligibility trigger |
 |---|---|---|
 | Member charge and payment | Member Core | According to booking; walk-in payment completes before operator confirmation |
-| Operator earning | Operator Core | Every submitted NPZ has successfully produced DICOM |
+| Operator earning | Operator Core | AI selected: AI report delivery to the member, or terminal failure after both AI processing and fallback fail. Doctor-only: DICOM study enters the Doctor Core dashboard queue before claim |
 | Doctor earning | Doctor Core | Doctor submits the completed report |
 
-Gateway acceptance closes operator work but does not yet make operator payment
-eligible.
+Gateway acceptance closes operator work but does not make operator payment
+eligible. DICOM completion alone is also insufficient unless it results in a
+doctor-only study entering the Doctor Core dashboard queue.
 
 ## Access map
 
@@ -254,7 +257,9 @@ SATUSEHAT a current integration.
   Grabber creates patient-free NPZ, Operator Core owns the examination-scoped
   Submit action, and MPIPS creates DICOM.
 - Gateway acceptance closes operator work but does not make operator payment
-  eligible; every submitted capture must first produce DICOM.
+  eligible. The selected result service determines the later trigger: AI
+  delivery to the member or terminal AI fallback failure, or doctor-queue entry for a
+  doctor-only service.
 - One image path is insufficient; an examination supports multiple draft
   captures and every submitted capture is processed.
 - Doctors are not assigned by an unspecified process; they claim cases from a
