@@ -116,16 +116,20 @@ when legally required. The action must be fully audited.
 - Corrected doctor reports preserve history and are redistributed as the new
   current version.
 
-## FHIR boundary
+## FHIR R5 boundary
 
-FHIR-compatible structures apply to patient identity, examinations, imaging
-studies, and clinical reports.
+The target interoperability contract uses HL7 FHIR R5 `5.0.0`. Image Gateway
+maintains the authoritative mapping from DICOM studies to `ImagingStudy`, uses
+`ImagingSelection` for selected instances or frames, carries AI findings as
+profiled `Observation` or `DiagnosticReport` resources, and uses
+`DocumentReference` only for clinical documents that are not represented by a
+more specific resource. Applicable changes and access are represented with
+`Provenance` and `AuditEvent` in addition to local immutable audit records.
 
 Processing status, retry control, storage operations, notifications, and
-payment-eligibility events remain ordinary service operations.
-
-SATUSEHAT integration is a future possibility. FHIR compatibility does not
-prove SATUSEHAT integration, certification, or readiness.
+payment-eligibility events remain ordinary service operations. The available
+checkout has no R5 implementation, so profiles, mappings, validation, and
+tests are target work.
 
 ## Does not own
 
@@ -143,6 +147,6 @@ Image Gateway does not own:
 
 **Target only:** The available checkout has no committed implementation.
 
-Exact upload contracts, storage layout, idempotency, FHIR mappings,
+Exact upload contracts, storage layout, idempotency, FHIR R5 mappings,
 authorisation, audit events, callbacks, retry timing, deployment, and tests
 belong to a later technical plan.

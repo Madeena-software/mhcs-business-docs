@@ -64,7 +64,7 @@ These access and lifecycle rules were approved after review of DICOMweb
 rendered/native retrieval, HL7 FHIR `DiagnosticReport` revision states,
 Indonesian electronic-medical-record requirements, and the ACR communication
 practice parameter. The source links are retained in
-[System Responsibilities and Readiness](../03-system-responsibilities.md#evidence-sources).
+[System Responsibilities and Readiness](../../business/03-system-responsibilities.md#evidence-sources).
 
 ## Payment boundary
 
@@ -95,11 +95,19 @@ Doctor Core produces:
 - corrected or amended report versions; and
 - the event that makes doctor payment eligible.
 
-## FHIR boundary
+## FHIR R5 boundary
 
-Clinical study and report structures should be FHIR-compatible. Queue
-claiming, user administration, and doctor earnings remain ordinary application
-workflows.
+The target interoperability contract uses HL7 FHIR R5 `5.0.0`. Doctor Core
+consumes authorised references to `Patient`, `Encounter`, `ServiceRequest`,
+`ImagingStudy`, `Observation`, and any available AI result. It uses `Task` for
+claim and assignment state, produces versioned `DiagnosticReport` resources,
+and records applicable `Provenance` and `AuditEvent` resources.
+
+A final report is never silently overwritten. Corrections use the applicable
+R5 corrected or amended status and preserve version lineage. Queue mechanics,
+user administration, and doctor earnings remain ordinary application
+workflows. Because the source is unavailable, every R5 mapping, profile,
+validator, and test remains target work.
 
 ## Does not own
 
@@ -116,6 +124,6 @@ Doctor Core does not own:
 
 **Unknown:** Doctor Core source was unavailable for inspection.
 
-Every capability above is an approved target. Exact report structure, FHIR
+Every capability above is an approved target. Exact report structure, FHIR R5
 mapping, authorisation, signatures, queue concurrency, notifications,
 deployment, and tests belong to a later technical plan.

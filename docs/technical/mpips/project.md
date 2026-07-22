@@ -40,8 +40,9 @@ For each submitted capture, MPIPS receives:
 - the frozen clinical metadata needed to create DICOM; and
 - an external execution identity that allows safe status correlation.
 
-The clinical portion should be FHIR-compatible. Queue, payment, retry, and
-administrative data do not need to be represented as FHIR.
+The clinical metadata contract uses the MHCS HL7 FHIR R5 `5.0.0` profiles.
+Queue, payment, retry, and administrative data do not need to be represented
+as FHIR resources.
 
 ## Output required by Image Gateway
 
@@ -114,8 +115,7 @@ The MHCS addition does not make MPIPS responsible for:
 - AI-provider selection;
 - doctor work queues;
 - result publication;
-- member, operator, or doctor payments; or
-- SATUSEHAT integration.
+- member, operator, or doctor payments.
 
 ## Completion condition for this delta
 
@@ -123,5 +123,5 @@ The MHCS addition is ready only when Image Gateway can submit an authorised NPZ
 and frozen clinical snapshot, receive a correlated DICOM result and status,
 and safely retry a failed capture without duplicating a successful result.
 
-API schemas, authentication, object-key rules, FHIR mapping, deployment, and
+API schemas, authentication, object-key rules, FHIR R5 mapping, deployment, and
 tests belong to a later technical plan.

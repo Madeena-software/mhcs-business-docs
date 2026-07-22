@@ -33,11 +33,11 @@ implemented behavior.
 
 Detailed foundations:
 
-- [Member Core](mhcs-member-core/project.md)
-- [Operator Core](mhcs-operator-core/project.md)
-- [Image Gateway](mhcs-image-gateway/project.md)
-- [MPIPS additions required by MHCS](mpips/project.md)
-- [Doctor Core](mhcs-doctor-core/project.md)
+- [Member Core](../technical/mhcs-member-core/project.md)
+- [Operator Core](../technical/mhcs-operator-core/project.md)
+- [Image Gateway](../technical/mhcs-image-gateway/project.md)
+- [MPIPS additions required by MHCS](../technical/mpips/project.md)
+- [Doctor Core](../technical/mhcs-doctor-core/project.md)
 
 ## Member Core
 
@@ -171,7 +171,7 @@ before later schema validation, so extension or post-load validation is not a
 sufficient production trust boundary. Technical planning must either adopt a
 non-pickle schema or define an isolated trusted conversion boundary.
 
-The [MPIPS document](mpips/project.md) contains only the additions required by
+The [MPIPS document](../technical/mpips/project.md) contains only the additions required by
 MHCS and is intended for a later merge into MPIPS's existing project context.
 
 ## Doctor Core
@@ -220,9 +220,9 @@ doctor-only study entering the Doctor Core dashboard queue.
 
 Members may export TIFF, JPG, or PDF.
 
-## FHIR boundary
+## FHIR R5 boundary
 
-FHIR-compatible clinical structures apply to:
+HL7 FHIR R5 `5.0.0` clinical structures apply to:
 
 - patient identity;
 - examinations;
@@ -231,9 +231,6 @@ FHIR-compatible clinical structures apply to:
 
 Queues, payments, retries, storage administration, and other non-clinical
 operations use ordinary application contracts.
-
-This direction prepares MHCS for future interoperability. It does not make
-SATUSEHAT a current integration.
 
 ## Readiness summary
 
@@ -248,8 +245,7 @@ SATUSEHAT a current integration.
 | Doctor review | Unknown/target | Repository and implementation are unavailable |
 | Member images and results | Receiving foundation exists | Complete image/reference and independent-result delivery are missing |
 | Payment events | Approved target rules | Cross-system implementation is missing |
-| FHIR-compatible clinical exchange | Approved direction | Exact profiles and mappings are deferred |
-| SATUSEHAT | Future possibility; not implemented | Scope, mappings, implementation, evidence, and approval remain absent |
+| FHIR R5 clinical exchange | Approved target | Exact R5 profiles, mappings, conformance artifacts, validation, and implementation remain incomplete |
 
 ## Superseded assumptions
 
@@ -276,9 +272,8 @@ plans:
 
 - whether the Grabber NPZ contains TIFF bytes, a raw numeric image array, or
   both, and whether it matches MPIPS's required fields;
-- exact FHIR profiles and field mappings;
+- exact FHIR R5 profiles, field mappings, conformance artifacts, and validation;
 - exact DICOM metadata mapping and validation;
-- exact SATUSEHAT identifier mapping and any future approved compliance scope;
 - API authentication and authorisation;
 - upload, object-reference, checksum, and idempotency contracts;
 - retry intervals;

@@ -116,11 +116,19 @@ Operator Core receives:
 - completed-image references; and
 - the event that makes operator payment eligible.
 
-## FHIR boundary
+## FHIR R5 boundary
 
-Patient, examination, and imaging-study information should use
-FHIR-compatible clinical structures. Queues, staff operations, and operator
-earnings remain ordinary operational workflows.
+The target interoperability contract uses HL7 FHIR R5 `5.0.0`. Operator Core
+consumes Member Core references for `Patient`, `Appointment`, and
+`ServiceRequest`. It owns the operational mapping for `Organization`,
+`Location`, `Practitioner`, `PractitionerRole`, `Encounter`, `Task`, and
+`Procedure`, and sends captured vital-sign measurements to Member Core's
+`Observation` authority.
+
+Queues, draft captures, processing status, staff administration, and operator
+earnings remain ordinary operational workflows and must not be forced into
+FHIR resources. The verified implementation has no complete R5 interface;
+profiles, mappings, validation, and tests are target work.
 
 ## Does not own
 
