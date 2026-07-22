@@ -56,10 +56,12 @@ MHCS uses two records created through one member-registration operation:
 - `users` owns authentication credentials and login state.
 - `members` owns the healthcare identity and member demographics.
 
-Every member, including a walk-in, receives both records. Keeping them separate
-prevents authentication concerns from becoming the clinical identity model.
-The business and UI term remains **Member** even when an external integration
-maps the record to FHIR `Patient`.
+Every adult member, including a walk-in, receives both records. A child receives
+a member record and a login-disabled user record; verified guardians act through
+their own accounts until the child activates independent access at age 17.
+Keeping authentication separate prevents login concerns from becoming the
+clinical identity model. The business and UI term remains **Member** even when
+the private FHIR boundary maps the record to `Patient`.
 
 A member logs in with either email and password or NIK and password. Email and
 phone are optional because the population includes people who have
@@ -75,8 +77,12 @@ Identifiers have distinct purposes:
 - external patient identifiers: optional integration metadata, never used as
   the local primary key.
 
-NIK is an optional official identifier, not the primary key. A member without
-NIK must not be assigned an invented NIK.
+NIK is a mandatory official identifier but not the primary key. Registration
+requires an uploaded KTP for a member aged 17 or older, or a KIA for a child
+under 17 and not married. Any exceptional identity-document eligibility follows
+current Dukcapil rules. Every registration also requires a separate MHCS profile
+photograph; a KIA for a child under five does not itself contain a face
+photograph.
 
 NIK and family-card number are sensitive lookup values. Member Core stores an
 encrypted value for authorized display and a keyed lookup hash for exact match
@@ -84,11 +90,27 @@ and uniqueness; only NIK is also used for login. They must not appear in logs,
 URLs, analytics, or API responses unless the receiving role and purpose
 explicitly require them.
 
-KK groups members into a family but is not a login identifier. A member who
-has no email or phone may log in with NIK and password. If that member forgets
-the password, an MHCS administrator performs assisted recovery after verifying
-NIK and KK; the recovery flow must not disclose protected values or account
-existence to an unauthorised requester.
+KK groups members into a family but is not a login identifier. A member who has
+no email or phone may log in with NIK and password. If that member forgets the
+password, an MHCS administrator performs assisted recovery after verifying the
+member's identity document, face, and KK where applicable; the flow must not
+disclose protected values or account existence to an unauthorised requester.
+
+### Children and guardians
+
+Registering a child requires the child's KIA, profile photograph, KK, and at
+least one parent or legal guardian whose own MHCS account and KTP have already
+been verified. More than one guardian may be linked after an administrator
+verifies the KTP, KIA, and KK evidence. Every active guardian has equal access
+to the child's bookings, points, and member-safe results.
+
+A guardian always logs in to their own account and selects the child's dependent
+profile. The guardian never uses or receives child credentials, and every action
+is attributed to the acting guardian. The child has no independent login until
+age 17. At age 17, the member verifies a KTP and activates independent access;
+guardian access then ends automatically unless a separately verified legal
+authority continues it. Activation, guardian additions and removals, and every
+exception are audited.
 
 ## B2B-first commercial model
 
@@ -136,6 +158,28 @@ consumption history even though the member sees one wallet. Booking records
 must preserve whether their authority and funding are B2B or B2C; changing a
 label must never convert one type into the other.
 
+Madeena Points are the only member payment instrument. A top-up converts money
+to personal points and cannot be withdrawn or converted back to money. A valid
+refund is always a compensating points-ledger entry to the original member and
+funding source, never a cash refund or destructive edit of the original entry.
+
+### B2C cancellation and postponement
+
+- One administrator-configured cancellation cutoff applies to every B2C
+  service offering.
+- A member may cancel before the cutoff and receives all charged points back to
+  the personal balance.
+- At or after the cutoff, a member cancellation is rejected and an administrator
+  may not grant a member-requested exception. A no-show remains paid and the
+  points are forfeited because the operator and examination capacity have
+  already been committed.
+- If MHCS or the examination site cancels, all points are returned regardless
+  of the cutoff.
+- If MHCS postpones or changes the examination date, the member may accept the
+  replacement or reject it and receive all points back.
+- Every cancellation, postponement decision, forfeiture, and compensating
+  ledger entry is audited.
+
 ### Family participation
 
 Employee family members use B2C. MHCS may create their accounts from submitted
@@ -143,10 +187,22 @@ NIK and KK data, or they may self-register and link to an existing protected
 family record after verification. Their accounts and wallets remain individual;
 family grouping does not share balances or make KK a login identifier.
 
+KK household grouping is distinct from clinical family history. A member may
+optionally record clinically relevant history about a relative. Member-entered
+history remains labelled patient-reported until an authorised doctor reviews
+it. Only a doctor may mark it clinically reviewed. Editing reviewed information
+creates a new patient-reported version that requires another review; the prior
+version and its `Provenance` remain preserved.
+
 ## Organization and examination-site rule
 
 Every schedule and booking belongs to one examination site. Each site is
 assigned to one Operator Core organization.
+
+A site must not have overlapping active shift schedules. Creating or activating
+a schedule whose time range overlaps another active schedule for the same site
+is rejected. This invariant allows the attendance-at-time contract to return one
+schedule.
 
 For the first API version, an Operator Core service credential is bound to one
 organization and one site. The caller cannot select another organization or
@@ -163,14 +219,21 @@ erDiagram
     USERS ||--|| MEMBERS : "authenticates"
     FAMILIES ||--o{ MEMBERS : "groups"
     MEMBERS ||--o{ MEMBER_VERIFICATION_ASSETS : "verified with"
+    MEMBERS ||--o{ MEMBER_GUARDIANS : "is child"
+    MEMBERS ||--o{ MEMBER_GUARDIANS : "acts as guardian"
+    MEMBERS ||--o{ FAMILY_MEDICAL_HISTORIES : "records"
     OPERATOR_ORGANIZATION_REFS ||--o{ EXAMINATION_SITES : "operates"
     EXAMINATION_SITES ||--o{ SHIFT_SCHEDULES : "hosts"
+    EXAMINATION_SITES ||--o{ SERVICE_CREDENTIALS : "authorizes"
     SERVICE_OFFERINGS ||--o{ SHIFT_SCHEDULES : "scheduled as"
     MEMBERS ||--o{ BOOKINGS : "receives"
     SHIFT_SCHEDULES ||--o{ BOOKINGS : "contains"
     SERVICE_OFFERINGS ||--o{ BOOKINGS : "selected"
-    BOOKINGS ||--o{ PAYMENTS : "charged through"
+    MEMBERS ||--o{ POINT_TOP_UPS : "purchases"
+    MEMBERS ||--o{ POINT_LEDGER_ENTRIES : "owns"
+    BOOKINGS ||--o{ POINT_LEDGER_ENTRIES : "charged or refunded through"
     BOOKINGS ||--o| IMAGING_RESULTS : "publishes"
+    BOOKINGS ||--o| WALK_IN_REQUESTS : "created by"
     MEMBERS ||--o{ VITAL_SIGN_MEASUREMENTS : "has"
     BOOKINGS ||--o{ VITAL_SIGN_MEASUREMENTS : "measured during"
     EXAMINATION_SITES ||--o{ VITAL_SIGN_MEASUREMENTS : "recorded at"
@@ -178,7 +241,7 @@ erDiagram
     USERS {
         uuid id PK
         string email UK
-        string password
+        string password_hash
         enum account_status
     }
 
@@ -187,6 +250,7 @@ erDiagram
         uuid user_id UK
         uuid family_id FK
         string medical_record_number UK
+        enum identity_document_type
         string encrypted_nik
         string nik_lookup_hash UK
         string name
@@ -207,8 +271,35 @@ erDiagram
         uuid member_id FK
         enum type
         string private_object_key
-        datetime verified_at
-        uuid verified_by_operator_id
+        enum review_status
+        boolean is_current
+        uuid uploaded_by_user_id
+        uuid reviewed_by_admin_id
+        datetime reviewed_at
+        uuid replaces_id
+    }
+
+    MEMBER_GUARDIANS {
+        uuid id PK
+        uuid child_member_id FK
+        uuid guardian_member_id FK
+        enum status
+        uuid verified_by_admin_id
+        datetime starts_at
+        datetime ends_at
+    }
+
+    FAMILY_MEDICAL_HISTORIES {
+        uuid id PK
+        uuid member_id FK
+        uuid supersedes_id
+        string relative_relationship_code
+        string condition_code
+        string condition_note
+        enum source
+        enum review_status
+        uuid reviewed_by_doctor_id
+        datetime reviewed_at
     }
 
     OPERATOR_ORGANIZATION_REFS {
@@ -227,13 +318,21 @@ erDiagram
         boolean active
     }
 
+    SERVICE_CREDENTIALS {
+        uuid id PK
+        uuid examination_site_id FK
+        string token_hash UK
+        enum status
+        datetime revoked_at
+    }
+
     SERVICE_OFFERINGS {
         uuid id PK
         string code UK
         string name
         boolean includes_ai
         boolean includes_doctor
-        integer price
+        integer points_price
         boolean active
     }
 
@@ -254,7 +353,47 @@ erDiagram
         uuid service_offering_id FK
         enum booking_type
         enum status
-        integer price_snapshot
+        string service_code_snapshot
+        integer points_cost_snapshot
+        boolean includes_ai_snapshot
+        boolean includes_doctor_snapshot
+    }
+
+    POINT_TOP_UPS {
+        uuid id PK
+        uuid member_id FK
+        integer money_amount
+        integer points_amount
+        enum status
+        string provider_reference UK
+    }
+
+    POINT_LEDGER_ENTRIES {
+        uuid id PK
+        uuid member_id FK
+        uuid booking_id FK
+        enum funding_source
+        enum entry_type
+        integer points_delta
+        uuid reverses_id
+        datetime created_at
+    }
+
+    IMAGING_RESULTS {
+        uuid id PK
+        uuid booking_id FK
+        enum result_type
+        string source_service
+        string source_resource_id
+        enum publication_status
+    }
+
+    WALK_IN_REQUESTS {
+        uuid id PK
+        uuid booking_id FK
+        string idempotency_key UK
+        string request_hash
+        enum status
     }
 
     VITAL_SIGN_MEASUREMENTS {
@@ -286,19 +425,30 @@ migration syntax. Supporting framework tables are omitted.
 - Member demographics and the MRN belong to `members`, linked one-to-one to
   `users`.
 - Email is nullable; authentication uses normalized email or NIK.
+- NIK and one current KTP or KIA asset are mandatory. A separate current
+  profile photograph is also mandatory at registration.
 - Account status and member registration source are independent fields.
 - A family record is keyed by a protected KK number and associated with its
   members; KK is not a login identifier.
-- KTP and profile photos are private verification assets, never public URLs or
-  inline database blobs.
+- KTP, KIA, and profile photographs are private verification assets, never
+  public URLs or inline database blobs. Profile-photo replacement preserves
+  history and has exactly one approved current asset.
+- Guardian access is an explicit verified relation, not shared credentials or
+  an implication inferred from a common KK value.
 - Operator organization references and examination sites are first-class
   records.
+- Active schedules for one site cannot overlap.
 - Every shift schedule and booking belongs to one site.
 - Every booking preserves B2B or B2C authority and funding provenance.
 - The points ledger preserves business-funded reservations separately from
-  personal top-ups while exposing one member wallet.
+  personal top-ups while exposing one member wallet. Charges, forfeitures, and
+  refunds are immutable entries with compensating reversals.
 - Each service records whether it includes AI, doctor review, or both.
-- Price and selected-service behavior are immutable booking snapshots.
+- Point cost, service code, and selected AI/doctor behavior are immutable
+  booking snapshots.
+- Walk-in idempotency storage binds one key and request hash to one result.
+- Family medical history is separate from KK grouping and preserves
+  patient-reported, doctor-reviewed, and superseded versions.
 - Identifiers exchanged between services are stable UUIDs.
 - Suspending login access preserves bookings and clinical history.
 - Basic health measurements are timestamped history linked to the member,
@@ -327,6 +477,10 @@ The initial developer-run B2B import uses the existing administrator
 registration source. First-login password replacement is an authentication
 requirement independent of account and registration state.
 
+A child's login remains disabled until age 17 even though the member and user
+records already exist. Guardian access is delegated from the guardian's own
+active account and does not change the child's account state.
+
 ## Booking states
 
 The approved booking lifecycle is:
@@ -335,16 +489,21 @@ The approved booking lifecycle is:
 pending_payment -> confirmed -> completed
         |              |       -> no_show
         |              |       -> postponed
-        |              +------ -> cancelled_refunded
+        |              +------ -> cancelled_points_refunded
         +--------------------- -> cancelled
 ```
 
 B2B bookings cannot be cancelled or rescheduled by a member. An MHCS
 administrator may change them only on an official business request, and a
-no-show remains paid and consumes the business quota. Exact B2C cancellation,
-refund, and forfeiture transitions still require business approval; until
-decided, an agent must preserve existing B2C behavior and report the unresolved
-decision.
+no-show remains paid and consumes the business quota. B2C transitions follow
+the global cutoff: member cancellation before it returns points, while a late
+cancellation is rejected and a no-show forfeits points. An MHCS cancellation or
+a member-rejected MHCS postponement returns all points.
+
+A paid booking becomes `confirmed` and creates its imaging `ServiceRequest` in
+the same authoritative workflow. A schedule-only change keeps the same order;
+changing the requested examination or body site replaces the order with
+explicit lineage.
 
 ## Operator attendance API
 
@@ -365,8 +524,13 @@ Rules:
   are returned.
 - Repeating the request has no side effects.
 - The response exposes only fields required for examination operations.
+- The attendance list exposes only a masked NIK. An operator may enter the full
+  NIK shown on the physical KTP or KIA into a separate exact-match lookup; Member
+  Core hashes the input and returns only the matched eligible booking.
 - Email, phone, address, account state, points, and payment details are not
   returned.
+- Every exact NIK lookup and verification view is purpose-, operator-, booking-,
+  and site-audited.
 
 Response example:
 
@@ -382,6 +546,7 @@ Response example:
         "booking_id": "booking-uuid",
         "member_id": "member-uuid",
         "medical_record_number": "MHCS-...",
+        "masked_nik": "************1234",
         "name": "Member name",
         "birth_date": "1990-01-01",
         "administrative_gender": "female",
@@ -404,53 +569,65 @@ Idempotency-Key: <unique-request-id>
 Content-Type: application/json
 ```
 
-The request supplies member identity, an activation contact, the selected
-service offering, and the applicable schedule. The organization and site come
-from the credential, not caller-controlled identifiers.
+The request supplies member identity, mandatory registration assets when the
+member is new, the selected service offering, and the applicable schedule. An
+activation contact remains optional. The organization and site come from the
+credential, not caller-controlled identifiers.
 
-Member Core must perform one transaction:
+Member Core must perform one idempotent workflow. Steps 1 through 6 occur in one
+database transaction; steps 7 and 8 occur only after it commits:
 
-1. Match an existing member using approved identifiers; never match by name
-   alone.
-2. Reuse the existing member or create `users` and `members` records.
+1. Match an existing member by exact protected NIK; never match by name alone.
+2. Reuse the existing member, or validate the KTP/KIA and profile photograph
+   before creating `users`, `members`, and verification-asset records.
 3. Assign an immutable MHCS MRN when creating a member.
-4. Create the walk-in booking.
-5. Record payment state without letting Operator Core mutate wallet balances.
-6. Return the member, MRN, and booking identifiers.
-7. Send account activation outside the database transaction.
+4. Complete the Member Core points charge and create the confirmed walk-in
+   booking. Operator Core never mutates wallet balances.
+5. Create the imaging `ServiceRequest` for the confirmed booking.
+6. Return the member, MRN, booking, and order identifiers.
+7. After commit, instruct Operator Core to append the member to the end of the
+   site's queue.
+8. Deliver account activation outside the database transaction.
 
 Operator staff never choose, receive, or view the member's password. Duplicate
 requests with the same idempotency key must return the same result.
 
-When a member has no email or phone, the registration interface must allow the
-member to enter a password privately. An assisted fallback may use a printed
-one-time secret that forces a password change; the secret must never be logged
-or remain visible to staff after issuance.
-
-The exact minimum walk-in identity fields and the login fallback for a member
-without NIK, email, and phone remain open decisions and must be approved before
-this endpoint is implemented.
+When a new adult member has no email or phone, Member Core generates a unique
+one-time temporary password and prints it without rendering it in the operator
+interface. It forces replacement on first login and is never logged or retained
+in plaintext after issuance. A new child receives no independent credentials;
+verified guardians use their own accounts.
 
 ## Arrival identity verification
 
-Member Core stores two optional private verification assets:
+Member Core stores mandatory private verification assets:
 
-- a KTP image, when the member has a KTP; and
-- a current profile photograph.
+- one current KTP or KIA image appropriate to the member's age; and
+- one approved current profile photograph plus all prior profile photographs.
 
 Operator Core receives neither permanent object keys nor downloadable copies.
 For a site-scoped eligible booking, an authorized operator may open a short-
-lived verification view to compare the arriving person with the stored images.
+lived verification view. The operator enters the NIK from the physical identity
+document, compares it with the stored KTP/KIA record, and compares the arriving
+face with the current and previous profile photographs. A member with an advance
+booking does not need to use or carry a phone.
 
 Every view is audit logged with member, booking, operator, site, purpose, and
 timestamp. The interface must prevent ordinary listing, bulk export, and public
-caching. KTP access is limited to identity verification and reconciliation;
-the less sensitive profile photograph should be preferred for routine arrival
-checks after initial verification.
+caching. KTP/KIA access is limited to identity verification and reconciliation.
+Any document or face mismatch blocks queue entry and creates an audited exception
+that an administrator must resolve before examination continues.
 
-Collection purpose, member notice/consent or other lawful basis, retention,
-replacement, and deletion rules require explicit policy approval before image
-collection is enabled.
+A member may optionally upload a replacement profile photograph after a material
+appearance change. An operator may capture one with the member's consent when
+the member has no phone. The upload remains pending, the current photograph stays
+active, and an administrator must approve or reject the replacement. Approval
+never overwrites history.
+
+MHCS retains identity-document and profile photographs while the member account
+exists. Deletion is allowed only through an authorised compliance process. The
+privacy notice, lawful basis, retention implementation, and compliance-deletion
+procedure require explicit policy approval before collection is enabled.
 
 ## Basic health measurements
 
@@ -482,6 +659,17 @@ Each measurement set records:
 - optional method, device, body site/position, cuff size, and notes when they
   materially affect interpretation; and
 - correction lineage through `supersedes_id` instead of silent overwrite.
+
+One local measurement session maps to separate profiled R5 `Observation`
+resources for each recorded vital sign, except that blood pressure remains one
+composite Observation. Every mapped Observation includes:
+
+- `status` and `category` with code `vital-signs`;
+- `subject` referencing the member's `Patient`;
+- `effectiveDateTime` from the actual measurement time;
+- the required LOINC code; and
+- `valueQuantity` with `system` `http://unitsofmeasure.org` and the canonical
+  UCUM code, or `dataAbsentReason` when the profile permits an absent value.
 
 Blood pressure is one composite observation. Systolic and diastolic components
 must be recorded together, or the missing component must carry a standardized
@@ -529,6 +717,10 @@ Rules:
 - Corrections create a new record referencing the superseded record.
 - Timestamps require an explicit offset and are normalized to UTC.
 
+The private R5 server supports the Vital Signs profile's required Observation
+searches by patient and category, patient and code, and patient/category with a
+date range. The `CapabilityStatement` declares the exact supported parameters.
+
 ## Security and privacy invariants
 
 - Service credentials are stored hashed, scoped to one site, revocable, and
@@ -557,44 +749,57 @@ Rules:
 ### Version and conformance policy
 
 - **FHIR release:** R5 `5.0.0` only.
+- **Core package:** `hl7.fhir.r5.core#5.0.0`.
 - **FHIR endpoint base:** `/fhir/r5`.
 - **FHIR JSON media type:** `application/fhir+json; fhirVersion=5.0`.
+- **Initial audience:** authenticated MHCS services only. The endpoint is not a
+  public or third-party integration API.
 - **MHCS operational APIs:** ordinary versioned MHCS JSON contracts. They must
   not claim FHIR conformance because their field names resemble a resource.
-- **Profiles:** the approved MHCS R5 Implementation Guide and resource profiles
-  take precedence over unconstrained base-resource examples.
+- **Resource authority:** each service changes its own local records through its
+  authoritative workflow. Other MHCS services cannot use FHIR writes to bypass
+  those business rules.
+- **Profiles:** the versioned MHCS R5 Implementation Guide and resource profiles,
+  once published, take precedence over unconstrained base-resource examples.
 - **Future adapters:** a future integration with an older release must use a
   separate explicit adapter and must not weaken the R5 source model.
 
-`GET /fhir/r5/metadata` returns the Member Core `CapabilityStatement`. Every
-FHIR resource declares its MHCS profile through `meta.profile`. Unsupported
-resources, interactions, searches, or profiles return `OperationOutcome` and
-are never accepted as loosely structured JSON.
+The endpoint must not advertise MHCS profile conformance until the IG package,
+canonical URLs, profiles, examples, and validator fixtures exist. Once enabled,
+`GET /fhir/r5/metadata` returns the Member Core `CapabilityStatement`, and every
+exchanged profiled domain resource declares the applicable canonical URL through
+`meta.profile`. Unsupported resources, interactions, searches, or profiles fail
+with the appropriate HTTP status and an `OperationOutcome`; they are never
+accepted as loosely structured JSON.
 
 Member Core initially supports the R5 resources it owns:
 
 | Resource | Required capability |
 |---|---|
-| `Patient` | read, search, create, update, history |
-| `RelatedPerson` | read/search when a family member participates in care |
-| `FamilyMemberHistory` | read/search/create/update for recorded family history |
+| `Patient` | read, search, history |
+| `RelatedPerson` | read/search/history for verified guardians and care participants |
+| `FamilyMemberHistory` | read/search/history for optional recorded family history |
 | `Schedule`, `Slot` | read/search for bookable availability |
-| `Appointment` | read/search/create/update for member bookings |
-| `ServiceRequest` | read/search/create/update for imaging orders |
-| `Observation` | read/search/create and correction history for vital signs |
-| `Consent` | read/search/create/update for applicable permissions |
+| `Appointment` | read/search/history for member bookings |
+| `ServiceRequest` | read/search/history for imaging orders |
+| `Observation` | read/search/history for vital signs |
+| `Consent` | read/search/history for applicable permissions |
 | `DocumentReference` | read/search for member-safe documents |
 | `Provenance`, `AuditEvent` | authorized read/search only |
-| `Bundle`, `OperationOutcome` | transaction/search results and standard errors |
 
 The `CapabilityStatement` is authoritative for the final interaction and
-search list. This table is the minimum required capability.
+search list. This table is the minimum required capability. Searches return
+`Bundle` resources and FHIR-aware errors return `OperationOutcome` resources;
+neither is advertised as a persisted resource endpoint. Batch and transaction
+system interactions are not required in the initial interface.
 
 Internal names remain business-oriented:
 
 | MHCS concept | External FHIR representation |
 |---|---|
 | Member | `Patient` |
+| Verified parent or guardian | `RelatedPerson` |
+| Optional relative clinical history | `FamilyMemberHistory` |
 | Operator/doctor | `Practitioner` |
 | Staff assignment | `PractitionerRole` |
 | Operator organization | `Organization` |
@@ -622,9 +827,13 @@ The required radiology relationship is:
 
 ```text
 Member/Patient
-  -> booking/Appointment
-  -> visit/Encounter
+  -> confirmed booking/Appointment
   -> imaging order/ServiceRequest
+
+arrival
+  -> visit/Encounter referencing Appointment
+
+Patient + Encounter + ServiceRequest
   -> DICOM study/ImagingStudy
   -> findings/Observation
   -> report/DiagnosticReport
@@ -632,9 +841,14 @@ Member/Patient
 
 Required linkage rules:
 
-- `ServiceRequest` identifies the member, encounter, requested examination,
-  body site/laterality, requester, performer organization, location, priority,
+- Member Core creates one imaging `ServiceRequest` when the booking becomes
+  confirmed after full point payment. Because the order exists before arrival,
+  it does not invent an `Encounter` reference.
+- `ServiceRequest` identifies the member, requested examination, body
+  site/laterality, requester, performer organization, location, priority,
   reason, authored time, and accession/order identifiers.
+- Operator Core creates the `Encounter` after identity verification at arrival
+  and links it to the `Appointment`.
 - `ImagingStudy` references the same member, encounter, and `ServiceRequest`,
   plus location, modality, study/series/instance UIDs, start time, and available
   series/instance counts.
@@ -643,6 +857,9 @@ Required linkage rules:
   conclusion, status, and any presented report form.
 - A correction never overwrites a final clinical report. It creates a new
   version with explicit lineage and preserves the prior version.
+- Rescheduling without changing the requested examination keeps the same order.
+  Changing the examination or body site creates a replacement order and
+  preserves explicit `ServiceRequest.replaces` lineage.
 
 MHCS R5 radiology uses `ServiceRequest`, `ImagingStudy`, `Observation`, and
 `DiagnosticReport`. FHIR logical IDs, local UUIDs, accession numbers, and DICOM
@@ -653,24 +870,26 @@ UIDs remain distinct identifiers and must never be substituted for each other.
 | Resource | MHCS source authority |
 |---|---|
 | `Patient` | Member Core |
-| `Appointment` | Member Core, when required by the approved use case |
+| `RelatedPerson` | Member Core for verified guardians and care participants |
+| `FamilyMemberHistory` | Member Core; member reports and doctor reviews |
+| `Appointment` | Member Core |
 | `Encounter` | Operator Core, with the reference returned to Member Core |
 | Vital-sign `Observation` | Member Core; Operator Core records it |
 | `ServiceRequest` | Member Core creates the examination order |
 | `ImagingStudy` | Image Gateway after DICOM creation/storage |
 | AI result `Observation` | Image Gateway |
 | `DiagnosticReport` | Doctor Core for doctor reports |
-| `Organization`, `Location`, `PractitionerRole` | Owning service, reconciled with central identifiers |
+| `Organization`, `Location`, `Practitioner`, `PractitionerRole` | Owning service, reconciled with central identifiers |
 
-Family membership is not automatically exported as FHIR `RelatedPerson`.
-Create that relationship only when the person participates in the member's
-care and the applicable exchange requires it.
+Sharing a KK does not automatically create a FHIR `RelatedPerson`. A verified
+guardian or another person who participates in care may be represented as
+`RelatedPerson`, with applicable `Consent`, `Provenance`, and access controls.
 
 ### Integration metadata
 
 Every synchronized local resource must retain:
 
-- external system and FHIR resource type;
+- source MHCS service and FHIR resource type;
 - FHIR release and profile canonical URL;
 - external resource ID and version ID;
 - local resource type and immutable local ID;
@@ -678,9 +897,9 @@ Every synchronized local resource must retain:
 - successful synchronization time; and
 - sanitized error code without clinical payload or credentials.
 
-External failure never removes or silently changes the authoritative local
-record. Retries are idempotent, and submitted payload versions remain
-traceable.
+A remote MHCS service failure never removes or silently changes the
+authoritative local record. Retries are idempotent, and submitted payload
+versions remain traceable.
 
 ### Terminology and units
 
@@ -715,6 +934,10 @@ not:
 - example resources and automated validation fixtures for valid, invalid, and
   version/profile mismatch cases.
 
+The canonical base URL, package ID, and package version are unresolved and must
+be approved together. Until then, the endpoint remains disabled rather than
+claiming conformance to a nonexistent MHCS profile.
+
 Security and history are also standardized concerns: `Consent` represents an
 applicable clinical consent record, `Provenance` records who or what produced a
 resource version, and `AuditEvent` records security-relevant access. These
@@ -730,13 +953,15 @@ profiles, validation, history, and security.
 Member administrators must be able to manage:
 
 - member identity reconciliation and account activation;
-- protected NIK/KK reconciliation, family grouping, and verification assets;
+- protected NIK/KK reconciliation, KTP/KIA assets, profile-photo approval and
+  history, family grouping, and guardian verification;
 - B2B agreement references, member import reconciliation, point reservations,
   and audited business-requested booking changes;
 - Operator organizations and examination sites;
 - site-scoped service credentials and revocation;
 - service offerings and AI/doctor inclusion flags;
 - site schedules, quotas, and booking eligibility;
+- the single global B2C cancellation cutoff;
 - bookings, payments, refunds, points, and promotions; and
 - result publication state without access to raw clinical binaries.
 
@@ -746,23 +971,47 @@ Sensitive administrative actions require authorization and audit history.
 
 Member Core does not satisfy this specification until tests demonstrate that:
 
-- an online registration creates linked user and member records;
+- registration rejects a missing KTP/KIA or profile photograph and creates
+  linked user, member, and private verification-asset records when valid;
+- a child registration requires KIA, KK, a profile photograph, and at least one
+  previously verified guardian account;
+- guardians use their own credentials, all active guardians have equal audited
+  dependent access, and child login remains disabled until verified KTP
+  activation at age 17;
+- adding or removing a guardian requires administrator verification and does
+  not silently alter prior audit history;
 - a B2B import creates or matches one member account, requires temporary-password
   replacement on first login, and never retains the plaintext password;
 - login works with email or NIK without requiring a phone;
 - assisted recovery for a member without email or phone requires authorised
-  NIK/KK verification;
+  identity-document, face, and applicable KK verification;
 - login errors do not disclose whether a NIK or email exists;
 - an idempotent operator walk-in request creates at most one member and booking;
+- a new phone-free adult walk-in receives one printed temporary password, while
+  a child receives no independent credentials;
+- a paid walk-in creates a confirmed booking and `ServiceRequest` before
+  Operator Core appends the member to the end of its queue;
 - a credential cannot retrieve attendance for another site;
+- overlapping active schedules for one site are rejected;
 - attendance excludes unpaid, cancelled, and out-of-window bookings;
-- attendance does not expose unnecessary account/contact data;
-- KTP/profile access is booking-, site-, role-, and audit-scoped;
+- attendance exposes only masked NIK and excludes unnecessary account/contact
+  data, while full NIK input performs an audited exact match;
+- KTP/KIA and current/previous profile-photo access is booking-, site-, role-,
+  purpose-, and audit-scoped;
+- an identity-document or face mismatch blocks queue entry pending administrator
+  resolution;
+- a replacement profile photograph cannot become current without administrator
+  approval and never erases prior photographs;
+- patient-reported family history remains distinct from doctor-reviewed history,
+  and edits to reviewed history create a new reviewable version;
 - repeated health measurements preserve history and correction lineage;
 - vital-sign values use the specified LOINC codes and UCUM units when mapped;
 - blood pressure maps systolic and diastolic as one composite observation;
+- every vital-sign Observation maps the required category, patient, effective
+  time, LOINC code, UCUM system/code, value or absence reason, and required
+  search parameters;
 - cross-service, FHIR, and DICOM identifiers cannot be confused with local IDs;
-- every external payload declares and validates against its intended FHIR
+- every cross-service FHIR payload declares and validates against its intended
   release and profile;
 - non-R5 or unversioned resources are rejected by the R5 interface;
 - booking capacity remains correct under concurrent requests;
@@ -770,30 +1019,39 @@ Member Core does not satisfy this specification until tests demonstrate that:
   be changed by a member;
 - B2C bookings consume only personal points, including when the same member has
   B2B entitlements;
+- B2C cancellation before the global cutoff returns points, cancellation at or
+  after it is rejected, and a no-show forfeits points;
+- an MHCS cancellation or member-rejected MHCS postponement returns all points;
+- points refunds use compensating ledger entries and never return cash;
 - a B2B no-show remains paid and consumes its agreed quota;
 - account suspension preserves bookings and clinical references; and
 - FHIR mapping uses the member identity without renaming the internal domain.
 
 ## Open decisions
 
-- Which identity fields are mandatory when a walk-in has no NIK?
-- May a member without NIK/email/phone log in with MRN and password?
-- What are the approved KTP/profile-photo retention and deletion periods?
-- What are the exact B2C cancellation, refund, and forfeiture transitions?
 - What real import file format and field mapping will the first signed B2B
   agreement require?
 - Is one service credential issued per deployed Operator Core instance or per
   site regardless of deployment?
+- What canonical base URL, package ID, and package version will identify the
+  MHCS R5 Implementation Guide?
+- What approved privacy notice, lawful basis, and compliance procedure govern
+  mandatory KTP/KIA and profile-photograph collection and deletion?
 
 ## Standards references
 
-- [HL7 FHIR R5](https://hl7.org/fhir/)
-- [HL7 FHIR version management](https://hl7.org/fhir/versions.html)
-- [HL7 FHIR R5 Vital Signs](https://hl7.org/fhir/observation-vitalsigns.html)
-- [HL7 FHIR R5 ServiceRequest](https://hl7.org/fhir/servicerequest.html)
-- [HL7 FHIR R5 ImagingStudy](https://hl7.org/fhir/imagingstudy.html)
-- [HL7 FHIR R5 DiagnosticReport](https://hl7.org/fhir/diagnosticreport.html)
-- [HL7 FHIR R5 Encounter](https://hl7.org/fhir/encounter.html)
-- [HL7 FHIR R5 Provenance](https://hl7.org/fhir/provenance.html)
-- [HL7 FHIR R5 AuditEvent](https://hl7.org/fhir/auditevent.html)
-- [HL7 FHIR R5 Consent](https://hl7.org/fhir/consent.html)
+- [HL7 FHIR R5 `5.0.0`](https://hl7.org/fhir/R5/)
+- [HL7 FHIR R5 version management](https://hl7.org/fhir/R5/versioning.html)
+- [HL7 FHIR R5 Vital Signs](https://hl7.org/fhir/R5/observation-vitalsigns.html)
+- [HL7 FHIR R5 Patient](https://hl7.org/fhir/R5/patient.html)
+- [HL7 FHIR R5 RelatedPerson](https://hl7.org/fhir/R5/relatedperson.html)
+- [HL7 FHIR R5 FamilyMemberHistory](https://hl7.org/fhir/R5/familymemberhistory.html)
+- [HL7 FHIR R5 Appointment](https://hl7.org/fhir/R5/appointment.html)
+- [HL7 FHIR R5 ServiceRequest](https://hl7.org/fhir/R5/servicerequest.html)
+- [HL7 FHIR R5 ImagingStudy](https://hl7.org/fhir/R5/imagingstudy.html)
+- [HL7 FHIR R5 DiagnosticReport](https://hl7.org/fhir/R5/diagnosticreport.html)
+- [HL7 FHIR R5 Encounter](https://hl7.org/fhir/R5/encounter.html)
+- [HL7 FHIR R5 Provenance](https://hl7.org/fhir/R5/provenance.html)
+- [HL7 FHIR R5 AuditEvent](https://hl7.org/fhir/R5/auditevent.html)
+- [HL7 FHIR R5 Consent](https://hl7.org/fhir/R5/consent.html)
+- [Indonesia.go.id KTP/KIA identity guidance](https://indonesia.go.id/layanan/kependudukan/sosial/cara-membuat-ktp-anak-atau-kartu-identitas-anak-kia)
