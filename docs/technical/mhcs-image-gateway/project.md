@@ -1,7 +1,7 @@
 # Image Gateway Business Project Foundation
 
 **Status:** Approved target foundation; no current implementation verified
-**Last reviewed:** 22 July 2026
+**Last reviewed:** 23 July 2026
 
 This document defines the MHCS business foundation for
 `mhcs-image-gateway`. The available repository contains no commits, so every
@@ -24,6 +24,21 @@ end-user application.
 - Member Core receives member-safe image and result references.
 - Administrators receive final-failure notifications and manage exceptional
   compliance actions.
+
+## Initial deployment topology
+
+Image Gateway is one of five repositories initially deployed on the same
+physical computer, each with its own Docker Compose file. Every Compose project
+joins the pre-created external Docker network
+`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
+`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
+supplied through environment variables; containers never use `localhost` to
+reach another service.
+
+Only required user-facing entry points are published through the host reverse
+proxy. Internal API ports remain unpublished unless operations explicitly
+require otherwise. The shared network does not replace service authentication,
+site authorization, audit, or separate database and storage ownership.
 
 ## Submission boundary
 

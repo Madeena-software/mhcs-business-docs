@@ -1,7 +1,7 @@
 # Doctor Core Business Project Foundation
 
 **Status:** Approved target foundation; current implementation unknown
-**Last reviewed:** 20 July 2026
+**Last reviewed:** 23 July 2026
 
 This document defines the intended MHCS business foundation for
 `mhcs-doctor-core`. The repository was not available for verification, so no
@@ -20,6 +20,21 @@ but it does not copy Operator Core's front-desk or examination workflow.
 - Doctors claim and review eligible cases.
 - Doctor administrators manage doctors, queue eligibility, reassignment, and
   doctor earnings.
+
+## Initial deployment topology
+
+Doctor Core is one of five repositories initially deployed on the same physical
+computer, each with its own Docker Compose file. Every Compose project joins the
+pre-created external Docker network
+`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
+`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
+supplied through environment variables; containers never use `localhost` to
+reach another service.
+
+Only required user-facing entry points are published through the host reverse
+proxy. Internal API ports remain unpublished unless operations explicitly
+require otherwise. The shared network does not replace service authentication,
+site authorization, audit, or separate database and storage ownership.
 
 ## Target work queue
 

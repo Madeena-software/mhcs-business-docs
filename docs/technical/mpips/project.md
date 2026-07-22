@@ -1,7 +1,7 @@
 # MPIPS Additions Required by MHCS
 
 **Status:** Approved MHCS delta; not a standalone MPIPS project context
-**Last reviewed:** 20 July 2026
+**Last reviewed:** 23 July 2026
 
 This document contains only the additions and integration boundaries MPIPS
 needs for MHCS. It deliberately does not repeat MPIPS's existing purpose,
@@ -29,6 +29,22 @@ to be verified against both products.
 Only Image Gateway coordinates MHCS processing with MPIPS.
 
 Operator Core, Member Core, and Doctor Core do not call MPIPS directly.
+
+## Initial deployment topology
+
+MPIPS is one of five repositories initially deployed on the same physical
+computer, each with its own Docker Compose file. Every Compose project joins the
+pre-created external Docker network `mhcs-internal`.
+Service-to-service URLs use the Docker DNS aliases `member-core`,
+`operator-core`, `doctor-core`, `image-gateway`, and `mpips`, supplied through
+environment variables; containers never use `localhost` to reach another
+service.
+
+Only required user-facing entry points are published through the host reverse
+proxy. Internal API ports remain unpublished unless operations explicitly
+require otherwise. The shared network does not replace service authentication,
+site authorization, audit, or separate database and storage ownership. This
+topology does not change the rule that only Image Gateway calls MPIPS for MHCS.
 
 ## Input required from Image Gateway
 

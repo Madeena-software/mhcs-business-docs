@@ -2,7 +2,7 @@
 
 **Specification status:** Expected end-state specification
 **Business foundation:** Approved
-**Last reviewed:** 22 July 2026
+**Last reviewed:** 23 July 2026
 
 This is the central specification for `mhcs-member-core`. It defines how the
 system must work and is the expected state that implementation work must move
@@ -163,6 +163,24 @@ to personal points and cannot be withdrawn or converted back to money. A valid
 refund is always a compensating points-ledger entry to the original member and
 funding source, never a cash refund or destructive edit of the original entry.
 
+Point amounts use four decimal places. The administrator-configured conversion
+rate initially starts at **IDR 10,000 = 1 Madeena Point**. Every top-up stores
+the rate version and the rupiah and point amounts used. A rate change is one
+audited revaluation operation that:
+
+- preserves the rupiah-equivalent value of every personal balance and unused
+  B2B reservation through compensating ledger entries;
+- revalues active service prices and point-based promotions for future use;
+- leaves completed ledger history and paid booking snapshots unchanged;
+- uses round-half-up to four decimal places and records each rounding
+  difference; and
+- blocks top-ups and point spending until the whole operation commits or rolls
+  back.
+
+Each revaluation records the old and new rates, effective timestamp,
+administrator, reason, and pre- and post-revaluation values. Historical
+transactions are never rewritten.
+
 ### B2C cancellation and postponement
 
 - One administrator-configured cancellation cutoff applies to every B2C
@@ -207,10 +225,28 @@ schedule.
 For the first API version, an Operator Core service credential is bound to one
 organization and one site. The caller cannot select another organization or
 site through request parameters. This prevents cross-site attendance leakage.
+One multi-site Operator Core deployment holds a different Member Core service
+credential for each site and selects it from the authenticated operator's site;
+operators never see these credentials.
 
 Member Core owns the bookable site record. Operator Core owns its operational
 organization record. Their stable external identifiers are stored as opaque
 references; there are no cross-service database foreign keys.
+
+## Initial deployment topology
+
+Member Core is one of five repositories initially deployed on the same physical
+computer, each with its own Docker Compose file. Every Compose project joins the
+pre-created external Docker network
+`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
+`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
+supplied through environment variables; containers never use `localhost` to
+reach another service.
+
+Only required user-facing entry points are published through the host reverse
+proxy. Internal API ports remain unpublished unless operations explicitly
+require otherwise. The shared network does not replace service authentication,
+site authorization, audit, or separate database and storage ownership.
 
 ## Required data model
 
@@ -229,9 +265,14 @@ erDiagram
     MEMBERS ||--o{ BOOKINGS : "receives"
     SHIFT_SCHEDULES ||--o{ BOOKINGS : "contains"
     SERVICE_OFFERINGS ||--o{ BOOKINGS : "selected"
+    POINT_EXCHANGE_RATES ||--o{ POINT_TOP_UPS : "prices"
+    POINT_EXCHANGE_RATES ||--o{ BOOKINGS : "snapshotted by"
+    POINT_REVALUATIONS ||--o{ POINT_LEDGER_ENTRIES : "adjusts through"
     MEMBERS ||--o{ POINT_TOP_UPS : "purchases"
     MEMBERS ||--o{ POINT_LEDGER_ENTRIES : "owns"
     BOOKINGS ||--o{ POINT_LEDGER_ENTRIES : "charged or refunded through"
+    BOOKINGS ||--o{ BOOKING_STATUS_EVENTS : "changes through"
+    SHIFT_SCHEDULES ||--o{ CASH_CLOSINGS : "reconciles"
     BOOKINGS ||--o| IMAGING_RESULTS : "publishes"
     BOOKINGS ||--o| WALK_IN_REQUESTS : "created by"
     MEMBERS ||--o{ VITAL_SIGN_MEASUREMENTS : "has"
@@ -332,7 +373,7 @@ erDiagram
         string name
         boolean includes_ai
         boolean includes_doctor
-        integer points_price
+        decimal points_price
         boolean active
     }
 
@@ -354,16 +395,39 @@ erDiagram
         enum booking_type
         enum status
         string service_code_snapshot
-        integer points_cost_snapshot
+        decimal points_cost_snapshot
+        uuid point_exchange_rate_id FK
+        datetime payment_expires_at
         boolean includes_ai_snapshot
         boolean includes_doctor_snapshot
+    }
+
+    POINT_EXCHANGE_RATES {
+        uuid id PK
+        integer rupiah_per_point
+        enum status
+        datetime effective_at
+        uuid configured_by_admin_id
+    }
+
+    POINT_REVALUATIONS {
+        uuid id PK
+        uuid old_rate_id FK
+        uuid new_rate_id FK
+        enum status
+        datetime effective_at
+        uuid performed_by_admin_id
+        string reason
     }
 
     POINT_TOP_UPS {
         uuid id PK
         uuid member_id FK
         integer money_amount
-        integer points_amount
+        decimal points_amount
+        uuid point_exchange_rate_id FK
+        enum payment_method
+        string received_by_operator_id
         enum status
         string provider_reference UK
     }
@@ -374,9 +438,33 @@ erDiagram
         uuid booking_id FK
         enum funding_source
         enum entry_type
-        integer points_delta
+        decimal points_delta
+        uuid point_revaluation_id FK
         uuid reverses_id
         datetime created_at
+    }
+
+    BOOKING_STATUS_EVENTS {
+        uuid id PK
+        uuid booking_id FK
+        string source_service
+        string source_operator_id
+        enum event_type
+        datetime occurred_at
+        datetime received_at
+        string idempotency_key UK
+    }
+
+    CASH_CLOSINGS {
+        uuid id PK
+        uuid shift_schedule_id FK
+        string operator_id
+        string reconciliation_id UK
+        integer expected_money_amount
+        integer counted_money_amount
+        integer discrepancy_amount
+        enum status
+        datetime closed_at
     }
 
     IMAGING_RESULTS {
@@ -439,10 +527,20 @@ migration syntax. Supporting framework tables are omitted.
   records.
 - Active schedules for one site cannot overlap.
 - Every shift schedule and booking belongs to one site.
+- One member identity may have at most one active booking across all sites,
+  shifts, and services. The invariant is enforced against the member record,
+  not by exposing or comparing plaintext NIK.
 - Every booking preserves B2B or B2C authority and funding provenance.
 - The points ledger preserves business-funded reservations separately from
   personal top-ups while exposing one member wallet. Charges, forfeitures, and
   refunds are immutable entries with compensating reversals.
+- All point quantities and prices use four decimal places. Top-ups, paid
+  bookings, and revaluation adjustments retain the applicable exchange-rate
+  version and immutable monetary snapshots.
+- Booking status events retain their source, actual occurrence time, receipt
+  time, and idempotency key so delayed synchronization never rewrites history.
+- Cash closings preserve the operator-counted amount, Member Core's expected
+  amount, discrepancy, and administrative resolution.
 - Each service records whether it includes AI, doctor review, or both.
 - Point cost, service code, and selected AI/doctor behavior are immutable
   booking snapshots.
@@ -483,15 +581,47 @@ active account and does not change the child's account state.
 
 ## Booking states
 
-The approved booking lifecycle is:
+One member identity may have only one active booking across every site, shift,
+and service. Active internal states are `pending_payment`, `confirmed`,
+`arrived`, `checked_in`, `in_progress`, and `postponed`. Terminal states release
+that identity for a new booking.
+
+The approved internal lifecycle is:
 
 ```text
-pending_payment -> confirmed -> completed
-        |              |       -> no_show
-        |              |       -> postponed
-        |              +------ -> cancelled_points_refunded
-        +--------------------- -> cancelled
+pending_payment -> confirmed -> arrived -> checked_in -> in_progress -> completed
+        |              |           |            |
+        |              |           |            +--------------------> cancelled
+        |              |           +---------------------------------> cancelled
+        |              +---------------------------------------------> no_show
+        |              +---------------------------------------------> postponed
+        |              +---------------------------------------------> cancelled_points_refunded
+        +------------------------------------------------------------> payment_expired
 ```
+
+The administrator configures one global payment deadline, initially 15
+minutes. A pending booking reserves capacity and blocks another booking for the
+same member. Payment expiry is terminal, releases capacity, and requires a new
+booking; an expired record is never reactivated.
+
+`pending_payment` and `payment_expired` are MHCS payment states, not FHIR
+Appointment statuses. No booked FHIR `Appointment` is published before full
+payment. The operational mapping after payment is:
+
+| Internal booking state | FHIR R5 `Appointment.status` |
+|---|---|
+| `confirmed` | `booked` |
+| `arrived` | `arrived` |
+| `checked_in` | `checked-in` |
+| `in_progress`, `completed` | `fulfilled` |
+| `no_show` | `noshow` |
+| cancelled state | `cancelled` |
+
+Member Core automatically changes a still-`confirmed` booking to `no_show`
+exactly at the shift's `ends_at`; there is no grace period and no operator
+action. If Operator Core recorded arrival before `ends_at` but synchronization
+was delayed, Member Core accepts the authenticated original occurrence time,
+preserves both events, and corrects the automatic no-show with an audit trail.
 
 B2B bookings cannot be cancelled or rescheduled by a member. An MHCS
 administrator may change them only on an official business request, and a
@@ -500,10 +630,10 @@ the global cutoff: member cancellation before it returns points, while a late
 cancellation is rejected and a no-show forfeits points. An MHCS cancellation or
 a member-rejected MHCS postponement returns all points.
 
-A paid booking becomes `confirmed` and creates its imaging `ServiceRequest` in
-the same authoritative workflow. A schedule-only change keeps the same order;
-changing the requested examination or body site replaces the order with
-explicit lineage.
+A paid booking becomes `confirmed`, publishes its `Appointment` as `booked`,
+and creates its imaging `ServiceRequest` in the same authoritative workflow. A
+schedule-only change keeps the same order; changing the requested examination
+or body site replaces the order with explicit lineage.
 
 ## Operator attendance API
 
@@ -558,6 +688,43 @@ Response example:
 }
 ```
 
+Exact NIK matching uses a request body so the identifier never appears in a URL:
+
+```http
+POST /api/v1/operator/attendance/lookup
+Authorization: Bearer <site-scoped-token>
+Content-Type: application/json
+Cache-Control: no-store
+```
+
+```json
+{
+  "nik": "entered-from-physical-document",
+  "at": "2026-07-22T09:15:00+07:00",
+  "operator_id": "operator-core-user-id"
+}
+```
+
+The response contains the same minimum booking fields as one attendance-list
+member and never echoes the NIK. Because one member can have only one active
+booking, this endpoint returns at most one site-eligible booking. No eligible
+match returns the same `404` response regardless of whether the identity exists.
+
+New-member identity files are uploaded before registration:
+
+```http
+POST /api/v1/operator/verification-assets
+Authorization: Bearer <site-scoped-token>
+Idempotency-Key: <unique-upload-request-id>
+Content-Type: multipart/form-data
+```
+
+The multipart request contains `operator_id`, `type` (`ktp`, `kia`, or
+`profile_photo`), and one file. A successful response returns a short-lived,
+single-use `upload_id`, never a public object URL. Member Core validates the
+declared type and file content, stores the object privately, and binds every
+access and later consumption to the operator and site audit context.
+
 ## Operator-assisted walk-in API
 
 An authenticated operator creates a walk-in through Member Core:
@@ -569,10 +736,32 @@ Idempotency-Key: <unique-request-id>
 Content-Type: application/json
 ```
 
-The request supplies member identity, mandatory registration assets when the
-member is new, the selected service offering, and the applicable schedule. An
-activation contact remains optional. The organization and site come from the
-credential, not caller-controlled identifiers.
+```json
+{
+  "operator_id": "operator-core-user-id",
+  "schedule_id": "schedule-uuid",
+  "service_offering_id": "service-uuid",
+  "member": {
+    "nik": "entered-from-physical-document",
+    "name": "Required only for a new member",
+    "birth_date": "1990-01-01",
+    "identity_document_type": "ktp",
+    "identity_document_upload_id": "required-for-new-member",
+    "profile_photo_upload_id": "required-for-new-member"
+  },
+  "cash_top_up": {
+    "money_amount": 250000
+  }
+}
+```
+
+The request supplies member identity, mandatory private-upload references when
+the member is new, the selected service offering, applicable schedule, and an
+optional cash top-up. A cash top-up may exceed the booking price; Member Core
+calculates points from the current rate, charges only the booking cost, and
+leaves the remainder in the personal wallet. An activation contact remains
+optional. The organization and site come from the credential, not
+caller-controlled identifiers.
 
 Member Core must perform one idempotent workflow. Steps 1 through 6 occur in one
 database transaction; steps 7 and 8 occur only after it commits:
@@ -581,16 +770,23 @@ database transaction; steps 7 and 8 occur only after it commits:
 2. Reuse the existing member, or validate the KTP/KIA and profile photograph
    before creating `users`, `members`, and verification-asset records.
 3. Assign an immutable MHCS MRN when creating a member.
-4. Complete the Member Core points charge and create the confirmed walk-in
+4. If cash was received, create the cash top-up and credit entry using the
+   current rate snapshot.
+5. Complete the Member Core points charge and create the confirmed walk-in
    booking. Operator Core never mutates wallet balances.
-5. Create the imaging `ServiceRequest` for the confirmed booking.
-6. Return the member, MRN, booking, and order identifiers.
-7. After commit, instruct Operator Core to append the member to the end of the
-   site's queue.
+6. Create the imaging `ServiceRequest` for the confirmed booking.
+7. Return the member, MRN, booking, order, top-up receipt, and remaining-point
+   summary.
 8. Deliver account activation outside the database transaction.
 
+After a successful response, Operator Core appends the member to the end of its
+own site queue. Member Core never calls back merely to mutate an Operator Core
+queue. If the local append fails, Operator Core retries locally; replaying the
+walk-in request with the same idempotency key returns the original response.
+
 Operator staff never choose, receive, or view the member's password. Duplicate
-requests with the same idempotency key must return the same result.
+requests with the same idempotency key and request hash return the same result;
+reusing the key with a different request returns `409 idempotency_conflict`.
 
 When a new adult member has no email or phone, Member Core generates a unique
 one-time temporary password and prints it without rendering it in the operator
@@ -618,6 +814,57 @@ caching. KTP/KIA access is limited to identity verification and reconciliation.
 Any document or face mismatch blocks queue entry and creates an audited exception
 that an administrator must resolve before examination continues.
 
+Operator Core records physical arrival idempotently:
+
+```http
+POST /api/v1/operator/bookings/{booking}/status-events
+Authorization: Bearer <site-scoped-token>
+Idempotency-Key: <unique-status-event-id>
+Content-Type: application/json
+```
+
+```json
+{
+  "operator_id": "operator-core-user-id",
+  "event": "arrived",
+  "occurred_at": "2026-07-22T09:10:00+07:00"
+}
+```
+
+Supported events are `arrived`, `examination_started`, and
+`examination_completed`. `examination_started` also supplies the Operator
+Core-owned `encounter_id`; it changes the internal booking to `in_progress` and
+the R5 `Appointment` to `fulfilled`. `examination_completed` changes only the
+internal booking to `completed`; Operator Core separately completes its own
+Encounter, and the Appointment remains `fulfilled`. Operator Core persists
+unsent events and retries them with the same idempotency key.
+
+Identity verification is a separate audited operation:
+
+```http
+POST /api/v1/operator/bookings/{booking}/identity-verifications
+Authorization: Bearer <site-scoped-token>
+Idempotency-Key: <unique-verification-id>
+Content-Type: application/json
+```
+
+The request contains `operator_id`, the NIK entered from the physical document,
+and `occurred_at`. A successful exact match returns a short-lived verification
+session with protected KTP/KIA and current/previous profile-photo views. The
+operator submits the manual document and face comparison to:
+
+```http
+POST /api/v1/operator/identity-verifications/{verification}/decision
+Authorization: Bearer <site-scoped-token>
+Idempotency-Key: <unique-decision-id>
+Content-Type: application/json
+```
+
+Both comparison results, operator, site, occurrence time, and optional mismatch
+note are required. Two matches change the booking to `checked_in`; either
+mismatch blocks queue entry and opens the administrator exception. The decision
+cannot be silently replaced.
+
 A member may optionally upload a replacement profile photograph after a material
 appearance change. An operator may capture one with the member's consent when
 the member has no phone. The upload remains pending, the current photograph stays
@@ -628,6 +875,49 @@ MHCS retains identity-document and profile photographs while the member account
 exists. Deletion is allowed only through an authorised compliance process. The
 privacy notice, lawful basis, retention implementation, and compliance-deletion
 procedure require explicit policy approval before collection is enabled.
+
+## Operator cash-closing API
+
+After ending operational work, Operator Core submits the operator-counted cash:
+
+```http
+POST /api/v1/operator/schedules/{schedule}/cash-closings
+Authorization: Bearer <site-scoped-token>
+Idempotency-Key: <unique-closing-id>
+Content-Type: application/json
+```
+
+```json
+{
+  "operator_id": "operator-core-user-id",
+  "counted_money_amount": 1750000,
+  "closed_at": "2026-07-22T19:05:00+07:00"
+}
+```
+
+Member Core calculates the expected cash from successful cash top-ups for the
+same operator, credential-bound site, and schedule. The response returns one
+shared reconciliation ID, expected amount, counted amount, discrepancy, and
+`reconciled` or `reconciliation_required`. A discrepancy does not block shift
+closing or alter points and bookings; an administrator resolves it with an
+audited reason while both original amounts remain immutable.
+
+## Operator API error contract
+
+Operational JSON APIs return one stable error envelope containing `code`,
+`message`, `request_id`, and field-level `errors` when applicable. At minimum,
+clients must handle:
+
+- `401 invalid_credential`;
+- `403 site_scope_violation`;
+- `404 eligible_booking_not_found`;
+- `409 active_booking_exists`, `shift_full`, `invalid_transition`, or
+  `idempotency_conflict`;
+- `422 identity_verification_required` or `insufficient_points`; and
+- `503 point_revaluation_in_progress`.
+
+Error responses never expose NIK, credentials, clinical payload, or whether an
+out-of-scope identity exists.
 
 ## Basic health measurements
 
@@ -831,7 +1121,12 @@ Member/Patient
   -> imaging order/ServiceRequest
 
 arrival
+  -> Appointment arrived
+  -> verified check-in/Appointment checked-in
+
+examination starts
   -> visit/Encounter referencing Appointment
+  -> Appointment fulfilled
 
 Patient + Encounter + ServiceRequest
   -> DICOM study/ImagingStudy
@@ -847,8 +1142,12 @@ Required linkage rules:
 - `ServiceRequest` identifies the member, requested examination, body
   site/laterality, requester, performer organization, location, priority,
   reason, authored time, and accession/order identifiers.
-- Operator Core creates the `Encounter` after identity verification at arrival
-  and links it to the `Appointment`.
+- Physical arrival changes the `Appointment` to `arrived`; successful KTP/KIA
+  and face verification changes it to `checked-in` without creating an
+  `Encounter`.
+- Operator Core creates the `Encounter` when the examination begins, links it
+  to the `Appointment`, and notifies Member Core to change the Appointment to
+  `fulfilled`. The Encounter then owns the clinical execution statuses.
 - `ImagingStudy` references the same member, encounter, and `ServiceRequest`,
   plus location, modality, study/series/instance UIDs, start time, and available
   series/instance counts.
@@ -958,11 +1257,14 @@ Member administrators must be able to manage:
 - B2B agreement references, member import reconciliation, point reservations,
   and audited business-requested booking changes;
 - Operator organizations and examination sites;
-- site-scoped service credentials and revocation;
-- service offerings and AI/doctor inclusion flags;
+- one revocable service credential per examination site;
+- service offerings, point prices, and AI/doctor inclusion flags;
 - site schedules, quotas, and booking eligibility;
 - the single global B2C cancellation cutoff;
-- bookings, payments, refunds, points, and promotions; and
+- the global payment deadline, initially 15 minutes;
+- bookings, payments, refunds, four-decimal points, conversion-rate versions,
+  atomic revaluation, and promotions;
+- cash-closing discrepancies and audited reconciliation; and
 - result publication state without access to raw clinical binaries.
 
 Sensitive administrative actions require authorization and audit history.
@@ -986,12 +1288,22 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - assisted recovery for a member without email or phone requires authorised
   identity-document, face, and applicable KK verification;
 - login errors do not disclose whether a NIK or email exists;
+- one member identity cannot hold more than one active booking across any site,
+  shift, or service;
+- a pending-payment booking holds capacity for the administrator-configured
+  deadline, then expires, releases capacity, and cannot be reactivated;
 - an idempotent operator walk-in request creates at most one member and booking;
 - a new phone-free adult walk-in receives one printed temporary password, while
   a child receives no independent credentials;
 - a paid walk-in creates a confirmed booking and `ServiceRequest` before
   Operator Core appends the member to the end of its queue;
+- a cash walk-in may top up more than the booking price, records the applicable
+  rate, charges only the booking cost, and retains the remaining personal
+  points;
+- replaying an idempotency key with a different request returns a conflict;
 - a credential cannot retrieve attendance for another site;
+- one multi-site Operator Core deployment uses a separate revocable credential
+  for each examination site;
 - overlapping active schedules for one site are rejected;
 - attendance excludes unpaid, cancelled, and out-of-window bookings;
 - attendance exposes only masked NIK and excludes unnecessary account/contact
@@ -1000,6 +1312,12 @@ Member Core does not satisfy this specification until tests demonstrate that:
   purpose-, and audit-scoped;
 - an identity-document or face mismatch blocks queue entry pending administrator
   resolution;
+- arrival maps the Appointment to `arrived`, successful verification maps it to
+  `checked-in`, and examination start creates the Encounter and maps the
+  Appointment to `fulfilled`;
+- a still-confirmed booking becomes `no_show` exactly at shift end without a
+  grace period, while an authenticated delayed arrival event that occurred
+  before shift end corrects it without erasing either audit event;
 - a replacement profile photograph cannot become current without administrator
   approval and never erases prior photographs;
 - patient-reported family history remains distinct from doctor-reviewed history,
@@ -1023,6 +1341,15 @@ Member Core does not satisfy this specification until tests demonstrate that:
   after it is rejected, and a no-show forfeits points;
 - an MHCS cancellation or member-rejected MHCS postponement returns all points;
 - points refunds use compensating ledger entries and never return cash;
+- every point quantity supports four decimal places, and a conversion-rate
+  change atomically revalues current balances, unused B2B reservations, active
+  service prices, and promotions without rewriting historical transactions or
+  paid booking snapshots;
+- revaluation uses round-half-up, records rounding differences, and blocks
+  point mutations until it commits or rolls back;
+- cash closing compares operator-counted cash with successful cash top-ups, and
+  a discrepancy closes as `reconciliation_required` without changing points or
+  bookings;
 - a B2B no-show remains paid and consumes its agreed quota;
 - account suspension preserves bookings and clinical references; and
 - FHIR mapping uses the member identity without renaming the internal domain.
@@ -1031,8 +1358,6 @@ Member Core does not satisfy this specification until tests demonstrate that:
 
 - What real import file format and field mapping will the first signed B2B
   agreement require?
-- Is one service credential issued per deployed Operator Core instance or per
-  site regardless of deployment?
 - What canonical base URL, package ID, and package version will identify the
   MHCS R5 Implementation Guide?
 - What approved privacy notice, lawful basis, and compliance procedure govern
