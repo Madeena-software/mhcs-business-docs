@@ -12,7 +12,7 @@ teleradiology service.
 | Document | Purpose |
 |---|---|
 | [Business overview and actor journeys](docs/business/01-business-overview.md) | End-to-end business flow, actor journeys, responsibilities, and rules |
-| [System responsibilities](docs/business/03-system-responsibilities.md) | Ownership, readiness, access, payment triggers, and the FHIR R5 boundary |
+| [System responsibilities](docs/business/03-system-responsibilities.md) | Ownership, collaboration, access, payment triggers, and the FHIR R5 boundary |
 
 ## Target repository foundations
 
@@ -28,13 +28,6 @@ the module relevant to its task.
 Modules inside `mhcs-core` communicate through local commands, queries,
 transactions, and durable domain events. The MPIPS document is the only
 transport-level contract in this design.
-
-## Status labels
-
-- **Current:** verified in available source.
-- **Target:** approved business behavior not yet fully connected.
-- **Unknown:** unavailable or unverified.
-- **Future possibility:** outside current implementation scope.
 
 ## Boundary
 

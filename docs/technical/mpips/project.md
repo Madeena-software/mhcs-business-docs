@@ -1,11 +1,11 @@
 # MPIPS Black-Box Integration Contract
 
-**Status:** Approved MHCS target contract; current private API unverified
+**Status:** Approved MHCS target contract
 **Last reviewed:** 28 July 2026
 
 This document defines only the MHCS integration boundary for the separate
-`mpips` repository. It does not replace MPIPS's own verified project context,
-internal architecture, processors, commands, or non-MHCS use cases.
+`mpips` repository. MPIPS internal architecture, processors, commands, and
+non-MHCS use cases remain outside this contract.
 
 The overall two-repository decision is defined by the
 [MHCS Core architecture](../mhcs-core/project.md).
@@ -169,29 +169,20 @@ provider.
 - Returned DICOM is still treated as untrusted by Image Gateway until output
   validation succeeds.
 
-The inspected NPZ reader enables pickle for object-array metadata and explicitly
-requires trusted files. Because malicious pickle code may execute during load,
-before later schema validation, extension checking is not a sufficient safety
-boundary. Production must either use a non-pickle input schema or execute the
-legacy parser inside a hardened isolated conversion process with no MHCS
-database, permanent-storage, user-session, or payment access.
+NPZ parsing must not execute untrusted pickle payloads. Extension checking or
+post-load validation is not a sufficient safety boundary because malicious
+code may execute during load. Production must use a non-pickle input schema or
+a hardened isolated conversion process with no MHCS database,
+permanent-storage, user-session, or payment access.
 
-## Current evidence and gap
+## Open design decisions
 
-The inspected MPIPS repository contains an NPZ radiography workflow and tests,
-plus generic service, worker, callback, and S3-compatible storage foundations.
-The generic HTTP DAG input path was not verified as exposing this exact MHCS
-conversion contract.
-
-The inspected workflow expects fields including `rawimage`, `gainid`,
-`xrayparams`, and `cameraparams`, and checks gain ID, detector mode, dimensions,
-and camera serial. It remains unknown whether representative Grabber
-radiograph and gain NPZ files match those expectations.
-
-The target black-box endpoint, multipart schema, signed manifest, synchronous
-DICOM response, authentication, idempotency store, resource limits, safe NPZ
-trust boundary, error mapping, DICOM validation, and integration tests remain
-implementation work.
+- exact safe radiograph and gain NPZ schemas;
+- DICOM tag mapping, cardinality, terminology, and UID policy;
+- manifest signature algorithm, key rotation, and verification policy;
+- resource, timeout, and temporary-storage limits;
+- detailed DICOM validation and technical error mapping; and
+- interoperability and security fixtures.
 
 ## Does not own
 

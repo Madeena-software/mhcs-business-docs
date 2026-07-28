@@ -22,7 +22,6 @@ the module relevant to its task:
 - [Operator module](modules/operator/project.md)
 - [Doctor module](modules/doctor/project.md)
 - [Image Gateway module](modules/image-gateway/project.md)
-- [MPIPS integration contract](../mpips/project.md)
 
 The old five-repository deployment model is superseded.
 
@@ -146,8 +145,8 @@ MPIPS has one MHCS responsibility: convert one radiograph capture into DICOM.
 The Image Gateway worker supplies a patient-free radiograph NPZ, its matching
 patient-free gain NPZ, and a separately signed DICOM metadata manifest. MPIPS
 returns one DICOM result. The exact transport, authentication, idempotency,
-success, and failure contract is defined only in the
-[MPIPS specification](../mpips/project.md).
+success, and failure contract is owned by the separate `mpips` repository. This
+context defines only the `mhcs-core` side of that boundary.
 
 MPIPS is stateless from the MHCS business perspective. Temporary files are
 removed after the response or bounded recovery window. MPIPS does not own
@@ -184,30 +183,17 @@ as a conflict.
   user sessions.
 - Input size, dimensions, file count, CPU, memory, execution time, and temporary
   storage are bounded.
-- NPZ parsing occurs in an isolated process/container because the currently
-  inspected reader may enable pickle for trusted metadata.
+- NPZ parsing occurs in an isolated process/container and must not execute
+  untrusted pickle payloads.
 - The manifest is signed and its checksum is bound to the conversion job.
 - Logs contain correlation IDs and sanitized technical status, not NPZ
   contents, clinical payloads, tokens, or patient identifiers.
 - The Image Gateway module validates the returned DICOM before permanent
   acceptance.
 
-## Current evidence and implementation status
-
-The available evidence was derived from separate historical Member Core and
-Operator Core repositories, an unavailable Doctor Core repository, an empty
-Image Gateway checkout, and the existing MPIPS repository. Those checkpoints
-remain valid evidence of current or missing capability, but they no longer
-define the target deployment architecture.
-
-Creating the new `mhcs-core` repository, selecting the single database schema,
-deciding which verified historical behavior can be reused, and implementing the
-exact MPIPS contract remain future work. The business and module specifications
-in this repository define the target that implementation must preserve.
-
 ## Extraction rule
 
-A module may become a network service later only when verified operational
-evidence requires independent deployment, scaling, failure isolation,
+A module may become a network service later only when measured operational
+needs require independent deployment, scaling, failure isolation,
 regulatory isolation, or team ownership. Repository size, role-specific user
 interfaces, or speculative future growth alone are not sufficient reasons.

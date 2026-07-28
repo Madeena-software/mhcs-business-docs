@@ -4,8 +4,7 @@
 **Last reviewed:** 28 July 2026
 
 This document defines the Operator module in the approved `mhcs-core` modular
-application. It distinguishes historical implementation evidence from the
-approved target. The overall repository and runtime boundary is defined by the
+application. The overall repository and runtime boundary is defined by the
 [MHCS Core architecture](../../project.md).
 
 ## Purpose
@@ -56,19 +55,6 @@ Operator invokes Member and Image Gateway through local application contracts
 and emits durable domain events for asynchronous work. It never uses network
 calls or module credentials to invoke another MHCS Core module. Only the Image
 Gateway worker crosses the separate private MPIPS boundary.
-
-## Current verified foundation
-
-The inspected application manages legacy projects, participants, arrivals,
-queues, examinations, uploads, private S3-compatible storage, and completion
-status. Its upload path accepts `.npz`, `.dcm`, and `.dicom` files up to 100 MB
-using extension validation.
-
-No verified end-to-end connection from the historical Operator repository to
-Member, Image Gateway, or MPIPS was found. The current data model writes an NPZ key into both `npz_path` and
-`original_dicom_path`. Operator and administrator preview paths then send the
-stored object to a DICOM preview script, so NPZ preview is expected to fail.
-These are current implementation findings, not approved target behavior.
 
 ## Site ownership and synchronization
 
@@ -729,17 +715,7 @@ Operator Core does not own:
 - member-facing result publication; or
 - payment-gateway integrations belonging to the Member or Doctor modules.
 
-## Readiness and external gates
-
-**Historical current evidence:** Legacy project/participant workflow, arrivals, queues,
-examinations, extension-based upload, private object storage, and completion
-status exist.
-
-**Target:** The role model, site authority, demand-triggered staffing, queue
-rules, protected identity flow, local vital-sign contract, protocol versioning,
-session-only multi-capture drafts, safe NPZ validation, idempotent gateway
-submission, read-only viewer, earning stages, payout gateway, FHIR R5 mapping,
-and all cross-module contracts require verification or implementation.
+## External design inputs
 
 The following external artifacts are still required before implementation can
 be considered ready:
@@ -750,6 +726,3 @@ be considered ready:
   idempotency, reconciliation, fee, and sandbox contracts; and
 - the MHCS FHIR R5 Implementation Guide canonical URL, package ID, version,
   profiles, terminology, and validation fixtures.
-
-No current-state claim in this document proves that the target exists in the
-application repository.

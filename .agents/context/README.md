@@ -12,7 +12,7 @@ teleradiology service and the design authority for the future `mhcs-core`.
 | Document | Purpose |
 |---|---|
 | [Business overview and actor journeys](../../docs/business/01-business-overview.md) | End-to-end business flow, actor journeys, responsibilities, and rules |
-| [System responsibilities](../../docs/business/03-system-responsibilities.md) | Ownership, readiness, access, payment triggers, and the FHIR R5 boundary |
+| [System responsibilities](../../docs/business/03-system-responsibilities.md) | Ownership, collaboration, access, payment triggers, and the FHIR R5 boundary |
 
 ## Target repository foundations
 
@@ -38,13 +38,6 @@ repository contains its approved design, not its implementation.
 - `python3 website/test_site.py`
 - `python3 website/bpmn/test_bpmn.py`
 - validate relative Markdown links after moving documentation
-
-## Status labels
-
-- **Current:** verified in available source.
-- **Target:** approved business behavior not yet fully connected.
-- **Unknown:** unavailable or unverified.
-- **Future possibility:** outside current implementation scope.
 
 ## Boundary
 

@@ -3,8 +3,6 @@
 
 **Status:** Verified documentation context
 **Last verified:** 2026-07-28
-**Repository checkpoint:** working tree; reverify the current Git commit before
-copying a specification into an implementation repository
 
 ## Purpose
 
@@ -20,8 +18,8 @@ agent orientation and must not duplicate them.
 - `.agents/context/README.md`: human reading guide
 - `docs/business/01-business-overview.md`: end-to-end business flow, actor journeys,
   responsibilities, and rules
-- `docs/business/03-system-responsibilities.md`: ownership, readiness, and the
-  FHIR R5 boundary
+- `docs/business/03-system-responsibilities.md`: ownership, collaboration,
+  access, payment triggers, and the FHIR R5 boundary
 - `docs/technical/mhcs-core/project.md`: authoritative target architecture for
   the future application and router to its module contexts
 - `docs/technical/mhcs-core/modules/<module>/project.md`: Member, Operator,
@@ -40,23 +38,6 @@ agent orientation and must not duplicate them.
 - Stored patient or clinical data: none
 - Deployment: none
 
-## Available application evidence
-
-Historical current-state evidence was derived from:
-
-- `/var/www/mhcs-member-core` at `main` /
-  `452b1264fa6a2ddf0f5d1d92224db09b33677d6f`
-- `/var/www/mhcs-operator-core` at `main` /
-  `e520a8bada30b3f527ddbc23ae07a087fa236379`
-- `/var/www/mpips` at `adlan` /
-  `a98ed1e6517fc181a1e44a5cd6e034d9eaf12848`
-- `/var/www/mhcs-image-gateway`, an empty checkout with no commits
-
-`/var/www/mhcs-doctor-core` was unavailable.
-
-These checkpoints are evidence inputs, not the approved target repository
-topology.
-
 ## Documentation structure
 
 The repository contains cross-system business documents and technical
@@ -74,8 +55,8 @@ applications or repositories.
 ## Conventions
 
 - Use plain English.
-- Clearly separate **Current**, **Target**, **Unknown**, and **Future
-  possibility**.
+- State approved architecture directly and isolate unresolved choices under
+  **Open design decisions**.
 - Put cross-system business ownership in `docs/business/` and detailed data,
   module operations, security, and FHIR R5 mappings in `docs/technical/`.
 - Treat `docs/technical/mhcs-core/project.md` as the authority for target
@@ -85,7 +66,6 @@ applications or repositories.
 - Keep detailed decisions in `docs/`, not `.agents/context/`.
 - Support diagrams with prose.
 - Do not store patient data, clinical files, credentials, or secrets.
-- Never describe a **Target** contract as currently implemented.
 
 ## Key constraints
 
@@ -93,21 +73,15 @@ applications or repositories.
 - `mhcs-core` will be created as a new Laravel repository in a later explicit
   implementation phase. This repository currently designs it but does not
   implement or scaffold it.
-- Historical source repositories change independently; retain their evidence
-  checkpoints until migration evidence supersedes them.
-- Image Gateway and Doctor have no verified historical implementations.
-- Grabber source was unavailable.
 - MPIPS is specified as a private black-box API accepting a radiograph NPZ, its
   matching gain NPZ, and a separately signed DICOM metadata manifest, then
-  returning one DICOM object. The target contract is not yet verified as
-  implemented.
-- The inspected NPZ reader enables pickle for trusted metadata, so production
-  input trust is a mandatory later security concern.
+  returning one DICOM object.
+- Production NPZ parsing must not execute untrusted pickle payloads.
 - HL7 FHIR R5 `5.0.0` is the sole active MHCS interoperability target.
 
 ## Commands
 
-| Check | Command | Current-change status |
+| Check | Command | Expectation |
 |---|---|---|
 | Whitespace | `git diff --check` | Reverify after each documentation change |
 | Relative links | Validate each relative Markdown link target | Reverify after moving or renaming documents |
@@ -117,29 +91,18 @@ applications or repositories.
 | Topology | Search for obsolete five-application and internal module network contracts | Must remain absent from the target specification |
 | Transport scope | Search MHCS Core contexts for route and transport contracts | Exact transport details must exist only in the MPIPS specification |
 
-## Technical gaps
+## Open design decisions
 
-Known implementation gaps include:
-
-- creation of the new `mhcs-core` repository and implementation of its approved
-  module contexts;
-- module-owned tables, local contracts, migration sequencing, and removal of
-  obsolete internal network adapters;
-- Image Gateway and Doctor module implementation;
-- exact Grabber radiograph/gain NPZ compatibility;
-- MPIPS contract implementation, manifest schema and signature validation,
-  safe NPZ parsing, and interoperability fixtures;
-- FHIR R5 profiles, resource mappings, `CapabilityStatement`, validation, and
-  DICOM mappings;
-- boundary authentication, authorisation, idempotency, and provider
-  confirmations;
-- retry intervals and temporary-link expiry;
-- storage, audit, monitoring, deployment, and tests.
+- Exact radiograph and gain NPZ schemas and compatibility fixtures.
+- DICOM tag mapping, manifest signature format, and UID policy.
+- FHIR R5 profiles, canonical identifiers, terminology bindings, and
+  validation fixtures.
+- Payment, AI, notification, and other external-provider contracts.
+- Retry intervals, temporary-link expiry, deployment, storage, monitoring, and
+  audit policy details.
 
 ## Authority boundary
 
-The detailed approved business rules are in `docs/`. Current implementation
-claims must still be reverified against implementation evidence. The
-architecture and nested module contexts define the future `mhcs-core` target,
-not proof that its repository or the MPIPS contract has already been
-implemented.
+The approved architecture and business rules are in `docs/`. This repository
+designs the future `mhcs-core` and MPIPS boundary; application implementation
+and source-repository history are outside its authority.

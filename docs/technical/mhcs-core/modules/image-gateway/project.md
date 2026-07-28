@@ -1,12 +1,10 @@
 # MHCS Core Image Gateway Module Specification
 
-**Status:** Approved target module; no current implementation verified
+**Status:** Approved target module
 **Last reviewed:** 28 July 2026
 
 This document defines the Image Gateway module in the approved `mhcs-core`
-modular application. The historical `mhcs-image-gateway` checkout contained no
-commits, so every capability below is a target. The overall repository and
-runtime boundary is defined by the
+modular application. The overall repository and runtime boundary is defined by the
 [MHCS Core architecture](../../project.md).
 
 ## Purpose
@@ -74,10 +72,10 @@ The exact retry timing belongs to technical planning.
 
 ## Private MPIPS adapter
 
-The exact black-box integration is defined only by the
-[MPIPS specification](../../../mpips/project.md). The Image Gateway worker
-supplies the patient-free radiograph and gain inputs plus the separately signed
-manifest, then receives one DICOM result inside an asynchronous job.
+The separate `mpips` repository owns the exact black-box transport contract.
+The Image Gateway worker supplies the patient-free radiograph and gain inputs
+plus the separately signed manifest, then receives one DICOM result inside an
+asynchronous job.
 
 Image Gateway validates the result against the input checksums and frozen
 manifest before permanent acceptance. It owns retry count and timing, reuses the
@@ -187,9 +185,8 @@ more specific resource. Applicable changes and access are represented with
 `Provenance` and `AuditEvent` in addition to local immutable audit records.
 
 Processing status, retry control, storage operations, notifications, and
-payment-eligibility events remain ordinary module operations. The historical
-checkout had no R5 implementation, so profiles, mappings, validation, and tests
-are target work.
+payment-eligibility events remain ordinary module operations. Profiles,
+mappings, validation, and verification fixtures remain to be specified.
 
 ## Does not own
 
@@ -205,10 +202,8 @@ The Image Gateway module does not own:
 - doctor earnings; or
 - clinical approval of AI output.
 
-## Readiness and gaps
-
-**Target only:** The historical checkout had no committed implementation.
+## Open design decisions
 
 Exact upload contracts, storage layout, idempotency, FHIR R5 mappings,
-authorization, audit events, MPIPS error mapping, retry timing, deployment, and tests
-belong to a later technical plan.
+authorization, audit events, MPIPS error mapping, retry timing, deployment, and
+verification fixtures remain to be specified.

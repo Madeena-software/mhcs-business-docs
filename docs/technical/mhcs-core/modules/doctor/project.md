@@ -1,13 +1,11 @@
 # MHCS Core Doctor Module Specification
 
-**Status:** Approved target foundation; current implementation unknown
+**Status:** Approved target foundation
 **Last reviewed:** 28 July 2026
 
 This document defines the Doctor module in the approved `mhcs-core` modular
-application. The historical `mhcs-doctor-core` repository was unavailable for
-verification, so no capability in this document should be described as
-currently implemented. The overall repository and runtime boundary is defined
-by the [MHCS Core architecture](../../project.md).
+application. The overall repository and runtime boundary is defined by the
+[MHCS Core architecture](../../project.md).
 
 ## Purpose
 
@@ -200,8 +198,13 @@ There is no arbitrary time limit that prevents a necessary correction.
 These access and lifecycle rules were approved after review of DICOMweb
 rendered/native retrieval, HL7 FHIR `DiagnosticReport` revision states,
 Indonesian electronic-medical-record requirements, and the ACR communication
-practice parameter. The source links are retained in
-[System Responsibilities and Readiness](../../../../business/03-system-responsibilities.md#evidence-sources).
+practice parameter. The supporting references are:
+
+- [DICOM WADO-RS rendered retrieval](https://dicom.nema.org/medical/Dicom/2016d/output/chtml/part18/sect_6.5.8.html);
+- [DICOM WADO-RS study retrieval](https://dicom.nema.org/medical/dicom/2017b/output/chtml/part18/sect_6.5.html);
+- [HL7 FHIR R5 DiagnosticReport](https://hl7.org/fhir/R5/diagnosticreport.html);
+- [Indonesian Ministry of Health Regulation No. 24 of 2022](https://jdih.kemkes.go.id/common/dokumen/2022permenkes024.pdf); and
+- [ACR Practice Parameter for Communication of Diagnostic Imaging Findings](https://www.acr.org/-/media/acr/files/practice-parameters/communicationdiag.pdf).
 
 ## Doctor earnings
 
@@ -393,11 +396,10 @@ The Doctor module does not own:
 - operator earnings or the final operator financial classification; or
 - FHIR resources owned by another MHCS Core module.
 
-## Readiness and gaps
+## Open design decisions
 
-**Unknown:** The historical Doctor Core source was unavailable for inspection.
-
-Every capability above is an approved target. Exact report structure, FHIR R5
+Exact report structure, FHIR R5
 profiles and mappings, credential sources, signature mechanism, notification
 templates, module integration, payment gateway, bank-account verification,
-daily payout schedule, deployment, and tests remain implementation work.
+daily payout schedule, deployment, and verification approach remain to be
+specified.
