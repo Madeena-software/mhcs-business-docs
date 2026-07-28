@@ -1,56 +1,56 @@
-# Image Gateway Business Project Foundation
+# MHCS Core Image Gateway Module Specification
 
-**Status:** Approved target foundation; no current implementation verified
+**Status:** Approved target module; no current implementation verified
 **Last reviewed:** 28 July 2026
 
-This document defines the MHCS business foundation for
-`mhcs-image-gateway`. The available repository contains no commits, so every
-capability below is a target.
+This document defines the Image Gateway module in the approved `mhcs-core`
+modular application. The historical `mhcs-image-gateway` checkout contained no
+commits, so every capability below is a target. The overall repository and
+runtime boundary is defined by the
+[MHCS Core architecture](../mhcs-core/project.md).
 
 ## Purpose
 
-Image Gateway is the controlled backend between operational capture, permanent
+Image Gateway is the controlled module between operational capture, permanent
 image storage, MPIPS processing, optional AI, doctor review, and result
 publication.
 
-It is a Python backend with administrator-only internal access, not an
-end-user application.
+It has administrator-only operational access and queue workers, not a separate
+end-user application or independently deployed MHCS service.
 
 ## Intended consumers
 
-- Operator Core submits completed capture sets.
+- The Operator module submits completed capture sets locally.
 - MPIPS receives authorised processing work.
-- Doctor Core receives eligible studies and returns reports.
-- Member Core receives member-safe image and result references.
+- The Doctor module receives eligible studies and returns reports.
+- The Member module receives member-safe image and result references.
 - Administrators receive final-failure notifications and manage exceptional
   compliance actions.
 
-## Initial deployment topology
+## MHCS Core topology
 
-Image Gateway is one of five repositories initially deployed on the same
-physical computer, each with its own Docker Compose file. Every Compose project
-joins the pre-created external Docker network
-`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
-`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
-supplied through environment variables; containers never use `localhost` to
-reach another service.
+Image Gateway is a module and set of queue workers in the single `mhcs-core`
+repository and runtime. It shares the application database and deployment
+foundation while exclusively owning binary-storage metadata, conversion jobs,
+processing state, and authorized file access.
 
-Only required user-facing entry points are published through the host reverse
-proxy. Internal API ports remain unpublished unless operations explicitly
-require otherwise. The shared network does not replace service authentication,
-site authorization, audit, or separate database and storage ownership.
+Operator, Member, and Doctor use local module contracts and domain events.
+They do not call Image Gateway over internal HTTP. The Image Gateway worker is
+the only MHCS Core caller of the separate private MPIPS API.
 
 ## Submission boundary
 
-Image Gateway receives:
+The Image Gateway module receives:
 
-- one or more patient-free NPZ files for one examination;
+- one or more patient-free radiograph NPZ captures for one examination;
+- the gain NPZ object required by each radiograph capture, correlated by its
+  frozen gain identity;
 - a frozen member/examination metadata snapshot;
 - the globally unique medical-record ID;
 - organisation and examination identity; and
 - traceability information for the submitting operator.
 
-Durable acceptance of the complete set is the event that allows Operator Core
+Durable acceptance of the complete set is the event that allows the Operator module
 to close the examination in its active queue.
 
 The binary should be stored once. Downstream systems should exchange immutable
@@ -59,8 +59,9 @@ copying the same clinical file between application servers.
 
 ## Processing coordination
 
-- Every submitted NPZ must be processed.
-- Image Gateway asks MPIPS to create DICOM for each capture.
+- Every submitted radiograph NPZ must be processed with its matching gain NPZ.
+- The Image Gateway worker builds a signed DICOM metadata manifest and invokes
+  the private MPIPS conversion API once for each capture.
 - Successful capture results are preserved if a sibling capture fails.
 - Only the failed capture is retried.
 - A failed capture receives three total processing attempts.
@@ -70,6 +71,31 @@ copying the same clinical file between application servers.
 
 The exact retry timing belongs to technical planning.
 
+## Private MPIPS adapter
+
+The Image Gateway worker calls the black-box MPIPS endpoint:
+
+```http
+POST /v1/conversions
+Authorization: Bearer <mhcs-core-mpips-token>
+Idempotency-Key: <conversion-job-id>
+Content-Type: multipart/form-data
+```
+
+The request contains `radiograph_npz`, its matching `gain_npz`, and a separately
+signed `dicom_manifest`. The NPZ files remain patient-free. The manifest carries
+the frozen patient, order, encounter, site, acquisition, projection, laterality,
+and DICOM identifiers required for the output.
+
+MPIPS returns one DICOM body plus checksum, byte size, converter version, and
+correlation metadata, or a sanitized stable technical error. The synchronous
+private call runs inside an asynchronous Image Gateway job, never in the
+operator's browser request.
+
+Image Gateway validates the response against the input checksums and frozen
+manifest before permanent acceptance. It owns retry count and timing, reuses the
+same conversion identity, and rejects a replay whose bytes or manifest differ.
+
 ## Completion rules
 
 The examination image set is complete only when every submitted capture has
@@ -77,8 +103,8 @@ successfully produced DICOM.
 
 Only then does Image Gateway:
 
-- make the complete image set available to Member Core, Operator Core, and
-  Doctor Core as authorised references; and
+- make the complete image set available to Member, Operator, and Doctor modules
+  as authorised references; and
 - start each selected result workflow.
 
 A partially successful image set remains hidden from the member until the
@@ -89,6 +115,7 @@ examination is resolved.
 Image Gateway owns long-term storage for:
 
 - original NPZ files;
+- matching gain NPZ files;
 - generated DICOM files;
 - checksums and object identity;
 - processing and publication history; and
@@ -103,8 +130,9 @@ when legally required. The action must be fully audited.
 
 ## Access and distribution
 
-- Raw NPZ is available only to Image Gateway and MPIPS.
-- Member Core, Operator Core, and Doctor Core receive references rather than
+- Raw radiograph and gain NPZ are available only to the Image Gateway module
+  and MPIPS.
+- Member, Operator, and Doctor modules receive references rather than
   permanent file copies.
 - Temporary authorised links protect image access.
 - Members view images and export TIFF, JPG, or PDF; they do not download raw
@@ -123,13 +151,13 @@ when legally required. The action must be fully audited.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
   report delivery to the member, or terminal failure after the fallback also
   fails, makes the AI-stage operator earning eligible.
-- For a doctor-selected service, placing the DICOM study in the Doctor Core
+- For a doctor-selected service, placing the DICOM study in the Doctor module
   dashboard queue starts review but does not make the doctor-stage operator
-  earning eligible. An explicit Doctor Core `usable` decision for that
+  earning eligible. An explicit Doctor module `usable` decision for that
   `ImagingStudy` is the trigger.
 - A combined service emits separate AI-stage and doctor-stage eligibility
   events.
-- A Doctor Core `repeat_required` decision starts a Member Core repeat
+- A Doctor module `repeat_required` decision starts a Member module repeat
   entitlement but does not authorize Image Gateway to create a repeat itself.
 - A doctor-only repeat does not rerun AI. The original study and any successful
   original AI result remain unchanged.
@@ -141,30 +169,23 @@ when legally required. The action must be fully audited.
 
 ## Doctor replacement-study contract
 
-Image Gateway preserves original and replacement studies as separate linked
+The Image Gateway module preserves original and replacement studies as separate linked
 records. When all captures for a doctor-requested repeat have produced the
-replacement DICOM study, Image Gateway returns it to the existing Doctor Core
-case:
+replacement DICOM study, it emits one idempotent `ReplacementStudyReady`
+domain event for the existing Doctor case.
 
-```http
-POST /api/v1/internal/repeat-study-events
-Authorization: Bearer <image-gateway-service-token>
-Idempotency-Key: <replacement-study-event-id>
-Content-Type: application/json
-```
-
-The event identifies the Doctor Core case, Member Core repeat entitlement,
+The event identifies the Doctor case, Member repeat entitlement,
 replacement `ServiceRequest`, `Appointment`, `Encounter`, and `ImagingStudy`,
 the original study and order, occurrence time, and source version. Image
 Gateway sends authorized references rather than another permanent file copy.
 
 The same event ID and content return the original outcome. A changed replay,
 unknown entitlement, broken original-study lineage, or non-doctor repeat fails
-closed. Image Gateway persists the event in an outbox until Doctor Core
-acknowledges it.
+closed. The event is persisted with the source transition before queued
+delivery.
 
-Doctor Core returns the case to the requesting doctor when still authorized or
-to the shared eligible queue otherwise. Image Gateway does not choose the
+The Doctor module returns the case to the requesting doctor when still
+authorized or to the shared eligible queue otherwise. Image Gateway does not choose the
 doctor, change queue ownership, calculate the doctor's 25% repeat-assessment
 earning, or decide operator payment classification.
 
@@ -179,13 +200,13 @@ more specific resource. Applicable changes and access are represented with
 `Provenance` and `AuditEvent` in addition to local immutable audit records.
 
 Processing status, retry control, storage operations, notifications, and
-payment-eligibility events remain ordinary service operations. The available
-checkout has no R5 implementation, so profiles, mappings, validation, and
-tests are target work.
+payment-eligibility events remain ordinary module operations. The historical
+checkout had no R5 implementation, so profiles, mappings, validation, and tests
+are target work.
 
 ## Does not own
 
-Image Gateway does not own:
+The Image Gateway module does not own:
 
 - member booking, service rules, or member payments;
 - front-desk queues;
@@ -199,8 +220,8 @@ Image Gateway does not own:
 
 ## Readiness and gaps
 
-**Target only:** The available checkout has no committed implementation.
+**Target only:** The historical checkout had no committed implementation.
 
 Exact upload contracts, storage layout, idempotency, FHIR R5 mappings,
-authorisation, audit events, callbacks, retry timing, deployment, and tests
+authorization, audit events, MPIPS error mapping, retry timing, deployment, and tests
 belong to a later technical plan.

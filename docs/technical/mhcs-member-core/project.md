@@ -1,13 +1,13 @@
-# Member Core Project Specification
+# MHCS Core Member Module Specification
 
 **Specification status:** Expected end-state specification
 **Business foundation:** Approved
 **Last reviewed:** 28 July 2026
 
-This is the central specification for `mhcs-member-core`. It defines how the
-system must work and is the expected state that implementation work must move
-toward. A repository-local copy will replace that repository's
-`.agents/context/project.md`.
+This is the Member module specification for the approved `mhcs-core` modular
+application. It defines the expected state that consolidation and implementation
+work must move toward. The overall runtime and repository boundary is defined
+by the [MHCS Core architecture](../mhcs-core/project.md).
 
 ## Agent rules
 
@@ -17,14 +17,15 @@ toward. A repository-local copy will replace that repository's
   implementation toward the specification. Do not weaken the specification to
   match existing code.
 - Verify source and tests before claiming that a requirement is implemented.
-- Do not invent database columns, API fields, states, or service ownership.
+- Do not invent database columns, operation inputs, states, or module
+  ownership.
 - Internal names do not have to match FHIR resource names. MHCS uses `Member`
   internally and maps it to FHIR `Patient` only at an external boundary.
 - HL7 FHIR R5 `5.0.0` is the only active MHCS interoperability standard.
 
 ## Purpose and ownership
 
-Member Core is the member-facing application and the authority for:
+Member Core is the member-facing module and the authority for:
 
 - login accounts created for members, including members without phones;
 - member identity and the MHCS medical-record number;
@@ -44,10 +45,9 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 - Members use the member-facing Blade application.
 - Member administrators use the Filament panel at `/admin`.
 - The admin panel manages members, service offerings, schedules, B2B and B2C
-  bookings, member payments, point reservations, promotions, settings, and
-  service credentials for examination sites synchronized from Operator Core.
-- Operator Core uses an organization/site-scoped service credential. It never
-  receives direct database access.
+  bookings, member payments, point reservations, promotions, and settings.
+- Operator features use the same authenticated MHCS Core user, role, and active
+  site context. No module service credential is required.
 
 ## Identity model
 
@@ -87,7 +87,7 @@ photograph.
 NIK and family-card number are sensitive lookup values. Member Core stores an
 encrypted value for authorized display and a keyed lookup hash for exact match
 and uniqueness; only NIK is also used for login. They must not appear in logs,
-URLs, analytics, or API responses unless the receiving role and purpose
+links, analytics, or operation results unless the receiving role and purpose
 explicitly require them.
 
 KK groups members into a family but is not a login identifier. A member who has
@@ -222,31 +222,26 @@ a schedule whose time range overlaps another active schedule for the same site
 is rejected. This invariant allows the attendance-at-time contract to return one
 schedule.
 
-For the first API version, an Operator Core service credential is bound to one
-organization and one site. The caller cannot select another organization or
-site through request parameters. This prevents cross-site attendance leakage.
-One multi-site Operator Core deployment holds a different Member Core service
-credential for each site and selects it from the authenticated operator's site;
-operators never see these credentials.
+The authenticated operator session determines organization and active site.
+The browser cannot select an unauthorized organization or site through request
+parameters. This prevents cross-site attendance leakage without service tokens.
 
-Member Core owns the bookable site record. Operator Core owns its operational
-organization record. Their stable external identifiers are stored as opaque
-references; there are no cross-service database foreign keys.
+The Operator module owns the physical site record. The Member module owns
+schedules and bookings that reference that shared site identity. Each module
+changes only its own tables, while normal database foreign keys may enforce
+stable relationships.
 
-## Initial deployment topology
+## MHCS Core topology
 
-Member Core is one of five repositories initially deployed on the same physical
-computer, each with its own Docker Compose file. Every Compose project joins the
-pre-created external Docker network
-`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
-`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
-supplied through environment variables; containers never use `localhost` to
-reach another service.
+Member is a module in the single `mhcs-core` repository and runtime. It shares
+the authentication foundation, database, queue, and deployment with Operator,
+Doctor, and Image Gateway while retaining explicit table and business-rule
+ownership.
 
-Only required user-facing entry points are published through the host reverse
-proxy. Internal API ports remain unpublished unless operations explicitly
-require otherwise. The shared network does not replace service authentication,
-site authorization, audit, or separate database and storage ownership.
+Cross-module commands and queries are local application interfaces. Durable
+domain events coordinate asynchronous follow-up. Member never calls another
+MHCS Core module through a network boundary or service credential. Only the
+Image Gateway module's worker calls the separate private MPIPS API.
 
 ## Required data model
 
@@ -260,7 +255,6 @@ erDiagram
     MEMBERS ||--o{ FAMILY_MEDICAL_HISTORIES : "records"
     OPERATOR_ORGANIZATION_REFS ||--o{ EXAMINATION_SITES : "operates"
     EXAMINATION_SITES ||--o{ SHIFT_SCHEDULES : "hosts"
-    EXAMINATION_SITES ||--o{ SERVICE_CREDENTIALS : "authorizes"
     SERVICE_OFFERINGS ||--o{ SHIFT_SCHEDULES : "scheduled as"
     MEMBERS ||--o{ BOOKINGS : "receives"
     SHIFT_SCHEDULES ||--o{ BOOKINGS : "contains"
@@ -359,14 +353,6 @@ erDiagram
         string name
         string timezone
         boolean active
-    }
-
-    SERVICE_CREDENTIALS {
-        uuid id PK
-        uuid examination_site_id FK
-        string token_hash UK
-        enum status
-        datetime revoked_at
     }
 
     SERVICE_OFFERINGS {
@@ -666,25 +652,17 @@ schedule-only change keeps the same order; changing the requested examination
 or body site replaces the order with explicit lineage.
 
 Doctor-requested repeats are a separate zero-point path. Accepting the
-authenticated Doctor Core request creates the linked replacement
+authorized Doctor module command creates the linked replacement
 `ServiceRequest` before the member chooses a shift. Scheduling creates a
 doctor-only booking and `Appointment`, consumes ordinary advance-booking
 capacity, and never adds AI. The member may select any active compatible site
 and shift. A repeat entitlement has no automatic expiry and remains active
 until booked, formally declined by the member, or clinically cancelled.
 
-## Doctor-requested repeat entitlement API
+## Doctor-requested repeat entitlement contract
 
-Doctor Core requests one repeat through:
-
-```http
-POST /api/v1/internal/repeat-entitlements
-Authorization: Bearer <doctor-core-service-token>
-Idempotency-Key: <repeat-request-id>
-Content-Type: application/json
-```
-
-The request identifies the original Doctor Core case, booking,
+The Doctor module invokes one local, idempotent
+`CreateRepeatEntitlement` command. The command identifies the original case, booking,
 `ServiceRequest`, examination, `ImagingStudy`, requesting doctor, controlled
 preliminary reason, occurrence time, source version, and any doctor-authorized
 corrected examination, anatomy, or laterality. Member Core accepts the
@@ -700,15 +678,16 @@ case has no other active repeat entitlement. It atomically creates:
 - one doctor-only service snapshot with AI disabled; and
 - one linked replacement `ServiceRequest`.
 
-The same idempotency key and payload return the original result. Reusing the key
+The same command ID and payload return the original result. Reusing the ID
 with changed content, requesting a second simultaneously active repeat, or
 submitting unknown or mismatched lineage fails as a conflict. A temporary
-failure has no partial visible entitlement and is safe for Doctor Core to retry.
+failure has no partial visible entitlement and is safe for the Doctor module to
+retry.
 
-The successful response returns the stable entitlement and replacement-order
-identifiers. That acknowledgment is the sole trigger Doctor Core uses for the
-25% repeat-assessment earning; Member Core does not calculate or own the doctor
-earning.
+The command and the Doctor module's 25% repeat-assessment earning are committed
+atomically in the shared database after the Member module creates the stable
+entitlement and replacement-order identifiers. The Member module does not
+calculate or own the doctor earning.
 
 The member can then choose any compatible site and shift. The confirmed repeat
 booking follows normal attendance and queue rules, consumes one
@@ -723,31 +702,26 @@ of the completed original booking, so the original B2B change restriction does
 not force the member back to the original site or shift.
 
 Member Core owns repeat reminders, member notification, scheduling, formal
-decline, and documented clinical cancellation. It sends authenticated,
-versioned, idempotent entitlement and decline status events to Doctor Core
-through a durable outbox. A decline closes the entitlement without creating a
-final report and never instructs Doctor Core to reverse an already eligible
-repeat-assessment earning.
+decline, and documented clinical cancellation. It emits versioned,
+idempotent entitlement and decline domain events for the Doctor module. A
+decline closes the entitlement without creating a final report and never
+reverses an already eligible repeat-assessment earning.
 
-## Operator attendance API
+## Operator attendance application contract
 
-Operator Core obtains the eligible attendance list from Member Core. Member
-Core never pushes member rows directly into the Operator Core database.
-
-```http
-GET /api/v1/operator/attendance?at=2026-07-22T09:15:00+07:00
-Authorization: Bearer <site-scoped-token>
-Accept: application/json
-```
+The Operator module queries the Member module for the eligible attendance list
+inside the same application. It does not duplicate member rows into
+Operator-owned tables.
 
 Rules:
 
 - `at` is required, ISO 8601 with an explicit offset, and normalized to UTC.
-- The authenticated credential determines the organization and site.
+- The authenticated operator session determines the organization and active
+  site.
 - Only confirmed, paid, non-cancelled bookings whose schedule contains `at`
   are returned.
-- Repeating the request has no side effects.
-- The response exposes only fields required for examination operations.
+- Repeating the query has no side effects.
+- The result exposes only fields required for examination operations.
 - The attendance list exposes only a masked NIK. An operator may enter the full
   NIK shown on the physical KTP or KIA into a separate exact-match lookup; Member
   Core hashes the input and returns only the matched eligible booking.
@@ -756,105 +730,33 @@ Rules:
 - Every exact NIK lookup and verification view is purpose-, operator-, booking-,
   and site-audited.
 
-Response example:
+The attendance result contains site, schedule, time window, booking, member,
+medical-record number, masked NIK, minimum demographics, service, and
+attendance state. Exact NIK matching accepts the identifier as protected
+operation input so it never appears in a link. The result contains the same
+minimum booking fields as one attendance-list member and never echoes the NIK.
+Because one member can have only one active booking, the query returns at most
+one site-eligible booking. A missing eligible match never reveals whether the
+identity exists.
 
-```json
-{
-  "data": {
-    "site_id": "site-uuid",
-    "schedule_id": "schedule-uuid",
-    "starts_at": "2026-07-22T02:00:00Z",
-    "ends_at": "2026-07-22T05:00:00Z",
-    "members": [
-      {
-        "booking_id": "booking-uuid",
-        "member_id": "member-uuid",
-        "medical_record_number": "MHCS-...",
-        "masked_nik": "************1234",
-        "name": "Member name",
-        "birth_date": "1990-01-01",
-        "administrative_gender": "female",
-        "service_code": "THORAX-AI-DOCTOR",
-        "attendance_status": "expected"
-      }
-    ]
-  }
-}
-```
+New-member identity files are uploaded before registration. The operation
+accepts a type (`ktp`, `kia`, or `profile_photo`) and one file. The
+authenticated session supplies the operator and site. A successful operation
+creates a short-lived, single-use upload reference, never a public object link.
+Member Core validates the declared type and file content, stores the object
+privately, and binds every access and later consumption to the operator and
+site audit context.
 
-Exact NIK matching uses a request body so the identifier never appears in a URL:
+## Operator-assisted walk-in application contract
 
-```http
-POST /api/v1/operator/attendance/lookup
-Authorization: Bearer <site-scoped-token>
-Content-Type: application/json
-Cache-Control: no-store
-```
-
-```json
-{
-  "nik": "entered-from-physical-document",
-  "at": "2026-07-22T09:15:00+07:00",
-  "operator_id": "operator-core-user-id"
-}
-```
-
-The response contains the same minimum booking fields as one attendance-list
-member and never echoes the NIK. Because one member can have only one active
-booking, this endpoint returns at most one site-eligible booking. No eligible
-match returns the same `404` response regardless of whether the identity exists.
-
-New-member identity files are uploaded before registration:
-
-```http
-POST /api/v1/operator/verification-assets
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-upload-request-id>
-Content-Type: multipart/form-data
-```
-
-The multipart request contains `operator_id`, `type` (`ktp`, `kia`, or
-`profile_photo`), and one file. A successful response returns a short-lived,
-single-use `upload_id`, never a public object URL. Member Core validates the
-declared type and file content, stores the object privately, and binds every
-access and later consumption to the operator and site audit context.
-
-## Operator-assisted walk-in API
-
-An authenticated operator creates a walk-in through Member Core:
-
-```http
-POST /api/v1/operator/walk-ins
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-request-id>
-Content-Type: application/json
-```
-
-```json
-{
-  "operator_id": "operator-core-user-id",
-  "schedule_id": "schedule-uuid",
-  "service_offering_id": "service-uuid",
-  "member": {
-    "nik": "entered-from-physical-document",
-    "name": "Required only for a new member",
-    "birth_date": "1990-01-01",
-    "identity_document_type": "ktp",
-    "identity_document_upload_id": "required-for-new-member",
-    "profile_photo_upload_id": "required-for-new-member"
-  },
-  "cash_top_up": {
-    "money_amount": 250000
-  }
-}
-```
-
-The request supplies member identity, mandatory private-upload references when
-the member is new, the selected service offering, applicable schedule, and an
+An authenticated operator creates a walk-in through one idempotent application
+operation. It supplies member identity, mandatory private-upload references
+when the member is new, the selected service offering, applicable schedule, and an
 optional cash top-up. A cash top-up may exceed the booking price; Member Core
 calculates points from the current rate, charges only the booking cost, and
 leaves the remainder in the personal wallet. An activation contact remains
-optional. The organization and site come from the credential, not
+optional. The organization, site, and operator come from the authenticated
+session, not
 caller-controlled identifiers.
 
 Member Core must perform one idempotent workflow. Steps 1 through 6 occur in one
@@ -869,18 +771,17 @@ database transaction; steps 7 and 8 occur only after it commits:
 5. Complete the Member Core points charge and create the confirmed walk-in
    booking. Operator Core never mutates wallet balances.
 6. Create the imaging `ServiceRequest` for the confirmed booking.
-7. Return the member, MRN, booking, order, top-up receipt, and remaining-point
+7. Produce the member, MRN, booking, order, top-up receipt, and remaining-point
    summary.
 8. Deliver account activation outside the database transaction.
 
-After a successful response, Operator Core appends the member to the end of its
-own site queue. Member Core never calls back merely to mutate an Operator Core
-queue. If the local append fails, Operator Core retries locally; replaying the
-walk-in request with the same idempotency key returns the original response.
+After the transaction succeeds, the Operator module appends the member to the
+end of its site queue through a local post-commit handler. Replaying the
+walk-in command with the same idempotency key returns the original result.
 
 Operator staff never choose, receive, or view the member's password. Duplicate
-requests with the same idempotency key and request hash return the same result;
-reusing the key with a different request returns `409 idempotency_conflict`.
+commands with the same idempotency key and input hash return the same result;
+reusing the key with different input fails as an idempotency conflict.
 
 When a new adult member has no email or phone, Member Core generates a unique
 one-time temporary password and prints it without rendering it in the operator
@@ -908,51 +809,24 @@ caching. KTP/KIA access is limited to identity verification and reconciliation.
 Any document or face mismatch blocks queue entry and creates an audited exception
 that an administrator must resolve before examination continues.
 
-Operator Core records physical arrival idempotently:
-
-```http
-POST /api/v1/operator/bookings/{booking}/status-events
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-status-event-id>
-Content-Type: application/json
-```
-
-```json
-{
-  "operator_id": "operator-core-user-id",
-  "event": "arrived",
-  "occurred_at": "2026-07-22T09:10:00+07:00"
-}
-```
+The Operator module records physical arrival idempotently with the booking,
+event type, and actual occurrence time.
 
 Supported events are `arrived`, `examination_started`, and
-`examination_completed`. `examination_started` also supplies the Operator
-Core-owned `encounter_id`; it changes the internal booking to `in_progress` and
+`examination_completed`. `examination_started` also supplies the
+Operator-owned `encounter_id`; it changes the internal booking to `in_progress` and
 the R5 `Appointment` to `fulfilled`. `examination_completed` changes only the
-internal booking to `completed`; Operator Core separately completes its own
-Encounter, and the Appointment remains `fulfilled`. Operator Core persists
-unsent events and retries them with the same idempotency key.
+internal booking to `completed`; the Operator module separately completes its
+Encounter, and the Appointment remains `fulfilled`. The source transition and
+Member update commit atomically where possible; queued post-commit handlers
+remain idempotent.
 
-Identity verification is a separate audited operation:
-
-```http
-POST /api/v1/operator/bookings/{booking}/identity-verifications
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-verification-id>
-Content-Type: application/json
-```
-
-The request contains `operator_id`, the NIK entered from the physical document,
-and `occurred_at`. A successful exact match returns a short-lived verification
-session with protected KTP/KIA and current/previous profile-photo views. The
-operator submits the manual document and face comparison to:
-
-```http
-POST /api/v1/operator/identity-verifications/{verification}/decision
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-decision-id>
-Content-Type: application/json
-```
+Identity verification is a separate audited operation. Its input contains the
+NIK entered from the physical document and the actual occurrence time; the
+operator and site come from the session. A successful exact match creates a
+short-lived verification session with protected KTP/KIA and current/previous
+profile-photo views. The operator then records the manual document and face
+comparison decision.
 
 Both comparison results, operator, site, occurrence time, and optional mismatch
 note are required. Two matches change the booking to `checked_in`; either
@@ -970,48 +844,18 @@ exists. Deletion is allowed only through an authorised compliance process. The
 privacy notice, lawful basis, retention implementation, and compliance-deletion
 procedure require explicit policy approval before collection is enabled.
 
-## Operator cash-closing API
+## Operator cash-closing application contract
 
-After ending operational work, Operator Core submits the operator-counted cash:
-
-```http
-POST /api/v1/operator/schedules/{schedule}/cash-closings
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-closing-id>
-Content-Type: application/json
-```
-
-```json
-{
-  "operator_id": "operator-core-user-id",
-  "counted_money_amount": 1750000,
-  "closed_at": "2026-07-22T19:05:00+07:00"
-}
-```
+After ending operational work, the Operator module submits the
+operator-counted cash through an idempotent local operation containing the
+counted amount and closing time.
 
 Member Core calculates the expected cash from successful cash top-ups for the
-same operator, credential-bound site, and schedule. The response returns one
+same authenticated operator, active site, and schedule. The response returns one
 shared reconciliation ID, expected amount, counted amount, discrepancy, and
 `reconciled` or `reconciliation_required`. A discrepancy does not block shift
 closing or alter points and bookings; an administrator resolves it with an
 audited reason while both original amounts remain immutable.
-
-## Operator API error contract
-
-Operational JSON APIs return one stable error envelope containing `code`,
-`message`, `request_id`, and field-level `errors` when applicable. At minimum,
-clients must handle:
-
-- `401 invalid_credential`;
-- `403 site_scope_violation`;
-- `404 eligible_booking_not_found`;
-- `409 active_booking_exists`, `shift_full`, `invalid_transition`, or
-  `idempotency_conflict`;
-- `422 identity_verification_required` or `insufficient_points`; and
-- `503 point_revaluation_in_progress`.
-
-Error responses never expose NIK, credentials, clinical payload, or whether an
-out-of-scope identity exists.
 
 ## Basic health measurements
 
@@ -1052,8 +896,8 @@ composite Observation. Every mapped Observation includes:
 - `subject` referencing the member's `Patient`;
 - `effectiveDateTime` from the actual measurement time;
 - the required LOINC code; and
-- `valueQuantity` with `system` `http://unitsofmeasure.org` and the canonical
-  UCUM code, or `dataAbsentReason` when the profile permits an absent value.
+- `valueQuantity` with the canonical UCUM system identifier and code, or
+  `dataAbsentReason` when the profile permits an absent value.
 
 Blood pressure is one composite observation. Systolic and diastolic components
 must be recorded together, or the missing component must carry a standardized
@@ -1068,34 +912,12 @@ Do not reject a measurement merely because it is clinically abnormal. Reject
 invalid types or impossible units; require the operator to confirm implausible
 values and retain that confirmation for audit.
 
-### Operator measurement API
-
-```http
-POST /api/v1/operator/bookings/{booking}/vital-signs
-Authorization: Bearer <site-scoped-token>
-Idempotency-Key: <unique-measurement-request-id>
-Content-Type: application/json
-```
-
-```json
-{
-  "measured_at": "2026-07-22T09:20:00+07:00",
-  "status": "final",
-  "height_cm": 168.5,
-  "weight_kg": 62.4,
-  "systolic_mm_hg": 118,
-  "diastolic_mm_hg": 76,
-  "pulse_per_minute": 72,
-  "respiratory_rate_per_minute": 16,
-  "temperature_celsius": 36.6,
-  "oxygen_saturation_percent": 98
-}
-```
+### Operator measurement operation
 
 Rules:
 
-- The booking must belong to the caller's credential-bound site.
-- The API calculates BMI; callers cannot provide a conflicting BMI.
+- The booking must belong to the authenticated operator's active site.
+- The application calculates BMI; users cannot provide a conflicting BMI.
 - At least one supported measurement is required.
 - Duplicate idempotency keys return the original result.
 - Corrections create a new record referencing the superseded record.
@@ -1107,8 +929,8 @@ date range. The `CapabilityStatement` declares the exact supported parameters.
 
 ## Security and privacy invariants
 
-- Service credentials are stored hashed, scoped to one site, revocable, and
-  never committed as plaintext.
+- Operator access is derived from the authenticated user, role, assignment, and
+  active site; caller-supplied operator or site identifiers never grant access.
 - Passwords are hashed with the framework's approved adaptive password hasher;
   NIK and KK lookup hashes are keyed and separate from encrypted display values.
 - Imported temporary passwords use cryptographically secure randomness, force
@@ -1116,7 +938,8 @@ date range. The `CapabilityStatement` declares the exact supported parameters.
   after their one-time handoff.
 - Login is rate limited and returns the same failure response for an unknown
   identifier and an incorrect password.
-- Every cross-service request is authenticated and audit logged.
+- Every external adapter call is authenticated and audit logged; internal
+  module calls preserve the authenticated actor and purpose context.
 - Member information is minimized for the operator's task.
 - KTP and profile photographs use private encrypted object storage and
   short-lived authorized access; they are never placed in a public bucket.
@@ -1355,7 +1178,6 @@ Member administrators must be able to manage:
 - B2B agreement references, member import reconciliation, point reservations,
   and audited business-requested booking changes;
 - Operator organizations and examination sites;
-- one revocable service credential per examination site;
 - service offerings, point prices, and AI/doctor inclusion flags;
 - site schedules, quotas, and booking eligibility;
 - doctor-requested repeat entitlements, long-pending follow-up, formal decline,
@@ -1391,14 +1213,15 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - login errors do not disclose whether a NIK or email exists;
 - one member identity cannot hold more than one active booking across any site,
   shift, or service;
-- one Doctor Core request creates at most one zero-point, doctor-only repeat
+- one Doctor module command creates at most one zero-point, doctor-only repeat
   entitlement and one linked replacement `ServiceRequest`;
 - a repeat entitlement allows any compatible site and shift, consumes capacity
   only when booked, never requests AI, and cannot coexist with another active
   repeat in the same case chain;
-- Doctor Core retries return the original entitlement, while a changed payload
-  with the same idempotency key fails as a conflict;
-- a formally declined repeat sends one idempotent status event to Doctor Core,
+- Doctor module retries return the original entitlement, while a changed
+  payload with the same command ID fails as a conflict;
+- a formally declined repeat emits one idempotent status event for the Doctor
+  module,
   creates no final report, and does not reverse the doctor's eligible
   repeat-assessment earning;
 - a pending-payment booking holds capacity for the administrator-configured
@@ -1412,9 +1235,9 @@ Member Core does not satisfy this specification until tests demonstrate that:
   rate, charges only the booking cost, and retains the remaining personal
   points;
 - replaying an idempotency key with a different request returns a conflict;
-- a credential cannot retrieve attendance for another site;
-- one multi-site Operator Core deployment uses a separate revocable credential
-  for each examination site;
+- an operator session cannot retrieve attendance for another site;
+- a multi-site operator can act only through an explicitly assigned active
+  site, and changing site re-evaluates authorization;
 - overlapping active schedules for one site are rejected;
 - attendance excludes unpaid, cancelled, and out-of-window bookings;
 - attendance exposes only masked NIK and excludes unnecessary account/contact
@@ -1439,8 +1262,8 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - every vital-sign Observation maps the required category, patient, effective
   time, LOINC code, UCUM system/code, value or absence reason, and required
   search parameters;
-- cross-service, FHIR, and DICOM identifiers cannot be confused with local IDs;
-- every cross-service FHIR payload declares and validates against its intended
+- cross-module, FHIR, and DICOM identifiers cannot be confused with local IDs;
+- every exchanged FHIR payload declares and validates against its intended
   release and profile;
 - non-R5 or unversioned resources are rejected by the R5 interface;
 - booking capacity remains correct under concurrent requests;

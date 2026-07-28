@@ -11,13 +11,13 @@ priority, while B2C registration and self-booking remain available.
 | Step | Owner | Action and outcome |
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions the agreed members, services, locations, dates, shifts, and reserved Madeena Points. For B2C, the member registers, chooses, and pays independently. |
-| 2 | Member Core | Member Core supplies the authorised attendance and examination information to Operator Core. |
+| 2 | Member module | The Member module makes authorised attendance and examination information available to the Operator module inside `mhcs-core`. |
 | 3 | Operator | The assigned operator uses the front-desk features to confirm that the member is registered, paid, and verified. A walk-in must first be registered and paid in Member Core. |
 | 4 | Operator | The same operator confirms arrival, manages the queue, and selects one active examination. |
-| 5 | Grabber and Operator | Offline-capable Grabber software creates one or more patient-free NPZ captures. The operator reviews the draft set and may remove or retake captures. |
-| 6 | Operator Core | The operator submits the complete NPZ set once, together with a frozen member and examination snapshot. |
+| 5 | Grabber and Operator | Offline-capable Grabber software creates patient-free radiograph NPZ captures and the required gain NPZ input. The operator reviews the radiograph draft set and may remove or retake captures. |
+| 6 | Operator module | The operator submits the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
 | 7 | Image Gateway | Durable acceptance closes the operator queue item. Image Gateway stores the submission and coordinates processing. |
-| 8 | MPIPS | MPIPS creates one DICOM file for every submitted NPZ capture. |
+| 8 | MPIPS | For every capture, MPIPS converts one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file. |
 | 9 | Image Gateway | Failed captures are retried independently while successful sibling results are preserved. |
 | 10 | Image Gateway and Operator Core | When every capture has produced DICOM, the complete image set is ready. |
 | 11 | Image Gateway | The selected AI and doctor services start independently. |
@@ -27,9 +27,9 @@ priority, while B2C registration and self-booking remain available.
 | 15 | Doctor | After at least one study is usable, the doctor submits a separate clinical report. Report submission makes the final-report doctor earning eligible. |
 | 16 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
 
-Each application has a distinct business responsibility. Image Gateway stores
+Each MHCS Core module has a distinct business responsibility. Image Gateway stores
 each clinical file once and shares it through controlled references instead of
-creating permanent copies in every application.
+creating permanent copies in every module.
 
 ## 2. People, systems, and responsibilities
 
@@ -40,22 +40,27 @@ creating permanent copies in every application.
 | Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
 | Member | Receives B2B bookings, may create additional B2C bookings, attends, views images, and receives selected results. |
 | Operator or radiographer | Uses the same application for front-desk verification, queue management, examination, capture submission, and processing status. |
-| Grabber | Captures X-ray images as patient-free NPZ while its software may remain offline. |
+| Grabber | Produces patient-free radiograph and gain NPZ inputs while its software may remain offline. |
 | Image Gateway | Stores clinical files and coordinates processing, access, routing, and publication. |
-| MPIPS | Converts each submitted NPZ capture into DICOM. |
+| MPIPS | Converts each radiograph NPZ, matching gain NPZ, and signed manifest into DICOM. |
 | AI service | Produces an automatic result when selected. |
 | Doctor | Claims a study, reviews it, and submits a separate clinical report. |
 | MHCS administrator | Manages the relevant application, performs approved B2B booking changes and assisted account recovery, and receives final processing-failure notifications. |
 
-### Application responsibilities
+### Module and repository responsibilities
 
-| Application | Business responsibility |
+| Module or repository | Business responsibility |
 |---|---|
-| Member Core | Member identity, B2B and B2C booking, Madeena Points, payment, choices, notifications, and results |
-| Operator Core | Physical sites, operator staffing, front-desk features, queues, capture-set submission, image viewing, operator earnings, and payouts |
-| Image Gateway | Permanent image storage, processing coordination, routing, and controlled distribution |
-| MPIPS | NPZ-to-DICOM processing |
-| Doctor Core | Shared doctor work queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts |
+| Member module in `mhcs-core` | Member identity, B2B and B2C booking, Madeena Points, payment, choices, notifications, and results |
+| Operator module in `mhcs-core` | Physical sites, operator staffing, front-desk features, queues, capture-set submission, image viewing, operator earnings, and payouts |
+| Image Gateway module in `mhcs-core` | Permanent image storage, MPIPS orchestration, routing, and controlled distribution |
+| Doctor module in `mhcs-core` | Shared doctor work queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts |
+| `mpips` repository | Private black-box conversion of radiograph NPZ plus gain NPZ and a signed DICOM manifest into DICOM |
+
+Member, Operator, Doctor, and Image Gateway run as modules in one
+`mhcs-core` application. They use local commands, shared transactions where
+appropriate, and durable domain events instead of calling one another through
+internal HTTP APIs. MPIPS is the only separate internal service.
 
 ### Member Core boundary
 
@@ -121,7 +126,8 @@ Operator Core owns examination-day work:
 - physical-site master data and operator shift assignment;
 - front-desk features, arrivals, identity verification, and queues;
 - selection of the active examination;
-- upload of one or more NPZ captures from the Grabber computer;
+- upload of one or more radiograph NPZ captures and their required gain NPZ
+  input from the Grabber computer;
 - a draft capture set that allows removal and retake;
 - one Submit action for the complete set;
 - processing status and processed-image viewing; and
@@ -138,12 +144,13 @@ raw NPZ or download raw DICOM.
 
 ### Grabber boundary
 
-Grabber only captures images. It may remain offline and produces patient-free
-NPZ files.
+Grabber only captures images and calibration input. It may remain offline and
+produces patient-free radiograph NPZ captures plus the gain NPZ required by
+MPIPS.
 
-The operator opens Operator Core from a dedicated Grabber computer restricted
-to authorised staff. The NPZ contains the image and capture gain data prepared
-by Grabber.
+The operator opens MHCS Core from a dedicated Grabber computer restricted to
+authorised staff. Radiograph and gain remain separate NPZ inputs correlated by
+the frozen gain identity.
 
 Patient identity comes from the active examination selected in Operator Core,
 not from the NPZ filename or content.
@@ -170,8 +177,8 @@ required, and the action must be fully audited.
 
 ### MPIPS boundary
 
-For MHCS, MPIPS turns each submitted NPZ into DICOM using the separately
-supplied frozen member and examination metadata.
+For MHCS, MPIPS turns each radiograph NPZ plus its matching gain NPZ and
+separately signed DICOM metadata manifest into DICOM.
 
 MPIPS does not own booking, queues, permanent storage policy, publication,
 doctor workflow, or payments.
@@ -229,9 +236,9 @@ These tables describe the business journey for each role.
 | Eligibility and arrival | Confirm that the member is registered and paid. | An ineligible member returns to Member Core; an eligible member can be marked as arrived. |
 | Queue | Assign a queue number and call one examination to the booth. | The selected examination becomes active and records the responsible operator. |
 | Identity | Use the identity supplied by the active examination. | Patient identity is never inferred from an NPZ filename or embedded NPZ data. |
-| Capture | Use Grabber to create one or more patient-free NPZ captures. | Each capture is added to the active examination's draft set. |
+| Capture | Use Grabber to create patient-free radiograph NPZ captures and the required gain NPZ. | Each radiograph is added to the active examination draft and correlated to its gain input. |
 | Quality review | Review every capture. Remove and retake any unacceptable image. | Only accepted captures remain in the complete draft. |
-| Submit | Submit the complete draft set once. | Operator Core sends every remaining NPZ and a frozen examination snapshot to Image Gateway. |
+| Submit | Submit the complete draft set once. | The Operator module hands every remaining radiograph, its matching gain input, and a frozen examination snapshot to the Image Gateway module. |
 | Gateway acceptance | Wait for durable acceptance. | Acceptance closes the active queue item but does not yet make operator payment eligible. |
 | Processing status | Monitor whether every capture produced DICOM. | Failed captures remain pending or failed while the platform retries them; successful sibling results are preserved. |
 | Completion | View the complete processed image set. | When every submitted capture succeeds, the selected result workflow continues. |
@@ -300,7 +307,7 @@ Members may export TIFF, JPG, or PDF.
 
 ### Payment ownership and triggers
 
-| Payment area | Owning application | Business trigger |
+| Payment area | Owning module | Business trigger |
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes reserved points in each member wallet and is allocated in full to the agreed B2B entitlement or booking. |
 | Personal member charge | Member Core | Personal points fund B2C bookings; walk-in payment completes before operator confirmation. |
@@ -338,8 +345,8 @@ moves from booking to image and selected-result publication without:
 | B2B booking | A fully business-determined and business-funded booking that the member cannot change |
 | B2C booking | A member-selected booking paid from personal Madeena Points |
 | Business customer | The organisation that funds annual member entitlements and determines B2B bookings |
-| DICOM | The clinical imaging file MPIPS creates from a submitted NPZ |
-| Grabber | Offline-capable software that captures X-ray images as patient-free NPZ |
+| DICOM | The clinical imaging file MPIPS creates from radiograph NPZ, gain NPZ, and a signed manifest |
+| Grabber | Offline-capable software that produces patient-free radiograph and gain NPZ inputs |
 | Image Gateway | The backend that stores, coordinates, routes, and distributes clinical imaging |
 | Member | The person receiving the service |
 | Reserved points | Business-funded Madeena Points restricted to an agreed B2B entitlement or booking |

@@ -2,9 +2,9 @@
 # Project Context
 
 **Status:** Verified documentation context
-**Last verified:** 2026-07-22
+**Last verified:** 2026-07-28
 **Repository checkpoint:** working tree; reverify the current Git commit before
-copying a specification into an application repository
+copying a specification into an implementation repository
 
 ## Purpose
 
@@ -22,21 +22,28 @@ agent orientation and must not duplicate them.
   responsibilities, and rules
 - `docs/business/03-system-responsibilities.md`: ownership, readiness, and the
   FHIR R5 boundary
-- `docs/technical/<repository>/project.md`: repository-specific central
-  specification
+- `docs/technical/mhcs-core/project.md`: authoritative target architecture for
+  the consolidated application
+- `docs/technical/mhcs-{member,operator,doctor}-core/project.md` and
+  `docs/technical/mhcs-image-gateway/project.md`: module specifications retained
+  at legacy-compatible paths
+- `docs/technical/mpips/project.md`: private black-box integration contract
 
 ## Repository facts
 
-- Source format: Markdown
+- Primary source format: Markdown
 - Diagrams: Mermaid
-- Runtime or build system: none
+- Supporting presentation: static HTML/CSS actor-journey website and BPMN XML
+  with a static viewer under `website/`
+- Production runtime or build system: none
 - Dependency installation: none
+- Validation runtime: Python standard library
 - Stored patient or clinical data: none
-- Website, PDF generator, or deployment: none
+- Deployment: none
 
 ## Available application evidence
 
-Current-state documentation was derived from:
+Historical current-state evidence was derived from:
 
 - `/var/www/mhcs-member-core` at `main` /
   `452b1264fa6a2ddf0f5d1d92224db09b33677d6f`
@@ -48,19 +55,21 @@ Current-state documentation was derived from:
 
 `/var/www/mhcs-doctor-core` was unavailable.
 
+These checkpoints are evidence inputs, not the approved target repository
+topology.
+
 ## Documentation structure
 
-The repository contains cross-system business documents and five application
-specifications:
+The repository contains cross-system business documents and technical
+specifications for exactly two target repositories:
 
-- Member Core
-- Operator Core
-- Doctor Core
-- Image Gateway
-- MPIPS additions required by MHCS
+- `mhcs-core`: one modular Laravel application containing Member, Operator,
+  Doctor, and Image Gateway modules; and
+- `mpips`: a separate private black-box conversion API.
 
-The MPIPS document is intentionally a delta and must not duplicate MPIPS's
-existing project context.
+The four `mhcs-*` module documents retain their old paths for link stability and
+history. They describe modules of `mhcs-core`, not separate target
+applications.
 
 ## Conventions
 
@@ -69,6 +78,10 @@ existing project context.
   possibility**.
 - Put cross-system business ownership in `docs/business/` and detailed data,
   API, security, and FHIR R5 contracts in `docs/technical/`.
+- Treat `docs/technical/mhcs-core/project.md` as the authority for target
+  topology and cross-module interaction rules.
+- Use local commands, queries, transactions, and durable domain events between
+  `mhcs-core` modules. Reserve HTTP for application boundaries.
 - Keep detailed decisions in `docs/`, not `.agents/context/`.
 - Support diagrams with prose.
 - Do not store patient data, clinical files, credentials, or secrets.
@@ -76,12 +89,15 @@ existing project context.
 
 ## Key constraints
 
-- Source repositories change independently; retain evidence checkpoints.
-- Image Gateway has no verified implementation.
-- Doctor Core and Grabber source were unavailable.
-- Operator Core accepts NPZ but its current paths remain DICOM-oriented.
-- MPIPS contains NPZ workflow code, but the exact MHCS production contract is
-  unverified.
+- The target topology has exactly two repositories: `mhcs-core` and `mpips`.
+- Historical source repositories change independently; retain their evidence
+  checkpoints until migration evidence supersedes them.
+- Image Gateway and Doctor have no verified historical implementations.
+- Grabber source was unavailable.
+- MPIPS is specified as a private black-box API accepting a radiograph NPZ, its
+  matching gain NPZ, and a separately signed DICOM metadata manifest, then
+  returning one DICOM object. The target endpoint is not yet verified as
+  implemented.
 - The inspected NPZ reader enables pickle for trusted metadata, so production
   input trust is a mandatory later security concern.
 - HL7 FHIR R5 `5.0.0` is the sole active MHCS interoperability target.
@@ -92,22 +108,31 @@ existing project context.
 |---|---|---|
 | Whitespace | `git diff --check` | Reverify after each documentation change |
 | Relative links | Validate each relative Markdown link target | Reverify after moving or renaming documents |
+| Static website | `python3 website/test_site.py` | Reverify after website or business-flow changes |
+| BPMN assets | `python3 website/bpmn/test_bpmn.py` | Reverify after BPMN or workflow changes |
 | Interoperability target | Search for external-program-specific assumptions and non-R5 FHIR contracts | Must remain absent from the active specification |
+| Topology | Search for obsolete five-application and internal module HTTP contracts | Must remain absent from the target specification |
 
 ## Technical gaps
 
 Known implementation gaps include:
 
-- Image Gateway and Doctor Core implementation;
-- exact Grabber/MPIPS NPZ compatibility;
+- consolidation of the historical applications into `mhcs-core`;
+- module-owned tables, local contracts, migration sequencing, and removal of
+  obsolete internal HTTP adapters;
+- Image Gateway and Doctor module implementation;
+- exact Grabber radiograph/gain NPZ compatibility;
+- MPIPS endpoint implementation, manifest schema and signature validation,
+  safe NPZ parsing, and interoperability fixtures;
 - FHIR R5 profiles, resource mappings, `CapabilityStatement`, validation, and
   DICOM mappings;
-- service authentication, authorisation, idempotency, and callbacks;
+- boundary authentication, authorisation, idempotency, and callbacks;
 - retry intervals and temporary-link expiry;
 - storage, audit, monitoring, deployment, and tests.
 
 ## Authority boundary
 
 The detailed approved business rules are in `docs/`. Current implementation
-claims must still be reverified in the relevant sibling repository before
-technical work begins.
+claims must still be reverified against implementation evidence. The
+architecture specification defines the target, not proof that consolidation or
+the MPIPS contract has already been implemented.

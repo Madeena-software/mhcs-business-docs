@@ -1,21 +1,24 @@
-# Doctor Core Business Project Foundation
+# MHCS Core Doctor Module Specification
 
 **Status:** Approved target foundation; current implementation unknown
 **Last reviewed:** 28 July 2026
 
-This document defines the intended MHCS business foundation for
-`mhcs-doctor-core`. The repository was not available for verification, so no
-capability in this document should be described as currently implemented.
+This document defines the Doctor module in the approved `mhcs-core` modular
+application. The historical `mhcs-doctor-core` repository was unavailable for
+verification, so no capability in this document should be described as
+currently implemented. The overall repository and runtime boundary is defined
+by the [MHCS Core architecture](../mhcs-core/project.md).
 
 ## Purpose
 
-Doctor Core is the doctor-facing application for claiming imaging cases,
+Doctor Core is the doctor-facing module for claiming imaging cases,
 reviewing studies, deciding whether each study is diagnostically usable,
 requesting clinical repeats, writing reports, and managing doctor earnings and
 payouts.
 
-It may share Operator Core's technical foundation and interface conventions,
-but it does not copy Operator Core's front-desk or examination workflow.
+It shares `mhcs-core`'s technical foundation and may reuse interface
+conventions, but it does not copy Operator Core's front-desk or examination
+workflow.
 
 ## Intended users and authorization
 
@@ -35,20 +38,17 @@ Administrators cannot alter a doctor's clinical decision, silently rewrite a
 draft, sign a report for a doctor, or create or edit a doctor's bank
 destination.
 
-## Initial deployment topology
+## MHCS Core topology
 
-Doctor Core is one of five repositories initially deployed on the same physical
-computer, each with its own Docker Compose file. Every Compose project joins the
-pre-created external Docker network
-`mhcs-internal`. Service-to-service URLs use the Docker DNS aliases
-`member-core`, `operator-core`, `doctor-core`, `image-gateway`, and `mpips`,
-supplied through environment variables; containers never use `localhost` to
-reach another service.
+Doctor is a module in the single `mhcs-core` repository and runtime. It shares
+authentication, database, queue, and deployment foundations with Member,
+Operator, and Image Gateway while retaining explicit clinical, earning, payout,
+and table ownership.
 
-Only required user-facing entry points are published through the host reverse
-proxy. Internal API ports remain unpublished unless operations explicitly
-require otherwise. The shared network does not replace service authentication,
-authorization, audit, or separate database and storage ownership.
+Doctor invokes Member commands and consumes Image Gateway and Operator domain
+events locally. It does not use internal HTTP, Docker DNS, or service
+credentials. Only the Image Gateway worker calls the separate private MPIPS
+API.
 
 ## Target work queue
 
@@ -133,18 +133,17 @@ The repeat flow is:
 
 1. Doctor Core moves the case to `repeat_pending`, preserves its draft, and
    blocks final report submission.
-2. Doctor Core sends one authenticated, idempotent repeat-entitlement request
-   to Member Core.
-3. Member Core creates one zero-point, doctor-only entitlement and acknowledges
-   it to Doctor Core. The acknowledgment makes the doctor's repeat-assessment
-   earning eligible.
-4. Member Core notifies the member and owns site and shift selection. The
+2. The Doctor module invokes one local, idempotent repeat-entitlement command
+   on the Member module.
+3. The Member module creates one zero-point, doctor-only entitlement; that
+   creation and the doctor's repeat-assessment earning commit atomically.
+4. The Member module notifies the member and owns site and shift selection. The
    member may choose any compatible site and shift; the booking consumes normal
    advance-booking capacity.
 5. Operator Core performs a new examination and submission. AI is not run
    again, including when the original service included AI.
-6. Image Gateway sends one authenticated, idempotent replacement-study event
-   to the existing Doctor Core case after the new study is ready.
+6. The Image Gateway module emits one idempotent replacement-study domain event
+   for the existing Doctor case after the new study is ready.
 7. The case returns directly to the requesting doctor. If that doctor is no
    longer authorized, it enters the shared eligible queue and an administrator
    is notified.
@@ -285,8 +284,8 @@ fee treatment.
 
 ## Information received
 
-Doctor Core receives authorized references and clinical context from Image
-Gateway:
+The Doctor module receives authorized references and clinical context from the
+Image Gateway module:
 
 - the imaging study and its immutable identifiers;
 - the examination, order, and member context needed for review;
@@ -294,24 +293,23 @@ Gateway:
 - available AI output when applicable; and
 - replacement-study events linked to the original case and repeat chain.
 
-Doctor Core receives entitlement and decline status from Member Core and
+The Doctor module receives entitlement and decline status from the Member module and
 payment-gateway account, transfer, and callback results through its own
 provider adapter.
 
 ## Information produced
 
-Doctor Core produces:
+The Doctor module produces:
 
 - claim, release, reassignment, repeat-pending, and completion status;
 - immutable study-level quality decisions and audited corrections;
-- authenticated operator-earning events for quality acceptance or repeat
-  requirement;
-- idempotent repeat-entitlement requests;
+- operator-earning domain events for quality acceptance or repeat requirement;
+- idempotent repeat-entitlement commands;
 - the final doctor report and corrected or amended versions;
 - repeat-assessment and final-report doctor earnings; and
 - daily doctor payout and reconciliation records.
 
-## Application and service contracts
+## Application and module contracts
 
 Representative doctor-facing routes are:
 
@@ -332,40 +330,24 @@ Every state-changing route uses a stable idempotency key where a retry is
 possible and reconciles identifiers to the authenticated doctor and authorized
 case.
 
-Doctor Core asks Member Core to create a repeat entitlement:
-
-```http
-POST /api/v1/internal/repeat-entitlements
-Authorization: Bearer <doctor-core-service-token>
-Idempotency-Key: <repeat-request-id>
-Content-Type: application/json
-```
-
-The request identifies the original case, booking, order, examination, study,
+The Doctor module invokes the local `CreateRepeatEntitlement` command. It
+identifies the original case, booking, order, examination, study,
 requesting doctor, controlled reason, occurrence time, source version, and any
 doctor-authorized corrected order details. The clinical note remains protected
-and is shared only when Member Core needs it for the member-safe explanation.
-The same ID and payload return the original entitlement; a changed payload
-with the same ID fails as a conflict. Doctor Core does not make the 25% earning
-eligible until Member Core confirms the entitlement ID.
+and is shared only when the Member module needs it for the member-safe
+explanation. The same command ID and payload return the original entitlement;
+a changed payload with the same ID fails as a conflict. Entitlement creation
+and the 25% earning commit atomically.
 
-Image Gateway returns a ready replacement study through:
-
-```http
-POST /api/v1/internal/repeat-study-events
-Authorization: Bearer <image-gateway-service-token>
-Idempotency-Key: <replacement-study-event-id>
-Content-Type: application/json
-```
-
-The event identifies the Doctor Core case, repeat entitlement, order,
+The Image Gateway module emits a `ReplacementStudyReady` domain event. It
+identifies the Doctor case, repeat entitlement, order,
 appointment, encounter, new study, original study, occurrence time, and source
 version. Unknown lineage or a conflicting replay fails closed.
 
-Doctor Core sends study-level quality events to Operator Core's authenticated
-earning-event endpoint. `quality_accepted` identifies the usable study;
+The Doctor module emits study-level quality events for the Operator module.
+`quality_accepted` identifies the usable study;
 `repeat_required` identifies the unusable study, controlled preliminary reason,
-and original decision event. Operator Core owns the separate administrator
+and original decision event. The Operator module owns the separate administrator
 classification that determines the affected operator earning.
 
 Payment-gateway callbacks use a provider-adapter route and are verified from
@@ -406,15 +388,15 @@ test remains target work.
   and administrator decisions are immutable audit events.
 - Clinical notes, identifiers, bank details, gateway payloads, and credentials
   never enter ordinary application logs.
-- Service calls authenticate the sending service, validate the expected
-  audience, reject stale or conflicting versions, and fail closed on unknown
-  cross-service identifiers.
+- Module calls preserve the authenticated actor and purpose context, reject
+  stale or conflicting versions, and fail closed on unknown cross-module
+  identifiers. External adapter calls authenticate their configured audience.
 - Report signing, payout-account changes, and sensitive administrator actions
   require recent or step-up authentication.
 
 ## Does not own
 
-Doctor Core does not own:
+The Doctor module does not own:
 
 - member identity, booking charges, repeat scheduling, or notifications;
 - front-desk or capture operations;
@@ -422,13 +404,13 @@ Doctor Core does not own:
 - NPZ-to-DICOM processing;
 - AI execution or AI publication;
 - operator earnings or the final operator financial classification; or
-- FHIR resources owned by another MHCS service.
+- FHIR resources owned by another MHCS Core module.
 
 ## Readiness and gaps
 
-**Unknown:** Doctor Core source was unavailable for inspection.
+**Unknown:** The historical Doctor Core source was unavailable for inspection.
 
 Every capability above is an approved target. Exact report structure, FHIR R5
 profiles and mappings, credential sources, signature mechanism, notification
-templates, service authentication, payment gateway, bank-account verification,
+templates, module integration, payment gateway, bank-account verification,
 daily payout schedule, deployment, and tests remain implementation work.

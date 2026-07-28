@@ -1,144 +1,225 @@
-# MPIPS Additions Required by MHCS
+# MPIPS Black-Box Integration Contract
 
-**Status:** Approved MHCS delta; not a standalone MPIPS project context
-**Last reviewed:** 23 July 2026
+**Status:** Approved MHCS target contract; current private API unverified
+**Last reviewed:** 28 July 2026
 
-This document contains only the additions and integration boundaries MPIPS
-needs for MHCS. It deliberately does not repeat MPIPS's existing purpose,
-architecture, processors, commands, or non-MHCS use cases.
+This document defines only the MHCS integration boundary for the separate
+`mpips` repository. It does not replace MPIPS's own verified project context,
+internal architecture, processors, commands, or non-MHCS use cases.
 
-Its contents may later be merged into MPIPS's verified
-`.agents/context/project.md` through separately approved work.
+The overall two-repository decision is defined by the
+[MHCS Core architecture](../mhcs-core/project.md).
 
-## MHCS purpose
+## Repository role
 
-For MHCS, MPIPS converts patient-free NPZ captures produced by Grabber into
-DICOM files using separately supplied member and examination metadata.
+MPIPS is the only separate internal processing service used by `mhcs-core`.
+It is a black box with one MHCS responsibility:
 
-MHCS treats NPZ-to-DICOM conversion as a ready MPIPS capability. Gain,
-calibration, and conversion details remain an internal Grabber/MPIPS concern,
-not an MHCS business responsibility.
+```text
+radiograph NPZ + matching gain NPZ + signed DICOM manifest
+  -> DICOM
+```
 
-The target NPZ is described as containing TIFF image data and gain data
-prepared by Grabber. Grabber may also supply calibration data, while the MPIPS
-technical team owns compatibility validation. The exact on-disk schema remains
-to be verified against both products.
+MPIPS owns the conversion algorithm and technical compatibility between
+Grabber radiograph/gain inputs and its processing pipeline. It receives no
+authority over MHCS members, bookings, queues, reports, payments, publication,
+or permanent storage.
 
-## MHCS caller
+## Sole caller
 
-Only Image Gateway coordinates MHCS processing with MPIPS.
+Only the Image Gateway worker inside `mhcs-core` calls MPIPS. Member, Operator,
+Doctor, browser clients, AI providers, and administrators do not call it
+directly.
 
-Operator Core, Member Core, and Doctor Core do not call MPIPS directly.
+MPIPS is reachable only on a private container network. Its port is not
+published through the user-facing reverse proxy. Private networking does not
+replace request authentication, input limits, idempotency, or process
+isolation.
 
-## Initial deployment topology
+## Conversion API
 
-MPIPS is one of five repositories initially deployed on the same physical
-computer, each with its own Docker Compose file. Every Compose project joins the
-pre-created external Docker network `mhcs-internal`.
-Service-to-service URLs use the Docker DNS aliases `member-core`,
-`operator-core`, `doctor-core`, `image-gateway`, and `mpips`, supplied through
-environment variables; containers never use `localhost` to reach another
-service.
+The preferred initial contract is a synchronous private endpoint invoked from
+an asynchronous `mhcs-core` image job:
 
-Only required user-facing entry points are published through the host reverse
-proxy. Internal API ports remain unpublished unless operations explicitly
-require otherwise. The shared network does not replace service authentication,
-site authorization, audit, or separate database and storage ownership. This
-topology does not change the rule that only Image Gateway calls MPIPS for MHCS.
+```http
+POST /v1/conversions
+Authorization: Bearer <mhcs-core-mpips-token>
+Idempotency-Key: <conversion-job-id>
+Content-Type: multipart/form-data
+```
 
-## Input required from Image Gateway
+The multipart request contains:
 
-For each submitted capture, MPIPS receives:
+- `radiograph_npz`: one patient-free radiograph capture;
+- `gain_npz`: the exact gain/calibration input selected by the frozen gain
+  identity; and
+- `dicom_manifest`: a separately signed JSON manifest with the minimum frozen
+  clinical, acquisition, and DICOM metadata.
 
-- an authorised reference to the patient-free NPZ;
-- the organisation and examination context;
-- the globally unique medical-record ID;
-- the frozen clinical metadata needed to create DICOM; and
-- an external execution identity that allows safe status correlation.
+The request also binds checksums and byte sizes for all three parts to the
+conversion job identity. File names are correlation labels only and never an
+identity source.
 
-The clinical metadata contract uses the MHCS HL7 FHIR R5 `5.0.0` profiles.
-Queue, payment, retry, and administrative data do not need to be represented
-as FHIR resources.
+The response is one DICOM body, preferably `application/dicom`, with:
 
-## Output required by Image Gateway
+- output checksum and byte size;
+- conversion job identity;
+- MPIPS converter version;
+- DICOM Study, Series, and SOP Instance UIDs; and
+- sanitized conversion metadata required for Image Gateway validation.
 
-For each capture, MPIPS produces:
+MPIPS does not call back into `mhcs-core`. The Image Gateway worker receives the
+response, validates it, stores it, and records status. If conversion time later
+makes a synchronous private call impractical, an asynchronous MPIPS adapter may
+be introduced without changing MPIPS business ownership.
 
-- the generated DICOM object in authorised storage;
-- processing status;
-- output identity and integrity information; and
-- failure information sufficient for Image Gateway to decide whether to retry.
+## DICOM manifest
 
-Image Gateway, not MPIPS, decides when the whole multi-capture examination is
-complete. Operator Core decides earning eligibility from authenticated AI and
-doctor-stage events; MPIPS has no payment responsibility.
+The radiograph and gain NPZ files remain patient-free. The signed manifest is
+the only MHCS source for patient and workflow identity. It contains the approved
+minimum required to create and validate the DICOM object, including:
 
-## Multi-capture and failure boundary
+- medical-record identifier and applicable DICOM patient attributes;
+- order, accession, booking, and encounter identifiers;
+- Study, Series, and SOP Instance UIDs allocated under the MHCS policy;
+- organization, physical site, and acquisition device identifiers;
+- modality, examination, anatomy, projection, and laterality;
+- acquisition and occurrence times with explicit offset;
+- source capture, submission, and conversion job identifiers;
+- applicable character set and required controlled codes; and
+- manifest version, checksum bindings, and signature metadata.
 
-- Every submitted NPZ is processed.
-- A capture succeeds or fails independently.
-- Successful outputs remain available when another capture fails.
-- Image Gateway requests up to three total attempts for a failed capture.
-- MPIPS must make repeated execution safely correlatable with the original
-  capture.
+Exact DICOM tag paths, required/optional cardinality, terminology, UID root, and
+signature format remain conformance work. MPIPS must not infer clinical
+identity from file names or invent missing patient/order metadata.
 
-Exact retry timing and technical idempotency are deferred.
+## Success behavior
+
+For a valid request, MPIPS:
+
+1. authenticates the caller and binds the request to the idempotency key;
+2. verifies manifest signature, checksums, sizes, and supported version;
+3. safely loads the radiograph and matching gain inputs;
+4. verifies gain identity, detector mode, dimensions, and required acquisition
+   compatibility;
+5. performs conversion;
+6. applies the frozen manifest to the DICOM result;
+7. validates the required output structure; and
+8. streams the DICOM response with integrity and version metadata.
+
+MPIPS reports success for one capture only. It does not decide whether a
+multi-capture examination is complete.
+
+## Error contract
+
+Failures use stable technical codes and sanitized messages. At minimum, the
+contract distinguishes:
+
+| Error | Retry meaning |
+|---|---|
+| `UNAUTHENTICATED` | Permanent until caller configuration is corrected |
+| `IDEMPOTENCY_CONFLICT` | Permanent; the same job ID was reused with different input |
+| `UNSUPPORTED_MANIFEST_VERSION` | Permanent until compatible contract deployment |
+| `INVALID_MANIFEST` | Permanent input or signature failure |
+| `INVALID_RADIOGRAPH_NPZ` | Permanent malformed or unsupported capture |
+| `INVALID_GAIN_NPZ` | Permanent malformed or unsupported gain input |
+| `GAIN_MISMATCH` | Permanent correlation or calibration mismatch |
+| `RESOURCE_LIMIT_EXCEEDED` | Permanent for that input unless limits are intentionally changed |
+| `CONVERSION_FAILED` | Retry only when the detailed code marks it transient |
+| `TEMPORARY_INTERNAL_FAILURE` | Safe to retry with the same job identity |
+
+Errors never include NPZ contents, patient identifiers, manifest bodies,
+tokens, internal paths, pickle payloads, or stack traces.
+
+## Idempotency and retries
+
+The Image Gateway module owns the approved three-total-attempt policy and retry
+timing. MPIPS does not independently start business retries.
+
+For the same conversion job ID and identical inputs, MPIPS returns the original
+result or an idempotent equivalent with the same DICOM identifiers. Reusing the
+ID with different bytes, checksums, or manifest fails as
+`IDEMPOTENCY_CONFLICT`.
+
+A successful output is never regenerated with new UIDs merely because the
+caller did not receive the first response. The Image Gateway worker preserves
+successful sibling captures while retrying only the failed capture.
 
 ## Storage boundary
 
-Image Gateway owns permanent NPZ and DICOM storage and retention policy.
-MPIPS reads and writes only authorised objects within the submitting
-organisation's isolated namespace.
+Image Gateway owns permanent radiograph NPZ, gain NPZ, DICOM, checksum,
+manifest, processing-history, and retention storage.
 
-MPIPS does not publish files directly to members, operators, or doctors.
+MPIPS receives request-scoped bytes and may use bounded temporary storage only.
+Temporary inputs and outputs are deleted after the response or a narrowly
+defined crash-recovery window. MPIPS does not receive general object-storage
+credentials and does not publish files to a member, operator, doctor, or AI
+provider.
 
-## Current evidence and integration gap
+## Security boundary
 
-The available MPIPS repository contains an NPZ radiography workflow and tests,
-along with service, worker, callback, and S3-compatible storage foundations.
+- MPIPS runs in an isolated process/container with bounded CPU, memory,
+  execution time, file size, dimensions, decompression, and temporary storage.
+- Only the configured `mhcs-core` Image Gateway worker identity may call the
+  endpoint.
+- Request and response logs contain correlation IDs and sanitized status only.
+- Network egress is denied unless an explicit conversion dependency requires
+  it.
+- The manifest signature and all part checksums are verified before conversion.
+- Returned DICOM is still treated as untrusted by Image Gateway until output
+  validation succeeds.
 
-The current generic HTTP DAG input path was not verified as exposing the
-Madeena radiograph NPZ workflow required by MHCS. Therefore:
+The inspected NPZ reader enables pickle for object-array metadata and explicitly
+requires trusted files. Because malicious pickle code may execute during load,
+before later schema validation, extension checking is not a sufficient safety
+boundary. Production must either use a non-pickle input schema or execute the
+legacy parser inside a hardened isolated conversion process with no MHCS
+database, permanent-storage, user-session, or payment access.
 
-- NPZ-to-DICOM processing capability is treated as available business
-  capability; but
-- the exact Image Gateway-to-MPIPS production contract remains a technical
-  integration gap.
+## Current evidence and gap
 
-The current NPZ reader uses NumPy object arrays with pickle enabled and
-explicitly requires trusted files. A safe production trust boundary must be
-verified before the MHCS integration is considered ready. This security
-requirement is not optional, but its solution belongs to technical planning.
+The inspected MPIPS repository contains an NPZ radiography workflow and tests,
+plus generic service, worker, callback, and S3-compatible storage foundations.
+The generic HTTP DAG input path was not verified as exposing this exact MHCS
+conversion contract.
 
 The inspected workflow expects fields including `rawimage`, `gainid`,
-`xrayparams`, and `cameraparams`, and checks gain ID, detector mode, image
-dimensions, and camera serial. It remains unknown whether the Grabber NPZ
-contains TIFF bytes, a raw numeric image array, or both, and whether its schema
-matches these expectations.
+`xrayparams`, and `cameraparams`, and checks gain ID, detector mode, dimensions,
+and camera serial. It remains unknown whether representative Grabber
+radiograph and gain NPZ files match those expectations.
 
-Because a malicious pickle may execute while loading, before post-load schema
-validation, technical planning must choose either a non-pickle NPZ schema or
-an isolated trusted conversion boundary. Extension checking alone is
-insufficient.
+The target black-box endpoint, multipart schema, signed manifest, synchronous
+DICOM response, authentication, idempotency store, resource limits, safe NPZ
+trust boundary, error mapping, DICOM validation, and integration tests remain
+implementation work.
 
-## Does not become MPIPS ownership
+## Does not own
 
-The MHCS addition does not make MPIPS responsible for:
+MPIPS does not own:
 
-- member identity ownership;
-- booking or service choices;
-- front-desk or examination queues;
-- permanent clinical-record retention;
-- AI-provider selection;
-- doctor work queues;
-- result publication;
-- member, operator, or doctor payments.
+- MHCS authentication users or role authorization;
+- member identity authority or FHIR resources;
+- sites, schedules, bookings, queues, or examinations;
+- permanent NPZ, gain, DICOM, or report storage;
+- multi-capture completion or retry policy;
+- AI selection or execution;
+- doctor work or result publication;
+- member, operator, or doctor earnings and payouts; or
+- compliance deletion and retention policy.
 
-## Completion condition for this delta
+## Completion criteria
 
-The MHCS addition is ready only when Image Gateway can submit an authorised NPZ
-and frozen clinical snapshot, receive a correlated DICOM result and status,
-and safely retry a failed capture without duplicating a successful result.
+The MPIPS integration is ready only when tests demonstrate that:
 
-API schemas, authentication, object-key rules, FHIR R5 mapping, deployment, and
-tests belong to a later technical plan.
+- a valid radiograph NPZ, matching gain NPZ, and signed manifest return one
+  valid correlated DICOM;
+- patient identity comes only from the manifest;
+- mismatched gain, altered bytes, invalid signature, unsupported version, and
+  resource-limit cases fail with stable sanitized errors;
+- a same-input retry cannot create different DICOM identifiers or duplicate
+  permanent output;
+- a changed-input idempotency replay is rejected;
+- temporary files are removed;
+- MPIPS cannot access the MHCS database or permanent object storage; and
+- Image Gateway validates and durably stores the successful response before
+  marking the capture complete.

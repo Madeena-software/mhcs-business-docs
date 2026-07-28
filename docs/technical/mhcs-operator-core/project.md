@@ -1,15 +1,16 @@
-# Operator Core Business Project Foundation
+# MHCS Core Operator Module Specification
 
 **Status:** Approved target foundation
 **Last reviewed:** 28 July 2026
 
-This document defines the MHCS-specific business and interoperability
-responsibilities of `mhcs-operator-core`. It distinguishes verified current
-behavior from the approved target and is not an implementation plan.
+This document defines the Operator module in the approved `mhcs-core` modular
+application. It distinguishes historical implementation evidence from the
+approved target. The overall repository and runtime boundary is defined by the
+[MHCS Core architecture](../mhcs-core/project.md).
 
 ## Purpose
 
-Operator Core is the staff application for examination-day operations. It
+Operator Core is the staff-facing module for examination-day operations. It
 owns physical-site master data, operator accounts and assignments, arrivals,
 identity-verification workflow, the operational queue, examination execution,
 session-only NPZ drafts, submission to Image Gateway, read-only processed-image
@@ -36,30 +37,25 @@ administrator-only account remains an ordinary application user.
 An operator may be authorized for multiple sites but works in exactly one
 active site context at a time. Switching sites requires confirmation, is
 audited, and is blocked while the operator has an active examination, an
-unfinished queue action, or an unclosed cash shift. Operator Core selects the
-active site's revocable Member Core credential; staff never view or select
-service credentials.
+unfinished queue action, or an unclosed cash shift. The authenticated session
+and assignment determine the active site; no module service credential exists.
 
 Normal sign-in uses the approved account password and does not require MFA.
 Rate limiting, secure session handling, and account lock controls still apply.
 Financially sensitive payout-account changes require password
 re-authentication and a one-time verification code.
 
-## Initial deployment topology
+## MHCS Core topology
 
-Operator Core is one of five repositories initially deployed on the same
-physical computer, each with its own Docker Compose file. Every Compose project
-joins the pre-created external Docker network `mhcs-internal`.
-Service-to-service URLs use the Docker DNS aliases `member-core`,
-`operator-core`, `doctor-core`, `image-gateway`, and `mpips`, supplied through
-environment variables. A container never uses `localhost` to reach another
-service.
+Operator is a module in the single `mhcs-core` repository and runtime. It
+shares authentication, database, queue, and deployment foundations with Member,
+Doctor, and Image Gateway while retaining explicit business-rule and table
+ownership.
 
-Only required user-facing entry points are published through the host reverse
-proxy. Internal API ports remain unpublished unless operations explicitly
-require otherwise. A shared host and network do not replace service
-authentication, authorization, audit, idempotency, or separate database and
-storage ownership.
+Operator invokes Member and Image Gateway through local application contracts
+and emits durable domain events for asynchronous work. It never uses internal
+HTTP, Docker DNS, or service credentials to call another MHCS Core module.
+Only the Image Gateway worker calls the separate private MPIPS API.
 
 ## Current verified foundation
 
@@ -68,8 +64,8 @@ queues, examinations, uploads, private S3-compatible storage, and completion
 status. Its upload path accepts `.npz`, `.dcm`, and `.dicom` files up to 100 MB
 using extension validation.
 
-No verified end-to-end connection to Member Core, Image Gateway, or MPIPS was
-found. The current data model writes an NPZ key into both `npz_path` and
+No verified end-to-end connection from the historical Operator repository to
+Member, Image Gateway, or MPIPS was found. The current data model writes an NPZ key into both `npz_path` and
 `original_dicom_path`. Operator and administrator preview paths then send the
 stored object to a DICOM preview script, so NPZ preview is expected to fail.
 These are current implementation findings, not approved target behavior.
@@ -81,21 +77,21 @@ Operator Core is the source authority for MHCS physical sites and the FHIR
 administrator creates and updates site identity, address, time zone,
 operational status, and operator authorization.
 
-Member Core consumes stable site identifiers and owns the booking catalogue,
+The Member module references stable site identifiers and owns the booking catalogue,
 shifts, quotas, prices, points, `Appointment`, and `ServiceRequest` associated
-with each site. Member Core cannot create a conflicting site master.
+with each site. It cannot create a conflicting site master.
 
 Disabling one site:
 
-- immediately prevents new Member Core bookings for that site without
+- immediately prevents new Member bookings for that site without
   affecting other sites;
 - does not delete or silently cancel existing bookings; and
-- sends existing bookings through Member Core's audited reschedule,
+- sends existing bookings through the Member module's audited reschedule,
   cancellation, or refund handling.
 
-Site changes use authenticated, idempotent synchronization. A temporary service
-failure does not erase the last accepted site version, and stale data is
-identified by version and synchronization timestamp.
+Site changes and Member-owned booking availability commit through explicit
+local module contracts. Versioned domain events handle asynchronous follow-up
+without duplicating the site master.
 
 ## Shift eligibility and operator assignment
 
@@ -109,8 +105,8 @@ started, while an active shift uses its snapshot.
 Staffing is demand-triggered:
 
 1. Members may book an open shift before an operator is assigned.
-2. At five confirmed bookings, Member Core sends an idempotent
-   `shift_eligible` event to Operator Core.
+2. At five confirmed bookings, the Member module emits an idempotent
+   `shift_eligible` domain event for the Operator module.
 3. The global Operator Core administrator manually assigns exactly one
    operator to the shift.
 4. The assignment is final and cannot be changed.
@@ -243,9 +239,9 @@ insert the queue item.
 
 ## Examination protocol configuration
 
-The global Operator Core administrator maintains versioned X-ray protocol
-templates and maps each Member Core service code to its required projections,
-such as PA, AP, or lateral. Member Core continues to own the requested body
+The global Operator administrator maintains versioned X-ray protocol templates
+and maps each Member service code to its required projections, such as PA, AP,
+or lateral. The Member module continues to own the requested body
 part, laterality, and service in `ServiceRequest`.
 
 Operator Core snapshots the active protocol version when the examination
@@ -256,10 +252,10 @@ required captures.
 
 The operator may correct an incorrect requested body part or laterality before
 submission without administrator approval. The correction requires a reason,
-operator identity, and timestamp and must succeed through Member Core before
-the examination continues. Member Core updates or replaces the
-`ServiceRequest` with explicit lineage; Operator Core never keeps a divergent
-local order.
+operator identity, and timestamp and must succeed through the Member module
+before the examination continues. The Member module updates or replaces the
+`ServiceRequest` with explicit lineage; the Operator module never keeps a
+divergent order copy.
 
 MHCS begins at the software handoff from Grabber. Activities and physical
 exposure events inside the X-ray room are outside Operator Core's business
@@ -271,27 +267,31 @@ work and later doctor review, not on unobserved room activity.
 The target examination flow is:
 
 1. The assigned operator calls the next member and starts the examination.
-2. Operator Core creates the R5 `Encounter`, snapshots the protocol and earning
-   rates, and tells Member Core that the examination has started.
-3. Grabber produces patient-free NPZ captures.
-4. The operator drags one or more NPZ files into the active examination.
-5. Operator Core validates actual content, safe schema, required fields, size,
-   and compatibility. Renaming another file to `.npz` is insufficient.
+2. The Operator module creates the R5 `Encounter`, snapshots the protocol and
+   earning rates, and updates the Member-owned booking in the same workflow.
+3. Grabber produces patient-free radiograph NPZ captures and the required gain
+   NPZ.
+4. The operator drags one or more radiograph NPZ files and the matching gain
+   NPZ into the active examination.
+5. The Operator and Image Gateway modules validate actual content, required
+   correlation, safe schema, fields, size, and compatibility. Renaming another
+   file to `.npz` is insufficient.
 6. The operator previews the image, confirms or corrects its actual projection,
    and explicitly confirms each required capture.
 7. A required projection may be omitted only with a mandatory reason, such as
    a documented inability to position the member. The doctor later decides
    diagnostic sufficiency.
 8. The operator clicks one Submit action for the complete confirmed set.
-9. Operator Core sends the NPZ files and an immutable examination snapshot to
-   Image Gateway using one stable submission ID.
-10. Durable acceptance by Image Gateway closes the active queue item and
-    completes the Encounter. MPIPS, AI, and doctor processing continue
+9. The Operator module invokes the Image Gateway module with the radiograph
+   files, matching gain input, and immutable examination snapshot under one
+   stable submission ID.
+10. Durable acceptance by the Image Gateway module closes the active queue item
+    and completes the Encounter. MPIPS, AI, and doctor processing continue
     asynchronously.
 
-Only Grabber-produced NPZ is accepted. Direct `.dcm` or `.dicom` upload is
-prohibited. Patient identity is selected from the authorized queue and is not
-inferred from filenames; NPZ remains patient-free.
+Only Grabber-produced radiograph and gain NPZ are accepted. Direct `.dcm` or
+`.dicom` upload is prohibited. Patient identity is selected from the authorized
+queue and is not inferred from filenames; both NPZ inputs remain patient-free.
 
 Drafts deliberately do not survive navigation or restart. The browser warns
 before refresh, navigation, close, or sign-out when a draft exists. Continuing
@@ -302,31 +302,32 @@ by short-lived server cleanup and are never treated as submitted records.
 
 The submitted capture metadata snapshot includes the member and order
 references, site, Encounter, protocol version, body part, laterality, actual
-projection per capture, operator, timestamps, and checksums. It becomes
-immutable when submitted.
+projection per capture, gain identity, operator, timestamps, and
+radiograph/gain checksums. It becomes immutable when submitted.
 
 ## Submission reliability and completion
 
-Operator Core treats service communication on the same Docker host as
-fallible. A container restart, timeout, lost response, or storage error can
-occur without an external network.
+The Image Gateway acceptance path treats queue execution, process restart, and
+object-storage operations as fallible even though the module call is local.
 
-- Transient submission failures retry automatically in the background using
-  the same submission ID.
+- Transient queued or storage failures retry automatically in the background
+  using the same submission ID.
 - The operator sees `submission_pending`; duplicate retries return the original
   result and never create a second examination submission.
 - The member remains in the active queue until durable acceptance.
 - A permanent validation rejection returns the examination to an editable
   draft in the current session, identifies the invalid captures, and retains
   the failed attempt in the audit history.
-- Operator Core deletes its accepted local NPZ copies after Image Gateway
-  confirms durable storage. It keeps only the submission ID, checksums, status,
-  frozen metadata reference, and audit data.
-- Image Gateway is the sole durable owner of accepted NPZ and DICOM files.
+- The Operator module deletes its temporary draft copies after the Image
+  Gateway module confirms durable radiograph/gain storage. It keeps only the
+  submission ID, checksums, status, frozen metadata reference, and audit data.
+- The Image Gateway module is the sole durable owner of accepted NPZ and DICOM
+  files.
 
 Gateway acceptance means that the complete submitted byte set and metadata are
 durably stored, authorized, checksum-verified, and recoverable by the stable
-submission ID. Merely receiving an HTTP request is not acceptance.
+submission ID. Merely accepting the browser request or dispatching a local
+command is not durable acceptance.
 
 ## Corrections and repeat examinations
 
@@ -542,9 +543,9 @@ retry is possible. A route never trusts an operator ID, site ID, shift ID, or
 member ID from the body without reconciling it to the authenticated session and
 authorized server-side record.
 
-## Member Core service contract
+## Member module contract
 
-Operator Core consumes Member Core's versioned operator contracts for:
+The Operator module uses explicit local Member module commands and queries for:
 
 - attendance and exact-NIK lookup;
 - protected KTP/KIA and profile-photo upload references for new walk-ins;
@@ -556,56 +557,37 @@ Operator Core consumes Member Core's versioned operator contracts for:
 - repeat scheduling through the member application; and
 - end-of-shift cash closing.
 
-Outbound status and vital-sign events persist in a local outbox until Member
-Core accepts them. Each includes an actual occurrence timestamp, stable event
-ID, site credential, and authoritative local version. If a pre-shift-end
-arrival is delivered after Member Core automatically marks a booking
-`no_show`, Member Core may correct the status using the trusted occurrence time
-while preserving both audit events.
+State changes preserve actual occurrence time, stable event ID, authenticated
+actor, site, and authoritative version. A transition that changes both modules'
+records commits in one database transaction where practical. If a
+pre-shift-end arrival is handled after the Member module automatically marks a
+booking `no_show`, the trusted occurrence time may correct the status while
+preserving both audit events.
 
-Member Core sends staffing changes to an authenticated Operator Core endpoint:
-
-```http
-POST /api/v1/internal/shift-events
-Authorization: Bearer <member-core-service-token>
-Idempotency-Key: <stable-event-id>
-Content-Type: application/json
-```
-
-The event identifies the Member Core shift, site, start/end, booking count,
+The versioned `shift_eligible` domain event identifies the Member-owned shift,
+site, start/end, booking count,
 eligibility threshold, booking quota, walk-in quota snapshot, staffing
 deadline, event type, and source version. Repeating an event returns the
 original result. An older version cannot overwrite a newer shift snapshot.
 
-Operator Core exposes authenticated, versioned site data to Member Core:
+The Member module reads Operator-owned site identity through a local query that
+returns stable site identifiers, FHIR references, name, address, time zone,
+operational status, version, and update time. The query exposes no operator
+accounts, earnings, or payout data.
 
-```http
-GET /api/v1/internal/sites?updated_after=<instant>
-Authorization: Bearer <member-core-service-token>
-Accept: application/json
-```
+## Image Gateway module contract
 
-The response contains stable site identifiers, FHIR references, name, address,
-time zone, operational status, version, and update time. It contains no
-operator accounts, credentials, earnings, or payout data.
+After the authenticated browser submits the complete set to `mhcs-core`, the
+Operator module invokes one local, idempotent `AcceptCompleteCaptureSet`
+command on the Image Gateway module.
 
-## Image Gateway submission contract
-
-Operator Core sends one complete multipart submission to Image Gateway:
-
-```http
-POST /api/v1/operator-submissions
-Authorization: Bearer <operator-core-service-token>
-Idempotency-Key: <submission-id>
-Content-Type: multipart/form-data
-```
-
-The request contains one signed metadata manifest plus every confirmed NPZ.
-The manifest includes file names used only for correlation, byte sizes,
-checksums, capture IDs, projections, protocol and order snapshots, FHIR
+The command contains one immutable metadata manifest, every confirmed
+radiograph NPZ, and the required matching gain NPZ input. The manifest includes
+file names used only for correlation, byte sizes, radiograph/gain checksums,
+gain identity, capture IDs, projections, protocol and order snapshots, FHIR
 references, site, operator, and occurrence times.
 
-Image Gateway returns one of these semantic outcomes:
+The Image Gateway module returns one of these semantic outcomes:
 
 - `durably_accepted`: all bytes and metadata are stored and checksum-verified;
 - `pending`: the same submission is still being resolved and may be polled or
@@ -614,33 +596,27 @@ Image Gateway returns one of these semantic outcomes:
   rejected fields or capture IDs without exposing secrets; or
 - a transient service error that is safe to retry with the same ID.
 
-Operator Core closes the queue only for `durably_accepted`. A repeated request
-with the same ID and same payload returns the original submission. Reusing the
-ID with different bytes or metadata fails as an idempotency conflict.
+The Operator module closes the queue only for `durably_accepted`. The module
+command and durable storage record commit without an internal HTTP hop. A
+repeated command with the same ID and payload returns the original submission;
+reusing the ID with different bytes or metadata fails as an idempotency
+conflict.
 
 ## Earnings and payment event contracts
 
-Authenticated downstream events enter Operator Core through:
-
-```http
-POST /api/v1/internal/earning-events
-Authorization: Bearer <authorized-service-token>
-Idempotency-Key: <stable-event-id>
-Content-Type: application/json
-```
-
-Allowed event types include AI delivery, AI terminal failure,
-`quality_accepted`, and `repeat_required`. Only authenticated Doctor Core may
-send the study-level doctor quality events. The sender, doctor decision,
+Versioned domain events create Operator earnings inside `mhcs-core`. Allowed
+event types include AI delivery, AI terminal failure, `quality_accepted`, and
+`repeat_required`. Only the Doctor module emits the study-level doctor quality
+events. The source module, doctor decision,
 `ImagingStudy`, examination, submission, service stage, occurrence time,
 source version, and original event identifier are mandatory.
 
 `repeat_required` also carries the doctor's controlled preliminary reason.
-Operator Core stores it unchanged and requires a separate audited
+The Operator module stores it unchanged and requires a separate audited
 administrator classification before resolving whether operator error cancels
 the original doctor-stage earning or a verified external cause makes it
 eligible. Replayed, corrected, and sequential decisions preserve event lineage.
-Operator Core rejects an event that does not match its immutable examination,
+The Operator module rejects an event that does not match its immutable examination,
 study, service-stage, and rate snapshots.
 
 Payment gateway callbacks use a provider-adapter route such as:
@@ -662,8 +638,8 @@ Operator Core APIs use stable application error codes. FHIR endpoints use R5
 | HTTP | Example code | Meaning |
 |---:|---|---|
 | `400` | `INVALID_REQUEST` | Malformed field or unsupported transition |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session/service credential |
-| `403` | `SITE_FORBIDDEN` | Account or service is not authorized for the site |
+| `401` | `UNAUTHENTICATED` | Missing or invalid user session |
+| `403` | `SITE_FORBIDDEN` | Account is not authorized for the site |
 | `403` | `SHIFT_NOT_ASSIGNED` | Operator is not the shift's immutable assignee |
 | `404` | `NOT_FOUND` | Authorized record does not exist; identity lookup does not reveal existence |
 | `409` | `STATE_CONFLICT` | Current state no longer permits the action |
@@ -695,10 +671,10 @@ Operator Core is the source authority for:
 | `PractitionerRole` | Operator authorization at a site |
 | `Encounter` | The performed examination visit from start to completion |
 
-Operator Core consumes Member Core references to `Patient`, `Appointment`, and
-`ServiceRequest`. It records vital signs but sends them to Member Core, which
-owns the resulting `Observation`. Image Gateway owns `ImagingStudy`; Doctor
-Core owns the doctor `DiagnosticReport`.
+The Operator module reads Member-owned references to `Patient`, `Appointment`,
+and `ServiceRequest`. It records vital signs through the Member module, which
+owns the resulting `Observation`. The Image Gateway module owns
+`ImagingStudy`; the Doctor module owns the doctor `DiagnosticReport`.
 
 The required radiology chain is:
 
@@ -718,14 +694,14 @@ clinical context.
 
 ### Appointment and Encounter states
 
-- Member Core maps physical arrival to `Appointment.status = arrived`.
+- The Member module maps physical arrival to `Appointment.status = arrived`.
 - Successful identity and administrative verification maps it to
   `Appointment.status = checked-in`.
 - Operator Core creates `Encounter.status = in-progress` only when the
   examination starts and links it to the Appointment and ServiceRequest.
-- Member Core then maps the Appointment to `fulfilled`; its planning lifecycle
+- The Member module then maps the Appointment to `fulfilled`; its planning lifecycle
   remains fulfilled while Encounter tracks clinical execution.
-- Image Gateway durable acceptance maps the Encounter to `completed`.
+- Image Gateway module durable acceptance maps the Encounter to `completed`.
 - An examination started but unable to finish maps to `discontinued` with an
   appropriate reason.
 - `left_without_examination` before examination start creates no Encounter.
@@ -764,8 +740,9 @@ accepted as arbitrary JSON.
 
 - Enforce operator permission, active site, immutable shift assignment, and
   examination scope on every request.
-- Use separate revocable service credentials per site and audience-bound
-  credentials between repositories.
+- Derive operator, role, site, shift, and examination scope from the shared
+  authenticated application context; caller-supplied identifiers never grant
+  access.
 - Keep identity and clinical responses private with `Cache-Control: no-store`
   and never expose permanent object URLs.
 - Validate NPZ as untrusted input before processing. Extension checks are
@@ -782,14 +759,14 @@ accepted as arbitrary JSON.
   earning changes, bank verification, payout actions, and cash reconciliation.
 - Audit records include actor, permission, site, target, action, previous and
   new state where applicable, reason, occurrence time, recording time, request
-  ID, and source service. They are append-only and contain no raw secrets or
+  ID, and source module or external adapter. They are append-only and contain no raw secrets or
   clinical binaries.
 
 ## Does not own
 
 Operator Core does not own:
 
-- Member Core shifts, booking quota, walk-in quota, service prices, points,
+- Member module shifts, booking quota, walk-in quota, service prices, points,
   member charges, bookings, member accounts, guardians, or notifications;
 - permanent KTP/KIA/profile-photo, NPZ, or DICOM storage;
 - X-ray-room activity or physical exposure-incident tracking;
@@ -797,19 +774,19 @@ Operator Core does not own:
 - AI execution, fallback selection, or AI clinical output;
 - doctor queue, report, or doctor earnings;
 - member-facing result publication; or
-- payment-gateway integrations belonging to Member Core or Doctor Core.
+- payment-gateway integrations belonging to the Member or Doctor modules.
 
 ## Readiness and external gates
 
-**Current:** Legacy project/participant workflow, arrivals, queues,
+**Historical current evidence:** Legacy project/participant workflow, arrivals, queues,
 examinations, extension-based upload, private object storage, and completion
 status exist.
 
 **Target:** The role model, site authority, demand-triggered staffing, queue
-rules, protected identity flow, vital-sign outbox, protocol versioning,
+rules, protected identity flow, local vital-sign contract, protocol versioning,
 session-only multi-capture drafts, safe NPZ validation, idempotent gateway
 submission, read-only viewer, earning stages, payout gateway, FHIR R5 mapping,
-and all cross-service contracts require verification or implementation.
+and all cross-module contracts require verification or implementation.
 
 The following external artifacts are still required before implementation can
 be considered ready:
