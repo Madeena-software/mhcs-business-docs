@@ -2,7 +2,7 @@
 
 **Specification status:** Expected end-state specification
 **Business foundation:** Approved
-**Last reviewed:** 23 July 2026
+**Last reviewed:** 28 July 2026
 
 This is the central specification for `mhcs-member-core`. It defines how the
 system must work and is the expected state that implementation work must move
@@ -265,6 +265,8 @@ erDiagram
     MEMBERS ||--o{ BOOKINGS : "receives"
     SHIFT_SCHEDULES ||--o{ BOOKINGS : "contains"
     SERVICE_OFFERINGS ||--o{ BOOKINGS : "selected"
+    BOOKINGS ||--o{ REPEAT_ENTITLEMENTS : "originates"
+    REPEAT_ENTITLEMENTS ||--o| BOOKINGS : "schedules as"
     POINT_EXCHANGE_RATES ||--o{ POINT_TOP_UPS : "prices"
     POINT_EXCHANGE_RATES ||--o{ BOOKINGS : "snapshotted by"
     POINT_REVALUATIONS ||--o{ POINT_LEDGER_ENTRIES : "adjusts through"
@@ -402,6 +404,27 @@ erDiagram
         boolean includes_doctor_snapshot
     }
 
+    REPEAT_ENTITLEMENTS {
+        uuid id PK
+        uuid original_booking_id FK
+        uuid prior_repeat_entitlement_id FK
+        uuid repeat_booking_id FK
+        string doctor_core_case_id
+        string doctor_core_request_id UK
+        string requesting_doctor_id
+        string original_service_request_id
+        string original_imaging_study_id
+        enum preliminary_reason
+        string clinical_note_ref
+        string requested_examination_code
+        string requested_body_site
+        string requested_laterality
+        enum status
+        datetime created_at
+        datetime declined_at
+        datetime cancelled_at
+    }
+
     POINT_EXCHANGE_RATES {
         uuid id PK
         integer rupiah_per_point
@@ -530,6 +553,13 @@ migration syntax. Supporting framework tables are omitted.
 - One member identity may have at most one active booking across all sites,
   shifts, and services. The invariant is enforced against the member record,
   not by exposing or comparing plaintext NIK.
+- A doctor-requested repeat entitlement is zero-point, doctor-only, linked to
+  the original booking and study, and has at most one active entitlement in its
+  case chain. Creating an entitlement does not consume capacity; scheduling its
+  booking does.
+- Repeat entitlements preserve the Doctor Core request ID, preliminary reason,
+  protected clinical-note reference, original clinical identifiers, corrected
+  order details when applicable, and prior-repeat lineage.
 - Every booking preserves B2B or B2C authority and funding provenance.
 - The points ledger preserves business-funded reservations separately from
   personal top-ups while exposing one member wallet. Charges, forfeitures, and
@@ -634,6 +664,70 @@ A paid booking becomes `confirmed`, publishes its `Appointment` as `booked`,
 and creates its imaging `ServiceRequest` in the same authoritative workflow. A
 schedule-only change keeps the same order; changing the requested examination
 or body site replaces the order with explicit lineage.
+
+Doctor-requested repeats are a separate zero-point path. Accepting the
+authenticated Doctor Core request creates the linked replacement
+`ServiceRequest` before the member chooses a shift. Scheduling creates a
+doctor-only booking and `Appointment`, consumes ordinary advance-booking
+capacity, and never adds AI. The member may select any active compatible site
+and shift. A repeat entitlement has no automatic expiry and remains active
+until booked, formally declined by the member, or clinically cancelled.
+
+## Doctor-requested repeat entitlement API
+
+Doctor Core requests one repeat through:
+
+```http
+POST /api/v1/internal/repeat-entitlements
+Authorization: Bearer <doctor-core-service-token>
+Idempotency-Key: <repeat-request-id>
+Content-Type: application/json
+```
+
+The request identifies the original Doctor Core case, booking,
+`ServiceRequest`, examination, `ImagingStudy`, requesting doctor, controlled
+preliminary reason, occurrence time, source version, and any doctor-authorized
+corrected examination, anatomy, or laterality. Member Core accepts the
+controlled reasons `operator_error`, `equipment_failure`, `incorrect_order`,
+`medical_limitation`, and `other`; `other` requires an explanation. The
+clinical note is protected and only a member-safe explanation is presented.
+
+Member Core verifies that the original booking included doctor review, that the
+member and clinical references match its authoritative record, and that the
+case has no other active repeat entitlement. It atomically creates:
+
+- one zero-point entitlement with no automatic expiry;
+- one doctor-only service snapshot with AI disabled; and
+- one linked replacement `ServiceRequest`.
+
+The same idempotency key and payload return the original result. Reusing the key
+with changed content, requesting a second simultaneously active repeat, or
+submitting unknown or mismatched lineage fails as a conflict. A temporary
+failure has no partial visible entitlement and is safe for Doctor Core to retry.
+
+The successful response returns the stable entitlement and replacement-order
+identifiers. That acknowledgment is the sole trigger Doctor Core uses for the
+25% repeat-assessment earning; Member Core does not calculate or own the doctor
+earning.
+
+The member can then choose any compatible site and shift. The confirmed repeat
+booking follows normal attendance and queue rules, consumes one
+advance-booking quota slot, costs zero points, and cannot be changed into an AI
+or differently priced service. An `incorrect_order` request uses the
+doctor-authorized corrected examination details; other repeats copy the
+original clinical request.
+
+This repeat choice applies whether the original booking was B2B or B2C. It is a
+new clinically required entitlement, not a member cancellation or reschedule
+of the completed original booking, so the original B2B change restriction does
+not force the member back to the original site or shift.
+
+Member Core owns repeat reminders, member notification, scheduling, formal
+decline, and documented clinical cancellation. It sends authenticated,
+versioned, idempotent entitlement and decline status events to Doctor Core
+through a durable outbox. A decline closes the entitlement without creating a
+final report and never instructs Doctor Core to reverse an already eligible
+repeat-assessment earning.
 
 ## Operator attendance API
 
@@ -1159,6 +1253,10 @@ Required linkage rules:
 - Rescheduling without changing the requested examination keeps the same order.
   Changing the examination or body site creates a replacement order and
   preserves explicit `ServiceRequest.replaces` lineage.
+- A doctor-requested repeat creates a new linked `ServiceRequest`,
+  `Appointment`, `Encounter`, and `ImagingStudy`. It preserves the original
+  chain, never reopens the original Encounter, and never reuses the original
+  study as the replacement.
 
 MHCS R5 radiology uses `ServiceRequest`, `ImagingStudy`, `Observation`, and
 `DiagnosticReport`. FHIR logical IDs, local UUIDs, accession numbers, and DICOM
@@ -1260,6 +1358,9 @@ Member administrators must be able to manage:
 - one revocable service credential per examination site;
 - service offerings, point prices, and AI/doctor inclusion flags;
 - site schedules, quotas, and booking eligibility;
+- doctor-requested repeat entitlements, long-pending follow-up, formal decline,
+  and audited clinical cancellation without changing the doctor's source
+  quality decision;
 - the single global B2C cancellation cutoff;
 - the global payment deadline, initially 15 minutes;
 - bookings, payments, refunds, four-decimal points, conversion-rate versions,
@@ -1290,6 +1391,16 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - login errors do not disclose whether a NIK or email exists;
 - one member identity cannot hold more than one active booking across any site,
   shift, or service;
+- one Doctor Core request creates at most one zero-point, doctor-only repeat
+  entitlement and one linked replacement `ServiceRequest`;
+- a repeat entitlement allows any compatible site and shift, consumes capacity
+  only when booked, never requests AI, and cannot coexist with another active
+  repeat in the same case chain;
+- Doctor Core retries return the original entitlement, while a changed payload
+  with the same idempotency key fails as a conflict;
+- a formally declined repeat sends one idempotent status event to Doctor Core,
+  creates no final report, and does not reverse the doctor's eligible
+  repeat-assessment earning;
 - a pending-payment booking holds capacity for the administrator-configured
   deadline, then expires, releases capacity, and cannot be reactivated;
 - an idempotent operator walk-in request creates at most one member and booking;

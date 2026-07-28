@@ -1,7 +1,7 @@
 # Image Gateway Business Project Foundation
 
 **Status:** Approved target foundation; no current implementation verified
-**Last reviewed:** 23 July 2026
+**Last reviewed:** 28 July 2026
 
 This document defines the MHCS business foundation for
 `mhcs-image-gateway`. The available repository contains no commits, so every
@@ -125,14 +125,48 @@ when legally required. The action must be fully audited.
   fails, makes the AI-stage operator earning eligible.
 - For a doctor-selected service, placing the DICOM study in the Doctor Core
   dashboard queue starts review but does not make the doctor-stage operator
-  earning eligible. Doctor confirmation of diagnostic usability is the trigger.
+  earning eligible. An explicit Doctor Core `usable` decision for that
+  `ImagingStudy` is the trigger.
 - A combined service emits separate AI-stage and doctor-stage eligibility
   events.
+- A Doctor Core `repeat_required` decision starts a Member Core repeat
+  entitlement but does not authorize Image Gateway to create a repeat itself.
+- A doctor-only repeat does not rerun AI. The original study and any successful
+  original AI result remain unchanged.
 - A submitted doctor report becomes visible automatically.
 - AI and doctor outputs are independent and neither waits for the other.
 - A doctor may see available AI output but may finish first.
 - Corrected doctor reports preserve history and are redistributed as the new
   current version.
+
+## Doctor replacement-study contract
+
+Image Gateway preserves original and replacement studies as separate linked
+records. When all captures for a doctor-requested repeat have produced the
+replacement DICOM study, Image Gateway returns it to the existing Doctor Core
+case:
+
+```http
+POST /api/v1/internal/repeat-study-events
+Authorization: Bearer <image-gateway-service-token>
+Idempotency-Key: <replacement-study-event-id>
+Content-Type: application/json
+```
+
+The event identifies the Doctor Core case, Member Core repeat entitlement,
+replacement `ServiceRequest`, `Appointment`, `Encounter`, and `ImagingStudy`,
+the original study and order, occurrence time, and source version. Image
+Gateway sends authorized references rather than another permanent file copy.
+
+The same event ID and content return the original outcome. A changed replay,
+unknown entitlement, broken original-study lineage, or non-doctor repeat fails
+closed. Image Gateway persists the event in an outbox until Doctor Core
+acknowledges it.
+
+Doctor Core returns the case to the requesting doctor when still authorized or
+to the shared eligible queue otherwise. Image Gateway does not choose the
+doctor, change queue ownership, calculate the doctor's 25% repeat-assessment
+earning, or decide operator payment classification.
 
 ## FHIR R5 boundary
 
@@ -158,6 +192,8 @@ Image Gateway does not own:
 - operator earnings records;
 - NPZ-to-DICOM algorithms;
 - the doctor work queue;
+- the clinical decision to request or cancel a repeat;
+- repeat entitlement, member notification, or repeat scheduling;
 - doctor earnings; or
 - clinical approval of AI output.
 

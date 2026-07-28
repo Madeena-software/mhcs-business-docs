@@ -17,19 +17,19 @@ Current-state findings were inspected at these repository checkpoints:
 - `mhcs-doctor-core`: unavailable for inspection.
 
 The Grabber source was not inspected. Target behavior records explicit
-business decisions approved through 23 July 2026 and must not be presented as
+business decisions approved through 28 July 2026 and must not be presented as
 implemented behavior.
 
 ## Responsibility map
 
 | Application or component | Owns | Receives | Produces | Readiness |
 |---|---|---|---|---|
-| `mhcs-member-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, source-restricted points, payment, notifications, and result presentation | Member activity and member-safe result references | Attendance, examination snapshot, and member-facing information | **Current foundation:** core member workflow exists; expanded B2B rules and target handoffs remain unverified |
+| `mhcs-member-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat requests, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information | **Current foundation:** core member workflow exists; expanded B2B rules and target handoffs remain unverified |
 | `mhcs-operator-core` | Physical sites, operator staffing, front-desk features, queues, multi-capture Submit, image viewing, operator earnings, and payouts | Attendance, gateway acceptance, image status, quality decisions, and payment events | Site data, queue state, complete NPZ submission, frozen metadata, and operator status | **Current foundation:** operational workflow and uploads exist; target cross-system flow is not verified |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free NPZ captures | **Business direction:** source was not inspected |
 | `mhcs-image-gateway` | Permanent NPZ/DICOM storage, processing coordination, routing, access, publication, and audit | Complete submissions and downstream statuses/results | MPIPS work, authorised references, completion, and publication events | **Target only:** available checkout has no commits |
 | `mpips` | NPZ-to-DICOM processing execution for MHCS | Authorised NPZ reference and frozen clinical metadata | DICOM and correlated processing status | **Current capability:** NPZ workflow exists; MHCS production contract is unverified |
-| `mhcs-doctor-core` | Shared doctor queue, study review, reports, amendments, and doctor earnings | Eligible studies and supporting output | Doctor report, revisions, and status | **Unknown/target:** repository was unavailable |
+| `mhcs-doctor-core` | Shared doctor queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts | Eligible and replacement studies, supporting output, and repeat status | Quality events, repeat requests, reports, revisions, earnings, and payout status | **Unknown/target:** repository was unavailable |
 
 Detailed foundations:
 
@@ -50,6 +50,8 @@ Detailed foundations:
   separate from personal top-ups;
 - walk-in registration and payment;
 - service choices per examination type or body part;
+- zero-point, doctor-only repeat entitlements and member-controlled repeat
+  scheduling;
 - member notifications; and
 - member image and result experience.
 
@@ -58,6 +60,12 @@ Detailed foundations:
 Member Core supplies authorised attendance and examination information to
 Operator Core. It receives temporary image references, AI results, doctor
 reports, and amendments through Image Gateway.
+
+Member Core accepts authenticated, idempotent repeat requests only from Doctor
+Core. It creates one active zero-point, doctor-only entitlement, notifies the
+member, lets the member choose any compatible site and shift, and returns
+entitlement or decline status to Doctor Core. A scheduled repeat consumes
+ordinary booking capacity and does not request AI.
 
 Members view completed images and export TIFF, JPG, or PDF. Member Core does
 not store raw NPZ or permanent DICOM copies.
@@ -207,16 +215,30 @@ MHCS and is intended for a later merge into MPIPS's existing project context.
 - case release and administrator reassignment;
 - study viewing;
 - explicit, audited DICOM download when clinically necessary;
+- immutable study-level `usable` or `repeat_required` decisions;
+- controlled repeat reasons and the clinical repeat handoff to Member Core;
 - draft, final, corrected, and amended reports; and
-- doctor earnings.
+- doctor earnings and daily automated payouts.
 
 ### Report and payment boundary
 
-Submit finalises a report, makes doctor payment eligible, and starts automatic
-member publication.
+An explicit usable decision makes the doctor-stage operator earning eligible.
+A repeat request preserves the draft, blocks final submission, and becomes a
+25% doctor earning only after Member Core confirms creation of the repeat
+entitlement. Each separately accepted sequential repeat creates another 25%
+earning.
+
+Submit finalises a report, creates a 100% final-report earning for the signing
+doctor, and starts automatic member publication. An unfinished draft creates no
+earning. Reassignment preserves earnings already triggered by completed work.
 
 A submitted report is immutable. A necessary correction may be issued at any
 time, preserves the original, and does not create another payment.
+
+Eligible doctor earnings are combined into one automatic daily payout with no
+minimum positive balance. MHCS absorbs transfer fees by default. Doctors manage
+their own verified bank destination; administrators may suspend payouts but
+cannot edit that destination.
 
 ### Current evidence
 
@@ -229,7 +251,8 @@ Unknown. Doctor Core source was unavailable.
 | Business-funded member charge | Member Core | Central annual payment becomes member-specific reserved points allocated to the agreed B2B entitlement or booking |
 | Personal member charge | Member Core | Personal Madeena Points fund B2C bookings; walk-in payment completes before operator confirmation |
 | Operator earning and payout | Operator Core | AI stage: AI delivery or terminal fallback failure. Doctor stage: doctor confirmation of diagnostic usability. Combined service: both configured stages independently |
-| Doctor earning | Doctor Core | Doctor submits the completed report |
+| Doctor repeat-assessment earning | Doctor Core | Member Core confirms one doctor-requested repeat entitlement: 25% of the snapshotted final-report rate |
+| Doctor final-report earning | Doctor Core | The signing doctor submits the completed report: 100% of the snapshotted final-report rate |
 
 Gateway acceptance closes operator work but does not make an earning eligible.
 DICOM completion and doctor-queue entry alone are also insufficient.
@@ -256,6 +279,11 @@ HL7 FHIR R5 `5.0.0` clinical structures apply to:
 
 Queues, payments, retries, storage administration, and other non-clinical
 operations use ordinary application contracts.
+
+Doctor Core does not represent its queue, claims, assignments, deadlines, or
+repeat-entitlement state as FHIR `Task`. A repeat creates new linked
+`ServiceRequest`, `Appointment`, `Encounter`, and `ImagingStudy` resources while
+preserving the original chain.
 
 ## Readiness summary
 
@@ -285,6 +313,11 @@ operations use ordinary application contracts.
   captures and every submitted capture is processed.
 - Doctors are not assigned by an unspecified process; they claim cases from a
   shared queue, may release them, and administrators may reassign them.
+- Doctor Core's internal queue does not use FHIR `Task`; its FHIR boundary is
+  limited to the applicable clinical and audit resources.
+- A doctor-requested repeat is not an informal rescan. It is one linked,
+  zero-point, doctor-only entitlement at a time, scheduled by the member and
+  returned to the requesting doctor when still authorised.
 - Retry count is not unknown; each failed capture receives three total
   attempts.
 - Walk-in payment is not optional or pending at operator confirmation; it must

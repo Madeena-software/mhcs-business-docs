@@ -1,7 +1,7 @@
 # Operator Core Business Project Foundation
 
 **Status:** Approved target foundation
-**Last reviewed:** 23 July 2026
+**Last reviewed:** 28 July 2026
 
 This document defines the MHCS-specific business and interoperability
 responsibilities of `mhcs-operator-core`. It distinguishes verified current
@@ -343,15 +343,29 @@ Only a doctor may declare an accepted study diagnostically insufficient and
 request a clinical repeat. MPIPS and Operator Core cannot initiate that repeat.
 The flow is:
 
-1. Doctor Core records `repeat_required` with a coded reason and audit context.
-2. Member Core creates a linked, zero-point, doctor-only repeat request.
+1. Doctor Core records an immutable study-level `repeat_required` decision with
+   one controlled preliminary reason and a clinical note.
+2. Member Core creates one active linked, zero-point, doctor-only repeat
+   entitlement and a replacement `ServiceRequest`.
 3. If the member already has an active booking, the repeat remains unscheduled
    until that booking completes or is cancelled.
-4. The member selects an available replacement shift in Member Core.
+4. The member selects any compatible site and shift in Member Core.
 5. The repeat consumes one advance-booking quota slot and follows normal
    advance-booking check-in priority.
 6. Operator Core performs a new examination and submission. The original
    study and any original AI result remain unchanged; AI is not run again.
+
+The controlled Doctor Core preliminary reasons are `operator_error`,
+`equipment_failure`, `incorrect_order`, `medical_limitation`, and `other` with
+a required explanation. They are clinical source evidence, not the final
+operator-payment classification. A global Operator Core administrator records
+the verified financial classification separately without editing the doctor's
+decision.
+
+Only one repeat entitlement may be active in a case chain at a time, but a
+doctor may request another sequential repeat if the replacement study is also
+unusable. Each study and quality decision remains distinct. A repeat
+entitlement does not expire automatically and no repeat charges the member.
 
 The repeat does not charge the member. It creates a new `ServiceRequest` and
 Encounter linked to the original request and study rather than reopening or
@@ -392,8 +406,8 @@ Earning rules are:
 - **AI stage:** becomes eligible when the AI result is delivered or when all
   AI retries and fallback processing reach terminal failure. A downstream AI
   failure does not penalize the operator.
-- **Doctor stage:** becomes eligible only when the doctor confirms that the
-  images are diagnostically usable.
+- **Doctor stage:** becomes eligible only when the doctor records an explicit
+  `usable` decision for that examination's `ImagingStudy`.
 - **Combined service:** pays the AI and doctor stages independently, in that
   order. An already-paid AI stage is not clawed back if the doctor later
   requests a repeat.
@@ -408,6 +422,10 @@ Earning rules are:
   eligible even though a repeat is required.
 - **Successful repeat:** the repeat operator receives one doctor-stage earning.
   The repeat is doctor-only and creates no second AI-stage earning.
+- **Sequential repeats:** every examination is evaluated independently. An
+  unusable replacement follows the same cause and eligibility rules, while the
+  operator of the eventual usable replacement receives its own doctor-stage
+  earning.
 
 Each earning transition uses a stable event ID, preserves its source event and
 rate snapshot, and is idempotent. Gateway acceptance alone never makes an
@@ -485,6 +503,8 @@ The global Operator Core administrator may:
 - configure site-and-service earning rates and combined-service stages;
 - configure the global payout-fee policy;
 - suspend and resume payouts without editing bank destinations;
+- verify the operator-payment classification for doctor-requested repeats
+  without changing the doctor's source quality decision;
 - resolve identity disputes and cash reconciliation;
 - perform audited queue-state corrections; and
 - monitor submissions, processing, earnings, and payout status.
@@ -609,11 +629,19 @@ Idempotency-Key: <stable-event-id>
 Content-Type: application/json
 ```
 
-Allowed event types include AI delivery, AI terminal failure, doctor quality
-acceptance, and doctor repeat requirement. The sender, examination,
-submission, service stage, occurrence time, reason code, source version, and
-original event identifier are mandatory. Operator Core rejects an event that
-does not match its immutable examination and rate snapshots.
+Allowed event types include AI delivery, AI terminal failure,
+`quality_accepted`, and `repeat_required`. Only authenticated Doctor Core may
+send the study-level doctor quality events. The sender, doctor decision,
+`ImagingStudy`, examination, submission, service stage, occurrence time,
+source version, and original event identifier are mandatory.
+
+`repeat_required` also carries the doctor's controlled preliminary reason.
+Operator Core stores it unchanged and requires a separate audited
+administrator classification before resolving whether operator error cancels
+the original doctor-stage earning or a verified external cause makes it
+eligible. Replayed, corrected, and sequential decisions preserve event lineage.
+Operator Core rejects an event that does not match its immutable examination,
+study, service-stage, and rate snapshots.
 
 Payment gateway callbacks use a provider-adapter route such as:
 

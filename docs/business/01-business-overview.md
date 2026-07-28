@@ -23,8 +23,9 @@ priority, while B2C registration and self-booking remain available.
 | 11 | Image Gateway | The selected AI and doctor services start independently. |
 | 12 | AI service | A selected AI result is published automatically when it completes. Delivery makes the AI-stage operator earning eligible; if AI processing and fallback both fail, terminal fallback failure is the trigger instead. |
 | 13 | Doctor Core | A doctor-selected study enters the shared dashboard queue. Queue entry does not yet make the doctor-stage operator earning eligible. |
-| 14 | Doctor | A doctor claims the study, confirms whether the images are diagnostically usable, and submits a separate clinical report. Quality acceptance makes the doctor-stage operator earning eligible. |
-| 15 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
+| 14 | Doctor | A doctor claims the study and explicitly marks each reviewed study `usable` or `repeat_required`. Quality acceptance makes the doctor-stage operator earning eligible; a repeat request starts the linked repeat flow. |
+| 15 | Doctor | After at least one study is usable, the doctor submits a separate clinical report. Report submission makes the final-report doctor earning eligible. |
+| 16 | Member Core | Complete images and each selected result become visible according to their independent completion rules. |
 
 Each application has a distinct business responsibility. Image Gateway stores
 each clinical file once and shares it through controlled references instead of
@@ -54,7 +55,7 @@ creating permanent copies in every application.
 | Operator Core | Physical sites, operator staffing, front-desk features, queues, capture-set submission, image viewing, operator earnings, and payouts |
 | Image Gateway | Permanent image storage, processing coordination, routing, and controlled distribution |
 | MPIPS | NPZ-to-DICOM processing |
-| Doctor Core | Shared doctor work queue, study review, reports, amendments, and doctor earnings |
+| Doctor Core | Shared doctor work queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts |
 
 ### Member Core boundary
 
@@ -182,13 +183,22 @@ Doctor Core owns:
 - a shared queue from which doctors claim eligible studies;
 - case release and administrator reassignment;
 - study viewing and controlled clinical access;
+- study-level diagnostic-quality decisions and clinical repeat requests;
 - report drafting, submission, correction, and amendment;
-- automatic member publication; and
-- doctor earnings.
+- report handoff that starts automatic member publication; and
+- doctor earnings and daily automated payouts.
 
 A submitted report is immutable. A necessary correction may be issued at any
 time without overwriting the original and without creating another doctor
 payment.
+
+The clinical repeat is a new linked entitlement, not a cancellation or
+reschedule of the completed original booking. Its member-controlled site and
+shift choice applies whether the original service was B2B or B2C.
+
+Queue and repeat state are ordinary Doctor Core application workflows, not FHIR
+`Task` resources. Clinical FHIR resources remain linked across the original and
+replacement examinations.
 
 ## 3. Actor journeys
 
@@ -207,6 +217,8 @@ These tables describe the business journey for each role.
 | Image processing | Wait while every submitted capture is converted. | A partial multi-capture result remains hidden until the complete image set succeeds. |
 | Images ready | View the complete processed image set and export TIFF, JPG, or PDF. | Raw NPZ remains inaccessible and raw DICOM is not offered for download. |
 | Selected results | Receive AI and doctor results when each purchased service completes. | Each result publishes automatically and neither waits for the other. |
+| Repeat request | Receive a doctor-requested zero-point, doctor-only repeat entitlement. | The member chooses any compatible site and shift; the booking consumes ordinary capacity and does not rerun AI. |
+| Repeat decline | Formally decline a recommended repeat. | The case closes without a final doctor report, while the reason and decline remain traceable. |
 | Later correction | Open a corrected doctor report after notification. | The latest version is shown while the original remains traceable. |
 
 ### Operator journey
@@ -238,8 +250,12 @@ diagnoses or doctor reports and cannot access raw NPZ or download raw DICOM.
 | Study review | Open the study and relevant member and examination context in Doctor Core. | The doctor reviews images inside the authorised application and never accesses raw NPZ. |
 | Optional DICOM | Decide whether raw DICOM is clinically necessary. | When necessary, the doctor uses a short-lived, authorised, and audited download link. |
 | Independent AI | Review available AI output when useful. | AI may support review, but the doctor does not wait for it. |
+| Quality decision | Explicitly mark the study `usable` or `repeat_required`. | A usable decision makes the doctor-stage operator earning eligible; report submission remains a separate action. |
+| Repeat required | Select a controlled preliminary reason and enter a clinical note. | The draft is preserved, final submission is blocked, and Member Core creates one zero-point, doctor-only repeat entitlement. |
+| Repeat assessment | Wait for Member Core to confirm the repeat entitlement. | Confirmation makes a doctor earning equal to 25% of the snapshotted final-report rate eligible. |
+| Replacement study | Resume the same case after Image Gateway returns the replacement study. | The case returns to the requesting doctor when still authorised; original and replacement studies remain visible and linked. |
 | Draft | Write and edit the report until it is clinically complete. | The draft remains editable until Submit. |
-| Submit | Submit the final report. | The report becomes immutable, doctor payment becomes eligible, and automatic member publication begins. |
+| Submit | After confirming at least one usable study, submit the final report. | The report becomes immutable, a doctor earning equal to 100% of the snapshotted final-report rate becomes eligible, and automatic member publication begins. |
 | Correction | Create a traceable amendment when clinically necessary. | The reason, doctor, timestamp, signature, and original version are preserved; the member is notified. |
 | Amendment payment | Complete the correction as part of the original review. | No additional doctor payment is created. |
 
@@ -289,10 +305,15 @@ Members may export TIFF, JPG, or PDF.
 | Business-funded member charge | Member Core | Central annual payment becomes reserved points in each member wallet and is allocated in full to the agreed B2B entitlement or booking. |
 | Personal member charge | Member Core | Personal points fund B2C bookings; walk-in payment completes before operator confirmation. |
 | Operator earning and payout | Operator Core | AI stage: AI delivery or terminal fallback failure. Doctor stage: doctor confirmation of diagnostic usability. A combined service pays both configured stages independently. |
-| Doctor earning | Doctor Core | The doctor submits the completed report. |
+| Doctor repeat-assessment earning | Doctor Core | Member Core confirms creation of the doctor-requested repeat entitlement: 25% of the snapshotted final-report rate for each accepted repeat request |
+| Doctor final-report earning | Doctor Core | The signing doctor submits the completed report: 100% of the snapshotted final-report rate |
 
 Gateway acceptance, DICOM completion, and doctor-queue entry alone do not make
 operator earnings eligible.
+
+Doctor earnings are visible immediately and enter one automatic daily payout
+per doctor with no minimum positive balance. MHCS absorbs the transfer fee by
+default. The same default applies to Operator Core.
 
 ## 5. Service completion and glossary
 
@@ -326,4 +347,5 @@ moves from booking to image and selected-result publication without:
 | NPZ | The patient-free capture file produced by Grabber |
 | Operator | Staff who manage examination-day work |
 | Published | Deliberately available inside an authorised application |
+| Repeat entitlement | A zero-point, doctor-only right to schedule a clinically required replacement examination |
 | Study | The complete set of images and context for one examination |
