@@ -5,9 +5,9 @@
 **Last reviewed:** 28 July 2026
 
 This is the Member module specification for the approved `mhcs-core` modular
-application. It defines the expected state that consolidation and implementation
+application. It defines the expected state that creation and implementation
 work must move toward. The overall runtime and repository boundary is defined
-by the [MHCS Core architecture](../mhcs-core/project.md).
+by the [MHCS Core architecture](../../project.md).
 
 ## Agent rules
 
@@ -47,7 +47,7 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 - The admin panel manages members, service offerings, schedules, B2B and B2C
   bookings, member payments, point reservations, promotions, and settings.
 - Operator features use the same authenticated MHCS Core user, role, and active
-  site context. No module service credential is required.
+  site context. No separate module identity is required.
 
 ## Identity model
 
@@ -224,7 +224,8 @@ schedule.
 
 The authenticated operator session determines organization and active site.
 The browser cannot select an unauthorized organization or site through request
-parameters. This prevents cross-site attendance leakage without service tokens.
+parameters. This prevents cross-site attendance leakage while preserving one
+shared authenticated application context.
 
 The Operator module owns the physical site record. The Member module owns
 schedules and bookings that reference that shared site identity. Each module
@@ -240,8 +241,8 @@ ownership.
 
 Cross-module commands and queries are local application interfaces. Durable
 domain events coordinate asynchronous follow-up. Member never calls another
-MHCS Core module through a network boundary or service credential. Only the
-Image Gateway module's worker calls the separate private MPIPS API.
+MHCS Core module through a network boundary or separate identity. Only the
+Image Gateway module's worker crosses the separate private MPIPS boundary.
 
 ## Required data model
 
@@ -945,7 +946,7 @@ date range. The `CapabilityStatement` declares the exact supported parameters.
   short-lived authorized access; they are never placed in a public bucket.
 - Suspended login access does not erase the member or medical history.
 - Raw NPZ and DICOM never pass through Member Core.
-- Result URLs are short-lived or resolved through an authorized proxy.
+- Result links are short-lived or resolved through an authorized proxy.
 - Database transactions and row locks protect booking quotas, points, and
   idempotent walk-in creation.
 - A B2B booking cannot consume personal points, and a B2C booking cannot
@@ -957,48 +958,19 @@ date range. The `CapabilityStatement` declares the exact supported parameters.
 
 - **FHIR release:** R5 `5.0.0` only.
 - **Core package:** `hl7.fhir.r5.core#5.0.0`.
-- **FHIR endpoint base:** `/fhir/r5`.
-- **FHIR JSON media type:** `application/fhir+json; fhirVersion=5.0`.
-- **Initial audience:** authenticated MHCS services only. The endpoint is not a
-  public or third-party integration API.
-- **MHCS operational APIs:** ordinary versioned MHCS JSON contracts. They must
-  not claim FHIR conformance because their field names resemble a resource.
-- **Resource authority:** each service changes its own local records through its
-  authoritative workflow. Other MHCS services cannot use FHIR writes to bypass
-  those business rules.
+- **Resource authority:** each module changes its own records through its
+  authoritative workflow. Interoperability mappings cannot bypass those
+  business rules.
 - **Profiles:** the versioned MHCS R5 Implementation Guide and resource profiles,
   once published, take precedence over unconstrained base-resource examples.
 - **Future adapters:** a future integration with an older release must use a
   separate explicit adapter and must not weaken the R5 source model.
 
-The endpoint must not advertise MHCS profile conformance until the IG package,
-canonical URLs, profiles, examples, and validator fixtures exist. Once enabled,
-`GET /fhir/r5/metadata` returns the Member Core `CapabilityStatement`, and every
-exchanged profiled domain resource declares the applicable canonical URL through
-`meta.profile`. Unsupported resources, interactions, searches, or profiles fail
-with the appropriate HTTP status and an `OperationOutcome`; they are never
-accepted as loosely structured JSON.
-
-Member Core initially supports the R5 resources it owns:
-
-| Resource | Required capability |
-|---|---|
-| `Patient` | read, search, history |
-| `RelatedPerson` | read/search/history for verified guardians and care participants |
-| `FamilyMemberHistory` | read/search/history for optional recorded family history |
-| `Schedule`, `Slot` | read/search for bookable availability |
-| `Appointment` | read/search/history for member bookings |
-| `ServiceRequest` | read/search/history for imaging orders |
-| `Observation` | read/search/history for vital signs |
-| `Consent` | read/search/history for applicable permissions |
-| `DocumentReference` | read/search for member-safe documents |
-| `Provenance`, `AuditEvent` | authorized read/search only |
-
-The `CapabilityStatement` is authoritative for the final interaction and
-search list. This table is the minimum required capability. Searches return
-`Bundle` resources and FHIR-aware errors return `OperationOutcome` resources;
-neither is advertised as a persisted resource endpoint. Batch and transaction
-system interactions are not required in the initial interface.
+MHCS must not claim profile conformance until the Implementation Guide package,
+canonical identifiers, profiles, examples, and validator fixtures exist. Every
+exchanged profiled domain resource declares the applicable canonical identifier
+through `meta.profile`; unsupported resources or profiles fail validation
+rather than being accepted as loosely structured data.
 
 Internal names remain business-oriented:
 
@@ -1093,32 +1065,32 @@ UIDs remain distinct identifiers and must never be substituted for each other.
 | `RelatedPerson` | Member Core for verified guardians and care participants |
 | `FamilyMemberHistory` | Member Core; member reports and doctor reviews |
 | `Appointment` | Member Core |
-| `Encounter` | Operator Core, with the reference returned to Member Core |
+| `Encounter` | Operator Core, with its reference available to Member Core |
 | Vital-sign `Observation` | Member Core; Operator Core records it |
 | `ServiceRequest` | Member Core creates the examination order |
 | `ImagingStudy` | Image Gateway after DICOM creation/storage |
 | AI result `Observation` | Image Gateway |
 | `DiagnosticReport` | Doctor Core for doctor reports |
-| `Organization`, `Location`, `Practitioner`, `PractitionerRole` | Owning service, reconciled with central identifiers |
+| `Organization`, `Location`, `Practitioner`, `PractitionerRole` | Owning module, reconciled with shared identifiers |
 
 Sharing a KK does not automatically create a FHIR `RelatedPerson`. A verified
 guardian or another person who participates in care may be represented as
 `RelatedPerson`, with applicable `Consent`, `Provenance`, and access controls.
 
-### Integration metadata
+### Mapping metadata
 
-Every synchronized local resource must retain:
+Every mapped local resource must retain:
 
-- source MHCS service and FHIR resource type;
-- FHIR release and profile canonical URL;
+- owning MHCS module and FHIR resource type;
+- FHIR release and profile canonical identifier;
 - external resource ID and version ID;
 - local resource type and immutable local ID;
-- synchronization status and last attempt time;
-- successful synchronization time; and
+- mapping or exchange status and last attempt time;
+- successful mapping or exchange time; and
 - sanitized error code without clinical payload or credentials.
 
-A remote MHCS service failure never removes or silently changes the
-authoritative local record. Retries are idempotent, and submitted payload
+An external exchange failure never removes or silently changes the
+authoritative local record. Retries are idempotent, and exchanged payload
 versions remain traceable.
 
 ### Terminology and units
@@ -1141,8 +1113,8 @@ FHIR release.
 
 ### Conformance artifacts
 
-The R5 interface requires these conformance artifacts; ordinary MHCS APIs do
-not:
+The R5 exchange contract requires these conformance artifacts; ordinary MHCS
+workflows do not:
 
 - `ImplementationGuide`: package and version the MHCS FHIR rules;
 - `StructureDefinition`: constrain each supported R5 resource/profile;
@@ -1154,9 +1126,9 @@ not:
 - example resources and automated validation fixtures for valid, invalid, and
   version/profile mismatch cases.
 
-The canonical base URL, package ID, and package version are unresolved and must
-be approved together. Until then, the endpoint remains disabled rather than
-claiming conformance to a nonexistent MHCS profile.
+The canonical identity, package ID, and package version are unresolved and must
+be approved together. Until then, MHCS must not claim conformance to a
+nonexistent profile.
 
 Security and history are also standardized concerns: `Consent` represents an
 applicable clinical consent record, `Provenance` records who or what produced a
@@ -1165,7 +1137,7 @@ resources do not replace MHCS authorization checks or immutable local audit
 logs.
 
 FHIR R5 conformance is required. Local entities remain authoritative for MHCS
-operations; the R5 API is a strict interoperable representation with explicit
+operations; the R5 model is a strict interoperable representation with explicit
 profiles, validation, history, and security.
 
 ## Admin panel

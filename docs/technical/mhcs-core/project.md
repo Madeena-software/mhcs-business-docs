@@ -1,6 +1,6 @@
 # MHCS Core Architecture Specification
 
-**Status:** Approved target architecture; implementation consolidation pending
+**Status:** Approved target architecture; new repository implementation pending
 **Last reviewed:** 28 July 2026
 
 This document is the architecture authority for the MHCS application. Detailed
@@ -15,13 +15,13 @@ MHCS uses exactly two product repositories:
 2. `mpips`: one private black-box NPZ-to-DICOM conversion service.
 
 Member, Operator, Doctor, and Image Gateway are modules, not independently
-deployed microservices. Their existing specification paths are retained to
-preserve documentation history:
+deployed microservices. Their context is partitioned so an agent can load only
+the module relevant to its task:
 
-- [Member module](../mhcs-member-core/project.md)
-- [Operator module](../mhcs-operator-core/project.md)
-- [Doctor module](../mhcs-doctor-core/project.md)
-- [Image Gateway module](../mhcs-image-gateway/project.md)
+- [Member module](modules/member/project.md)
+- [Operator module](modules/operator/project.md)
+- [Doctor module](modules/doctor/project.md)
+- [Image Gateway module](modules/image-gateway/project.md)
 - [MPIPS integration contract](../mpips/project.md)
 
 The old five-repository deployment model is superseded.
@@ -31,8 +31,8 @@ The old five-repository deployment model is superseded.
 Member, Operator, Doctor, and Image Gateway participate in one tightly coupled
 clinical and financial workflow. Keeping them in one application allows local
 authorization, database transactions, module calls, and domain events instead
-of service tokens, duplicated identities, network retries, and distributed
-state reconciliation.
+of duplicated identities, network retries, and distributed state
+reconciliation.
 
 MPIPS remains separate because it has a different processing runtime and trust
 boundary. It parses radiography inputs, performs conversion, and can require
@@ -46,6 +46,15 @@ logical structure is:
 
 ```text
 mhcs-core/
+  .agents/
+    context/
+      README.md
+      project.md
+      modules/
+        member/project.md
+        operator/project.md
+        doctor/project.md
+        image-gateway/project.md
   app/
     Modules/
       Member/
@@ -53,7 +62,6 @@ mhcs-core/
       Doctor/
       ImageGateway/
     Shared/
-  routes/
   database/
   tests/
     Member/
@@ -73,7 +81,7 @@ cross-module service layer.
 `mhcs-core` is one deployable application that may run several processes from
 the same source:
 
-- web/API processes for member, operator, doctor, and administrator interfaces;
+- web processes for member, operator, doctor, and administrator interfaces;
 - queue workers for notifications, image orchestration, AI routing, and
   payouts; and
 - a scheduler for retries, reconciliation, reminders, and daily doctor payout
@@ -84,8 +92,9 @@ application database, one cache/queue foundation, and the Image Gateway
 module's controlled object storage. Tables remain module-owned even when the
 database enforces foreign keys across stable identifiers.
 
-The private MPIPS API is the only internal network service boundary. The
-`mhcs-core` image worker and MPIPS may join a private container network, but
+The private MPIPS conversion contract is the only internal network service
+boundary. The `mhcs-core` image worker and MPIPS may join a private container
+network, but
 MPIPS is not published through the user-facing reverse proxy. Browser clients,
 Member, Operator, and Doctor modules never call MPIPS directly.
 
@@ -93,7 +102,7 @@ Member, Operator, and Doctor modules never call MPIPS directly.
 
 - A module changes only the records it owns.
 - Cross-module synchronous work uses explicit application commands or queries,
-  not HTTP calls or service credentials.
+  without network calls or module credentials.
 - Cross-module asynchronous work uses versioned domain events persisted in the
   same database transaction as the source change.
 - A queued handler is idempotent because delivery may repeat.
@@ -129,43 +138,16 @@ Operator submits a complete capture set through the public `mhcs-core`
 application. The Operator module validates the active examination and invokes
 the Image Gateway module locally. Durable object-storage acceptance closes the
 operator queue. No application-server-to-application-server file copy or
-internal HTTP submission exists inside `mhcs-core`.
+internal network submission exists inside `mhcs-core`.
 
 ## MPIPS black-box contract
 
 MPIPS has one MHCS responsibility: convert one radiograph capture into DICOM.
-The preferred initial private endpoint is synchronous because `mhcs-core`
-invokes it from an asynchronous image worker:
-
-```http
-POST /v1/conversions
-Authorization: Bearer <mhcs-core-mpips-token>
-Idempotency-Key: <conversion-job-id>
-Content-Type: multipart/form-data
-```
-
-The request contains exactly these logical inputs:
-
-- `radiograph_npz`: the patient-free radiograph capture;
-- `gain_npz`: the matching gain/calibration input; and
-- `dicom_manifest`: a separately signed JSON document containing the minimum
-  frozen clinical and DICOM metadata.
-
-The two NPZ files remain patient-free. Patient, order, encounter, site, and
-DICOM identifiers must not be inserted into Grabber output merely to avoid the
-separate manifest.
-
-A successful response returns:
-
-- one DICOM object or streamed DICOM body;
-- output checksum and byte size;
-- correlation and idempotency identity;
-- MPIPS converter version; and
-- sanitized conversion metadata required for validation.
-
-A failure returns a stable technical code that distinguishes invalid input,
-incompatible gain, conversion failure, resource limit, and retryable internal
-failure without exposing patient data or implementation secrets.
+The Image Gateway worker supplies a patient-free radiograph NPZ, its matching
+patient-free gain NPZ, and a separately signed DICOM metadata manifest. MPIPS
+returns one DICOM result. The exact transport, authentication, idempotency,
+success, and failure contract is defined only in the
+[MPIPS specification](../mpips/project.md).
 
 MPIPS is stateless from the MHCS business perspective. Temporary files are
 removed after the response or bounded recovery window. MPIPS does not own
@@ -180,14 +162,14 @@ Operator module
 Image Gateway module
   -> durable NPZ + manifest storage
   -> queued conversion job
-  -> private MPIPS API: radiograph NPZ + gain NPZ + signed DICOM manifest
+  -> private MPIPS conversion: radiograph NPZ + gain NPZ + signed manifest
 MPIPS
   -> DICOM response
 Image Gateway module
   -> validate checksum, DICOM identifiers, and frozen manifest
   -> store DICOM durably
   -> mark capture complete or retry up to the approved limit
-  -> when the full set is complete, route images, AI, and doctor work
+  -> when the full set is complete, dispatch images, AI, and doctor work
 ```
 
 Image Gateway owns retries and must reuse the same conversion job identity.
@@ -210,7 +192,7 @@ as a conflict.
 - The Image Gateway module validates the returned DICOM before permanent
   acceptance.
 
-## Current evidence and migration status
+## Current evidence and implementation status
 
 The available evidence was derived from separate historical Member Core and
 Operator Core repositories, an unavailable Doctor Core repository, an empty
@@ -218,11 +200,10 @@ Image Gateway checkout, and the existing MPIPS repository. Those checkpoints
 remain valid evidence of current or missing capability, but they no longer
 define the target deployment architecture.
 
-Consolidating historical application code into `mhcs-core`, selecting the
-single database schema, removing obsolete internal HTTP adapters, and
-implementing the exact MPIPS endpoint remain future implementation work. The
-business and module specifications in this repository define the target that
-work must preserve.
+Creating the new `mhcs-core` repository, selecting the single database schema,
+deciding which verified historical behavior can be reused, and implementing the
+exact MPIPS contract remain future work. The business and module specifications
+in this repository define the target that implementation must preserve.
 
 ## Extraction rule
 

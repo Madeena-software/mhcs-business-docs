@@ -18,16 +18,16 @@ teleradiology service.
 
 | Repository | Foundation |
 |---|---|
-| `mhcs-core` | [Shared architecture](docs/technical/mhcs-core/project.md), with [Member](docs/technical/mhcs-member-core/project.md), [Operator](docs/technical/mhcs-operator-core/project.md), [Doctor](docs/technical/mhcs-doctor-core/project.md), and [Image Gateway](docs/technical/mhcs-image-gateway/project.md) module specifications |
+| `mhcs-core` | [Shared architecture](docs/technical/mhcs-core/project.md), with [Member](docs/technical/mhcs-core/modules/member/project.md), [Operator](docs/technical/mhcs-core/modules/operator/project.md), [Doctor](docs/technical/mhcs-core/modules/doctor/project.md), and [Image Gateway](docs/technical/mhcs-core/modules/image-gateway/project.md) module contexts |
 | `mpips` | [Private black-box integration contract](docs/technical/mpips/project.md) |
 
-The four module documents retain their historical paths so existing links and
-decision history remain valid. They do not define separate target repositories.
+The nested module contexts mirror the future `mhcs-core/.agents/context`
+layout. They partition one application specification so an agent can load only
+the module relevant to its task.
 
-HTTP remains valid at system boundaries, including client-to-`mhcs-core` and
-Image Gateway-to-MPIPS communication. Modules inside `mhcs-core` communicate
-through local commands, queries, and durable domain events rather than internal
-REST APIs.
+Modules inside `mhcs-core` communicate through local commands, queries,
+transactions, and durable domain events. The MPIPS document is the only
+transport-level contract in this design.
 
 ## Status labels
 

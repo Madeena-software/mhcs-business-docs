@@ -29,8 +29,8 @@ implemented behavior.
 
 | Module or component | Owns | Receives | Produces | Readiness |
 |---|---|---|---|---|
-| Member module in `mhcs-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat commands, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information | **Historical foundation:** core member workflow exists; consolidation and expanded target behavior remain unverified |
-| Operator module in `mhcs-core` | Physical sites, operator staffing, front-desk features, queues, multi-capture Submit, image viewing, operator earnings, and payouts | Attendance, durable image acceptance, image status, quality decisions, and payment events | Site data, queue state, complete radiograph/gain NPZ submission, frozen metadata, and operator status | **Historical foundation:** operational workflow and uploads exist; consolidation and target flow remain unverified |
+| Member module in `mhcs-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat commands, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information | **Historical foundation:** core member workflow exists; new-repository implementation and expanded target behavior remain unverified |
+| Operator module in `mhcs-core` | Physical sites, operator staffing, front-desk features, queues, multi-capture Submit, image viewing, operator earnings, and payouts | Attendance, durable image acceptance, image status, quality decisions, and payment events | Site data, queue state, complete radiograph/gain NPZ submission, frozen metadata, and operator status | **Historical foundation:** operational workflow and uploads exist; new-repository implementation and target flow remain unverified |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input | **Business direction:** source was not inspected |
 | Image Gateway module in `mhcs-core` | Permanent NPZ/DICOM storage, MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorised references, completion, and publication events | **Target module:** historical checkout had no commits |
 | `mpips` repository | Black-box radiograph NPZ plus gain NPZ conversion | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status | **Current capability:** NPZ workflow exists; private production API remains unverified |
@@ -39,11 +39,11 @@ implemented behavior.
 Detailed foundations:
 
 - [MHCS Core architecture](../technical/mhcs-core/project.md)
-- [Member Core](../technical/mhcs-member-core/project.md)
-- [Operator Core](../technical/mhcs-operator-core/project.md)
-- [Image Gateway](../technical/mhcs-image-gateway/project.md)
+- [Member module](../technical/mhcs-core/modules/member/project.md)
+- [Operator module](../technical/mhcs-core/modules/operator/project.md)
+- [Image Gateway module](../technical/mhcs-core/modules/image-gateway/project.md)
 - [MPIPS additions required by MHCS](../technical/mpips/project.md)
-- [Doctor Core](../technical/mhcs-doctor-core/project.md)
+- [Doctor module](../technical/mhcs-core/modules/doctor/project.md)
 
 ## Member Core
 

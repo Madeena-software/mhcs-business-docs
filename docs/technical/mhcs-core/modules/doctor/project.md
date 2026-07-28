@@ -7,7 +7,7 @@ This document defines the Doctor module in the approved `mhcs-core` modular
 application. The historical `mhcs-doctor-core` repository was unavailable for
 verification, so no capability in this document should be described as
 currently implemented. The overall repository and runtime boundary is defined
-by the [MHCS Core architecture](../mhcs-core/project.md).
+by the [MHCS Core architecture](../../project.md).
 
 ## Purpose
 
@@ -46,9 +46,8 @@ Operator, and Image Gateway while retaining explicit clinical, earning, payout,
 and table ownership.
 
 Doctor invokes Member commands and consumes Image Gateway and Operator domain
-events locally. It does not use internal HTTP, Docker DNS, or service
-credentials. Only the Image Gateway worker calls the separate private MPIPS
-API.
+events locally without network calls or module credentials. Only the Image
+Gateway worker crosses the separate private MPIPS boundary.
 
 ## Target work queue
 
@@ -62,7 +61,7 @@ Priorities and reporting deadlines are versioned service configuration rather
 than one hard-coded value for every case.
 
 A claim is atomic. When two doctors attempt to claim the same case, exactly one
-succeeds and the other receives a conflict response without acquiring clinical
+succeeds and the other receives a conflict result without acquiring clinical
 access. A claimed case remains assigned until the doctor releases or completes
 it, or an administrator reassigns it with an audited reason. Claims do not
 expire automatically. Reminders and administrator escalation handle overdue
@@ -74,7 +73,7 @@ doctor cannot claim a case outside their current credentials or configured
 scope. Doctor Core has no front desk.
 
 Queue, claim, assignment, deadline, and escalation state are ordinary Doctor
-Core application records and APIs. They are not FHIR `Task` resources.
+Core application records and workflows. They are not FHIR `Task` resources.
 
 ## Study access
 
@@ -202,7 +201,7 @@ These access and lifecycle rules were approved after review of DICOMweb
 rendered/native retrieval, HL7 FHIR `DiagnosticReport` revision states,
 Indonesian electronic-medical-record requirements, and the ACR communication
 practice parameter. The source links are retained in
-[System Responsibilities and Readiness](../../business/03-system-responsibilities.md#evidence-sources).
+[System Responsibilities and Readiness](../../../../business/03-system-responsibilities.md#evidence-sources).
 
 ## Doctor earnings
 
@@ -273,9 +272,9 @@ eligible -> queued -> processing -> paid
 ```
 
 Temporary failures retry with the same payout ID. A payout becomes `paid` only
-after Doctor Core verifies the gateway's signed success callback.
-Reconciliation recovers a successful transfer whose callback was delayed or
-lost without issuing a duplicate transfer.
+after Doctor Core verifies the provider's signed success confirmation.
+Reconciliation recovers a successful transfer whose confirmation was delayed
+or lost without issuing a duplicate transfer.
 
 The default fee policy makes MHCS absorb the transfer fee so the doctor
 receives the full configured earning. An administrator may change that policy
@@ -293,9 +292,9 @@ Image Gateway module:
 - available AI output when applicable; and
 - replacement-study events linked to the original case and repeat chain.
 
-The Doctor module receives entitlement and decline status from the Member module and
-payment-gateway account, transfer, and callback results through its own
-provider adapter.
+The Doctor module receives entitlement and decline status from the Member
+module and payment-gateway account, transfer, and confirmation results through
+its own provider adapter.
 
 ## Information produced
 
@@ -309,26 +308,14 @@ The Doctor module produces:
 - repeat-assessment and final-report doctor earnings; and
 - daily doctor payout and reconciliation records.
 
-## Application and module contracts
+## Application and module operations
 
-Representative doctor-facing routes are:
-
-| Method and route | Purpose |
-|---|---|
-| `GET /api/v1/cases` | Read only cases eligible for the authenticated doctor |
-| `POST /api/v1/cases/{id}/claim` | Atomically claim one eligible case |
-| `POST /api/v1/cases/{id}/release` | Return a claimed case to the eligible queue |
-| `POST /api/v1/cases/{id}/quality-decisions` | Record `usable` or `repeat_required` for one study |
-| `POST /api/v1/quality-decisions/{id}/corrections` | Request an append-only correction |
-| `PUT /api/v1/cases/{id}/draft` | Save the authenticated doctor's report draft |
-| `POST /api/v1/cases/{id}/reports` | Sign and submit the final report |
-| `POST /api/v1/reports/{id}/corrections` | Create a traceable report correction or amendment |
-| `PUT /api/v1/me/payout-account` | Step-up authenticate and verify a payout destination |
-| `GET /api/v1/me/earnings` | Read itemized earnings and payout status |
-
-Every state-changing route uses a stable idempotency key where a retry is
-possible and reconciles identifiers to the authenticated doctor and authorized
-case.
+Doctor-facing operations allow an authenticated doctor to list eligible cases,
+claim or release a case, record or correct a quality decision, save a report
+draft, submit or amend a final report, manage a verified payout destination,
+and inspect earnings. Every retryable state change uses a stable idempotency
+identity and reconciles all identifiers to the authenticated doctor and
+authorized case.
 
 The Doctor module invokes the local `CreateRepeatEntitlement` command. It
 identifies the original case, booking, order, examination, study,
@@ -350,9 +337,9 @@ The Doctor module emits study-level quality events for the Operator module.
 and original decision event. The Operator module owns the separate administrator
 classification that determines the affected operator earning.
 
-Payment-gateway callbacks use a provider-adapter route and are verified from
-the raw request before parsing or mutation. Provider event IDs are unique;
-callbacks, payout creation, and reconciliation are idempotent.
+Payment-provider confirmations are cryptographically verified before mutation.
+Provider event IDs are unique; confirmation handling, payout creation, and
+reconciliation are idempotent.
 
 ## FHIR R5 boundary
 

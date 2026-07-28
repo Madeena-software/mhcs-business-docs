@@ -60,7 +60,7 @@ creating permanent copies in every module.
 Member, Operator, Doctor, and Image Gateway run as modules in one
 `mhcs-core` application. They use local commands, shared transactions where
 appropriate, and durable domain events instead of calling one another through
-internal HTTP APIs. MPIPS is the only separate internal service.
+internal network calls. MPIPS is the only separate internal service.
 
 ### Member Core boundary
 

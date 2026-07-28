@@ -7,7 +7,7 @@ This document defines the Image Gateway module in the approved `mhcs-core`
 modular application. The historical `mhcs-image-gateway` checkout contained no
 commits, so every capability below is a target. The overall repository and
 runtime boundary is defined by the
-[MHCS Core architecture](../mhcs-core/project.md).
+[MHCS Core architecture](../../project.md).
 
 ## Purpose
 
@@ -35,8 +35,9 @@ foundation while exclusively owning binary-storage metadata, conversion jobs,
 processing state, and authorized file access.
 
 Operator, Member, and Doctor use local module contracts and domain events.
-They do not call Image Gateway over internal HTTP. The Image Gateway worker is
-the only MHCS Core caller of the separate private MPIPS API.
+They do not call Image Gateway over a network boundary. The Image Gateway
+worker is the only MHCS Core caller of the separate private MPIPS conversion
+contract.
 
 ## Submission boundary
 
@@ -61,7 +62,7 @@ copying the same clinical file between application servers.
 
 - Every submitted radiograph NPZ must be processed with its matching gain NPZ.
 - The Image Gateway worker builds a signed DICOM metadata manifest and invokes
-  the private MPIPS conversion API once for each capture.
+  the private MPIPS conversion once for each capture.
 - Successful capture results are preserved if a sibling capture fails.
 - Only the failed capture is retried.
 - A failed capture receives three total processing attempts.
@@ -73,26 +74,12 @@ The exact retry timing belongs to technical planning.
 
 ## Private MPIPS adapter
 
-The Image Gateway worker calls the black-box MPIPS endpoint:
+The exact black-box integration is defined only by the
+[MPIPS specification](../../../mpips/project.md). The Image Gateway worker
+supplies the patient-free radiograph and gain inputs plus the separately signed
+manifest, then receives one DICOM result inside an asynchronous job.
 
-```http
-POST /v1/conversions
-Authorization: Bearer <mhcs-core-mpips-token>
-Idempotency-Key: <conversion-job-id>
-Content-Type: multipart/form-data
-```
-
-The request contains `radiograph_npz`, its matching `gain_npz`, and a separately
-signed `dicom_manifest`. The NPZ files remain patient-free. The manifest carries
-the frozen patient, order, encounter, site, acquisition, projection, laterality,
-and DICOM identifiers required for the output.
-
-MPIPS returns one DICOM body plus checksum, byte size, converter version, and
-correlation metadata, or a sanitized stable technical error. The synchronous
-private call runs inside an asynchronous Image Gateway job, never in the
-operator's browser request.
-
-Image Gateway validates the response against the input checksums and frozen
+Image Gateway validates the result against the input checksums and frozen
 manifest before permanent acceptance. It owns retry count and timing, reuses the
 same conversion identity, and rejects a replay whose bytes or manifest differ.
 
