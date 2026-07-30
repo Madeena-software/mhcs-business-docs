@@ -1,6 +1,6 @@
 # MHCS Core Architecture Specification
 
-**Status:** Approved target architecture; new repository implementation pending
+**Status:** Approved target architecture
 **Last reviewed:** 30 July 2026
 
 This document is the architecture authority for the MHCS application. Detailed
@@ -40,7 +40,8 @@ MHCS business authority.
 
 ## Technology stack
 
-- PHP `^8.4`, Laravel `^13.8`, Filament `^5.0`, 
+The initial Composer constraints are PHP `^8.4`, Laravel `^13.8`, and
+Filament `^5.0`.
 
 ## Target repository layout
 
@@ -183,8 +184,18 @@ as a conflict.
 
 ## Constraints and hazards
 
-- Direct SSH access to production and staging is prohibited. Do not attempt or recommend SSH-based troubleshooting.
-- Represent infrastructure and server changes in version-controlled configuration, then apply them through the approved CI/CD pipeline.
+- Direct SSH access to production and staging is prohibited. Do not attempt or
+  recommend SSH-based troubleshooting.
+- Represent infrastructure and server changes in version-controlled
+  configuration, then apply them through the approved CI/CD pipeline.
+
+## Deployment
+
+The
+[Madeena deployment-template repository](https://github.com/Madeena-software/deploy-templates)
+is the external authority for environment-template implementation. Copy and
+specialize the applicable templates in `mhcs-core`; do not duplicate their
+implementation details in this context.
 
 ## Security boundary
 

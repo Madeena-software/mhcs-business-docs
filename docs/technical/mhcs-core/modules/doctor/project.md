@@ -363,8 +363,8 @@ queue mechanics, deadlines, repeat-entitlement state, user administration,
 earnings, and payouts remain ordinary application workflows. Doctor Core does
 not create FHIR `Task` for its internal queue.
 
-Because the source is unavailable, every R5 mapping, profile, validator, and
-test remains target work.
+FHIR R5 mappings, profiles, validators, and tests remain target work until
+implemented and verified.
 
 ## Security and audit requirements
 
