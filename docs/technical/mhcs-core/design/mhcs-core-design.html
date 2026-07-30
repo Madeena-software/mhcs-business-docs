@@ -1724,21 +1724,26 @@
               <div class="brand-sub">Mobile Health Screening Workstation</div>
             </div>
           </a>
-          <select class="project-selector">
-            <option>Station 01 — Radiography Room</option>
-            <option>Station 02 — Mobile Truck Unit</option>
+          <select class="project-selector" aria-label="Current operational station">
+            <option>Front Desk — Registration</option>
+            <option>MCU 01 — Basic Assessment</option>
+            <option selected>X-Ray 01 — Radiography Room</option>
+            <option>Education 01 — Result Desk</option>
           </select>
         </div>
 
         <div class="topbar-center">
           <div class="module-tab-group">
-            <button class="module-tab active" onclick="switchOpModule('workstation')">
+            <button class="module-tab active" data-op-view="workstation" onclick="switchOpModule('workstation')">
               Integrated Workstation
               <span class="module-tab-badge">LIVE</span>
             </button>
-            <button class="module-tab" onclick="switchOpModule('queue')">
-              Worklist Queue
-              <span style="font-size: 10px; color: var(--fg-3);">(4)</span>
+            <button class="module-tab" data-op-view="queue" onclick="switchOpModule('queue')">
+              Stage Queues
+              <span style="font-size: 10px; color: var(--fg-3);">(9)</span>
+            </button>
+            <button class="module-tab" data-op-view="lcd" onclick="switchOpModule('lcd')">
+              LCD Display
             </button>
           </div>
         </div>
@@ -1754,6 +1759,97 @@
           </div>
         </div>
       </header>
+
+      <!-- MULTI-STAGE OPERATOR DASHBOARD -->
+      <section id="screen-operator-stage-queue" data-stitch-screen="Concurrent MCU X-Ray Education Queue" style="display:none; padding:20px; overflow:auto; background:var(--surface); min-height:calc(100vh - 60px);">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px;">
+          <div>
+            <div style="font-size:20px; font-weight:700; color:var(--fg);">One Ticket · Three Service Queues</div>
+            <div style="font-size:12px; color:var(--fg-3);">Ready-time FIFO · atomic claims · current shift 08:00–16:00</div>
+          </div>
+          <button class="btn btn-primary" onclick="showToast('Single-use LCD pairing code: 482 731')">Pair LCD Display</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(4,minmax(210px,1fr)); gap:12px; margin-bottom:16px;">
+          <article class="card">
+            <div class="card-header"><div class="card-title">MCU <span class="badge badge-amber">3 waiting</span></div></div>
+            <div class="card-body" style="display:grid; gap:8px;">
+              <div class="queue-item"><div class="patient-avatar">A12</div><div><strong>A-012</strong><div class="muted">Ready 09:12</div></div><button class="btn btn-primary btn-sm">Claim</button></div>
+              <div class="queue-item"><div class="patient-avatar">A15</div><div><strong>A-015</strong><div class="muted">Ready 09:18</div></div><button class="btn btn-secondary btn-sm">Call</button></div>
+              <div style="font-size:11px; color:var(--fg-3);">Skip requires a reason and assigns a new ready time. Recall preserves order.</div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-header"><div class="card-title">X-Ray <span class="badge badge-teal">2 waiting</span></div></div>
+            <div class="card-body" style="display:grid; gap:8px;">
+              <div class="queue-item"><div class="patient-avatar">A08</div><div><strong>A-008</strong><div class="muted">Ready 09:05</div></div><button class="btn btn-primary btn-sm">Claim</button></div>
+              <div class="queue-item"><div class="patient-avatar">A10</div><div><strong>A-010</strong><div class="muted">In service · X-Ray 01</div></div><span class="badge badge-teal">Active</span></div>
+              <div style="font-size:11px; color:var(--fg-3);">Completes only after durable Image Gateway acceptance.</div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-header"><div class="card-title">Awaiting AI <span class="badge badge-pending">2 async</span></div></div>
+            <div class="card-body" style="display:grid; gap:8px;">
+              <div class="queue-item"><div class="patient-avatar">A04</div><div><strong>A-004</strong><div class="muted">Processing · 02:14</div></div><span class="badge badge-pending">No station</span></div>
+              <div class="queue-item"><div class="patient-avatar">A06</div><div><strong>A-006</strong><div class="muted">Education deferred</div></div><span class="badge badge-amber">Portal/email</span></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-header"><div class="card-title">Result Education <span class="badge badge-approved">2 ready</span></div></div>
+            <div class="card-body" style="display:grid; gap:8px;">
+              <div class="queue-item"><div class="patient-avatar">A02</div><div><strong>A-002</strong><div class="muted">AI result v1 ready</div></div><button class="btn btn-primary btn-sm">Claim</button></div>
+              <div class="queue-item"><div class="patient-avatar">A03</div><div><strong>A-003</strong><div class="muted">Portal + print</div></div><span class="badge badge-approved">Complete</span></div>
+              <div style="font-size:11px; color:var(--fg-3);">Doctor review is requested later by the member, never from this desk.</div>
+            </div>
+          </article>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <article class="card" id="operator-consent-assessment">
+            <div class="card-header"><div class="card-title">Front Desk & MCU Checklist</div></div>
+            <div class="card-body" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px;">
+              <label><input type="checkbox" checked> Registration, payment, and identity verified</label>
+              <label><input type="checkbox" checked> Signed paper consent version recorded</label>
+              <label><input type="checkbox" checked> Temperature, height, weight, BMI</label>
+              <label><input type="checkbox" checked> Systolic and diastolic pressure</label>
+              <label><input type="checkbox" checked> Glucose, total cholesterol, uric acid</label>
+              <label><input type="checkbox" checked> Smoking, symptoms, disease and exposure interview</label>
+              <div style="grid-column:1/-1; color:var(--fg-3);">Every required item needs a value or unavailable, refused, or not-applicable reason before X-ray.</div>
+            </div>
+          </article>
+          <article class="card" id="operator-education-record">
+            <div class="card-header"><div class="card-title">Education Completion</div></div>
+            <div class="card-body" style="display:grid; gap:10px; font-size:12px;">
+              <div><strong>Ticket A-002</strong> · AI result version 1 · purpose-bound view</div>
+              <div style="display:flex; gap:14px;"><label><input type="checkbox" checked> Portal</label><label><input type="checkbox"> Email</label><label><input type="checkbox" checked> Print</label></div>
+              <div style="display:flex; gap:8px;"><button class="btn btn-success">Complete Education</button><button class="btn btn-ghost">Defer</button></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- PUBLIC, NUMBER-ONLY LCD DISPLAY -->
+      <section id="screen-operator-lcd" data-stitch-screen="Paired Read Only LCD Queue Display" data-display-safe-fields="ticket_number station_label called_at" style="display:none; min-height:calc(100vh - 60px); padding:32px; background:#07131f; color:#f8fafc;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+          <div><div style="font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:#7dd3fc;">MHCS Queue Display</div><div style="font-size:28px; font-weight:700;">Current Calls</div></div>
+          <div style="text-align:right;"><div style="color:#86efac; font-weight:700;">● CONNECTED</div><div style="font-size:12px; color:#94a3b8;">Paired session · expires 16:00</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px;">
+          <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">EDUKASI HASIL</div><div style="font-size:64px; font-weight:800;">A-001</div><div style="color:#cbd5e1;">Dipanggil 09:28</div></div>
+          <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">FOTO / RONTGEN</div><div style="font-size:64px; font-weight:800;">A-002</div><div style="color:#cbd5e1;">Dipanggil 09:27</div></div>
+          <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">MCU</div><div style="font-size:64px; font-weight:800;">A-003</div><div style="color:#cbd5e1;">Dipanggil 09:26</div></div>
+        </div>
+        <div style="border-top:1px solid #334155; padding-top:20px;">
+          <div style="font-size:16px; color:#94a3b8; margin-bottom:12px;">Five recent calls</div>
+          <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; text-align:center;">
+            <div><strong>A-014</strong><br><span style="color:#94a3b8;">MCU · 09:25</span></div>
+            <div><strong>A-007</strong><br><span style="color:#94a3b8;">FOTO/RONTGEN · 09:24</span></div>
+            <div><strong>A-011</strong><br><span style="color:#94a3b8;">EDUKASI HASIL · 09:22</span></div>
+            <div><strong>A-013</strong><br><span style="color:#94a3b8;">MCU · 09:20</span></div>
+            <div><strong>A-006</strong><br><span style="color:#94a3b8;">FOTO/RONTGEN · 09:18</span></div>
+          </div>
+        </div>
+      </section>
 
       <!-- MAIN WORKSTATION -->
       <section id="screen-operator-workstation" data-stitch-screen="Radiographer Operator Workstation" class="workstation-container">
@@ -1981,7 +2077,7 @@
       </section>
 
       <!-- BOTTOM ACTION BAR -->
-      <footer class="bottom-bar">
+      <footer class="bottom-bar" id="operator-workstation-footer">
         <div style="display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);">
           <span>STATUS: READY FOR ACQUISITION</span>
           <span>•</span>
@@ -2190,7 +2286,19 @@
     }
 
     function switchOpModule(view) {
-      alert(`Operator Module view set to: ${view}`);
+      const screens = {
+        workstation: document.getElementById('screen-operator-workstation'),
+        queue: document.getElementById('screen-operator-stage-queue'),
+        lcd: document.getElementById('screen-operator-lcd')
+      };
+      Object.entries(screens).forEach(([name, screen]) => {
+        screen.style.display = name === view ? (name === 'workstation' ? 'grid' : 'block') : 'none';
+      });
+      document.getElementById('operator-workstation-footer').style.display =
+        view === 'workstation' ? 'flex' : 'none';
+      document.querySelectorAll('[data-op-view]').forEach(button => {
+        button.classList.toggle('active', button.dataset.opView === view);
+      });
     }
 
     function showToast(msg) {

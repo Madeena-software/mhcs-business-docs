@@ -1,7 +1,7 @@
 # MHCS Core Image Gateway Module Specification
 
 **Status:** Approved target module
-**Last reviewed:** 28 July 2026
+**Last reviewed:** 30 July 2026
 
 This document defines the Image Gateway module in the approved `mhcs-core`
 modular application. The overall repository and runtime boundary is defined by the
@@ -49,8 +49,9 @@ The Image Gateway module receives:
 - organisation and examination identity; and
 - traceability information for the submitting operator.
 
-Durable acceptance of the complete set is the event that allows the Operator module
-to close the examination in its active queue.
+Durable acceptance of the complete set is the event that allows the Operator
+module to complete the X-ray stage and move the ticket to asynchronous AI
+waiting.
 
 The binary should be stored once. Downstream systems should exchange immutable
 object references, checksums, identifiers, and status rather than repeatedly
@@ -132,16 +133,14 @@ when legally required. The action must be fully audited.
 - AI is requested only when selected by the booked service.
 - Doctor review is requested only when selected.
 - The AI provider is selected by application code, not by the member.
-- A successful AI result becomes visible to the member automatically.
+- A successful AI result becomes visible to the member automatically and emits
+  one idempotent readiness event that releases the matching Operator ticket to
+  result education.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
-  report delivery to the member, or terminal failure after the fallback also
-  fails, makes the AI-stage operator earning eligible.
+  report delivery or terminal fallback failure updates Member publication and
+  Operator education status but creates no Operator earning by itself.
 - For a doctor-selected service, placing the DICOM study in the Doctor module
-  dashboard queue starts review but does not make the doctor-stage operator
-  earning eligible. An explicit Doctor module `usable` decision for that
-  `ImagingStudy` is the trigger.
-- A combined service emits separate AI-stage and doctor-stage eligibility
-  events.
+  dashboard queue starts review and creates no Operator earning.
 - A Doctor module `repeat_required` decision starts a Member module repeat
   entitlement but does not authorize Image Gateway to create a repeat itself.
 - A doctor-only repeat does not rerun AI. The original study and any successful
@@ -172,7 +171,7 @@ delivery.
 The Doctor module returns the case to the requesting doctor when still
 authorized or to the shared eligible queue otherwise. Image Gateway does not choose the
 doctor, change queue ownership, calculate the doctor's 25% repeat-assessment
-earning, or decide operator payment classification.
+earning, or calculate Operator stage earnings.
 
 ## FHIR R5 boundary
 

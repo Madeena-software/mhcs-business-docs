@@ -1,7 +1,7 @@
 # MHCS Core Operator Module Specification
 
 **Status:** Approved target foundation
-**Last reviewed:** 28 July 2026
+**Last reviewed:** 30 July 2026
 
 This document defines the Operator module in the approved `mhcs-core` modular
 application. The overall repository and runtime boundary is defined by the
@@ -11,9 +11,10 @@ application. The overall repository and runtime boundary is defined by the
 
 Operator Core is the staff-facing module for examination-day operations. It
 owns physical-site master data, operator accounts and assignments, arrivals,
-identity-verification workflow, the operational queue, examination execution,
-session-only NPZ drafts, submission to Image Gateway, read-only processed-image
-viewing, operator earnings, and operator payouts.
+identity-verification and consent-confirmation workflow, the staged operational
+queue, MCU capture, examination execution, session-only NPZ drafts, submission
+to Image Gateway, result education, the public queue display, operator earnings,
+and operator payouts.
 
 Operator Core does not model a separate project entity. Sites, shifts,
 bookings, queue items, and examinations provide the required business context.
@@ -22,8 +23,9 @@ bookings, queue items, and examinations provide the required business context.
 
 Operator Core has two permissions:
 
-- **Operator:** uses the front-desk and examination features. These are two
-  stages in one application, not separate staff roles.
+- **Operator:** uses the front desk, MCU, X-ray, and result-education features.
+  These are operational stations in one application, not separate permissions
+  or staff roles.
 - **Global administrator:** manages every Operator Core site and operational
   configuration.
 
@@ -34,10 +36,13 @@ site-specific `PractitionerRole` for each authorized site. An
 administrator-only account remains an ordinary application user.
 
 An operator may be authorized for multiple sites but works in exactly one
-active site context at a time. Switching sites requires confirmation, is
-audited, and is blocked while the operator has an active examination, an
-unfinished queue action, or an unclosed cash shift. The authenticated session
-and assignment determine the active site; no separate module identity exists.
+active site context at a time. Within an assigned shift, the operator selects a
+front-desk, MCU, X-ray, or result-education station label. This label routes
+work and public calls but grants no permission. Switching sites requires
+confirmation, is audited, and is blocked while the operator has a claimed
+ticket, an unfinished queue action, or an unclosed cash shift. The authenticated
+session and assignment determine the active site; no separate module identity
+exists.
 
 Normal sign-in uses the approved account password and does not require MFA.
 Rate limiting, secure session handling, and account lock controls still apply.
@@ -93,11 +98,13 @@ Staffing is demand-triggered:
 1. Members may book an open shift before an operator is assigned.
 2. At five confirmed bookings, the Member module emits an idempotent
    `shift_eligible` domain event for the Operator module.
-3. The global Operator Core administrator manually assigns exactly one
-   operator to the shift.
-4. The assignment is final and cannot be changed.
-5. Only that assigned operator may verify arrivals, manage the queue, start
-   examinations, upload captures, or submit examinations for the shift.
+3. The global Operator Core administrator assigns one or more operators to the
+   shift.
+4. Assignment additions and removals are audited. Removing an assignment never
+   changes attribution for completed work.
+5. Any assigned operator may perform front-desk, MCU, X-ray, or
+   result-education work. Atomic claims ensure that only one operator handles a
+   ticket stage at a time.
 
 After assignment, later booking cancellations do not remove the operator or
 cancel the shift merely because the confirmed count falls below five. Member
@@ -112,14 +119,13 @@ booking and refunds all of its points.
 
 Member Core also supplies a configurable staffing deadline. If an eligible
 shift has no assigned operator by that deadline, new bookings stop and affected
-members receive the same alternative-shift or full-refund flow. If the assigned
-operator later becomes unavailable, the immutable assignment is not replaced;
-the shift is cancelled and Member Core handles alternatives or refunds.
+members receive the same alternative-shift or full-refund flow. A shift
+continues while at least one assigned operator remains available. If no
+operator remains available, Member Core handles alternatives or refunds.
 
-The initial product deliberately supports one assigned operator per site shift.
-Multi-operator queue coordination is outside scope. Site schedules do not
-overlap and include an operational gap, so Operator Core does not merge queues
-between shifts.
+Site schedules do not overlap and include an operational gap, so Operator Core
+does not merge tickets between shifts. Multiple assigned operators may serve
+different patients or stages concurrently.
 
 ## Attendance and identity verification
 
@@ -129,14 +135,19 @@ physical KTP or KIA and is never placed in a URL or copied into Operator Core's
 long-term data. Member Core's one-active-booking-per-NIK rule means the lookup
 returns at most one eligible booking.
 
-The same assigned operator performs the front-desk and examination stages:
+Any assigned operator may perform the front-desk steps:
 
 1. Record the member's physical arrival using its actual occurrence time.
 2. Compare the physical KTP/KIA and arriving face with protected Member Core
    identity views.
 3. Show the latest profile photograph first. Previous profile photographs are
    available only when the latest photograph is insufficient for verification.
-4. Mark the booking `checked_in` only after successful verification.
+4. Confirm that the member has read and signed the applicable paper informed
+   consent.
+5. Record the consent form version, signer, signature-confirmation time,
+   responsible operator, and optional private scan through Member Core.
+6. Mark the booking `checked_in` and issue one site-and-shift ticket only after
+   successful verification and consent confirmation.
 
 KTP/KIA and profile photographs are purpose-bound, temporary, non-downloadable,
 and available to the operator only during the active verification flow. Global
@@ -151,31 +162,59 @@ until a global administrator approves or rejects the case with a mandatory
 reason. Member Core remains the authority for identity files, member accounts,
 guardians, medical-record identifiers, and verification evidence.
 
-## Vital signs
+## MCU assessment
 
-Operator Core initially records:
+MCU is mandatory before X-ray and records:
 
 - systolic and diastolic blood pressure;
 - body temperature;
-- height;
-- weight; and
-- BMI calculated from height and weight.
+- height, weight, and BMI calculated from those two values;
+- point-of-care glucose, total cholesterol, and uric-acid results; and
+- a short structured interview covering smoking, current cough, shortness of
+  breath, chest pain, pulmonary disease, cardiac disease, tuberculosis, chest
+  surgery, occupational dust or smoke exposure, and relevant family history.
 
-Heart rate and oxygen saturation are not part of the initial form. A single
-global Operator Core setting controls whether the configured measurements are
-optional or mandatory; the default is optional. When mandatory, examination
-start is blocked until each measurement is present or an allowed
-`dataAbsentReason` is recorded. Fake placeholder values are prohibited.
+Heart rate and oxygen saturation are not part of the initial form. Every
+configured field requires either a value or an explicit
+`unavailable`, `refused`, or `not_applicable` reason. Fake placeholder values
+are prohibited. Blood-screening results record their unit, fasting, random, or
+unknown sampling context, measurement time, and method or device when relevant.
+The three screening values are not described as a complete blood count.
 
-Member Core is the FHIR `Observation` authority. Operator Core records the
-measurement, performer, method when relevant, and actual time through a local,
-idempotent Member command. The examination record and Observation commit in one
-database transaction where practical. If deferred processing is required, a
-durable local domain event retries safely.
+Interview responses use `yes`, `no`, or `unknown`, with optional notes. Current
+symptoms allow the controlled cough, shortness-of-breath, and chest-pain choices
+plus a note. Patient-reported family history remains distinct from
+doctor-reviewed history.
+
+Member Core is the longitudinal authority. Operator Core records the assessment
+and responsible MCU worker through a local idempotent command. Valid MCU
+completion and the Operator stage record commit in one database transaction
+where practical; durable local retry is used when deferred processing is
+required.
 
 ## Queue rules
 
-The queue has two ordered classes within a shift:
+One human-readable ticket number is unique within its site and shift and
+remains unchanged through three sequential stages:
+
+```text
+MCU -> X-ray -> awaiting AI -> result education
+```
+
+The ticket records its current stage and state, stage-ready time, claimed
+operator, station label, and append-only transition history. Supported states
+cover `waiting`, `called`, `in_service`, `awaiting_ai`, `deferred`, and
+`completed`. A stage becomes visible in its private worklist only when its
+prerequisite is complete. `awaiting_ai` consumes no operator station.
+
+Each stage uses FIFO by its own ready time. Claiming a waiting ticket is atomic;
+a competing claim fails and refreshes the worklist. An operator may have only
+one claimed clinical-stage ticket at a time. A skip requires a reason and
+returns the patient to the same stage with a new ready time. Recall repeats the
+public call without changing order. Every claim, call, recall, skip, start, and
+completion records the responsible operator and actual occurrence time.
+
+The initial ticket issue order retains two classes within a shift:
 
 1. Advance bookings, ordered by successful check-in time.
 2. Walk-ins, ordered by successful check-in time.
@@ -203,8 +242,29 @@ At shift end Operator Core:
 
 - stops accepting new arrivals and walk-ins;
 - allows every already checked-in member to finish; and
-- enables cash closing only after the accepted queue is complete and every
-  cash top-up has reached a final status.
+- enables cash closing only after the accepted tickets have either completed or
+  reached an explicit deferred/final exception and every cash top-up has
+  reached a final status.
+
+### Public LCD display
+
+Operator Core owns a number-only fullscreen display. An authenticated operator
+pairs a TV browser using a single-use short code. The resulting session is
+read-only, restricted to one site and shift, revocable, and expires
+automatically at shift end.
+
+The display refreshes periodically and shows active calls for exactly three
+public destinations: `MCU`, `FOTO/RONTGEN`, and `EDUKASI HASIL`. Each
+destination may call a different ticket at the same time, for example ticket
+`A-001` to education, `A-002` to X-ray, and `A-003` to MCU. The five most recent
+calls also show only ticket number, destination, and call time.
+
+Front-desk registration and `awaiting_ai` are private dashboard states and
+never appear on the LCD. The display exposes no member name, NIK,
+medical-record identifier, booking, assessment, image, result, or waiting-list
+position. It shows a visible stale or disconnected state instead of silently
+presenting old calls. Audio calling and a public full waiting list are outside
+scope.
 
 ## Walk-in boundary
 
@@ -252,9 +312,11 @@ work and later doctor review, not on unobserved room activity.
 
 The target examination flow is:
 
-1. The assigned operator calls the next member and starts the examination.
-2. The Operator module creates the R5 `Encounter`, snapshots the protocol and
-   earning rates, and updates the Member-owned booking in the same workflow.
+1. After MCU completion, an assigned operator atomically claims and calls the
+   next ready X-ray ticket and starts the examination.
+2. The Operator module creates the R5 `Encounter`, snapshots the protocol, and
+   updates the Member-owned booking in the same workflow. Stage earning rates
+   were already frozen when the ticket was issued.
 3. Grabber produces patient-free radiograph NPZ captures and the required gain
    NPZ.
 4. The operator drags one or more radiograph NPZ files and the matching gain
@@ -271,9 +333,9 @@ The target examination flow is:
 9. The Operator module invokes the Image Gateway module with the radiograph
    files, matching gain input, and immutable examination snapshot under one
    stable submission ID.
-10. Durable acceptance by the Image Gateway module closes the active queue item
-    and completes the Encounter. MPIPS, AI, and doctor processing continue
-    asynchronously.
+10. Durable acceptance by the Image Gateway module completes the X-ray stage,
+    marks the Encounter complete, and moves the ticket to `awaiting_ai`. MPIPS,
+    AI, and doctor processing continue asynchronously.
 
 Only Grabber-produced radiograph and gain NPZ are accepted. Direct `.dcm` or
 `.dicom` upload is prohibited. Patient identity is selected from the authorized
@@ -300,7 +362,7 @@ object-storage operations as fallible even though the module call is local.
   using the same submission ID.
 - The operator sees `submission_pending`; duplicate retries return the original
   result and never create a second examination submission.
-- The member remains in the active queue until durable acceptance.
+- The ticket remains in X-ray service until durable acceptance.
 - A permanent validation rejection returns the examination to an editable
   draft in the current session, identifies the invalid captures, and retains
   the failed attempt in the audit history.
@@ -314,6 +376,39 @@ Gateway acceptance means that the complete submitted byte set and metadata are
 durably stored, authorized, checksum-verified, and recoverable by the stable
 submission ID. Merely accepting the browser request or dispatching a local
 command is not durable acceptance.
+
+## AI waiting and result education
+
+AI processing is asynchronous and never reserves an operator. Image Gateway
+publishes the selected AI result to Member Core and emits an idempotent
+readiness event containing the ticket, examination, result version, publication
+status, occurrence time, and source version. Operator Core rejects an event
+that does not match the immutable ticket and examination.
+
+When the result is ready, Operator Core moves the ticket from `awaiting_ai` to
+the result-education FIFO. The operator who atomically claims it receives one
+short-lived, purpose-bound result view. Access ends when the work is completed,
+released, or expired and never permits browsing other AI results or opening a
+doctor report.
+
+Operator Core records only:
+
+- the AI result version shown;
+- the responsible operator and station;
+- start and completion times;
+- `portal`, `email`, and/or `print` delivery status; and
+- whether education is completed or deferred.
+
+It does not store an education script, diagnosis, or duplicate report and does
+not sell or create doctor review. The application may display a fixed notice
+that paid doctor review can be requested later in Member Core.
+
+If AI is delayed, the patient may leave after the delay is explained. The
+ticket becomes `deferred`, no station remains claimed, and Member Core later
+publishes to the portal and sends email when selected. Printing is available
+only when the result is ready onsite. A terminally unavailable result may be
+communicated and closed without fabricating a result. A doctor-only service or
+doctor-requested repeat does not enter the AI education queue.
 
 ## Corrections and repeat examinations
 
@@ -344,10 +439,8 @@ The flow is:
 
 The controlled Doctor Core preliminary reasons are `operator_error`,
 `equipment_failure`, `incorrect_order`, `medical_limitation`, and `other` with
-a required explanation. They are clinical source evidence, not the final
-operator-payment classification. A global Operator Core administrator records
-the verified financial classification separately without editing the doctor's
-decision.
+a required explanation. They remain clinical source evidence and do not change
+already completed Operator stage earnings.
 
 Only one repeat entitlement may be active in a case chain at a time, but a
 doctor may request another sequential repeat if the replacement study is also
@@ -375,48 +468,38 @@ The Operator Core DICOM viewer is read-only:
 
 Image Gateway supplies short-lived, purpose-bound references. Operator Core
 does not persist a second result-file copy. Operators may see processing and
-image-availability status but never AI diagnoses or doctor reports.
+image-availability status. AI results are visible only through the claimed
+result-education flow described above; doctor reports are never visible.
 
 ## Operator earnings
 
 Operator earnings are ordinary Operator Core financial records denominated in
 Indonesian rupiah. They are not Madeena Points and are not FHIR resources.
 
-The global administrator configures site-specific rates for each examination
-service. A combined AI-and-doctor service has separate AI-stage and
-doctor-stage rates. Operator Core snapshots the applicable rates when the
-examination starts; later changes affect only examinations that have not
-started and never revalue historical earnings.
+The global administrator configures versioned, site-and-service-specific rates
+for MCU, X-ray, and result education. Operator Core snapshots all applicable
+stage rates when the ticket is issued; later changes affect only later tickets
+and never revalue historical earnings.
 
 Earning rules are:
 
-- **AI stage:** becomes eligible when the AI result is delivered or when all
-  AI retries and fallback processing reach terminal failure. A downstream AI
-  failure does not penalize the operator.
-- **Doctor stage:** becomes eligible only when the doctor records an explicit
-  `usable` decision for that examination's `ImagingStudy`.
-- **Combined service:** pays the AI and doctor stages independently, in that
-  order. An already-paid AI stage is not clawed back if the doctor later
-  requests a repeat.
-- **Doctor-only service:** has only the doctor stage.
-- **Repeat caused by operator error:** the original doctor stage is cancelled.
-  Ordinary patient movement is classified as operator error within this
-  payment rule.
-- **Verified cause outside operator control:** equipment failure, an incorrect
-  order, or documented medical inability despite proper guidance does not
-  cancel the original doctor-stage earning. A global administrator verifies
-  the reason, and that verified decision makes the original doctor stage
-  eligible even though a repeat is required.
-- **Successful repeat:** the repeat operator receives one doctor-stage earning.
-  The repeat is doctor-only and creates no second AI-stage earning.
-- **Sequential repeats:** every examination is evaluated independently. An
-  unusable replacement follows the same cause and eligibility rules, while the
-  operator of the eventual usable replacement receives its own doctor-stage
-  earning.
+- **MCU:** becomes eligible when the required assessment completes and belongs
+  to the operator recorded on that completion.
+- **X-ray:** becomes eligible when Image Gateway durably accepts the complete
+  capture set and belongs to its submitting operator.
+- **Result education:** becomes eligible when an available result is explained,
+  or terminal unavailability is communicated, and belongs to the completing
+  operator. A delayed or merely delivered result does not trigger it.
+- **Same worker:** one operator who completes multiple stages receives each
+  applicable earning independently.
+- **Doctor-only service or repeat:** has no education earning because it does
+  not enter the AI education queue. Any performed MCU and X-ray stages retain
+  their ordinary earnings.
+- **Later repeat or doctor decision:** never cancels or revalues an already
+  completed stage earning.
 
 Each earning transition uses a stable event ID, preserves its source event and
-rate snapshot, and is idempotent. Gateway acceptance alone never makes an
-earning eligible.
+rate snapshot, and is idempotent.
 
 ## Automated operator payouts
 
@@ -484,14 +567,12 @@ The global Operator Core administrator may:
 
 - create, activate, suspend, and authorize operator accounts;
 - create, update, disable, and synchronize sites;
-- assign exactly one operator after a shift becomes eligible;
+- assign or remove multiple operators for an eligible shift with audit;
 - configure versioned service-to-projection protocol mappings;
-- configure the global vital-sign requirement;
-- configure site-and-service earning rates and combined-service stages;
+- configure site-and-service MCU, X-ray, and education earning rates;
+- revoke a paired queue-display session;
 - configure the global payout-fee policy;
 - suspend and resume payouts without editing bank destinations;
-- verify the operator-payment classification for doctor-requested repeats
-  without changing the doctor's source quality decision;
 - resolve identity disputes and cash reconciliation;
 - perform audited queue-state corrections; and
 - monitor submissions, processing, earnings, and payout status.
@@ -504,12 +585,13 @@ history.
 
 ## Application operations
 
-Operator-facing operations cover the assigned shift queue, arrival and identity
-verification, examination start, vital signs, draft captures, capture review,
-complete-set submission, processing status, cash closing, payout destination,
-and earnings. State changes use a stable idempotency identity where retry is
-possible. No operation trusts an operator, site, shift, or member identifier
-without reconciling it to the authenticated session and authorized record.
+Operator-facing operations cover the assigned shift ticket queues, arrival,
+identity and consent verification, station selection, MCU assessment, X-ray
+start, draft captures, capture review, complete-set submission, AI waiting,
+result education, LCD pairing, cash closing, payout destination, and earnings.
+State changes use a stable idempotency identity where retry is possible. No
+operation trusts an operator, site, shift, ticket, or member identifier without
+reconciling it to the authenticated session and authorized record.
 
 ## Member module contract
 
@@ -520,8 +602,10 @@ The Operator module uses explicit local Member module commands and queries for:
 - idempotent walk-in creation, cash top-up, point charge, and booking;
 - `arrived`, examination-started, and examination-completed events;
 - identity-verification views and decisions;
+- paper-consent metadata and optional private scan recording;
 - body-part/laterality order correction;
-- vital-sign recording and correction;
+- MCU assessment recording and correction;
+- member result-publication and requested delivery status;
 - repeat scheduling through the member application; and
 - end-of-shift cash closing.
 
@@ -564,28 +648,21 @@ The Image Gateway module returns one of these semantic outcomes:
   rejected fields or capture IDs without exposing secrets; or
 - a transient service error that is safe to retry with the same ID.
 
-The Operator module closes the queue only for `durably_accepted`. The module
-command and durable storage record commit without a network hop. A
+The Operator module completes the X-ray stage only for `durably_accepted`. The
+module command and durable storage record commit without a network hop. A
 repeated command with the same ID and payload returns the original submission;
 reusing the ID with different bytes or metadata fails as an idempotency
 conflict.
 
 ## Earnings and payment event contracts
 
-Versioned domain events create Operator earnings inside `mhcs-core`. Allowed
-event types include AI delivery, AI terminal failure, `quality_accepted`, and
-`repeat_required`. Only the Doctor module emits the study-level doctor quality
-events. The source module, doctor decision,
-`ImagingStudy`, examination, submission, service stage, occurrence time,
-source version, and original event identifier are mandatory.
-
-`repeat_required` also carries the doctor's controlled preliminary reason.
-The Operator module stores it unchanged and requires a separate audited
-administrator classification before resolving whether operator error cancels
-the original doctor-stage earning or a verified external cause makes it
-eligible. Replayed, corrected, and sequential decisions preserve event lineage.
-The Operator module rejects an event that does not match its immutable examination,
-study, service-stage, and rate snapshots.
+Operator Core creates the MCU earning from the idempotent MCU-completion
+transition and the X-ray earning from durable Image Gateway acceptance. An
+idempotent AI-readiness event releases the education queue, while the local
+education-completion transition creates its earning. Each transition carries
+the ticket, stage, completing operator, occurrence time, rate-snapshot version,
+source version, and stable event identifier. Replays return the original
+earning, and mismatched ticket, examination, result, stage, or worker data fail.
 
 Payment-provider confirmations are cryptographically verified before state
 mutation. Provider event IDs are unique, confirmation handling is idempotent,
@@ -611,15 +688,17 @@ Operator Core is the source authority for:
 | `Encounter` | The performed examination visit from start to completion |
 
 The Operator module reads Member-owned references to `Patient`, `Appointment`,
-and `ServiceRequest`. It records vital signs through the Member module, which
-owns the resulting `Observation`. The Image Gateway module owns
-`ImagingStudy`; the Doctor module owns the doctor `DiagnosticReport`.
+`Consent`, and `ServiceRequest`. It records MCU measurements through the Member
+module, which owns the resulting vital-sign and laboratory `Observation`
+resources and the versioned patient-reported interview. The Image Gateway
+module owns `ImagingStudy` and the AI result `Observation`; the Doctor module
+owns the doctor `DiagnosticReport`.
 
 The required radiology chain is:
 
 ```text
 Patient + booked Appointment + ServiceRequest
-  -> arrival and verified check-in on Appointment
+  -> arrival, verified consent/check-in, and MCU assessment
   -> examination Encounter
   -> ImagingStudy basedOn ServiceRequest and linked to Encounter
   -> optional AI Observation and/or doctor DiagnosticReport
@@ -659,8 +738,11 @@ IDs, accession numbers, and DICOM UIDs remain distinct.
 
 Vital signs use the R5 Vital Signs profiles, LOINC measurement codes, numeric
 UCUM units, subject, effective time, performer, status, and an allowed absence
-reason where applicable. Operator Core never invents clinical terminology from
-a display label.
+reason where applicable. Glucose, total cholesterol, and uric acid are
+laboratory observations, not Vital Signs or a complete blood count. The
+structured interview and patient-reported family history retain version and
+review status. Operator Core never invents clinical terminology from a display
+label or claims a mapping before its terminology and profile are approved.
 
 ### Conformance
 
@@ -677,8 +759,8 @@ accepted as arbitrary JSON.
 
 ## Security and audit requirements
 
-- Enforce operator permission, active site, immutable shift assignment, and
-  examination scope on every operation.
+- Enforce operator permission, active site, current shift assignment, claimed
+  ticket, and examination scope on every operation.
 - Derive operator, role, site, shift, and examination scope from the shared
   authenticated application context; caller-supplied identifiers never grant
   access.
@@ -694,8 +776,10 @@ accepted as arbitrary JSON.
 - Verify payment confirmations cryptographically and protect against replay,
   duplicate transfers, destination substitution, and log leakage.
 - Audit identity views, exact-NIK lookups, administrator decisions, site and
-  protocol changes, order corrections, queue corrections, submissions,
-  earning changes, bank verification, payout actions, and cash reconciliation.
+  protocol changes, consent recording, MCU assessment, station selection,
+  ticket claims/calls/skips, display pairing, education-result views, order
+  corrections, submissions, earning changes, bank verification, payout
+  actions, and cash reconciliation.
 - Audit records include actor, permission, site, target, action, previous and
   new state where applicable, reason, occurrence time, recording time, operation
   ID, and source module or external adapter. They are append-only and contain no raw secrets or
@@ -712,7 +796,7 @@ Operator Core does not own:
 - NPZ-to-DICOM algorithms;
 - AI execution, fallback selection, or AI clinical output;
 - doctor queue, report, or doctor earnings;
-- member-facing result publication; or
+- member-facing result publication or doctor-review purchase;
 - payment-gateway integrations belonging to the Member or Doctor modules.
 
 ## External design inputs

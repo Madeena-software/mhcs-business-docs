@@ -1,7 +1,7 @@
 # MHCS Core Architecture Specification
 
 **Status:** Approved target architecture; new repository implementation pending
-**Last reviewed:** 28 July 2026
+**Last reviewed:** 30 July 2026
 
 This document is the architecture authority for the MHCS application. Detailed
 business rules remain in the module specifications linked below.
@@ -135,9 +135,10 @@ The Image Gateway module owns:
 
 Operator submits a complete capture set through the public `mhcs-core`
 application. The Operator module validates the active examination and invokes
-the Image Gateway module locally. Durable object-storage acceptance closes the
-operator queue. No application-server-to-application-server file copy or
-internal network submission exists inside `mhcs-core`.
+the Image Gateway module locally. Durable object-storage acceptance completes
+the Operator X-ray stage and releases the ticket to asynchronous AI waiting. No
+application-server-to-application-server file copy or internal network
+submission exists inside `mhcs-core`.
 
 ## MPIPS black-box contract
 

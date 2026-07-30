@@ -1,7 +1,7 @@
 # MHCS Core Doctor Module Specification
 
 **Status:** Approved target foundation
-**Last reviewed:** 28 July 2026
+**Last reviewed:** 30 July 2026
 
 This document defines the Doctor module in the approved `mhcs-core` modular
 application. The overall repository and runtime boundary is defined by the
@@ -96,10 +96,9 @@ The doctor must explicitly record one decision for every reviewed
 - `repeat_required`: a new examination is clinically required.
 
 Submitting a report does not implicitly create the quality decision. A final
-report requires at least one explicitly usable study. A usable decision
-immediately emits the study-level doctor-stage earning event to Operator Core;
-the later report submission is the separate trigger for the doctor's own final
-report earning.
+report requires at least one explicitly usable study. The quality decision does
+not change Operator stage earnings; later report submission is the separate
+trigger for the doctor's own final-report earning.
 
 Each quality decision records the case, study, examination, doctor, occurrence
 time, source version, and stable event ID. A decision is immutable. A mistake
@@ -122,9 +121,9 @@ clinical note. The controlled preliminary reasons are:
 - `medical_limitation`; and
 - `other`, which requires an explanation.
 
-The doctor's original reason and note remain immutable. Operator Core's global
-administrator separately verifies or corrects the financial classification for
-operator earnings without changing the clinical record.
+The doctor's original reason and note remain immutable. Doctor quality and
+repeat decisions do not change Operator MCU, X-ray, or education earnings that
+already reached their own completion boundary.
 
 The repeat flow is:
 
@@ -334,11 +333,10 @@ identifies the Doctor case, repeat entitlement, order,
 appointment, encounter, new study, original study, occurrence time, and source
 version. Unknown lineage or a conflicting replay fails closed.
 
-The Doctor module emits study-level quality events for the Operator module.
-`quality_accepted` identifies the usable study;
-`repeat_required` identifies the unusable study, controlled preliminary reason,
-and original decision event. The Operator module owns the separate administrator
-classification that determines the affected operator earning.
+The Doctor module retains study-level `quality_accepted` and `repeat_required`
+events for clinical lineage. They identify the study, decision, controlled
+preliminary reason where applicable, and original event, but they do not create,
+cancel, or revalue Operator stage earnings.
 
 Payment-provider confirmations are cryptographically verified before mutation.
 Provider event IDs are unique; confirmation handling, payout creation, and
@@ -393,7 +391,7 @@ The Doctor module does not own:
 - permanent image storage;
 - NPZ-to-DICOM processing;
 - AI execution or AI publication;
-- operator earnings or the final operator financial classification; or
+- operator stage earnings; or
 - FHIR resources owned by another MHCS Core module.
 
 ## Open design decisions

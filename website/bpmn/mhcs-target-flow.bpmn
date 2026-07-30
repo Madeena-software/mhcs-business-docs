@@ -25,8 +25,11 @@
       </bpmn:lane>
       <bpmn:lane id="Lane_Operator" name="Operator">
         <bpmn:flowNodeRef>Task_ConfirmAttendance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MCUAssessment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CaptureReview</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SubmitSet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResultEducation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DeferEducation</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Platform" name="MHCS Platform">
         <bpmn:flowNodeRef>Task_ProcessSet</bpmn:flowNodeRef>
@@ -47,6 +50,7 @@
       <bpmn:lane id="Lane_AIService" name="AI Service">
         <bpmn:flowNodeRef>Gateway_AISelected</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_GenerateAIReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AIAvailable</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
@@ -57,12 +61,16 @@
       <bpmn:incoming>Flow_Start_Book</bpmn:incoming>
       <bpmn:outgoing>Flow_Book_Confirm</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_ConfirmAttendance" name="Confirm attendance and queue examination">
+    <bpmn:userTask id="Task_ConfirmAttendance" name="Confirm registration, consent, and issue one ticket">
       <bpmn:incoming>Flow_Book_Confirm</bpmn:incoming>
-      <bpmn:outgoing>Flow_Confirm_Capture</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Confirm_MCU</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_MCUAssessment" name="Complete required MCU assessment">
+      <bpmn:incoming>Flow_Confirm_MCU</bpmn:incoming>
+      <bpmn:outgoing>Flow_MCU_Capture</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="Task_CaptureReview" name="Capture and review image set">
-      <bpmn:incoming>Flow_Confirm_Capture</bpmn:incoming>
+      <bpmn:incoming>Flow_MCU_Capture</bpmn:incoming>
       <bpmn:outgoing>Flow_Capture_Submit</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="Task_SubmitSet" name="Submit complete capture set">
@@ -90,19 +98,33 @@
     </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Task_GenerateAIReport" name="Generate AI report">
       <bpmn:incoming>Flow_AI_Yes</bpmn:incoming>
-      <bpmn:outgoing>Flow_GenerateAI_Publish</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GenerateAI_Availability</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_AIAvailable" name="AI result ready onsite?" default="Flow_AIReady_No">
+      <bpmn:incoming>Flow_GenerateAI_Availability</bpmn:incoming>
+      <bpmn:outgoing>Flow_AIReady_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AIReady_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Task_PublishAIReport" name="Publish AI report automatically">
-      <bpmn:incoming>Flow_GenerateAI_Publish</bpmn:incoming>
+      <bpmn:incoming>Flow_AIReady_Yes</bpmn:incoming>
       <bpmn:outgoing>Flow_PublishAI_View</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Task_ViewAIReport" name="View AI report">
       <bpmn:incoming>Flow_PublishAI_View</bpmn:incoming>
-      <bpmn:outgoing>Flow_ViewAI_Merge</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ViewAI_Education</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ResultEducation" name="Explain AI result and record delivery">
+      <bpmn:incoming>Flow_ViewAI_Education</bpmn:incoming>
+      <bpmn:outgoing>Flow_Education_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_DeferEducation" name="Explain delay and defer education">
+      <bpmn:incoming>Flow_AIReady_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_Defer_Merge</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_AIMerge">
       <bpmn:incoming>Flow_AI_No</bpmn:incoming>
-      <bpmn:incoming>Flow_ViewAI_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_Education_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_Defer_Merge</bpmn:incoming>
       <bpmn:outgoing>Flow_AIMerge_Join</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:exclusiveGateway id="Gateway_DoctorSelected" name="Doctor review selected?" default="Flow_Doctor_No">
@@ -151,7 +173,8 @@
 
     <bpmn:sequenceFlow id="Flow_Start_Book" sourceRef="StartEvent_Booking" targetRef="Task_BookPay" />
     <bpmn:sequenceFlow id="Flow_Book_Confirm" sourceRef="Task_BookPay" targetRef="Task_ConfirmAttendance" />
-    <bpmn:sequenceFlow id="Flow_Confirm_Capture" sourceRef="Task_ConfirmAttendance" targetRef="Task_CaptureReview" />
+    <bpmn:sequenceFlow id="Flow_Confirm_MCU" sourceRef="Task_ConfirmAttendance" targetRef="Task_MCUAssessment" />
+    <bpmn:sequenceFlow id="Flow_MCU_Capture" sourceRef="Task_MCUAssessment" targetRef="Task_CaptureReview" />
     <bpmn:sequenceFlow id="Flow_Capture_Submit" sourceRef="Task_CaptureReview" targetRef="Task_SubmitSet" />
     <bpmn:sequenceFlow id="Flow_Submit_Process" sourceRef="Task_SubmitSet" targetRef="Task_ProcessSet" />
     <bpmn:sequenceFlow id="Flow_Process_Split" sourceRef="Task_ProcessSet" targetRef="Gateway_IndependentResults" />
@@ -162,9 +185,15 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${aiAnalysisSelected}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_AI_No" name="No" sourceRef="Gateway_AISelected" targetRef="Gateway_AIMerge" />
-    <bpmn:sequenceFlow id="Flow_GenerateAI_Publish" sourceRef="Task_GenerateAIReport" targetRef="Task_PublishAIReport" />
+    <bpmn:sequenceFlow id="Flow_GenerateAI_Availability" sourceRef="Task_GenerateAIReport" targetRef="Gateway_AIAvailable" />
+    <bpmn:sequenceFlow id="Flow_AIReady_Yes" name="Ready" sourceRef="Gateway_AIAvailable" targetRef="Task_PublishAIReport">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${aiResultReadyOnsite}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AIReady_No" name="Delayed" sourceRef="Gateway_AIAvailable" targetRef="Task_DeferEducation" />
     <bpmn:sequenceFlow id="Flow_PublishAI_View" sourceRef="Task_PublishAIReport" targetRef="Task_ViewAIReport" />
-    <bpmn:sequenceFlow id="Flow_ViewAI_Merge" sourceRef="Task_ViewAIReport" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_ViewAI_Education" sourceRef="Task_ViewAIReport" targetRef="Task_ResultEducation" />
+    <bpmn:sequenceFlow id="Flow_Education_Merge" sourceRef="Task_ResultEducation" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_Defer_Merge" sourceRef="Task_DeferEducation" targetRef="Gateway_AIMerge" />
     <bpmn:sequenceFlow id="Flow_AIMerge_Join" sourceRef="Gateway_AIMerge" targetRef="Gateway_ResultJoin" />
     <bpmn:sequenceFlow id="Flow_Split_DoctorChoice" sourceRef="Gateway_IndependentResults" targetRef="Gateway_DoctorSelected" />
     <bpmn:sequenceFlow id="Flow_Doctor_Yes" name="Yes" sourceRef="Gateway_DoctorSelected" targetRef="Task_RouteDoctor">
@@ -211,11 +240,14 @@
       <bpmndi:BPMNShape id="Task_ConfirmAttendance_di" bpmnElement="Task_ConfirmAttendance" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
         <dc:Bounds x="380" y="285" width="155" height="100" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_CaptureReview_di" bpmnElement="Task_CaptureReview" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+      <bpmndi:BPMNShape id="Task_MCUAssessment_di" bpmnElement="Task_MCUAssessment" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
         <dc:Bounds x="580" y="285" width="165" height="100" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CaptureReview_di" bpmnElement="Task_CaptureReview" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="790" y="285" width="165" height="100" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_SubmitSet_di" bpmnElement="Task_SubmitSet" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
-        <dc:Bounds x="790" y="285" width="155" height="100" />
+        <dc:Bounds x="1000" y="285" width="155" height="100" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ProcessSet_di" bpmnElement="Task_ProcessSet" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
         <dc:Bounds x="990" y="455" width="170" height="100" />
@@ -235,11 +267,23 @@
       <bpmndi:BPMNShape id="Task_GenerateAIReport_di" bpmnElement="Task_GenerateAIReport" bioc:fill="#CFFAFE" bioc:stroke="#0E7490">
         <dc:Bounds x="1410" y="795" width="150" height="100" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AIAvailable_di" bpmnElement="Gateway_AIAvailable" isMarkerVisible="true" bioc:fill="#ECFEFF" bioc:stroke="#0E7490">
+        <dc:Bounds x="1600" y="820" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1572" y="780" width="110" height="34" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_PublishAIReport_di" bpmnElement="Task_PublishAIReport" bioc:fill="#EDE9FE" bioc:stroke="#6D28D9">
         <dc:Bounds x="1610" y="455" width="165" height="100" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ViewAIReport_di" bpmnElement="Task_ViewAIReport" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
         <dc:Bounds x="1700" y="115" width="150" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ResultEducation_di" bpmnElement="Task_ResultEducation" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="1880" y="265" width="165" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DeferEducation_di" bpmnElement="Task_DeferEducation" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+        <dc:Bounds x="1880" y="345" width="165" height="60" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_AIMerge_di" bpmnElement="Gateway_AIMerge" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">
         <dc:Bounds x="2110" y="420" width="50" height="50" />
@@ -291,19 +335,23 @@
         <di:waypoint x="353" y="335" />
         <di:waypoint x="380" y="335" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Confirm_Capture_di" bpmnElement="Flow_Confirm_Capture" bioc:stroke="#475569">
+      <bpmndi:BPMNEdge id="Flow_Confirm_MCU_di" bpmnElement="Flow_Confirm_MCU" bioc:stroke="#475569">
         <di:waypoint x="535" y="335" />
         <di:waypoint x="580" y="335" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Capture_Submit_di" bpmnElement="Flow_Capture_Submit" bioc:stroke="#475569">
+      <bpmndi:BPMNEdge id="Flow_MCU_Capture_di" bpmnElement="Flow_MCU_Capture" bioc:stroke="#475569">
         <di:waypoint x="745" y="335" />
         <di:waypoint x="790" y="335" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Capture_Submit_di" bpmnElement="Flow_Capture_Submit" bioc:stroke="#475569">
+        <di:waypoint x="955" y="335" />
+        <di:waypoint x="1000" y="335" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Submit_Process_di" bpmnElement="Flow_Submit_Process" bioc:stroke="#475569">
-        <di:waypoint x="945" y="335" />
-        <di:waypoint x="968" y="335" />
-        <di:waypoint x="968" y="505" />
-        <di:waypoint x="990" y="505" />
+        <di:waypoint x="1155" y="335" />
+        <di:waypoint x="1175" y="335" />
+        <di:waypoint x="1175" y="505" />
+        <di:waypoint x="1160" y="505" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Process_Split_di" bpmnElement="Flow_Process_Split" bioc:stroke="#475569">
         <di:waypoint x="1160" y="505" />
@@ -342,11 +390,27 @@
           <dc:Bounds x="1340" y="849" width="16" height="17" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_GenerateAI_Publish_di" bpmnElement="Flow_GenerateAI_Publish" bioc:stroke="#475569">
-        <di:waypoint x="1485" y="795" />
-        <di:waypoint x="1485" y="580" />
+      <bpmndi:BPMNEdge id="Flow_GenerateAI_Availability_di" bpmnElement="Flow_GenerateAI_Availability" bioc:stroke="#475569">
+        <di:waypoint x="1560" y="845" />
+        <di:waypoint x="1600" y="845" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AIReady_Yes_di" bpmnElement="Flow_AIReady_Yes" bioc:stroke="#475569">
+        <di:waypoint x="1625" y="820" />
+        <di:waypoint x="1625" y="580" />
         <di:waypoint x="1693" y="580" />
         <di:waypoint x="1693" y="555" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1632" y="792" width="38" height="17" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AIReady_No_di" bpmnElement="Flow_AIReady_No" bioc:stroke="#475569">
+        <di:waypoint x="1650" y="845" />
+        <di:waypoint x="1855" y="845" />
+        <di:waypoint x="1855" y="375" />
+        <di:waypoint x="1880" y="375" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1660" y="824" width="48" height="17" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_PublishAI_View_di" bpmnElement="Flow_PublishAI_View" bioc:stroke="#475569">
         <di:waypoint x="1693" y="455" />
@@ -354,11 +418,21 @@
         <di:waypoint x="1775" y="235" />
         <di:waypoint x="1775" y="215" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ViewAI_Merge_di" bpmnElement="Flow_ViewAI_Merge" bioc:stroke="#475569">
-        <di:waypoint x="1775" y="115" />
-        <di:waypoint x="1775" y="95" />
-        <di:waypoint x="2135" y="95" />
+      <bpmndi:BPMNEdge id="Flow_ViewAI_Education_di" bpmnElement="Flow_ViewAI_Education" bioc:stroke="#475569">
+        <di:waypoint x="1850" y="165" />
+        <di:waypoint x="1962" y="165" />
+        <di:waypoint x="1962" y="265" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Education_Merge_di" bpmnElement="Flow_Education_Merge" bioc:stroke="#475569">
+        <di:waypoint x="2045" y="300" />
+        <di:waypoint x="2135" y="300" />
         <di:waypoint x="2135" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Defer_Merge_di" bpmnElement="Flow_Defer_Merge" bioc:stroke="#475569">
+        <di:waypoint x="2045" y="375" />
+        <di:waypoint x="2080" y="375" />
+        <di:waypoint x="2080" y="445" />
+        <di:waypoint x="2110" y="445" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_AIMerge_Join_di" bpmnElement="Flow_AIMerge_Join" bioc:stroke="#475569">
         <di:waypoint x="2135" y="470" />

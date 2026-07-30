@@ -2,7 +2,7 @@
 
 **Specification status:** Expected end-state specification
 **Business foundation:** Approved
-**Last reviewed:** 28 July 2026
+**Last reviewed:** 30 July 2026
 
 This is the Member module specification for the approved `mhcs-core` modular
 application. It defines the expected state that creation and implementation
@@ -272,9 +272,12 @@ erDiagram
     SHIFT_SCHEDULES ||--o{ CASH_CLOSINGS : "reconciles"
     BOOKINGS ||--o| IMAGING_RESULTS : "publishes"
     BOOKINGS ||--o| WALK_IN_REQUESTS : "created by"
-    MEMBERS ||--o{ VITAL_SIGN_MEASUREMENTS : "has"
-    BOOKINGS ||--o{ VITAL_SIGN_MEASUREMENTS : "measured during"
-    EXAMINATION_SITES ||--o{ VITAL_SIGN_MEASUREMENTS : "recorded at"
+    MEMBERS ||--o{ EXAMINATION_CONSENTS : "signs"
+    BOOKINGS ||--o{ EXAMINATION_CONSENTS : "authorizes"
+    EXAMINATION_SITES ||--o{ EXAMINATION_CONSENTS : "confirmed at"
+    MEMBERS ||--o{ MCU_ASSESSMENTS : "has"
+    BOOKINGS ||--o{ MCU_ASSESSMENTS : "assessed during"
+    EXAMINATION_SITES ||--o{ MCU_ASSESSMENTS : "recorded at"
 
     USERS {
         uuid id PK
@@ -494,23 +497,63 @@ erDiagram
         enum status
     }
 
-    VITAL_SIGN_MEASUREMENTS {
+    EXAMINATION_CONSENTS {
         uuid id PK
         uuid member_id FK
         uuid booking_id FK
         uuid examination_site_id FK
-        string measured_by_operator_id
-        datetime measured_at
+        string form_version
+        enum signer_type
+        uuid signer_member_id FK
+        string confirmed_by_operator_id
+        datetime signed_at
+        string private_scan_object_key
+        enum status
+        uuid supersedes_id
+    }
+
+    MCU_ASSESSMENTS {
+        uuid id PK
+        uuid member_id FK
+        uuid booking_id FK
+        uuid examination_site_id FK
+        string assessed_by_operator_id
+        datetime assessed_at
         enum status
         decimal height_cm
+        enum height_absence_reason
         decimal weight_kg
+        enum weight_absence_reason
         decimal bmi_kg_m2
         integer systolic_mm_hg
         integer diastolic_mm_hg
-        integer pulse_per_minute
-        integer respiratory_rate_per_minute
+        enum blood_pressure_absence_reason
         decimal temperature_celsius
-        decimal oxygen_saturation_percent
+        enum temperature_absence_reason
+        decimal glucose_mg_dl
+        enum glucose_sampling_context
+        enum glucose_absence_reason
+        decimal total_cholesterol_mg_dl
+        enum total_cholesterol_absence_reason
+        decimal uric_acid_mg_dl
+        enum uric_acid_absence_reason
+        string blood_screening_method
+        string blood_screening_device
+        enum smoking_history_response
+        string smoking_history_notes
+        enum cough_response
+        enum shortness_of_breath_response
+        enum chest_pain_response
+        string current_symptoms_notes
+        enum pulmonary_disease_response
+        enum cardiac_disease_response
+        enum tuberculosis_response
+        enum chest_surgery_response
+        string medical_history_notes
+        enum occupational_dust_smoke_response
+        string occupational_exposure_notes
+        enum relevant_family_history_response
+        string family_history_notes
         uuid supersedes_id
     }
 ```
@@ -566,9 +609,16 @@ migration syntax. Supporting framework tables are omitted.
   patient-reported, doctor-reviewed, and superseded versions.
 - Identifiers exchanged between services are stable UUIDs.
 - Suspending login access preserves bookings and clinical history.
-- Basic health measurements are timestamped history linked to the member,
-  booking, site, and recorder; the latest value never overwrites a `members`
-  table column.
+- Examination consent and MCU assessments are timestamped history linked to the
+  member, booking, site where applicable, and responsible operator. Corrections
+  create a new row through `supersedes_id`; no latest value overwrites a
+  `members` table column.
+- MCU measurement columns are nullable only when their matching absence reason
+  is present. Blood-pressure components are supplied together or use one
+  absence reason. BMI is derived only when height and weight are present.
+- MCU interview response enums allow `yes`, `no`, `unknown`, `refused`, or
+  `not_applicable`; optional notes add context without replacing the structured
+  response.
 
 ## Account and member states
 
@@ -845,6 +895,27 @@ exists. Deletion is allowed only through an authorised compliance process. The
 privacy notice, lawful basis, retention implementation, and compliance-deletion
 procedure require explicit policy approval before collection is enabled.
 
+## Examination consent record
+
+The examination-day workflow remains paper based. Before Operator Core issues a
+ticket, Member Core records the applicable consent form version, patient or
+verified representative signer, signature confirmation, actual signing time,
+responsible operator, site, booking, and an optional private scan. The paper
+form remains the source document; MHCS does not synthesize an electronic
+signature.
+
+The operation is idempotent and rejects an inactive form version, an unrelated
+booking, an unauthorized representative, or a confirmation without a signer
+and occurrence time. A correction creates a new traceable version instead of
+overwriting the signed record. Refusal or missing confirmation blocks ticket
+issue and examination.
+
+Any uploaded scan uses private encrypted storage and purpose-bound access. It
+is not exposed through the Operator queue, LCD display, URLs, logs, or general
+administrative browsing. Member Core remains the consent authority and maps an
+applicable record to R5 `Consent` only after the MHCS profile and policy are
+approved.
+
 ## Operator cash-closing application contract
 
 After ending operational work, the Operator module submits the
@@ -858,13 +929,13 @@ shared reconciliation ID, expected amount, counted amount, discrepancy, and
 closing or alter points and bookings; an administrator resolves it with an
 audited reason while both original amounts remain immutable.
 
-## Basic health measurements
+## MCU assessment
 
 Operator Core records basic measurements during arrival or examination. Member
 Core is the authoritative longitudinal store. A current value is derived from
 the newest valid measurement; it is not duplicated onto `members`.
 
-The initial measurement set follows the FHIR R5 Vital Signs profile:
+The required vital-sign subset follows the FHIR R5 Vital Signs profile:
 
 | Measurement | LOINC code | Canonical UCUM unit |
 |---|---:|---|
@@ -874,10 +945,16 @@ The initial measurement set follows the FHIR R5 Vital Signs profile:
 | Blood-pressure panel | `85354-9` | components |
 | Systolic pressure | `8480-6` | `mm[Hg]` |
 | Diastolic pressure | `8462-4` | `mm[Hg]` |
-| Pulse/heart rate | `8867-4` | `/min` |
-| Respiratory rate | `9279-1` | `/min` |
 | Body temperature | `8310-5` | `Cel` |
-| Oxygen saturation | `2708-6` | `%` |
+
+Pulse, respiratory rate, and oxygen saturation are outside the initial Operator
+MCU form and its `MCU_ASSESSMENTS` schema.
+
+The same MCU session also records point-of-care glucose, total cholesterol, and
+uric acid as laboratory measurements. Each stores a numeric value and canonical
+unit or an explicit absence reason, actual measurement time, fasting, random,
+or unknown sampling context, and method/device when relevant. These results are
+not a complete blood count and are not mapped to the Vital Signs profile.
 
 Each measurement set records:
 
@@ -889,16 +966,20 @@ Each measurement set records:
   materially affect interpretation; and
 - correction lineage through `supersedes_id` instead of silent overwrite.
 
-One local measurement session maps to separate profiled R5 `Observation`
-resources for each recorded vital sign, except that blood pressure remains one
-composite Observation. Every mapped Observation includes:
+One local MCU session maps to separate profiled R5 `Observation` resources for
+each recorded vital sign or laboratory measurement, except that blood pressure
+remains one composite Observation. Every mapped Observation includes:
 
-- `status` and `category` with code `vital-signs`;
+- `status` and the category appropriate to a vital-sign or laboratory result;
 - `subject` referencing the member's `Patient`;
 - `effectiveDateTime` from the actual measurement time;
 - the required LOINC code; and
 - `valueQuantity` with the canonical UCUM system identifier and code, or
   `dataAbsentReason` when the profile permits an absent value.
+
+Only the height, weight, BMI, blood-pressure, and temperature resources use the
+`vital-signs` category. The point-of-care blood results use the approved
+laboratory category and must not claim an unapproved profile.
 
 Blood pressure is one composite observation. Systolic and diastolic components
 must be recorded together, or the missing component must carry a standardized
@@ -913,13 +994,32 @@ Do not reject a measurement merely because it is clinically abnormal. Reject
 invalid types or impossible units; require the operator to confirm implausible
 values and retain that confirmation for audit.
 
+### Structured interview
+
+The MCU session stores `yes`, `no`, `unknown`, `refused`, or `not_applicable`
+answers plus optional notes for:
+
+- smoking history;
+- current cough, shortness of breath, and chest pain;
+- pulmonary disease, cardiac disease, tuberculosis, and chest surgery;
+- occupational dust or smoke exposure; and
+- relevant family history.
+
+Each response set is versioned and retains the patient, booking, site,
+performing operator, actual interview time, and correction lineage. Current
+symptoms use controlled choices plus an optional note. Patient-reported family
+history remains separate from doctor-reviewed `FamilyMemberHistory`; a later
+review creates a traceable version rather than silently promoting the MCU
+answer.
+
 ### Operator measurement operation
 
 Rules:
 
 - The booking must belong to the authenticated operator's active site.
 - The application calculates BMI; users cannot provide a conflicting BMI.
-- At least one supported measurement is required.
+- Every required MCU field has a value or an allowed `unavailable`, `refused`,
+  or `not_applicable` reason before the ticket can advance to X-ray.
 - Duplicate idempotency keys return the original result.
 - Corrections create a new record referencing the superseded record.
 - Timestamps require an explicit offset and are normalized to UTC.
@@ -1064,9 +1164,10 @@ UIDs remain distinct identifiers and must never be substituted for each other.
 | `Patient` | Member Core |
 | `RelatedPerson` | Member Core for verified guardians and care participants |
 | `FamilyMemberHistory` | Member Core; member reports and doctor reviews |
+| `Consent` | Member Core; Operator Core confirms the signed paper form |
 | `Appointment` | Member Core |
 | `Encounter` | Operator Core, with its reference available to Member Core |
-| Vital-sign `Observation` | Member Core; Operator Core records it |
+| Vital-sign and MCU laboratory `Observation` | Member Core; Operator Core records it |
 | `ServiceRequest` | Member Core creates the examination order |
 | `ImagingStudy` | Image Gateway after DICOM creation/storage |
 | AI result `Observation` | Image Gateway |
@@ -1099,7 +1200,7 @@ Use standard terminology at clinical exchange boundaries:
 
 | Purpose | Standard |
 |---|---|
-| Vital signs and coded measurements | LOINC |
+| Vital signs, laboratory screening, and coded measurements | LOINC |
 | Measurement units | UCUM |
 | Anatomy, laterality, and clinical concepts | SNOMED CT where required by the profile |
 | Diagnoses or examination reasons | The ICD-10 edition approved by MHCS |
@@ -1218,6 +1319,8 @@ Member Core does not satisfy this specification until tests demonstrate that:
   purpose-, and audit-scoped;
 - an identity-document or face mismatch blocks queue entry pending administrator
   resolution;
+- a ticket cannot be issued without a valid signed paper-consent record, and an
+  optional scan remains private and purpose scoped;
 - arrival maps the Appointment to `arrived`, successful verification maps it to
   `checked-in`, and examination start creates the Encounter and maps the
   Appointment to `fulfilled`;
@@ -1229,6 +1332,8 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - patient-reported family history remains distinct from doctor-reviewed history,
   and edits to reviewed history create a new reviewable version;
 - repeated health measurements preserve history and correction lineage;
+- MCU completion requires every configured measurement, screening value, and
+  interview response or an allowed absence reason before X-ray;
 - vital-sign values use the specified LOINC codes and UCUM units when mapped;
 - blood pressure maps systolic and diastolic as one composite observation;
 - every vital-sign Observation maps the required category, patient, effective

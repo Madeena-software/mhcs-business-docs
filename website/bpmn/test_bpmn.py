@@ -73,7 +73,14 @@ def main():
     ai_choice = nodes["Gateway_AISelected"]
     assert ai_choice.get("default") == "Flow_AI_No"
     assert flows["Flow_AI_Yes"].find("bpmn:conditionExpression", NS) is not None
-    assert len(nodes["Gateway_AIMerge"].findall("bpmn:incoming", NS)) == 2
+    ai_ready = nodes["Gateway_AIAvailable"]
+    assert ai_ready.get("default") == "Flow_AIReady_No"
+    assert flows["Flow_AIReady_Yes"].find("bpmn:conditionExpression", NS) is not None
+    assert len(nodes["Gateway_AIMerge"].findall("bpmn:incoming", NS)) == 3
+    assert flows["Flow_Confirm_MCU"].get("targetRef") == "Task_MCUAssessment"
+    assert flows["Flow_MCU_Capture"].get("targetRef") == "Task_CaptureReview"
+    assert flows["Flow_ViewAI_Education"].get("targetRef") == "Task_ResultEducation"
+    assert flows["Flow_AIReady_No"].get("targetRef") == "Task_DeferEducation"
     assert len(nodes["Gateway_IndependentResults"].findall("bpmn:outgoing", NS)) == 3
     assert len(nodes["Gateway_ResultJoin"].findall("bpmn:incoming", NS)) == 3
 

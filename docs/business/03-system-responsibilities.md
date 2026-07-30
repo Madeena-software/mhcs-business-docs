@@ -10,7 +10,7 @@ conversion repository.
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
 | Member module in `mhcs-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat commands, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information |
-| Operator module in `mhcs-core` | Physical sites, operator staffing, front-desk features, queues, multi-capture Submit, image viewing, operator earnings, and payouts | Attendance, durable image acceptance, image status, quality decisions, and payment events | Site data, queue state, complete radiograph/gain NPZ submission, frozen metadata, and operator status |
+| Operator module in `mhcs-core` | Physical sites, multi-operator staffing, consent confirmation, staged queues, MCU capture, multi-capture Submit, result education, LCD calling, operator earnings, and payouts | Attendance, longitudinal-data recording outcomes, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, education completion, and operator status |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input |
 | Image Gateway module in `mhcs-core` | Permanent NPZ/DICOM storage, MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorised references, completion, and publication events |
 | `mpips` repository | Black-box radiograph NPZ plus gain NPZ conversion | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
@@ -83,13 +83,19 @@ verification.
 ### Owns
 
 - physical-site master data and operator shift assignment;
-- front-desk features, arrivals, identity verification, and queue order;
-- selection of the active examination;
+- audited assignment of multiple interchangeable operators per shift;
+- front-desk registration, paper-consent confirmation, arrivals, and identity
+  verification;
+- one site-and-shift ticket across ready-time FIFO MCU, X-ray, and
+  result-education queues;
+- atomic stage claims, public number-to-station calls, and paired LCD sessions;
+- MCU measurements, point-of-care screening, and structured interview capture;
 - multi-capture NPZ draft set;
 - removal and retake before Submit;
 - one Submit action for the complete set;
 - processing status and image viewing; and
-- operator earnings and automated rupiah payouts.
+- result-education recording; and
+- configured MCU, X-ray, and education earnings and automated rupiah payouts.
 
 ### Target handoffs
 
@@ -97,10 +103,12 @@ The Operator module hands patient-free radiograph NPZ captures, their matching
 gain NPZ input, and a frozen member/examination snapshot to the Image Gateway
 module.
 
-Gateway acceptance closes the active queue item. An AI-stage earning becomes
-eligible after AI delivery to the member or terminal failure after fallback. A
-doctor-stage earning becomes eligible only after a doctor confirms diagnostic
-usability. A combined service pays both configured stages independently.
+MCU completion releases the same ticket to X-ray and makes the completing
+worker's MCU earning eligible. Gateway acceptance completes X-ray, releases
+processing to Image Gateway, and makes the submitting worker's X-ray earning
+eligible. AI readiness releases the ticket to education; completed education
+makes that worker's education earning eligible. Delayed education does not
+block the patient onsite or undo completed stage earnings.
 
 ## Grabber
 
@@ -128,7 +136,8 @@ Grabber does not fetch member data, create DICOM, or publish results.
 - MPIPS coordination;
 - three total attempts for a failed capture;
 - email notification after final failure;
-- AI and doctor routing;
+- AI and doctor routing, including the AI-readiness event used by the Operator
+  education queue;
 - temporary authorised links;
 - complete-image publication;
 - report-version distribution; and
@@ -169,11 +178,11 @@ transport and security contract for this boundary.
 
 ### Report and payment boundary
 
-An explicit usable decision makes the doctor-stage operator earning eligible.
-A repeat request preserves the draft, blocks final submission, and becomes a
-25% doctor earning only after Member Core confirms creation of the repeat
-entitlement. Each separately accepted sequential repeat creates another 25%
-earning.
+An explicit usable decision remains part of the clinical workflow and does not
+change completed Operator stage earnings. A repeat request preserves the draft,
+blocks final submission, and becomes a 25% doctor earning only after Member
+Core confirms creation of the repeat entitlement. Each separately accepted
+sequential repeat creates another 25% earning.
 
 Submit finalises a report, creates a 100% final-report earning for the signing
 doctor, and starts automatic member publication. An unfinished draft creates no
@@ -193,19 +202,19 @@ cannot edit that destination.
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes member-specific reserved points allocated to the agreed B2B entitlement or booking |
 | Personal member charge | Member Core | Personal Madeena Points fund B2C bookings; walk-in payment completes before operator confirmation |
-| Operator earning and payout | Operator Core | AI stage: AI delivery or terminal fallback failure. Doctor stage: doctor confirmation of diagnostic usability. Combined service: both configured stages independently |
+| Operator earning and payout | Operator Core | MCU completion, durable X-ray submission acceptance, and completed result education each trigger their configured stage rate |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms one doctor-requested repeat entitlement: 25% of the snapshotted final-report rate |
 | Doctor final-report earning | Doctor Core | The signing doctor submits the completed report: 100% of the snapshotted final-report rate |
 
-Gateway acceptance closes operator work but does not make an earning eligible.
-DICOM completion and doctor-queue entry alone are also insufficient.
+Gateway acceptance is the X-ray-stage earning trigger. DICOM completion and
+doctor-queue entry do not create additional operator earnings.
 
 ## Access map
 
 | User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
 | Member | No | Yes | No | When selected | When selected |
-| Operator | No | Yes | No | No | No |
+| Operator | No | Yes | No | Purpose-bound access for a claimed education ticket | No |
 | Doctor | No | Yes | Explicit, audited clinical need | If available | Own workflow |
 | Image Gateway administrator | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
 

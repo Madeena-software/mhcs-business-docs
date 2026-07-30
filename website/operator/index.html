@@ -26,7 +26,7 @@
     <section class="hero">
       <div>
         <p class="page-context">Operator · detailed user flow</p>
-        <h1>Arrival to processed image</h1>
+        <h1>One ticket, three concurrent service queues</h1>
       </div>
     </section>
 
@@ -34,26 +34,26 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">01</span>
-          <div><h2>Staff access</h2><p class="phase-subtitle">Authenticate and select work</p></div>
+          <div><h2>Staff access</h2><p class="phase-subtitle">Share one shift safely</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-action">
             <span class="step-label">Login</span>
             <h3>Enter email and password</h3>
-            <p>Operator authentication currently uses email.</p>
+            <p>Every assigned operator uses the same Operator permission.</p>
           </div>
           <div class="flow-step step-decision">
             <span class="step-label">Account gate</span>
             <h3>Are the account and assignment valid?</h3>
             <div class="branch-grid">
               <div class="branch"><strong>No</strong><span>Inactive or unassigned staff must contact an administrator.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Open the assigned operational project.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Open the assigned site and shift.</span></div>
             </div>
           </div>
           <div class="flow-step step-system">
             <span class="step-label">Work context</span>
-            <h3>Load today’s attendance list</h3>
-            <p>Use the selected organisation or project and current date.</p>
+            <h3>Select a current station label</h3>
+            <p>Front desk, MCU, X-ray, and result education are work labels, not separate permissions.</p>
           </div>
         </div>
       </article>
@@ -61,31 +61,31 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">02</span>
-          <div><h2>Arrival & queue</h2><p class="phase-subtitle">Confirm eligibility first</p></div>
+          <div><h2>Consent & ticket</h2><p class="phase-subtitle">One number for the whole visit</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-decision">
             <span class="step-label">Eligibility</span>
-            <h3>Is the member registered and paid?</h3>
+            <h3>Is the member registered, eligible, and verified?</h3>
             <div class="branch-grid">
               <div class="branch"><strong>No</strong><span>Send registration or payment back to Member Core.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Continue with arrival confirmation.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Continue with paper informed consent.</span></div>
             </div>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Front desk</span>
-            <h3>Confirm arrival and assign queue number</h3>
-            <p>The member moves from not arrived to waiting.</p>
+            <span class="step-label">Consent</span>
+            <h3>Record the signed paper form</h3>
+            <p>Store its version, signer, time, responsible staff, and optional private scan.</p>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Call</span>
-            <h3>Call one examination to the booth</h3>
-            <p>Select it as the active examination and record the responsible operator.</p>
+            <span class="step-label">Ticket</span>
+            <h3>Issue one site-and-shift number</h3>
+            <p>The same number follows MCU, X-ray, and result education.</p>
           </div>
           <div class="flow-step step-success">
-            <span class="step-label">Identity source</span>
-            <h3>Use the active examination identity</h3>
-            <p>Never infer patient identity from an NPZ filename.</p>
+            <span class="step-label">Queue rule</span>
+            <h3>Claim the next ready-time FIFO ticket</h3>
+            <p>Claims are atomic. A reasoned skip requeues; recall keeps the same order.</p>
           </div>
         </div>
       </article>
@@ -93,31 +93,31 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">03</span>
-          <div><h2>Capture & review</h2><p class="phase-subtitle">Build one complete draft</p></div>
+          <div><h2>MCU assessment</h2><p class="phase-subtitle">Complete before X-ray</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-action">
-            <span class="step-label">Capture</span>
-            <h3>Create patient-free NPZ images</h3>
-            <p>Grabber may remain offline while the operator uses its dedicated computer.</p>
+            <span class="step-label">Measurements</span>
+            <h3>Record the required basic assessment</h3>
+            <p>Temperature, height, weight, calculated BMI, and systolic/diastolic pressure require values or absence reasons.</p>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Upload</span>
-            <h3>Add one or more captures to the examination</h3>
-            <p>Every capture remains part of a draft until Submit.</p>
+            <span class="step-label">Blood screening</span>
+            <h3>Record three point-of-care results</h3>
+            <p>Glucose, total cholesterol, and uric acid include units, sampling context, time, and method/device when relevant.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Quality check</span>
-            <h3>Is every capture acceptable?</h3>
+            <span class="step-label">Short interview</span>
+            <h3>Are all structured responses complete?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No</strong><span>Remove the poor capture, retake it, and review again.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Keep all accepted captures in the draft set.</span></div>
+              <div class="branch"><strong>No</strong><span>Record an answer or allowed unavailable, refused, or not-applicable reason.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Preserve answers and optional notes as versioned patient-reported history.</span></div>
             </div>
           </div>
           <div class="flow-step step-success">
-            <span class="step-label">Ready</span>
-            <h3>Submit the complete set once</h3>
-            <p>One Submit action includes every NPZ remaining in the draft.</p>
+            <span class="step-label">Complete</span>
+            <h3>Release the ticket to X-ray</h3>
+            <p>MCU completion records its worker and makes the configured MCU earning eligible.</p>
           </div>
         </div>
       </article>
@@ -125,34 +125,58 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">04</span>
-          <div><h2>Completion & status</h2><p class="phase-subtitle">Continue asynchronously</p></div>
+          <div><h2>X-ray & AI waiting</h2><p class="phase-subtitle">Capture, submit, then release the station</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-system">
-            <span class="step-label">Gateway handoff</span>
-            <h3>Send captures and frozen examination data</h3>
-            <p>Durable Image Gateway acceptance closes the active queue item.</p>
+            <span class="step-label">Capture</span>
+            <h3>Build and review one patient-free NPZ set</h3>
+            <p>Use the active ticket identity, remove or retake poor captures, and submit the complete set once.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Processing</span>
-            <h3>Did every capture produce DICOM?</h3>
+            <span class="step-label">Gateway acceptance</span>
+            <h3>Was the set durably accepted?</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>No</strong><span>Show pending/failed status; platform retries failed captures.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Show the complete processed image set.</span></div>
+              <div class="branch"><strong>No</strong><span>Keep the ticket in X-ray service and retry safely with the same submission.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Complete X-ray, make its stage earning eligible, and move to AI waiting.</span></div>
             </div>
           </div>
           <div class="flow-step step-success">
-            <span class="step-label">Payment event</span>
-            <h3>Make operator earning eligible</h3>
+            <span class="step-label">Asynchronous AI</span>
+            <h3>Release the operator station</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>AI selected</strong><span>Pay after AI report delivery to the member, or after both AI processing and its fallback fail.</span></div>
-              <div class="branch"><strong>Doctor stage</strong><span>Pay only after the doctor explicitly confirms that the study is diagnostically usable.</span></div>
+              <div class="branch"><strong>Ready</strong><span>Publish the AI result and release the ticket to education.</span></div>
+              <div class="branch"><strong>Delayed</strong><span>Let the patient leave with education deferred; deliver later through portal/email.</span></div>
             </div>
           </div>
         </div>
+      </article>
+
+      <article class="phase">
+        <header class="phase-header">
+          <span class="phase-number">05</span>
+          <div><h2>Result education & LCD</h2><p class="phase-subtitle">Purpose-bound result access</p></div>
+        </header>
+        <div class="flow">
+          <div class="flow-step step-action">
+            <span class="step-label">Education</span>
+            <h3>Claim and explain the available AI result</h3>
+            <p>Access is limited to the claimed ticket. Record the result version, staff, times, and portal/email/print delivery.</p>
+          </div>
+          <div class="flow-step step-success">
+            <span class="step-label">Complete</span>
+            <h3>Close the visit</h3>
+            <p>Education completion makes its configured earning eligible. Doctor review remains a later Member request.</p>
+          </div>
+          <div class="flow-step step-system">
+            <span class="step-label">Public display</span>
+            <h3>Pair a read-only LCD session</h3>
+            <p>Show only MCU, Foto/Rontgen, and Edukasi Hasil calls—for example A-001 → education, A-002 → photo, and A-003 → MCU.</p>
+          </div>
+        </div>
         <p class="restriction">
-          Operator restriction: may view processing status and completed images, but not AI diagnoses,
-          doctor reports, raw NPZ, or raw DICOM downloads.
+          Operator restriction: no patient data on the LCD, no AI-result browsing, no doctor reports,
+          no raw NPZ, and no raw DICOM downloads.
         </p>
       </article>
     </section>
