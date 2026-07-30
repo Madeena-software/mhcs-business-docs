@@ -38,6 +38,10 @@ boundary. It parses radiography inputs, performs conversion, and can require
 independent CPU, memory, file, timeout, and process isolation. It receives no
 MHCS business authority.
 
+## Technology stack
+
+- PHP `^8.4`, Laravel `^13.8`, Filament `^5.0`, 
+
 ## Target repository layout
 
 The exact framework paths may follow the selected Laravel version, but the
@@ -176,6 +180,11 @@ Image Gateway owns retries and must reuse the same conversion job identity.
 MPIPS must return the original result or an idempotent equivalent for the same
 identity and input. Reusing an identity with different bytes or metadata fails
 as a conflict.
+
+## Constraints and hazards
+
+- Direct SSH access to production and staging is prohibited. Do not attempt or recommend SSH-based troubleshooting.
+- Represent infrastructure and server changes in version-controlled configuration, then apply them through the approved CI/CD pipeline.
 
 ## Security boundary
 
