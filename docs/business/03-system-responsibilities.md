@@ -87,7 +87,7 @@ verification.
 - front-desk registration, paper-consent confirmation, arrivals, and identity
   verification;
 - one site-and-shift ticket across ready-time FIFO basic examination & vital signs and X-ray queues;
-- atomic stage claims, public number-to-station calls for PEMERIKSAAN DASAR and FOTO/RONTGEN, and paired LCD sessions;
+- atomic stage claims, public number-to-station calls for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI, and paired LCD sessions;
 - basic examination & vital signs measurements, point-of-care screening, and structured interview capture;
 - multi-capture NPZ draft set;
 - removal and retake before Submit;

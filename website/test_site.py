@@ -69,7 +69,7 @@ def main():
     assert all(
         value in lcd
         for value in (
-            "FOTO / RONTGEN",
+            "SESI FOTO RADIOGRAFI",
             "PEMERIKSAAN DASAR",
             "A-002",
             "A-003",

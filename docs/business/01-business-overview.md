@@ -242,7 +242,7 @@ These tables describe the business journey for each role.
 | Submit | Submit the complete draft set once. | The Operator module hands every remaining radiograph, its matching gain input, and a frozen examination snapshot to the Image Gateway module. |
 | Gateway acceptance | Wait for durable acceptance. | Acceptance completes X-ray, makes its submitting worker's stage earning eligible, and moves the ticket to asynchronous background AI waiting. |
 | Background AI waiting | AI processes asynchronously; patient is free to leave or wait. | A completed AI result publishes to Member Core and automatically completes the ticket. If a patient asks onsite, desk staff can check the read-only AI Results Status Monitor and print the result on demand. |
-| LCD calling | Pair a read-only site-and-shift display and call tickets for PEMERIKSAAN DASAR and FOTO/RONTGEN. | The screen shows active and five recent calls for PEMERIKSAAN DASAR and FOTO/RONTGEN, never patient or clinical data. |
+| LCD calling | Pair a read-only site-and-shift display and call tickets for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI. | The screen shows active and five recent calls for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI, never patient or clinical data. |
 
 Operators may view processing status, completed images, and published AI results on the read-only monitor. They do not see doctor reports and cannot access raw NPZ or download raw DICOM.
 

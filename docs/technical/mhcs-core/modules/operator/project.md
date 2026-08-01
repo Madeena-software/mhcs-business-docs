@@ -260,7 +260,7 @@ read-only, restricted to one site and shift, revocable, and expires
 automatically at shift end.
 
 The display refreshes periodically and shows active calls for exactly two
-public destinations: `PEMERIKSAAN DASAR` and `FOTO/RONTGEN`. Each
+public destinations: `PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`. Each
 destination may call a different ticket at the same time, for example ticket
 `A-002` to X-ray, and `A-003` to basic examination & vital signs. The five most recent
 calls also show only ticket number, destination, and call time.
