@@ -22,6 +22,7 @@ the module relevant to its task:
 - [Operator module](modules/operator/project.md)
 - [Doctor module](modules/doctor/project.md)
 - [Image Gateway module](modules/image-gateway/project.md)
+- [UI/UX Design System Export](design/mhcs-core-design.html) (Google Stitch Project: [2877959425967925287](https://stitch.withgoogle.com/projects/2877959425967925287))
 
 The old five-repository deployment model is superseded.
 
