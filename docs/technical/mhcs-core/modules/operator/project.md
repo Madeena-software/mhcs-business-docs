@@ -149,11 +149,12 @@ Any assigned operator may perform the front-desk steps:
 3. Show the latest profile photograph first. Previous profile photographs are
    available only when the latest photograph is insufficient for verification.
 4. Confirm that the member has read and signed the applicable paper informed
-   consent.
+   consent (recorded strictly once at the start of the visit).
 5. Record the consent form version, signer, signature-confirmation time,
    responsible operator, and optional private scan through Member Core.
 6. Mark the booking `checked_in` and issue one site-and-shift ticket only after
-   successful verification and consent confirmation.
+   successful verification and consent confirmation. Downstream examination
+   stations reuse this visit consent confirmation and do not re-request consent.
 
 KTP/KIA and profile photographs are purpose-bound, temporary, non-downloadable,
 and available to the operator only during the active verification flow. Global
