@@ -99,10 +99,16 @@ Staffing is demand-triggered:
 2. At five confirmed bookings, the Member module emits an idempotent
    `shift_eligible` domain event for the Operator module.
 3. The global Operator Core administrator assigns one or more operators to the
-   shift.
-4. Assignment additions and removals are audited. Removing an assignment never
+   shift manually or initiates the **Automated Sequential Operator Assignment** workflow.
+4. When sequential assignment is active, the system dispatches invitation offers
+   one candidate at a time based on the administrator-configured candidate sequence
+   for that site.
+5. Each invited candidate receives a multi-channel notification (in-app workstation alert with countdown timer plus SMS/Push action links) and has an administrator-configured response timeout (defaulting to 5 minutes) to accept or decline.
+6. If a candidate accepts, the operator is assigned to the shift, canceling subsequent dispatches. If a candidate declines or the timeout expires, the system automatically advances to the next candidate sequence order.
+7. If the candidate sequence is exhausted without an acceptance, a high-priority escalation alert is sent to the Global Administrator for manual override. If unassigned by the staffing deadline, Member Core executes standard member re-accommodation or full refunds.
+8. Assignment additions and removals are audited. Removing an assignment never
    changes attribution for completed work.
-5. Any assigned operator may perform front-desk, MCU, X-ray, or
+9. Any assigned operator may perform front-desk, MCU, X-ray, or
    result-education work. Atomic claims ensure that only one operator handles a
    ticket stage at a time.
 
