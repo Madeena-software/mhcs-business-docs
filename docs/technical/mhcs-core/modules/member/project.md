@@ -609,14 +609,14 @@ migration syntax. Supporting framework tables are omitted.
   patient-reported, doctor-reviewed, and superseded versions.
 - Identifiers exchanged between services are stable UUIDs.
 - Suspending login access preserves bookings and clinical history.
-- Examination consent and MCU assessments are timestamped history linked to the
+- Examination consent and basic examination & vital signs assessments are timestamped history linked to the
   member, booking, site where applicable, and responsible operator. Corrections
   create a new row through `supersedes_id`; no latest value overwrites a
   `members` table column.
-- MCU measurement columns are nullable only when their matching absence reason
+- Basic examination & vital signs measurement columns are nullable only when their matching absence reason
   is present. Blood-pressure components are supplied together or use one
   absence reason. BMI is derived only when height and weight are present.
-- MCU interview response enums allow `yes`, `no`, `unknown`, `refused`, or
+- Basic examination & vital signs interview response enums allow `yes`, `no`, `unknown`, `refused`, or
   `not_applicable`; optional notes add context without replacing the structured
   response.
 
@@ -929,7 +929,7 @@ shared reconciliation ID, expected amount, counted amount, discrepancy, and
 closing or alter points and bookings; an administrator resolves it with an
 audited reason while both original amounts remain immutable.
 
-## MCU assessment
+## Basic examination & vital signs assessment
 
 Operator Core records basic measurements during arrival or examination. Member
 Core is the authoritative longitudinal store. A current value is derived from
@@ -948,9 +948,9 @@ The required vital-sign subset follows the FHIR R5 Vital Signs profile:
 | Body temperature | `8310-5` | `Cel` |
 
 Pulse, respiratory rate, and oxygen saturation are outside the initial Operator
-MCU form and its `MCU_ASSESSMENTS` schema.
+basic examination & vital signs form and its `MCU_ASSESSMENTS` schema.
 
-The same MCU session also records point-of-care glucose, total cholesterol, and
+The same basic examination & vital signs session also records point-of-care glucose, total cholesterol, and
 uric acid as laboratory measurements. Each stores a numeric value and canonical
 unit or an explicit absence reason, actual measurement time, fasting, random,
 or unknown sampling context, and method/device when relevant. These results are
@@ -966,7 +966,7 @@ Each measurement set records:
   materially affect interpretation; and
 - correction lineage through `supersedes_id` instead of silent overwrite.
 
-One local MCU session maps to separate profiled R5 `Observation` resources for
+One local basic examination & vital signs session maps to separate profiled R5 `Observation` resources for
 each recorded vital sign or laboratory measurement, except that blood pressure
 remains one composite Observation. Every mapped Observation includes:
 
@@ -996,7 +996,7 @@ values and retain that confirmation for audit.
 
 ### Structured interview
 
-The MCU session stores `yes`, `no`, `unknown`, `refused`, or `not_applicable`
+The basic examination & vital signs session stores `yes`, `no`, `unknown`, `refused`, or `not_applicable`
 answers plus optional notes for:
 
 - smoking history;
@@ -1009,7 +1009,7 @@ Each response set is versioned and retains the patient, booking, site,
 performing operator, actual interview time, and correction lineage. Current
 symptoms use controlled choices plus an optional note. Patient-reported family
 history remains separate from doctor-reviewed `FamilyMemberHistory`; a later
-review creates a traceable version rather than silently promoting the MCU
+review creates a traceable version rather than silently promoting the basic examination & vital signs
 answer.
 
 ### Operator measurement operation
@@ -1018,7 +1018,7 @@ Rules:
 
 - The booking must belong to the authenticated operator's active site.
 - The application calculates BMI; users cannot provide a conflicting BMI.
-- Every required MCU field has a value or an allowed `unavailable`, `refused`,
+- Every required basic examination & vital signs field has a value or an allowed `unavailable`, `refused`,
   or `not_applicable` reason before the ticket can advance to X-ray.
 - Duplicate idempotency keys return the original result.
 - Corrections create a new record referencing the superseded record.
@@ -1167,7 +1167,7 @@ UIDs remain distinct identifiers and must never be substituted for each other.
 | `Consent` | Member Core; Operator Core confirms the signed paper form |
 | `Appointment` | Member Core |
 | `Encounter` | Operator Core, with its reference available to Member Core |
-| Vital-sign and MCU laboratory `Observation` | Member Core; Operator Core records it |
+| Vital-sign and basic examination & vital signs laboratory `Observation` | Member Core; Operator Core records it |
 | `ServiceRequest` | Member Core creates the examination order |
 | `ImagingStudy` | Image Gateway after DICOM creation/storage |
 | AI result `Observation` | Image Gateway |
@@ -1332,7 +1332,7 @@ Member Core does not satisfy this specification until tests demonstrate that:
 - patient-reported family history remains distinct from doctor-reviewed history,
   and edits to reviewed history create a new reviewable version;
 - repeated health measurements preserve history and correction lineage;
-- MCU completion requires every configured measurement, screening value, and
+- basic examination & vital signs completion requires every configured measurement, screening value, and
   interview response or an allowed absence reason before X-ray;
 - vital-sign values use the specified LOINC codes and UCUM units when mapped;
 - blood pressure maps systolic and diastolic as one composite observation;

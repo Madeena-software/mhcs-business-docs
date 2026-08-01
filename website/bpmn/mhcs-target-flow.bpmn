@@ -65,7 +65,7 @@
       <bpmn:incoming>Flow_Book_Confirm</bpmn:incoming>
       <bpmn:outgoing>Flow_Confirm_MCU</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_MCUAssessment" name="Complete required MCU assessment">
+    <bpmn:userTask id="Task_MCUAssessment" name="Complete required basic examination &amp; vital signs assessment">
       <bpmn:incoming>Flow_Confirm_MCU</bpmn:incoming>
       <bpmn:outgoing>Flow_MCU_Capture</bpmn:outgoing>
     </bpmn:userTask>

@@ -12,7 +12,7 @@ application. The overall repository and runtime boundary is defined by the
 Operator Core is the staff-facing module for examination-day operations. It
 owns physical-site master data, operator accounts and assignments, arrivals,
 identity-verification and consent-confirmation workflow, the staged operational
-queue, MCU capture, examination execution, session-only NPZ drafts, submission
+queue, basic examination & vital signs capture, examination execution, session-only NPZ drafts, submission
 to Image Gateway, result education, the public queue display, operator earnings,
 and operator payouts.
 
@@ -23,7 +23,7 @@ bookings, queue items, and examinations provide the required business context.
 
 Operator Core has two permissions:
 
-- **Operator:** uses the front desk, MCU, X-ray, and result-education features.
+- **Operator:** uses the front desk, basic examination & vital signs, X-ray, and result-education features.
   These are operational stations in one application, not separate permissions
   or staff roles.
 - **Global administrator:** manages every Operator Core site and operational
@@ -37,7 +37,7 @@ administrator-only account remains an ordinary application user.
 
 An operator may be authorized for multiple sites but works in exactly one
 active site context at a time. Within an assigned shift, the operator selects a
-front-desk, MCU, X-ray, or result-education station label. This label routes
+front-desk, basic examination & vital signs, X-ray, or result-education station label. This label routes
 work and public calls but grants no permission. Switching sites requires
 confirmation, is audited, and is blocked while the operator has a claimed
 ticket, an unfinished queue action, or an unclosed cash shift. The authenticated
@@ -168,9 +168,9 @@ until a global administrator approves or rejects the case with a mandatory
 reason. Member Core remains the authority for identity files, member accounts,
 guardians, medical-record identifiers, and verification evidence.
 
-## MCU assessment
+## Basic examination & vital signs assessment
 
-MCU is mandatory before X-ray and records:
+Basic examination & vital signs assessment is mandatory before X-ray and records:
 
 - systolic and diastolic blood pressure;
 - body temperature;
@@ -193,7 +193,7 @@ plus a note. Patient-reported family history remains distinct from
 doctor-reviewed history.
 
 Member Core is the longitudinal authority. Operator Core records the assessment
-and responsible MCU worker through a local idempotent command. Valid MCU
+and responsible basic examination & vital signs worker through a local idempotent command. Valid basic examination & vital signs
 completion and the Operator stage record commit in one database transaction
 where practical; durable local retry is used when deferred processing is
 required.
@@ -204,7 +204,7 @@ One human-readable ticket number is unique within its site and shift and
 remains unchanged through three sequential stages:
 
 ```text
-MCU -> X-ray -> awaiting AI -> result education
+Basic Examination & Vital Signs -> X-ray -> awaiting AI -> result education
 ```
 
 The ticket records its current stage and state, stage-ready time, claimed
@@ -260,9 +260,9 @@ read-only, restricted to one site and shift, revocable, and expires
 automatically at shift end.
 
 The display refreshes periodically and shows active calls for exactly three
-public destinations: `MCU`, `FOTO/RONTGEN`, and `EDUKASI HASIL`. Each
+public destinations: `PEMERIKSAAN DASAR`, `FOTO/RONTGEN`, and `EDUKASI HASIL`. Each
 destination may call a different ticket at the same time, for example ticket
-`A-001` to education, `A-002` to X-ray, and `A-003` to MCU. The five most recent
+`A-001` to education, `A-002` to X-ray, and `A-003` to basic examination & vital signs. The five most recent
 calls also show only ticket number, destination, and call time.
 
 Front-desk registration and `awaiting_ai` are private dashboard states and
@@ -318,7 +318,7 @@ work and later doctor review, not on unobserved room activity.
 
 The target examination flow is:
 
-1. After MCU completion, an assigned operator atomically claims and calls the
+1. After basic examination & vital signs completion, an assigned operator atomically claims and calls the
    next ready X-ray ticket and starts the examination.
 2. The Operator module creates the R5 `Encounter`, snapshots the protocol, and
    updates the Member-owned booking in the same workflow. Stage earning rates
@@ -483,13 +483,13 @@ Operator earnings are ordinary Operator Core financial records denominated in
 Indonesian rupiah. They are not Madeena Points and are not FHIR resources.
 
 The global administrator configures versioned, site-and-service-specific rates
-for MCU, X-ray, and result education. Operator Core snapshots all applicable
+for basic examination & vital signs, X-ray, and result education. Operator Core snapshots all applicable
 stage rates when the ticket is issued; later changes affect only later tickets
 and never revalue historical earnings.
 
 Earning rules are:
 
-- **MCU:** becomes eligible when the required assessment completes and belongs
+- **Basic examination & vital signs:** becomes eligible when the required assessment completes and belongs
   to the operator recorded on that completion.
 - **X-ray:** becomes eligible when Image Gateway durably accepts the complete
   capture set and belongs to its submitting operator.
@@ -499,7 +499,7 @@ Earning rules are:
 - **Same worker:** one operator who completes multiple stages receives each
   applicable earning independently.
 - **Doctor-only service or repeat:** has no education earning because it does
-  not enter the AI education queue. Any performed MCU and X-ray stages retain
+  not enter the AI education queue. Any performed basic examination & vital signs and X-ray stages retain
   their ordinary earnings.
 - **Later repeat or doctor decision:** never cancels or revalues an already
   completed stage earning.
@@ -575,7 +575,7 @@ The global Operator Core administrator may:
 - create, update, disable, and synchronize sites;
 - assign or remove multiple operators for an eligible shift with audit;
 - configure versioned service-to-projection protocol mappings;
-- configure site-and-service MCU, X-ray, and education earning rates;
+- configure site-and-service basic examination & vital signs, X-ray, and education earning rates;
 - revoke a paired queue-display session;
 - configure the global payout-fee policy;
 - suspend and resume payouts without editing bank destinations;
@@ -592,7 +592,7 @@ history.
 ## Application operations
 
 Operator-facing operations cover the assigned shift ticket queues, arrival,
-identity and consent verification, station selection, MCU assessment, X-ray
+identity and consent verification, station selection, basic examination & vital signs assessment, X-ray
 start, draft captures, capture review, complete-set submission, AI waiting,
 result education, LCD pairing, cash closing, payout destination, and earnings.
 State changes use a stable idempotency identity where retry is possible. No
@@ -610,7 +610,7 @@ The Operator module uses explicit local Member module commands and queries for:
 - identity-verification views and decisions;
 - paper-consent metadata and optional private scan recording;
 - body-part/laterality order correction;
-- MCU assessment recording and correction;
+- basic examination & vital signs assessment recording and correction;
 - member result-publication and requested delivery status;
 - repeat scheduling through the member application; and
 - end-of-shift cash closing.
@@ -662,7 +662,7 @@ conflict.
 
 ## Earnings and payment event contracts
 
-Operator Core creates the MCU earning from the idempotent MCU-completion
+Operator Core creates the basic examination & vital signs earning from the idempotent basic examination & vital signs completion
 transition and the X-ray earning from durable Image Gateway acceptance. An
 idempotent AI-readiness event releases the education queue, while the local
 education-completion transition creates its earning. Each transition carries
@@ -694,7 +694,7 @@ Operator Core is the source authority for:
 | `Encounter` | The performed examination visit from start to completion |
 
 The Operator module reads Member-owned references to `Patient`, `Appointment`,
-`Consent`, and `ServiceRequest`. It records MCU measurements through the Member
+`Consent`, and `ServiceRequest`. It records basic examination & vital signs measurements through the Member
 module, which owns the resulting vital-sign and laboratory `Observation`
 resources and the versioned patient-reported interview. The Image Gateway
 module owns `ImagingStudy` and the AI result `Observation`; the Doctor module
@@ -704,7 +704,7 @@ The required radiology chain is:
 
 ```text
 Patient + booked Appointment + ServiceRequest
-  -> arrival, verified consent/check-in, and MCU assessment
+  -> arrival, verified consent/check-in, and basic examination & vital signs assessment
   -> examination Encounter
   -> ImagingStudy basedOn ServiceRequest and linked to Encounter
   -> optional AI Observation and/or doctor DiagnosticReport
@@ -782,7 +782,7 @@ accepted as arbitrary JSON.
 - Verify payment confirmations cryptographically and protect against replay,
   duplicate transfers, destination substitution, and log leakage.
 - Audit identity views, exact-NIK lookups, administrator decisions, site and
-  protocol changes, consent recording, MCU assessment, station selection,
+  protocol changes, consent recording, basic examination & vital signs assessment, station selection,
   ticket claims/calls/skips, display pairing, education-result views, order
   corrections, submissions, earning changes, bank verification, payout
   actions, and cash reconciliation.

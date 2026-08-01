@@ -13,7 +13,7 @@ priority, while B2C registration and self-booking remain available.
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions the agreed members, services, locations, dates, shifts, and reserved Madeena Points. For B2C, the member registers, chooses, and pays independently. |
 | 2 | Member module | The Member module makes authorised attendance and examination information available to the Operator module inside `mhcs-core`. |
 | 3 | Front-desk operator | Confirm registration, payment or eligibility, identity, and signed paper consent. Record the consent version and signature metadata, then issue one site-and-shift ticket number. |
-| 4 | MCU operator | Claim the next ready ticket, record the required basic measurements, point-of-care blood screening, and structured interview, then release the same ticket to the X-ray queue. |
+| 4 | Basic examination & vital signs operator | Claim the next ready ticket, record the required basic measurements, point-of-care blood screening, and structured interview, then release the same ticket to the X-ray queue. |
 | 5 | Grabber and X-ray operator | Claim the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and the required gain NPZ input; the operator reviews the draft and may remove or retake captures. |
 | 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
 | 7 | Image Gateway | Durable acceptance completes the X-ray stage. Image Gateway stores the submission and coordinates processing while the ticket waits for AI without occupying an operator station. |
@@ -38,7 +38,7 @@ creating permanent copies in every module.
 |---|---|
 | Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
 | Member | Receives B2B bookings, may create additional B2C bookings, attends, views images, and receives selected results. |
-| Operator or radiographer | Uses the same application for front-desk verification, MCU assessment, X-ray capture, result education, and queue management. Staff are interchangeable and select an operational station label for their current work. |
+| Operator or radiographer | Uses the same application for front-desk verification, basic examination and vital signs assessment, X-ray capture, result education, and queue management. Staff are interchangeable and select an operational station label for their current work. |
 | Grabber | Produces patient-free radiograph and gain NPZ inputs while its software may remain offline. |
 | Image Gateway | Stores clinical files and coordinates processing, access, routing, and publication. |
 | MPIPS | Converts each radiograph NPZ, matching gain NPZ, and signed manifest into DICOM. |
@@ -125,18 +125,18 @@ Operator Core owns examination-day work:
 - physical-site master data and operator shift assignment;
 - audited assignment of multiple operators to one shift;
 - front-desk registration, paper-consent confirmation, arrivals, identity
-  verification, and one ticket across the MCU, X-ray, and education queues;
+  verification, and one ticket across the basic examination & vital signs, X-ray, and education queues;
 - ready-time FIFO calling, atomic work claims, station labels, and a
   privacy-safe LCD queue display;
-- MCU assessment capture and result-education completion;
+- basic examination & vital signs assessment capture and result-education completion;
 - upload of one or more radiograph NPZ captures and their required gain NPZ
   input from the Grabber computer;
 - a draft capture set that allows removal and retake;
 - one Submit action for the complete set;
 - processing status and processed-image viewing; and
-- configured MCU, X-ray, and education earnings and automated rupiah payouts.
+- configured basic examination & vital signs, X-ray, and education earnings and automated rupiah payouts.
 
-MCU completion makes the recorded MCU worker's snapshotted stage earning
+Basic examination & vital signs completion makes the recorded basic examination & vital signs worker's snapshotted stage earning
 eligible. Gateway acceptance completes X-ray and makes the submitting worker's
 X-ray earning eligible. Completed result education makes its worker's education
 earning eligible. A delayed AI result leaves education and its earning deferred.
@@ -236,11 +236,11 @@ These tables describe the business journey for each role.
 
 | Phase | Operator action or decision | System outcome |
 |---|---|---|
-| Staff access | Sign in and open an assigned site and shift, then select the current front-desk, MCU, X-ray, or education station label. | Multiple assigned operators may work concurrently. The label routes work and public calls but grants no additional permission. |
+| Staff access | Sign in and open an assigned site and shift, then select the current front-desk, basic examination & vital signs, X-ray, or education station label. | Multiple assigned operators may work concurrently. The label routes work and public calls but grants no additional permission. |
 | Eligibility and consent | Confirm registration, payment or eligibility, identity, and signed paper consent. | MHCS records the consent form version, signer, time, responsible staff, and optional private scan. Missing consent blocks ticket issue. |
-| Ticket | Issue one site-and-shift ticket number. | The number remains unchanged through MCU, X-ray, and result education. |
+| Ticket | Issue one site-and-shift ticket number. | The number remains unchanged through basic examination & vital signs, X-ray, and result education. |
 | Stage queue | Claim and call the next ready-time FIFO ticket for the selected station. | An atomic claim prevents duplicate handling. A reasoned skip requeues the ticket with a new ready time; recall does not reorder it. |
-| MCU | Record required temperature, height, weight, calculated BMI, blood pressure, glucose, total cholesterol, uric acid, and structured interview responses. | Every item has a value or an explicit unavailable/refused reason. Completion releases the ticket to X-ray and makes the MCU earning eligible. |
+| Basic examination & vital signs | Record required temperature, height, weight, calculated BMI, blood pressure, glucose, total cholesterol, uric acid, and structured interview responses. | Every item has a value or an explicit unavailable/refused reason. Completion releases the ticket to X-ray and makes the basic examination & vital signs earning eligible. |
 | Identity | Use the identity supplied by the active examination. | Patient identity is never inferred from an NPZ filename or embedded NPZ data. |
 | Capture | Use Grabber to create patient-free radiograph NPZ captures and the required gain NPZ. | Each radiograph is added to the active examination draft and correlated to its gain input. |
 | Quality review | Review every capture. Remove and retake any unacceptable image. | Only accepted captures remain in the complete draft. |
@@ -318,12 +318,12 @@ Members may export TIFF, JPG, or PDF.
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes reserved points in each member wallet and is allocated in full to the agreed B2B entitlement or booking. |
 | Personal member charge | Member Core | Personal points fund B2C bookings; walk-in payment completes before operator confirmation. |
-| Operator earning and payout | Operator Core | Configured MCU rate at MCU completion; configured X-ray rate at durable Image Gateway acceptance; configured education rate when result education is completed. |
+| Operator earning and payout | Operator Core | Configured basic examination & vital signs rate at basic examination & vital signs completion; configured X-ray rate at durable Image Gateway acceptance; configured education rate when result education is completed. |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms creation of the doctor-requested repeat entitlement: 25% of the snapshotted final-report rate for each accepted repeat request |
 | Doctor final-report earning | Doctor Core | The signing doctor submits the completed report: 100% of the snapshotted final-report rate |
 
 Each operator stage is independently eligible. A delayed AI result defers the
-education stage and its earning without affecting completed MCU or X-ray
+education stage and its earning without affecting completed basic examination & vital signs or X-ray
 earnings. Doctor-queue entry does not affect operator earnings.
 
 Doctor earnings are visible immediately and enter one automatic daily payout

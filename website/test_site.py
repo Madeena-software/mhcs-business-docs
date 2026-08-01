@@ -9,7 +9,7 @@ ROOT = Path(__file__).parent
 PAGES = {
     "index.html": ("Read the care process by role.", "MHCS Actor Journey Maps"),
     "member/index.html": ("Member", "NIK", "business-funded"),
-    "operator/index.html": ("Operator", "MCU assessment", "Pair a read-only LCD session"),
+    "operator/index.html": ("Operator", "Basic examination & vital signs assessment", "Pair a read-only LCD session"),
     "doctor/index.html": ("Doctor", "shared queue", "amendment"),
     "bpmn/index.html": ("Technical BPMN", "All journeys"),
 }
@@ -71,7 +71,7 @@ def main():
         for value in (
             "EDUKASI HASIL",
             "FOTO / RONTGEN",
-            "MCU",
+            "PEMERIKSAAN DASAR",
             "A-001",
             "A-002",
             "A-003",
@@ -107,7 +107,7 @@ def main():
         "A terminally unavailable result may be communicated",
         "expires automatically at shift end",
         "`portal`, `email`, and/or `print` delivery status",
-        "**MCU:** becomes eligible",
+        "**Basic examination & vital signs:** becomes eligible",
         "**X-ray:** becomes eligible",
         "**Result education:** becomes eligible",
     ):

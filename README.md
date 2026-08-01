@@ -29,8 +29,22 @@ Modules inside `mhcs-core` communicate through local commands, queries,
 transactions, and durable domain events. The MPIPS document is the only
 transport-level contract in this design.
 
+## Previewing the website
+
+To view and preview the actor journey maps and technical BPMN diagrams locally:
+
+```bash
+python3 -m http.server --directory website 8000
+```
+Or navigate into the `website` directory and run:
+```bash
+cd website && python3 -m http.server 8000
+```
+Then open `http://localhost:8000` in your web browser.
+
 ## Boundary
 
 This repository contains documentation only. It must not contain patient data,
 clinical files, credentials, secrets, application code, or live deployment
 configuration.
+

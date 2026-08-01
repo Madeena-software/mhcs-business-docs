@@ -10,7 +10,7 @@ conversion repository.
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
 | Member module in `mhcs-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat commands, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information |
-| Operator module in `mhcs-core` | Physical sites, multi-operator staffing, consent confirmation, staged queues, MCU capture, multi-capture Submit, result education, LCD calling, operator earnings, and payouts | Attendance, longitudinal-data recording outcomes, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, education completion, and operator status |
+| Operator module in `mhcs-core` | Physical sites, multi-operator staffing, consent confirmation, staged queues, basic examination & vital signs capture, multi-capture Submit, result education, LCD calling, operator earnings, and payouts | Attendance, longitudinal-data recording outcomes, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, education completion, and operator status |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input |
 | Image Gateway module in `mhcs-core` | Permanent NPZ/DICOM storage, MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorised references, completion, and publication events |
 | `mpips` repository | Black-box radiograph NPZ plus gain NPZ conversion | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
@@ -86,16 +86,16 @@ verification.
 - audited assignment of multiple interchangeable operators per shift;
 - front-desk registration, paper-consent confirmation, arrivals, and identity
   verification;
-- one site-and-shift ticket across ready-time FIFO MCU, X-ray, and
+- one site-and-shift ticket across ready-time FIFO basic examination & vital signs, X-ray, and
   result-education queues;
 - atomic stage claims, public number-to-station calls, and paired LCD sessions;
-- MCU measurements, point-of-care screening, and structured interview capture;
+- basic examination & vital signs measurements, point-of-care screening, and structured interview capture;
 - multi-capture NPZ draft set;
 - removal and retake before Submit;
 - one Submit action for the complete set;
 - processing status and image viewing; and
 - result-education recording; and
-- configured MCU, X-ray, and education earnings and automated rupiah payouts.
+- configured basic examination & vital signs, X-ray, and education earnings and automated rupiah payouts.
 
 ### Target handoffs
 
@@ -103,8 +103,8 @@ The Operator module hands patient-free radiograph NPZ captures, their matching
 gain NPZ input, and a frozen member/examination snapshot to the Image Gateway
 module.
 
-MCU completion releases the same ticket to X-ray and makes the completing
-worker's MCU earning eligible. Gateway acceptance completes X-ray, releases
+Basic examination & vital signs completion releases the same ticket to X-ray and makes the completing
+worker's basic examination & vital signs earning eligible. Gateway acceptance completes X-ray, releases
 processing to Image Gateway, and makes the submitting worker's X-ray earning
 eligible. AI readiness releases the ticket to education; completed education
 makes that worker's education earning eligible. Delayed education does not
@@ -202,7 +202,7 @@ cannot edit that destination.
 |---|---|---|
 | Business-funded member charge | Member Core | Central annual payment becomes member-specific reserved points allocated to the agreed B2B entitlement or booking |
 | Personal member charge | Member Core | Personal Madeena Points fund B2C bookings; walk-in payment completes before operator confirmation |
-| Operator earning and payout | Operator Core | MCU completion, durable X-ray submission acceptance, and completed result education each trigger their configured stage rate |
+| Operator earning and payout | Operator Core | Basic examination & vital signs completion, durable X-ray submission acceptance, and completed result education each trigger their configured stage rate |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms one doctor-requested repeat entitlement: 25% of the snapshotted final-report rate |
 | Doctor final-report earning | Doctor Core | The signing doctor submits the completed report: 100% of the snapshotted final-report rate |
 
