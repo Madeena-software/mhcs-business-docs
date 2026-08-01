@@ -152,9 +152,7 @@ Any assigned operator may perform the front-desk steps:
    consent (recorded strictly once at the start of the visit).
 5. Record the consent form version, signer, signature-confirmation time,
    responsible operator, and optional private scan through Member Core.
-6. Mark the booking `checked_in` and issue one site-and-shift ticket only after
-   successful verification and consent confirmation. Downstream examination
-   stations reuse this visit consent confirmation and do not re-request consent.
+6. Mark the booking `checked_in` and issue one site-and-shift ticket only after successful verification and consent confirmation, then trigger paper ticket printing via the web print dialog (`window.print()`). The printed thermal slip contains only the site name, shift & date, and prominent ticket number (omitting patient name and RM for paper privacy). A manual "Reprint Ticket" button is available in the Operator queue worklist. Issued ticket numbers are managed on-site via paper slips and are not displayed in the Member Portal. Downstream examination stations reuse this visit consent confirmation and do not re-request consent.
 
 KTP/KIA and profile photographs are purpose-bound, temporary, non-downloadable,
 and available to the operator only during the active verification flow. Global

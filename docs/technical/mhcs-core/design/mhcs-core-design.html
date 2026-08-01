@@ -1253,23 +1253,21 @@
                   </div>
                 </div>
 
-                <!-- Queue Status Active Alert -->
+                <!-- Active Visit Banner (No Ticket Number shown in Member Portal) -->
                 <div class="queue-active-box">
                   <div style="display:flex; align-items:center; gap:16px;">
-                    <div style="background:var(--brand-soft); border:1px solid var(--brand); border-radius:var(--radius-md); padding:12px 18px; text-align:center;">
-                      <div style="font-size:10px; font-family:var(--font-mono); color:var(--brand-deep); text-transform:uppercase; font-weight:600;">Nomor Tiket</div>
-                      <div class="queue-num">A-014</div>
+                    <div style="width:44px; height:44px; background:var(--brand-soft); border:1px solid var(--brand); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--brand-deep)">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
                     <div>
                       <div style="font-size:var(--fs-md); font-weight:600; color:var(--text-1);">Sesi Foto Radiografi Thorax Aktif Hari Ini</div>
-                      <div style="font-size:var(--fs-sm); color:var(--text-3);">Klinik Madeena Kemayoran · Estimasi dipanggil: <strong class="mono" style="color:var(--brand-deep)">10:30 WIB</strong> (2 Orang lagi)</div>
+                      <div style="font-size:var(--fs-sm); color:var(--text-3);">Klinik Madeena Kemayoran · Sesi Pagi (10:00 WIB)</div>
                       <div style="margin-top:6px; display:flex; gap:8px;">
                         <span class="badge badge-approved">AKSES DITERIMA</span>
-                        <span class="badge badge-brand">RUANG SESI FOTO RADIOGRAFI 02</span>
+                        <span class="badge badge-brand">KUNJUNGAN AKTIF LOKASI</span>
                       </div>
                     </div>
                   </div>
-                  <button class="btn btn-outline" onclick="openReportModal('REP-8821')">Lihat Tiket QR</button>
                 </div>
 
                 <!-- Quick Actions Grid -->
@@ -1633,7 +1631,7 @@
                     </div>
                     <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
                       <button class="btn btn-secondary" onclick="switchRoute('op-queue')">Batal</button>
-                      <button class="btn btn-primary" onclick="alert('Tiket antrean walk-in berhasil diterbitkan!'); switchRoute('op-queue');">Cetak Tiket & Masukkan Antrean</button>
+                      <button class="btn btn-primary" onclick="alert('Tiket antrean berhasil diterbitkan!\nMembuat pop-up pencetakan tiket kertas (Thermal Slip)...'); window.print(); switchRoute('op-queue');">Cetak Tiket Kertas & Masukkan Antrean</button>
                     </div>
                   </div>
                 </div>

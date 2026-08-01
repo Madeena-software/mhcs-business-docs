@@ -12,7 +12,7 @@ priority, while B2C registration and self-booking remain available.
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions the agreed members, services, locations, dates, shifts, and reserved Madeena Points. For B2C, the member registers, chooses, and pays independently. |
 | 2 | Member module | The Member module makes authorised attendance and examination information available to the Operator module inside `mhcs-core`. |
-| 3 | Front-desk operator | Confirm registration, payment or eligibility, identity, and signed paper consent. Record the consent version and signature metadata, then issue one site-and-shift ticket number. |
+| 3 | Front-desk operator | Confirm registration, payment or eligibility, identity, and signed paper consent. Record the consent version and signature metadata, then issue one site-and-shift ticket number and print a paper queue ticket slip. Ticket numbers are managed via paper slips and are not displayed in the Member Portal. |
 | 4 | Basic examination & vital signs operator | Claim the next ready ticket, record the required basic measurements, point-of-care blood screening, and structured interview, then release the same ticket to the X-ray queue. |
 | 5 | Grabber and X-ray operator | Claim the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and the required gain NPZ input; the operator reviews the draft and may remove or retake captures. |
 | 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
@@ -233,7 +233,7 @@ These tables describe the business journey for each role.
 |---|---|---|
 | Staff access | Sign in and open an assigned site and shift, then select the current front-desk, basic examination & vital signs, or X-ray station label. | Multiple assigned operators may work concurrently. The label routes work and public calls but grants no additional permission. |
 | Eligibility and consent | Confirm registration, payment or eligibility, identity, and signed paper consent once at front-desk check-in. | MHCS records the consent form version, signer, time, responsible staff, and optional private scan. Informed consent is recorded once at the start of the visit and covers all examination stages for that ticket. Missing consent blocks ticket issue. |
-| Ticket | Issue one site-and-shift ticket number. | The number remains unchanged through basic examination & vital signs, X-ray, and background AI processing. |
+| Ticket | Issue one site-and-shift ticket number and print a paper queue ticket slip. | The number remains unchanged through basic examination & vital signs, X-ray, and background AI processing. Ticket numbers are managed via paper slips and are not displayed in the Member Portal. |
 | Stage queue | Claim and call the next ready-time FIFO ticket for the selected station. | An atomic claim prevents duplicate handling. A reasoned skip requeues the ticket with a new ready time; recall does not reorder it. |
 | Basic examination & vital signs | Record required temperature, height, weight, calculated BMI, blood pressure, glucose, total cholesterol, uric acid, and structured interview responses. | Every item has a value or an explicit unavailable/refused reason. Completion releases the ticket to X-ray and makes the basic examination & vital signs earning eligible. |
 | Identity | Use the identity supplied by the active examination. | Patient identity is never inferred from an NPZ filename or embedded NPZ data. |
