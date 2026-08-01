@@ -55,7 +55,7 @@ def main():
     parser.feed(design.read_text(encoding="utf-8"))
     design_text = " ".join(parser.text)
     for fragment in (
-        "One Ticket · Three Service Queues",
+        "One Ticket · Two Service Queues",
         "Signed paper consent version recorded",
         "Glucose, total cholesterol, uric acid",
         "Five recent calls",
@@ -69,15 +69,13 @@ def main():
     assert all(
         value in lcd
         for value in (
-            "EDUKASI HASIL",
             "FOTO / RONTGEN",
             "PEMERIKSAAN DASAR",
-            "A-001",
             "A-002",
             "A-003",
         )
     )
-    assert not any(value in lcd for value in ("Front Desk", "Awaiting AI"))
+    assert not any(value in lcd for value in ("Front Desk", "Awaiting AI", "EDUKASI HASIL"))
 
     class IdParser(HTMLParser):
         def __init__(self):
@@ -104,12 +102,11 @@ def main():
         "Each stage uses FIFO by its own ready time.",
         "issue one site-and-shift ticket only after",
         "Every configured field requires either a value",
-        "A terminally unavailable result may be communicated",
+        "Operator Core provides a read-only **AI Results Status Monitor**",
         "expires automatically at shift end",
         "`portal`, `email`, and/or `print` delivery status",
         "**Basic examination & vital signs:** becomes eligible",
         "**X-ray:** becomes eligible",
-        "**Result education:** becomes eligible",
     ):
         assert contract in operator_spec, contract
 

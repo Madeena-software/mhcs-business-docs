@@ -1733,7 +1733,6 @@
             <option>Front Desk — Registration</option>
             <option>Pemeriksaan Dasar 01 — Basic Assessment</option>
             <option selected>X-Ray 01 — Radiography Room</option>
-            <option>Education 01 — Result Desk</option>
           </select>
         </div>
 
@@ -1769,7 +1768,7 @@
       <section id="screen-operator-stage-queue" data-stitch-screen="Concurrent Basic Examination & Vital Signs X-Ray Education Queue" style="display:none; padding:20px; overflow:auto; background:var(--surface); min-height:calc(100vh - 60px);">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px;">
           <div>
-            <div style="font-size:20px; font-weight:700; color:var(--fg);">One Ticket · Three Service Queues</div>
+            <div style="font-size:20px; font-weight:700; color:var(--fg);">One Ticket · Two Service Queues</div>
             <div style="font-size:12px; color:var(--fg-3);">Ready-time FIFO · atomic claims · current shift 08:00–16:00</div>
           </div>
           <button class="btn btn-primary" onclick="showToast('Single-use LCD pairing code: 482 731')">Pair LCD Display</button>
@@ -1796,15 +1795,15 @@
             <div class="card-header"><div class="card-title">Awaiting AI <span class="badge badge-pending">2 async</span></div></div>
             <div class="card-body" style="display:grid; gap:8px;">
               <div class="queue-item"><div class="patient-avatar">A04</div><div><strong>A-004</strong><div class="muted">Processing · 02:14</div></div><span class="badge badge-pending">No station</span></div>
-              <div class="queue-item"><div class="patient-avatar">A06</div><div><strong>A-006</strong><div class="muted">Education deferred</div></div><span class="badge badge-amber">Portal/email</span></div>
+              <div class="queue-item"><div class="patient-avatar">A06</div><div><strong>A-006</strong><div class="muted">AI running</div></div><span class="badge badge-amber">Portal/email</span></div>
             </div>
           </article>
           <article class="card">
-            <div class="card-header"><div class="card-title">Result Education <span class="badge badge-approved">2 ready</span></div></div>
+            <div class="card-header"><div class="card-title">AI Results Monitor <span class="badge badge-approved">2 ready</span></div></div>
             <div class="card-body" style="display:grid; gap:8px;">
-              <div class="queue-item"><div class="patient-avatar">A02</div><div><strong>A-002</strong><div class="muted">AI result v1 ready</div></div><button class="btn btn-primary btn-sm">Claim</button></div>
-              <div class="queue-item"><div class="patient-avatar">A03</div><div><strong>A-003</strong><div class="muted">Portal + print</div></div><span class="badge badge-approved">Complete</span></div>
-              <div style="font-size:11px; color:var(--fg-3);">Doctor review is requested later by the member, never from this desk.</div>
+              <div class="queue-item"><div class="patient-avatar">A02</div><div><strong>A-002</strong><div class="muted">AI result v1 ready</div></div><button class="btn btn-secondary btn-sm">Print</button></div>
+              <div class="queue-item"><div class="patient-avatar">A03</div><div><strong>A-003</strong><div class="muted">Published to portal</div></div><span class="badge badge-approved">Complete</span></div>
+              <div style="font-size:11px; color:var(--fg-3);">Read-only desk lookup & on-demand print. Patient is free to leave.</div>
             </div>
           </article>
         </div>
@@ -1823,11 +1822,11 @@
             </div>
           </article>
           <article class="card" id="operator-education-record">
-            <div class="card-header"><div class="card-title">Education Completion</div></div>
+            <div class="card-header"><div class="card-title">AI Results Status Monitor</div></div>
             <div class="card-body" style="display:grid; gap:10px; font-size:12px;">
-              <div><strong>Ticket A-002</strong> · AI result version 1 · purpose-bound view</div>
-              <div style="display:flex; gap:14px;"><label><input type="checkbox" checked> Portal</label><label><input type="checkbox"> Email</label><label><input type="checkbox" checked> Print</label></div>
-              <div style="display:flex; gap:8px;"><button class="btn btn-success">Complete Education</button><button class="btn btn-ghost">Defer</button></div>
+              <div><strong>Ticket A-002</strong> · AI result version 1 · Published to portal</div>
+              <div style="display:flex; gap:14px;"><label><input type="checkbox" checked> Portal</label><label><input type="checkbox" checked> Email</label><label><input type="checkbox"> Printed</label></div>
+              <div style="display:flex; gap:8px;"><button class="btn btn-primary">Print Result</button><button class="btn btn-ghost">Search Ticket</button></div>
             </div>
           </article>
         </div>
@@ -1839,8 +1838,7 @@
           <div><div style="font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:#7dd3fc;">MHCS Queue Display</div><div style="font-size:28px; font-weight:700;">Current Calls</div></div>
           <div style="text-align:right;"><div style="color:#86efac; font-weight:700;">● CONNECTED</div><div style="font-size:12px; color:#94a3b8;">Paired session · expires 16:00</div></div>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px;">
-          <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">EDUKASI HASIL</div><div style="font-size:64px; font-weight:800;">A-001</div><div style="color:#cbd5e1;">Dipanggil 09:28</div></div>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-bottom:28px;">
           <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">FOTO / RONTGEN</div><div style="font-size:64px; font-weight:800;">A-002</div><div style="color:#cbd5e1;">Dipanggil 09:27</div></div>
           <div style="border:2px solid #38bdf8; border-radius:16px; padding:24px; text-align:center;"><div style="font-size:18px; color:#7dd3fc;">PEMERIKSAAN DASAR</div><div style="font-size:64px; font-weight:800;">A-003</div><div style="color:#cbd5e1;">Dipanggil 09:26</div></div>
         </div>
@@ -1849,7 +1847,7 @@
           <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; text-align:center;">
             <div><strong>A-014</strong><br><span style="color:#94a3b8;">PEMERIKSAAN DASAR · 09:25</span></div>
             <div><strong>A-007</strong><br><span style="color:#94a3b8;">FOTO/RONTGEN · 09:24</span></div>
-            <div><strong>A-011</strong><br><span style="color:#94a3b8;">EDUKASI HASIL · 09:22</span></div>
+            <div><strong>A-015</strong><br><span style="color:#94a3b8;">PEMERIKSAAN DASAR · 09:22</span></div>
             <div><strong>A-013</strong><br><span style="color:#94a3b8;">PEMERIKSAAN DASAR · 09:20</span></div>
             <div><strong>A-006</strong><br><span style="color:#94a3b8;">FOTO/RONTGEN · 09:18</span></div>
           </div>

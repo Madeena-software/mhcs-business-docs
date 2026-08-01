@@ -122,7 +122,7 @@ clinical note. The controlled preliminary reasons are:
 - `other`, which requires an explanation.
 
 The doctor's original reason and note remain immutable. Doctor quality and
-repeat decisions do not change Operator basic examination & vital signs, X-ray, or education earnings that
+repeat decisions do not change Operator basic examination & vital signs or X-ray earnings that
 already reached their own completion boundary.
 
 The repeat flow is:

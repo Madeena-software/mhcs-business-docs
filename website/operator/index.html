@@ -53,7 +53,7 @@
           <div class="flow-step step-system">
             <span class="step-label">Work context</span>
             <h3>Select a current station label</h3>
-            <p>Front desk, basic examination & vital signs, X-ray, and result education are work labels, not separate permissions.</p>
+            <p>Front desk, basic examination & vital signs, and X-ray are work labels, not separate permissions.</p>
           </div>
         </div>
       </article>
@@ -61,9 +61,14 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">02</span>
-          <div><h2>Consent & ticket</h2><p class="phase-subtitle">One number for the whole visit</p></div>
+          <div><h2>Ticket & queues</h2><p class="phase-subtitle">Site and shift order</p></div>
         </header>
         <div class="flow">
+          <div class="flow-step step-action">
+            <span class="step-label">Single ticket</span>
+            <h3>Issue one site-and-shift ticket number</h3>
+            <p>The same number follows basic examination & vital signs and X-ray.</p>
+          </div>
           <div class="flow-step step-decision">
             <span class="step-label">Eligibility</span>
             <h3>Is the member registered, eligible, and verified?</h3>
@@ -145,8 +150,8 @@
             <span class="step-label">Asynchronous AI</span>
             <h3>Release the operator station</h3>
             <div class="branch-grid">
-              <div class="branch"><strong>Ready</strong><span>Publish the AI result and release the ticket to education.</span></div>
-              <div class="branch"><strong>Delayed</strong><span>Let the patient leave with education deferred; deliver later through portal/email.</span></div>
+              <div class="branch"><strong>Ready</strong><span>Publish the AI result to portal/email and auto-complete the ticket.</span></div>
+              <div class="branch"><strong>Desk Lookup</strong><span>Desk staff can check the read-only monitor and print result on demand if patient asks.</span></div>
             </div>
           </div>
         </div>
@@ -155,27 +160,27 @@
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">05</span>
-          <div><h2>Result education & LCD</h2><p class="phase-subtitle">Purpose-bound result access</p></div>
+          <div><h2>AI Completion & LCD Display</h2><p class="phase-subtitle">Automated visit completion and LCD calling</p></div>
         </header>
         <div class="flow">
           <div class="flow-step step-action">
-            <span class="step-label">Education</span>
-            <h3>Claim and explain the available AI result</h3>
-            <p>Access is limited to the claimed ticket. Record the result version, staff, times, and portal/email/print delivery.</p>
+            <span class="step-label">Monitor & Print</span>
+            <h3>Desk lookup and physical printout</h3>
+            <p>Access published results via the AI Results Status Monitor for patient inquiries and optional on-demand printing.</p>
           </div>
           <div class="flow-step step-success">
             <span class="step-label">Complete</span>
-            <h3>Close the visit</h3>
-            <p>Education completion makes its configured earning eligible. Doctor review remains a later Member request.</p>
+            <h3>Auto-close the visit</h3>
+            <p>Ticket completes automatically when AI readiness is published. Doctor review remains a later Member request.</p>
           </div>
           <div class="flow-step step-system">
             <span class="step-label">Public display</span>
             <h3>Pair a read-only LCD session</h3>
-            <p>Show only Pemeriksaan Dasar, Foto/Rontgen, and Edukasi Hasil calls—for example A-001 → education, A-002 → photo, and A-003 → basic examination & vital signs.</p>
+            <p>Show only Pemeriksaan Dasar and Foto/Rontgen calls—for example A-002 → photo and A-003 → basic examination & vital signs.</p>
           </div>
         </div>
         <p class="restriction">
-          Operator restriction: no patient data on the LCD, no AI-result browsing, no doctor reports,
+          Operator restriction: no patient data on the LCD, no unassigned patient record browsing, no doctor reports,
           no raw NPZ, and no raw DICOM downloads.
         </p>
       </article>

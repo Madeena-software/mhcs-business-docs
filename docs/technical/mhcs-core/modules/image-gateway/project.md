@@ -134,11 +134,10 @@ when legally required. The action must be fully audited.
 - Doctor review is requested only when selected.
 - The AI provider is selected by application code, not by the member.
 - A successful AI result becomes visible to the member automatically and emits
-  one idempotent readiness event that releases the matching Operator ticket to
-  result education.
+  one idempotent readiness event that automatically completes the matching Operator ticket.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
   report delivery or terminal fallback failure updates Member publication and
-  Operator education status but creates no Operator earning by itself.
+  Operator ticket completion status but creates no Operator earning by itself.
 - For a doctor-selected service, placing the DICOM study in the Doctor module
   dashboard queue starts review and creates no Operator earning.
 - A Doctor module `repeat_required` decision starts a Member module repeat

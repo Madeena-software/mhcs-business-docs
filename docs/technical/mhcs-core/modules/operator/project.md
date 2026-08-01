@@ -13,7 +13,7 @@ Operator Core is the staff-facing module for examination-day operations. It
 owns physical-site master data, operator accounts and assignments, arrivals,
 identity-verification and consent-confirmation workflow, the staged operational
 queue, basic examination & vital signs capture, examination execution, session-only NPZ drafts, submission
-to Image Gateway, result education, the public queue display, operator earnings,
+to Image Gateway, the public queue display, read-only AI result monitoring, operator earnings,
 and operator payouts.
 
 Operator Core does not model a separate project entity. Sites, shifts,
@@ -23,7 +23,7 @@ bookings, queue items, and examinations provide the required business context.
 
 Operator Core has two permissions:
 
-- **Operator:** uses the front desk, basic examination & vital signs, X-ray, and result-education features.
+- **Operator:** uses the front desk, basic examination & vital signs, and X-ray features.
   These are operational stations in one application, not separate permissions
   or staff roles.
 - **Global administrator:** manages every Operator Core site and operational
@@ -37,7 +37,7 @@ administrator-only account remains an ordinary application user.
 
 An operator may be authorized for multiple sites but works in exactly one
 active site context at a time. Within an assigned shift, the operator selects a
-front-desk, basic examination & vital signs, X-ray, or result-education station label. This label routes
+front-desk, basic examination & vital signs, or X-ray station label. This label routes
 work and public calls but grants no permission. Switching sites requires
 confirmation, is audited, and is blocked while the operator has a claimed
 ticket, an unfinished queue action, or an unclosed cash shift. The authenticated
@@ -108,8 +108,8 @@ Staffing is demand-triggered:
 7. If the candidate sequence is exhausted without an acceptance, a high-priority escalation alert is sent to the Global Administrator for manual override. If unassigned by the staffing deadline, Member Core executes standard member re-accommodation or full refunds.
 8. Assignment additions and removals are audited. Removing an assignment never
    changes attribution for completed work.
-9. Any assigned operator may perform front-desk, MCU, X-ray, or
-   result-education work. Atomic claims ensure that only one operator handles a
+9. Any assigned operator may perform front-desk, basic examination & vital signs, or
+   X-ray work. Atomic claims ensure that only one operator handles a
    ticket stage at a time.
 
 After assignment, later booking cancellations do not remove the operator or
@@ -201,10 +201,10 @@ required.
 ## Queue rules
 
 One human-readable ticket number is unique within its site and shift and
-remains unchanged through three sequential stages:
+remains unchanged through two physical sequential stages plus background AI completion:
 
 ```text
-Basic Examination & Vital Signs -> X-ray -> awaiting AI -> result education
+Basic Examination & Vital Signs -> X-ray -> awaiting AI -> completed
 ```
 
 The ticket records its current stage and state, stage-ready time, claimed
@@ -259,10 +259,10 @@ pairs a TV browser using a single-use short code. The resulting session is
 read-only, restricted to one site and shift, revocable, and expires
 automatically at shift end.
 
-The display refreshes periodically and shows active calls for exactly three
-public destinations: `PEMERIKSAAN DASAR`, `FOTO/RONTGEN`, and `EDUKASI HASIL`. Each
+The display refreshes periodically and shows active calls for exactly two
+public destinations: `PEMERIKSAAN DASAR` and `FOTO/RONTGEN`. Each
 destination may call a different ticket at the same time, for example ticket
-`A-001` to education, `A-002` to X-ray, and `A-003` to basic examination & vital signs. The five most recent
+`A-002` to X-ray, and `A-003` to basic examination & vital signs. The five most recent
 calls also show only ticket number, destination, and call time.
 
 Front-desk registration and `awaiting_ai` are private dashboard states and
@@ -383,38 +383,34 @@ durably stored, authorized, checksum-verified, and recoverable by the stable
 submission ID. Merely accepting the browser request or dispatching a local
 command is not durable acceptance.
 
-## AI waiting and result education
+## AI waiting and result status monitoring
 
-AI processing is asynchronous and never reserves an operator. Image Gateway
+AI processing is asynchronous and never reserves an operator station. Image Gateway
 publishes the selected AI result to Member Core and emits an idempotent
 readiness event containing the ticket, examination, result version, publication
 status, occurrence time, and source version. Operator Core rejects an event
 that does not match the immutable ticket and examination.
 
-When the result is ready, Operator Core moves the ticket from `awaiting_ai` to
-the result-education FIFO. The operator who atomically claims it receives one
-short-lived, purpose-bound result view. Access ends when the work is completed,
-released, or expired and never permits browsing other AI results or opening a
-doctor report.
+When the AI result is published, Operator Core automatically marks the ticket as
+`completed`. Patient presence onsite is optional during AI processing; patients may
+leave immediately after X-ray capture or choose to wait.
+
+Operator Core provides a read-only **AI Results Status Monitor** in the Operator interface.
+Desk staff may search and view published AI results to answer patient inquiries or
+generate an optional physical printout on demand if requested onsite.
 
 Operator Core records only:
 
-- the AI result version shown;
-- the responsible operator and station;
-- start and completion times;
-- `portal`, `email`, and/or `print` delivery status; and
-- whether education is completed or deferred.
+- the AI result version printed or checked;
+- the responsible operator and desk station;
+- occurrence times; and
+- `portal`, `email`, and/or `print` delivery status.
 
 It does not store an education script, diagnosis, or duplicate report and does
 not sell or create doctor review. The application may display a fixed notice
 that paid doctor review can be requested later in Member Core.
 
-If AI is delayed, the patient may leave after the delay is explained. The
-ticket becomes `deferred`, no station remains claimed, and Member Core later
-publishes to the portal and sends email when selected. Printing is available
-only when the result is ready onsite. A terminally unavailable result may be
-communicated and closed without fabricating a result. A doctor-only service or
-doctor-requested repeat does not enter the AI education queue.
+A doctor-only service or doctor-requested repeat does not enter the AI processing queue.
 
 ## Corrections and repeat examinations
 
@@ -474,8 +470,8 @@ The Operator Core DICOM viewer is read-only:
 
 Image Gateway supplies short-lived, purpose-bound references. Operator Core
 does not persist a second result-file copy. Operators may see processing and
-image-availability status. AI results are visible only through the claimed
-result-education flow described above; doctor reports are never visible.
+image-availability status. AI results are visible through the read-only AI Results Status
+Monitor described above; doctor reports are never visible.
 
 ## Operator earnings
 
@@ -483,7 +479,7 @@ Operator earnings are ordinary Operator Core financial records denominated in
 Indonesian rupiah. They are not Madeena Points and are not FHIR resources.
 
 The global administrator configures versioned, site-and-service-specific rates
-for basic examination & vital signs, X-ray, and result education. Operator Core snapshots all applicable
+for basic examination & vital signs and X-ray. Operator Core snapshots all applicable
 stage rates when the ticket is issued; later changes affect only later tickets
 and never revalue historical earnings.
 
@@ -493,13 +489,9 @@ Earning rules are:
   to the operator recorded on that completion.
 - **X-ray:** becomes eligible when Image Gateway durably accepts the complete
   capture set and belongs to its submitting operator.
-- **Result education:** becomes eligible when an available result is explained,
-  or terminal unavailability is communicated, and belongs to the completing
-  operator. A delayed or merely delivered result does not trigger it.
 - **Same worker:** one operator who completes multiple stages receives each
   applicable earning independently.
-- **Doctor-only service or repeat:** has no education earning because it does
-  not enter the AI education queue. Any performed basic examination & vital signs and X-ray stages retain
+- **Doctor-only service or repeat:** Any performed basic examination & vital signs and X-ray stages retain
   their ordinary earnings.
 - **Later repeat or doctor decision:** never cancels or revalues an already
   completed stage earning.
@@ -575,7 +567,7 @@ The global Operator Core administrator may:
 - create, update, disable, and synchronize sites;
 - assign or remove multiple operators for an eligible shift with audit;
 - configure versioned service-to-projection protocol mappings;
-- configure site-and-service basic examination & vital signs, X-ray, and education earning rates;
+- configure site-and-service basic examination & vital signs and X-ray earning rates;
 - revoke a paired queue-display session;
 - configure the global payout-fee policy;
 - suspend and resume payouts without editing bank destinations;
@@ -594,7 +586,7 @@ history.
 Operator-facing operations cover the assigned shift ticket queues, arrival,
 identity and consent verification, station selection, basic examination & vital signs assessment, X-ray
 start, draft captures, capture review, complete-set submission, AI waiting,
-result education, LCD pairing, cash closing, payout destination, and earnings.
+read-only AI result monitoring, LCD pairing, cash closing, payout destination, and earnings.
 State changes use a stable idempotency identity where retry is possible. No
 operation trusts an operator, site, shift, ticket, or member identifier without
 reconciling it to the authenticated session and authorized record.
@@ -664,8 +656,7 @@ conflict.
 
 Operator Core creates the basic examination & vital signs earning from the idempotent basic examination & vital signs completion
 transition and the X-ray earning from durable Image Gateway acceptance. An
-idempotent AI-readiness event releases the education queue, while the local
-education-completion transition creates its earning. Each transition carries
+idempotent AI-readiness event triggers automatic ticket completion in Operator Core. Each transition carries
 the ticket, stage, completing operator, occurrence time, rate-snapshot version,
 source version, and stable event identifier. Replays return the original
 earning, and mismatched ticket, examination, result, stage, or worker data fail.
@@ -783,7 +774,7 @@ accepted as arbitrary JSON.
   duplicate transfers, destination substitution, and log leakage.
 - Audit identity views, exact-NIK lookups, administrator decisions, site and
   protocol changes, consent recording, basic examination & vital signs assessment, station selection,
-  ticket claims/calls/skips, display pairing, education-result views, order
+  ticket claims/calls/skips, display pairing, AI result views/printouts, order
   corrections, submissions, earning changes, bank verification, payout
   actions, and cash reconciliation.
 - Audit records include actor, permission, site, target, action, previous and
