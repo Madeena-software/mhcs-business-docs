@@ -1323,7 +1323,7 @@ Member-facing UI copy is acceptable only when:
 
 ## Authority and conflict resolution
 
-This document is authoritative for MHCS-authored member-facing and publicly visible language.
+This document is authoritative for MHCS-authored browser-interface language and member-facing product communications, including the Operator Portal.
 
 It does not override:
 
