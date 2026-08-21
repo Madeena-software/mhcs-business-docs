@@ -1,7 +1,7 @@
 # MHCS Core Operator Module Specification
 
 **Status:** Approved target foundation
-**Last reviewed:** 30 July 2026
+**Last reviewed:** 21 August 2026
 
 This document defines the Operator module in the approved `mhcs-core` modular
 application. The overall repository and runtime boundary is defined by the
@@ -151,7 +151,7 @@ Any assigned operator may perform the front-desk steps:
 4. Confirm that the member has read and signed the applicable paper informed
    consent (recorded strictly once at the start of the visit).
 5. Record the consent form version, signer, signature-confirmation time,
-   responsible operator, and optional private scan through Member Core.
+   responsible operator, and required private scan through Member Core.
 6. Mark the booking `checked_in` and issue one site-and-shift ticket only after successful verification and consent confirmation, then trigger paper ticket printing via the web print dialog (`window.print()`). The printed thermal slip contains only the site name, shift & date, and prominent ticket number (omitting patient name and RM for paper privacy). A manual "Reprint Ticket" button is available in the Operator queue worklist. Issued ticket numbers are managed on-site via paper slips and are not displayed in the Member Portal. Downstream examination stations reuse this visit consent confirmation and do not re-request consent.
 
 KTP/KIA and profile photographs are purpose-bound, temporary, non-downloadable,
@@ -465,9 +465,14 @@ The Operator Core DICOM viewer is read-only:
 - zoom and pan are allowed;
 - manual window/level, contrast, brightness, rotation, annotations,
   measurements, and saved presentation state are disabled; and
-- raw DICOM and raw NPZ download are disabled for operators and administrators.
+- raw NPZ download remains disabled for operators and administrators. Any
+  authenticated Operator whose active site and current shift authorise an
+  examination may view and download each returned raw DICOM; the authenticated
+  browser receives it as a standard `.dcm` attachment
+  download without a temporary-link, declared-purpose, or mandatory
+  application-audit step.
 
-Image Gateway supplies short-lived, purpose-bound references. Operator Core
+Image Gateway supplies authenticated authorised references. Operator Core
 does not persist a second result-file copy. Operators may see processing and
 image-availability status. AI results are visible through the read-only AI Results Status
 Monitor described above; doctor reports are never visible.
@@ -599,7 +604,7 @@ The Operator module uses explicit local Member module commands and queries for:
 - idempotent walk-in creation, cash top-up, point charge, and booking;
 - `arrived`, examination-started, and examination-completed events;
 - identity-verification views and decisions;
-- paper-consent metadata and optional private scan recording;
+- paper-consent metadata and required private scan recording;
 - body-part/laterality order correction;
 - basic examination & vital signs assessment recording and correction;
 - member result-publication and requested delivery status;
@@ -628,8 +633,11 @@ accounts, earnings, or payout data.
 
 After the authenticated browser submits the complete set to `mhcs-core`, the
 Operator module invokes one local, idempotent `AcceptCompleteCaptureSet`
-command on the Image Gateway module.
+command on the Image Gateway module. The request waits only for durable source
+acceptance; the Image Gateway queue worker performs MPIPS conversion later.
 
+The active capture page keeps selected browser `File` objects only while the
+upload is active, reports transmitted bytes, and polls safe processing status.
 The command contains one immutable metadata manifest, every confirmed
 radiograph NPZ, and the required matching gain NPZ input. The manifest includes
 file names used only for correlation, byte sizes, radiograph/gain checksums,
@@ -645,7 +653,9 @@ The Image Gateway module returns one of these semantic outcomes:
   rejected fields or capture IDs without exposing secrets; or
 - a transient service error that is safe to retry with the same ID.
 
-The Operator module completes the X-ray stage only for `durably_accepted`. The
+The Image Gateway persists plain original bytes in private opaque-keyed storage
+and reports component-specific missing state for a same-admission retry. The
+Operator module completes the X-ray stage only for `durably_accepted`. The
 module command and durable storage record commit without a network hop. A
 repeated command with the same ID and payload returns the original submission;
 reusing the ID with different bytes or metadata fails as an idempotency

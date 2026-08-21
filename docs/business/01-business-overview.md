@@ -16,10 +16,10 @@ priority, while B2C registration and self-booking remain available.
 | 4 | Basic examination & vital signs operator | Claim the next ready ticket, record the required basic measurements, point-of-care blood screening, and structured interview, then release the same ticket to the X-ray queue. |
 | 5 | Grabber and X-ray operator | Claim the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and the required gain NPZ input; the operator reviews the draft and may remove or retake captures. |
 | 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
-| 7 | Image Gateway | Durable acceptance completes the X-ray stage. Image Gateway stores the submission and coordinates processing while the ticket waits for AI without occupying an operator station. |
-| 8 | MPIPS | For every capture, convert one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file. |
-| 9 | Image Gateway | Retry failed captures independently while preserving successful sibling results. |
-| 10 | Image Gateway and Member Core | When every capture has produced DICOM, make the complete image set available under the existing publication rules. |
+| 7 | Image Gateway | Persist each source component, manifest, and signature privately. Once the complete source set is durable, atomically accept it and queue processing. Durable source acceptance completes the X-ray stage while the ticket waits for AI without occupying an operator station. |
+| 8 | Image Gateway worker and MPIPS | For every capture, convert one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file asynchronously. |
+| 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to an authorised Operator for the authorised examination. |
+| 10 | Image Gateway and Member Core | When every capture has produced DICOM, make the complete image set available under the existing Member and Doctor publication rules. |
 | 11 | AI service | Run the selected AI analysis asynchronously. When its result is available, publish it to the member and emit an AI completed event that automatically completes the ticket. |
 | 12 | Member module | Always retain the result in the authenticated member portal and deliver any selected email copy. Desk staff may also view the result on the read-only AI Results Status Monitor and provide an optional printout on demand if requested onsite. |
 | 13 | Member | If desired, independently purchase and request later doctor review through Member Core; Operator Core does not create the add-on. |
@@ -53,7 +53,7 @@ creating permanent copies in every module.
 | Operator module in `mhcs-core` | Physical sites, operator staffing, front-desk features, queues, capture-set submission, image viewing, operator earnings, and payouts |
 | Image Gateway module in `mhcs-core` | Permanent image storage, MPIPS orchestration, routing, and controlled distribution |
 | Doctor module in `mhcs-core` | Shared doctor work queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts |
-| `mpips` repository | Private black-box conversion of radiograph NPZ plus gain NPZ and a signed DICOM manifest into DICOM |
+| `mpips` repository | Separate public GitHub repository whose private MHCS processing service/API boundary converts radiograph NPZ plus gain NPZ and a signed DICOM manifest into DICOM |
 
 Member, Operator, Doctor, and Image Gateway run as modules in one
 `mhcs-core` application. They use local commands, shared transactions where
@@ -139,7 +139,13 @@ Basic examination & vital signs completion makes the recorded basic examination 
 eligible. Gateway acceptance completes X-ray and makes the submitting worker's
 X-ray earning eligible. When AI completes asynchronously, the ticket automatically marks as completed.
 
-Operators see images and processing status. Operators may look up published AI results on the read-only AI Results Status Monitor to answer patient inquiries or print copies on demand. Operators cannot browse unassigned patient records, see doctor reports, access raw NPZ, or download raw DICOM.
+Operators see images and processing status. As each capture produces a valid DICOM,
+an authenticated Operator whose active site and current shift authorise that
+examination may view and explicitly download that raw DICOM as a standard
+authenticated `.dcm` attachment. The download is not public, has no permanent
+public URL, and does not require the old temporary-link, declared-purpose, or
+mandatory application-audit workflow for this specific Operator action. Operators
+cannot browse unassigned patient records, see doctor reports, or access raw NPZ.
 
 ### Grabber boundary
 
@@ -220,7 +226,7 @@ These tables describe the business journey for each role.
 | B2C booking | Choose an additional examination, result option, date, and shift, then top up if necessary. | Member Core charges personal points and confirms the member-controlled booking. |
 | Attendance | Attend the examination. A walk-in registers and pays before operator confirmation. | Operator Core receives authorised attendance and examination information. |
 | B2B no-show | Miss an assigned examination. | The booking remains paid and consumes the business quota; the business owns any attendance consequence. |
-| Image processing | Wait while every submitted capture is converted. | A partial multi-capture result remains hidden until the complete image set succeeds. |
+| Image processing | Wait while every submitted capture is converted. | A partial multi-capture result remains hidden from the Member until the complete image set succeeds, while each successful DICOM may be available to an authorised Operator for the authorised examination. |
 | Images ready | View the complete processed image set and export TIFF, JPG, or PDF. | Raw NPZ remains inaccessible and raw DICOM is not offered for download. |
 | Selected results | Receive AI and doctor results when each purchased service completes. | Each result publishes automatically and neither waits for the other. |
 | Repeat request | Receive a doctor-requested zero-point, doctor-only repeat entitlement. | The member chooses any compatible site and shift; the booking consumes ordinary capacity and does not rerun AI. |
@@ -232,19 +238,19 @@ These tables describe the business journey for each role.
 | Phase | Operator action or decision | System outcome |
 |---|---|---|
 | Staff access | Sign in and open an assigned site and shift, then select the current front-desk, basic examination & vital signs, or X-ray station label. | Multiple assigned operators may work concurrently. The label routes work and public calls but grants no additional permission. |
-| Eligibility and consent | Confirm registration, payment or eligibility, identity, and signed paper consent once at front-desk check-in. | MHCS records the consent form version, signer, time, responsible staff, and optional private scan. Informed consent is recorded once at the start of the visit and covers all examination stages for that ticket. Missing consent blocks ticket issue. |
+| Eligibility and consent | Confirm registration, payment or eligibility, identity, and signed paper consent once at front-desk check-in. | MHCS records the consent form version, signer, time, responsible staff, and required private scan. Informed consent is recorded once at the start of the visit and covers all examination stages for that ticket. Missing consent evidence blocks ticket issue. |
 | Ticket | Issue one site-and-shift ticket number and print a paper queue ticket slip. | The number remains unchanged through basic examination & vital signs, X-ray, and background AI processing. Ticket numbers are managed via paper slips and are not displayed in the Member Portal. |
 | Stage queue | Claim and call the next ready-time FIFO ticket for the selected station. | An atomic claim prevents duplicate handling. A reasoned skip requeues the ticket with a new ready time; recall does not reorder it. |
-| Basic examination & vital signs | Record required temperature, height, weight, calculated BMI, blood pressure, glucose, total cholesterol, uric acid, and structured interview responses. | Every item has a value or an explicit unavailable/refused reason. Completion releases the ticket to X-ray and makes the basic examination & vital signs earning eligible. |
+| Basic examination & vital signs | Record required temperature, height, weight, calculated BMI, blood pressure, glucose, total cholesterol, uric acid, and structured interview responses, and retain evidence that the approved paper questionnaire is complete. | Every item has a value or an explicit unavailable/refused reason. The completed paper questionnaire evidence remains private; missing evidence blocks basic examination completion. Completion releases the ticket to X-ray and makes the basic examination & vital signs earning eligible. |
 | Identity | Use the identity supplied by the active examination. | Patient identity is never inferred from an NPZ filename or embedded NPZ data. |
 | Capture | Use Grabber to create patient-free radiograph NPZ captures and the required gain NPZ. | Each radiograph is added to the active examination draft and correlated to its gain input. |
 | Quality review | Review every capture. Remove and retake any unacceptable image. | Only accepted captures remain in the complete draft. |
 | Submit | Submit the complete draft set once. | The Operator module hands every remaining radiograph, its matching gain input, and a frozen examination snapshot to the Image Gateway module. |
-| Gateway acceptance | Wait for durable acceptance. | Acceptance completes X-ray, makes its submitting worker's stage earning eligible, and moves the ticket to asynchronous background AI waiting. |
+| Gateway acceptance | Wait for durable source acceptance. | Once the complete source set is durable, Image Gateway atomically accepts it and queues MPIPS. Acceptance completes X-ray, makes its submitting worker's stage earning eligible, and moves the ticket to asynchronous background processing. A later retry retransmits only a missing component. |
 | Background AI waiting | AI processes asynchronously; patient is free to leave or wait. | A completed AI result publishes to Member Core and automatically completes the ticket. If a patient asks onsite, desk staff can check the read-only AI Results Status Monitor and print the result on demand. |
 | LCD calling | Pair a read-only site-and-shift display and call tickets for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI. | The screen shows active and five recent calls for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI, never patient or clinical data. |
 
-Operators may view processing status, completed images, and published AI results on the read-only monitor. They do not see doctor reports and cannot access raw NPZ or download raw DICOM.
+Operators may view processing status, completed images, and published AI results on the read-only monitor. They do not see doctor reports or access raw NPZ. An authorised Operator may view and download each returned raw DICOM only when the active site and current shift authorise that examination, using an authenticated `.dcm` attachment rather than a public or permanent link.
 
 ### Doctor journey
 
@@ -272,8 +278,12 @@ Operators may view processing status, completed images, and published AI results
 Every submitted capture remains part of the examination. If one capture
 fails:
 
-- successful sibling DICOM files are preserved;
+- successful source components and sibling DICOM files are preserved;
 - only the failed capture is retried, for up to three total attempts;
+- a component that is already durably persisted is not retransmitted solely
+  because a sibling component failed;
+- each successful DICOM may be viewed and downloaded by the authorised Operator
+  for that examination;
 - the member does not see an incomplete image set;
 - the already eligible X-ray-stage earning remains unchanged; and
 - after the third failed attempt, an administrator receives an email.
@@ -298,11 +308,16 @@ publicly available on the internet.
 | User | Raw NPZ | Processed images | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
 | Member | No | Yes, when complete | No | When selected and complete | When selected and complete |
-| Operator | No | Yes, when complete | No | Read-only view via AI Results Status Monitor | No |
+| Operator | No | Yes, as each authorised DICOM is available | Yes, authenticated `.dcm` attachment when the active site and current shift authorise the examination | Read-only view via AI Results Status Monitor | No |
 | Doctor | No | Yes, for an authorised study | Explicit, audited clinical need | If available | Own workflow |
 | Image Gateway administrator | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version and audit context |
 
 Members may export TIFF, JPG, or PDF.
+
+Operator raw-DICOM downloads are authenticated, non-public attachments with no
+permanent public URL. They do not use the Doctor workflow's short-lived,
+declared-purpose, mandatory application-audit download process. Members still
+do not receive raw DICOM.
 
 ### Payment ownership and triggers
 

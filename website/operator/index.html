@@ -80,7 +80,7 @@
           <div class="flow-step step-action">
             <span class="step-label">Consent</span>
             <h3>Record the signed paper form</h3>
-            <p>Store its version, signer, time, responsible staff, and optional private scan.</p>
+            <p>Store its version, signer, time, responsible staff, and required private scan. Downstream stations do not ask for consent again.</p>
           </div>
           <div class="flow-step step-action">
             <span class="step-label">Ticket</span>
@@ -119,6 +119,14 @@
               <div class="branch"><strong>Yes</strong><span>Preserve answers and optional notes as versioned patient-reported history.</span></div>
             </div>
           </div>
+          <div class="flow-step step-decision">
+            <span class="step-label">Paper evidence</span>
+            <h3>Is the approved paper questionnaire complete?</h3>
+            <div class="branch-grid">
+              <div class="branch"><strong>No</strong><span>Keep basic examination incomplete until the completed paper questionnaire evidence is recorded privately.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Retain the completed paper questionnaire evidence privately before releasing the ticket.</span></div>
+            </div>
+          </div>
           <div class="flow-step step-success">
             <span class="step-label">Complete</span>
             <h3>Release the ticket to X-ray</h3>
@@ -143,7 +151,7 @@
             <h3>Was the set durably accepted?</h3>
             <div class="branch-grid">
               <div class="branch"><strong>No</strong><span>Keep the ticket in X-ray service and retry safely with the same submission.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Complete X-ray, make its stage earning eligible, and move to AI waiting.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Complete X-ray, make its stage earning eligible, queue background processing, and make each successful DICOM available to the authorised Operator while Member and Doctor wait for the complete set.</span></div>
             </div>
           </div>
           <div class="flow-step step-success">
@@ -181,7 +189,9 @@
         </div>
         <p class="restriction">
           Operator restriction: no patient data on the LCD, no unassigned patient record browsing, no doctor reports,
-          no raw NPZ, and no raw DICOM downloads.
+          and no raw NPZ. An authenticated Operator whose active site and current shift authorise the examination may
+          view and download each returned raw DICOM as a standard `.dcm` attachment; it is not public and has no
+          permanent public URL.
         </p>
       </article>
     </section>

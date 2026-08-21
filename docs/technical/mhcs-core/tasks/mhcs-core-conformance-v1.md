@@ -228,7 +228,7 @@ Use these requirement identifier prefixes:
 * `OPR-*` for Operator;
 * `DOC-*` for Doctor;
 * `IMG-*` for Image Gateway;
-* `UIL-*` for member-facing and publicly visible UI language; and
+* `UIL-*` for MHCS-authored browser interfaces and member-facing product communications; and
 * `DES-*` for implementation-relevant visual and interaction requirements from the approved design reference.
 
 Identifiers must be:

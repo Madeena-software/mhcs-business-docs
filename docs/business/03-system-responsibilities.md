@@ -1,7 +1,7 @@
 # System Responsibilities
 
 This document defines ownership and collaboration in the approved target
-architecture: one future `mhcs-core` repository containing Member, Operator,
+architecture: one `mhcs-core` application repository containing Member, Operator,
 Doctor, and Image Gateway modules, plus the separate `mpips` black-box
 conversion repository.
 
@@ -10,10 +10,10 @@ conversion repository.
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
 | Member module in `mhcs-core` | Member identity, medical-record ID, catalogue, B2B/B2C booking, doctor-requested repeat entitlements, source-restricted points, payment, notifications, and result presentation | Member activity, clinical repeat commands, and member-safe result references | Attendance, examination snapshot, repeat status, and member-facing information |
-| Operator module in `mhcs-core` | Physical sites, multi-operator staffing, consent confirmation, staged queues, basic examination & vital signs capture, multi-capture Submit, LCD calling, operator earnings, and payouts | Attendance, longitudinal-data recording outcomes, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, and operator status |
+| Operator module in `mhcs-core` | Physical sites, multi-operator staffing, consent confirmation, completed paper-questionnaire evidence, staged queues, basic examination & vital signs capture, multi-capture Submit, LCD calling, operator earnings, and payouts | Attendance, longitudinal-data recording outcomes, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, and operator status |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input |
-| Image Gateway module in `mhcs-core` | Permanent NPZ/DICOM storage, MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorised references, completion, and publication events |
-| `mpips` repository | Black-box radiograph NPZ plus gain NPZ conversion | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
+| Image Gateway module in `mhcs-core` | Private durable source and NPZ/DICOM storage, atomic source acceptance, queued MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorised references, completion, and publication events |
+| `mpips` repository | Public GitHub repository containing the black-box radiograph NPZ plus gain NPZ conversion through a private MHCS processing service/API boundary | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
 | Doctor module in `mhcs-core` | Shared doctor queue, study-level quality decisions, repeat requests, reports, amendments, doctor earnings, and payouts | Eligible and replacement studies, supporting output, and repeat status | Quality events, repeat commands, reports, revisions, earnings, and payout status |
 
 Detailed foundations:
@@ -46,6 +46,12 @@ Detailed foundations:
 Member Core supplies authorised attendance and examination information to
 Operator Core. It receives temporary image references, AI results, doctor
 reports, and amendments through Image Gateway.
+
+At front-desk check-in, Operator Core records the signed paper consent and its
+required private scan once for the visit. The Operator workflow also retains
+private evidence that the approved paper questionnaire was completed before
+basic examination completion. Downstream stations do not ask for consent
+again, and neither paper artefact is exposed to the Member or public displays.
 
 Member Core accepts authenticated, idempotent repeat requests only from Doctor
 Core. It creates one active zero-point, doctor-only entitlement, notifies the
@@ -126,8 +132,11 @@ Grabber does not fetch member data, create DICOM, or publish results.
 
 ### Owns
 
-- durable acceptance of a complete submission;
+- durable private persistence and atomic acceptance of a complete submission;
 - indefinite NPZ and DICOM storage;
+- non-public plain original bytes with opaque keys, integrity metadata,
+  grant-controlled access, and TLS/private infrastructure; application-side
+  object encryption is not part of the current policy;
 - organisation-isolated storage;
 - MPIPS coordination;
 - three total attempts for a failed capture;
@@ -140,9 +149,12 @@ Grabber does not fetch member data, create DICOM, or publish results.
 
 ### Completion boundary
 
-The complete image set is published only after every submitted radiograph NPZ has
-produced DICOM. Successful sibling files are preserved during a partial
-failure, but the incomplete set remains hidden from the member.
+Each successful DICOM becomes available to an authenticated Operator whose
+active site and current shift authorise the examination. The complete image
+set is published to Member and Doctor only after every submitted radiograph NPZ
+has produced DICOM. Successful source components and sibling files are
+preserved during a partial failure, but the incomplete set remains hidden from
+the Member and Doctor.
 
 ## MPIPS
 
@@ -209,11 +221,16 @@ doctor-queue entry do not create additional operator earnings.
 | User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
 | Member | No | Yes | No | When selected | When selected |
-| Operator | No | Yes | No | Read-only view via AI Results Status Monitor | No |
+| Operator | No | Yes, as each authorised DICOM is available | Yes, authenticated `.dcm` attachment when the active site and current shift authorise the examination | Read-only view via AI Results Status Monitor | No |
 | Doctor | No | Yes | Explicit, audited clinical need | If available | Own workflow |
 | Image Gateway administrator | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
 
 Members may export TIFF, JPG, or PDF.
+
+Operator raw-DICOM downloads are authenticated, non-public attachments with no
+permanent public URL. They do not require the Doctor workflow's short-lived,
+declared-purpose, mandatory application-audit process. Members still do not
+receive raw DICOM, and Operators never receive raw NPZ.
 
 ## FHIR R5 boundary
 

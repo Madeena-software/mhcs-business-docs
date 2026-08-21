@@ -2,7 +2,7 @@
 # MHCS Business Documentation
 
 **Status:** Updated review pack
-**Business decisions reviewed:** 30 July 2026
+**Business decisions reviewed:** 21 August 2026
 
 This repository is the business documentation source for the MHCS
 teleradiology service.
@@ -19,11 +19,14 @@ teleradiology service.
 | Repository | Foundation |
 |---|---|
 | `mhcs-core` | [Shared architecture](docs/technical/mhcs-core/project.md), with [Member](docs/technical/mhcs-core/modules/member/project.md), [Operator](docs/technical/mhcs-core/modules/operator/project.md), [Doctor](docs/technical/mhcs-core/modules/doctor/project.md), and [Image Gateway](docs/technical/mhcs-core/modules/image-gateway/project.md) module contexts |
-| `mpips` | [Private black-box integration contract](docs/technical/mpips/project.md) |
+| `mpips` | [Black-box contract for the private processing service/API boundary](docs/technical/mpips/project.md) |
 
-The nested module contexts mirror the future `mhcs-core/.agents/context`
-layout. They partition one application specification so an agent can load only
-the module relevant to its task.
+The nested module contexts mirror the `mhcs-core/.agents/context` layout. They
+partition one application specification so an agent can load only the module
+relevant to its task. `mhcs-core` is the application implementation repository
+that consumes these specifications; this repository remains the business and
+approved target technical authority. `mpips` is a separate public GitHub
+repository whose MHCS processing service/API boundary is private.
 
 Modules inside `mhcs-core` communicate through local commands, queries,
 transactions, and durable domain events. The MPIPS document is the only
@@ -47,4 +50,3 @@ Then open `http://localhost:8000` in your web browser.
 This repository contains documentation only. It must not contain patient data,
 clinical files, credentials, secrets, application code, or live deployment
 configuration.
-

@@ -1,7 +1,7 @@
 # MHCS Core Architecture Specification
 
 **Status:** Approved target architecture
-**Last reviewed:** 30 July 2026
+**Last reviewed:** 21 August 2026
 
 This document is the architecture authority for the MHCS application. Detailed
 business rules remain in the module specifications linked below.
@@ -129,7 +129,10 @@ must never hold a database transaction open.
 
 The Image Gateway module owns:
 
-- durable NPZ and DICOM object storage;
+- durable plain-byte NPZ and DICOM object storage in a non-public,
+  opaque-keyed store with grant-controlled access, integrity metadata, and
+  TLS/private infrastructure; MHCS application-side object encryption is not
+  part of the current policy;
 - object keys, checksums, immutable submission manifests, and retention;
 - image-processing jobs, attempt counts, and final-failure status;
 - construction and validation of the DICOM metadata manifest;
@@ -139,12 +142,17 @@ The Image Gateway module owns:
 - AI and doctor routing; and
 - publication and report-version distribution state.
 
-Operator submits a complete capture set through the public `mhcs-core`
-application. The Operator module validates the active examination and invokes
-the Image Gateway module locally. Durable object-storage acceptance completes
-the Operator X-ray stage and releases the ticket to asynchronous AI waiting. No
-application-server-to-application-server file copy or internal network
-submission exists inside `mhcs-core`.
+Operator submits a capture through the public `mhcs-core` application. The
+request durably persists the radiograph, gain, manifest, and signature to the
+configured private store, then atomically accepts the complete source set and
+queues MPIPS. Each successful component is immutable; a later same-admission
+attempt uploads only a missing component. The Image Gateway queue worker is the
+only MPIPS caller, and no application-server-to-application-server file copy or
+internal network submission exists inside `mhcs-core`.
+
+Local and production environments use the same business and processing
+sequence. The storage provider may differ by environment, but durable state,
+privacy, authorization, integrity, and queue boundaries do not.
 
 ## MPIPS black-box contract
 
@@ -166,9 +174,9 @@ publication, or payments.
 Operator module
   -> local complete-submission command
 Image Gateway module
-  -> durable NPZ + manifest storage
-  -> queued conversion job
-  -> private MPIPS conversion: radiograph NPZ + gain NPZ + signed manifest
+  -> capture intent
+  -> durable private NPZ, manifest, and signature persistence
+  -> atomic source acceptance and queued MPIPS job
 MPIPS
   -> DICOM response
 Image Gateway module

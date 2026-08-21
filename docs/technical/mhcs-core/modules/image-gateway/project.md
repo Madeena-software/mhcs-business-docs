@@ -1,7 +1,7 @@
 # MHCS Core Image Gateway Module Specification
 
 **Status:** Approved target module
-**Last reviewed:** 30 July 2026
+**Last reviewed:** 21 August 2026
 
 This document defines the Image Gateway module in the approved `mhcs-core`
 modular application. The overall repository and runtime boundary is defined by the
@@ -60,8 +60,10 @@ copying the same clinical file between application servers.
 ## Processing coordination
 
 - Every submitted radiograph NPZ must be processed with its matching gain NPZ.
-- The Image Gateway worker builds a signed DICOM metadata manifest and invokes
-  the private MPIPS conversion once for each capture.
+- The active MHCS capture request persists both source objects, manifest, and
+  signature to the configured private store. Once the complete source set is
+  durable, it is atomically accepted and the Image Gateway worker queues the
+  private MPIPS conversion.
 - Successful capture results are preserved if a sibling capture fails.
 - Only the failed capture is retried.
 - A failed capture receives three total processing attempts.
@@ -78,7 +80,9 @@ The Image Gateway worker supplies the patient-free radiograph and gain inputs
 plus the separately signed manifest, then receives one DICOM result inside an
 asynchronous job.
 
-Image Gateway validates the result against the input checksums and frozen
+In production, private objects retain their original bytes in private S3 with
+opaque keys, grant-controlled authorization, and integrity metadata; MHCS does not add
+application encryption or public download URLs. Image Gateway validates the result against the input checksums and frozen
 manifest before permanent acceptance. It owns retry count and timing, reuses the
 same conversion identity, and rejects a replay whose bytes or manifest differ.
 
@@ -87,10 +91,16 @@ same conversion identity, and rejects a replay whose bytes or manifest differ.
 The examination image set is complete only when every submitted capture has
 successfully produced DICOM.
 
-Only then does Image Gateway:
+As each capture successfully produces DICOM, Image Gateway makes that individual
+study available as an authorised reference to any authenticated Operator whose
+active site and current shift authorise the examination. This partial
+availability never exposes raw NPZ and does not make the result available to a
+Member or Doctor.
 
-- make the complete image set available to Member, Operator, and Doctor modules
-  as authorised references; and
+Only when every submitted capture has successfully produced DICOM does Image Gateway:
+
+- make the complete image set available to Member and Doctor modules as
+  authorised references; and
 - start each selected result workflow.
 
 A partially successful image set remains hidden from the member until the
@@ -120,10 +130,13 @@ when legally required. The action must be fully audited.
   and MPIPS.
 - Member, Operator, and Doctor modules receive references rather than
   permanent file copies.
-- Temporary authorised links protect image access.
+- Temporary authorised links protect image access, except the standard
+  authenticated Operator raw-DICOM attachment download defined below.
 - Members view images and export TIFF, JPG, or PDF; they do not download raw
   DICOM.
-- Operators view images but cannot download raw DICOM.
+- Any authenticated Operator whose active site and current shift authorise the
+  examination may view and explicitly download each returned raw DICOM as a
+  standard authenticated `.dcm` attachment. Operators never download raw NPZ.
 - Authorised doctors may explicitly download raw DICOM when clinically
   necessary; the download is audit logged.
 

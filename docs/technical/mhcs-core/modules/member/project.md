@@ -2,7 +2,7 @@
 
 **Specification status:** Expected end-state specification
 **Business foundation:** Approved
-**Last reviewed:** 30 July 2026
+**Last reviewed:** 21 August 2026
 
 This is the Member module specification for the approved `mhcs-core` modular
 application. It defines the expected state that creation and implementation
@@ -901,7 +901,7 @@ The examination-day workflow remains paper based. Informed consent is confirmed
 and recorded strictly once per visit at front-desk check-in. Before Operator
 Core issues a ticket, Member Core records the applicable consent form version,
 patient or verified representative signer, signature confirmation, actual
-signing time, responsible operator, site, booking, and an optional private scan.
+signing time, responsible operator, site, booking, and a required private scan.
 The paper form remains the source document; MHCS does not synthesize an
 electronic signature. This single consent covers all examination procedures
 (basic examination & vital signs, radiograph session) during the visit.
@@ -912,7 +912,8 @@ and occurrence time. A correction creates a new traceable version instead of
 overwriting the signed record. Refusal or missing confirmation blocks ticket
 issue and examination.
 
-Any uploaded scan uses private encrypted storage and purpose-bound access. It
+Any uploaded scan uses private plain-byte object storage, opaque keys,
+integrity metadata, and purpose-bound access. It
 is not exposed through the Operator queue, LCD display, URLs, logs, or general
 administrative browsing. Member Core remains the consent authority and maps an
 applicable record to R5 `Consent` only after the MHCS profile and policy are
@@ -1044,8 +1045,9 @@ date range. The `CapabilityStatement` declares the exact supported parameters.
 - Every external adapter call is authenticated and audit logged; internal
   module calls preserve the authenticated actor and purpose context.
 - Member information is minimized for the operator's task.
-- KTP and profile photographs use private encrypted object storage and
-  short-lived authorized access; they are never placed in a public bucket.
+- KTP and profile photographs use private object storage with opaque keys,
+  integrity metadata, and short-lived authorized access; they are never placed
+  in a public bucket.
 - Suspended login access does not erase the member or medical history.
 - Raw NPZ and DICOM never pass through Member Core.
 - Result links are short-lived or resolved through an authorized proxy.
@@ -1321,8 +1323,8 @@ Member Core does not satisfy this specification until tests demonstrate that:
   purpose-, and audit-scoped;
 - an identity-document or face mismatch blocks queue entry pending administrator
   resolution;
-- a ticket cannot be issued without a valid signed paper-consent record, and an
-  optional scan remains private and purpose scoped;
+- a ticket cannot be issued without a valid signed paper-consent record and its
+  required private scan;
 - arrival maps the Appointment to `arrived`, successful verification maps it to
   `checked-in`, and examination start creates the Encounter and maps the
   Appointment to `fulfilled`;

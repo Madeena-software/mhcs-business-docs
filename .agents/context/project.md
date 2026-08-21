@@ -2,7 +2,7 @@
 # Project Context
 
 **Status:** Verified documentation context
-**Last verified:** 2026-07-30
+**Last verified:** 2026-08-21
 
 ## Purpose
 
@@ -21,10 +21,11 @@ agent orientation and must not duplicate them.
 - `docs/business/03-system-responsibilities.md`: ownership, collaboration,
   access, payment triggers, and the FHIR R5 boundary
 - `docs/technical/mhcs-core/project.md`: authoritative target architecture for
-  the future application and router to its module contexts
+  the application repository and router to its module contexts
 - `docs/technical/mhcs-core/modules/<module>/project.md`: Member, Operator,
   Doctor, and Image Gateway module contexts, partitioned for selective loading
-- `docs/technical/mpips/project.md`: private black-box integration contract
+- `docs/technical/mpips/project.md`: black-box integration contract for the
+  private processing service/API boundary
 
 ## Repository facts
 
@@ -43,11 +44,12 @@ agent orientation and must not duplicate them.
 The repository contains cross-system business documents and technical
 specifications for exactly two target repositories:
 
-- future `mhcs-core`: one new modular Laravel application containing Member,
+- `mhcs-core`: the modular Laravel application repository containing Member,
   Operator, Doctor, and Image Gateway modules; and
-- `mpips`: a separate private black-box conversion API.
+- `mpips`: a separate public GitHub repository whose MHCS processing
+  service/API boundary is private.
 
-The `mhcs-core` context mirrors its future `.agents/context` layout: one root
+The `mhcs-core` context mirrors the application's `.agents/context` layout: one root
 `project.md` routes agents to nested Member, Operator, Doctor, or Image Gateway
 `project.md` files. These nested files are context partitions, not separate
 applications or repositories.
@@ -70,9 +72,9 @@ applications or repositories.
 ## Key constraints
 
 - The target topology has exactly two repositories: `mhcs-core` and `mpips`.
-- `mhcs-core` will be created as a new Laravel repository in a later explicit
-  implementation phase. This repository currently designs it but does not
-  implement or scaffold it.
+- `mhcs-core` is the application implementation repository and consumes this
+  repository's approved specifications. This repository does not contain or
+  define that implementation.
 - MPIPS is specified as a private black-box API accepting a radiograph NPZ, its
   matching gain NPZ, and a separately signed DICOM metadata manifest, then
   returning one DICOM object.
@@ -104,5 +106,5 @@ applications or repositories.
 ## Authority boundary
 
 The approved architecture and business rules are in `docs/`. This repository
-designs the future `mhcs-core` and MPIPS boundary; application implementation
+defines the approved `mhcs-core` and MPIPS boundary; application implementation
 and source-repository history are outside its authority.

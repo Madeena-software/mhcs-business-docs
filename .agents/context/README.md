@@ -2,10 +2,11 @@
 # MHCS Business Documentation
 
 **Status:** Updated review pack
-**Business decisions reviewed:** 28 July 2026
+**Business decisions reviewed:** 21 August 2026
 
 This repository is the business documentation source for the MHCS
-teleradiology service and the design authority for the future `mhcs-core`.
+teleradiology service and the design authority for approved business behavior
+and target technical specifications consumed by `mhcs-core`.
 
 ## Core documents
 
@@ -18,19 +19,21 @@ teleradiology service and the design authority for the future `mhcs-core`.
 
 | Repository | Foundation |
 |---|---|
-| Future `mhcs-core` | [Shared architecture](../../docs/technical/mhcs-core/project.md) |
+| `mhcs-core` application repository | [Shared architecture](../../docs/technical/mhcs-core/project.md) |
 | Member module | [Selective context](../../docs/technical/mhcs-core/modules/member/project.md) |
 | Operator module | [Selective context](../../docs/technical/mhcs-core/modules/operator/project.md) |
 | Doctor module | [Selective context](../../docs/technical/mhcs-core/modules/doctor/project.md) |
 | Image Gateway module | [Selective context](../../docs/technical/mhcs-core/modules/image-gateway/project.md) |
-| `mpips` | [Private black-box contract](../../docs/technical/mpips/project.md) |
+| `mpips` | [Black-box contract for the private processing service/API boundary](../../docs/technical/mpips/project.md) |
 
-The MHCS Core structure mirrors the future repository's `.agents/context`:
+The MHCS Core structure mirrors the `mhcs-core` repository's `.agents/context`:
 read the root architecture first, then load only the module context relevant to
 the task. Nested module contexts do not represent separate repositories.
 
-The future Laravel repository will be created in a later explicit phase. This
-repository contains its approved design, not its implementation.
+The `mhcs-core` application repository consumes these specifications and owns
+implementation. This repository contains the approved business and target
+technical authority, not application code. The `mpips` repository is public on
+GitHub; its MHCS processing service/API boundary is private.
 
 ## Verification
 
