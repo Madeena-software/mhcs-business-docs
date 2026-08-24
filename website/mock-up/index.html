@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MHCS continuous end-to-end healthcare journey concept mockup.">
+    <title>MHCS Continuous Healthcare Journey Mockup | v0.4</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="notice" role="note">
+      <span class="notice-mark" aria-hidden="true"></span>
+      <strong data-en="Concept mockup — not a live clinical system" data-id="Mockup konsep — bukan sistem klinis langsung">Concept mockup — not a live clinical system</strong>
+      <span data-en="Fictional demonstration data — no clinical use" data-id="Data demonstrasi fiktif — tidak untuk penggunaan klinis">Fictional demonstration data — no clinical use</span>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="#journey" data-view="journey" aria-label="MHCS Patient Journey" data-aria-en="MHCS Patient Journey" data-aria-id="MHCS Perjalanan Pasien">
+        <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>
+          <b>MHCS</b>
+          <small data-en="Madeena Health Care System" data-id="Madeena Health Care System">Madeena Health Care System</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="Main navigation" data-aria-en="Main navigation" data-aria-id="Navigasi utama">
+        <button type="button" data-view="journey" aria-current="page" data-en="Patient Journey" data-id="Perjalanan Pasien">Patient Journey</button>
+        <button type="button" data-view="imaging" data-en="Imaging" data-id="Pencitraan">Imaging</button>
+        <button type="button" data-view="referral" data-en="Referral" data-id="Rujukan">Referral</button>
+        <button type="button" data-view="follow-up" data-en="Follow-up" data-id="Tindak Lanjut">Follow-up</button>
+        <button type="button" data-view="operations" data-en="Operations" data-id="Operasional">Operations</button>
+      </nav>
+
+      <div class="header-tools">
+        <div class="language-switch" role="group" aria-label="Language" data-aria-en="Language" data-aria-id="Bahasa">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <span aria-hidden="true">|</span>
+          <button type="button" data-lang="id" aria-pressed="false">ID</button>
+        </div>
+        <span class="version">v0.4</span>
+      </div>
+    </header>
+
+    <main>
+      <section id="screen-journey" class="view view-journey" aria-labelledby="journey-title">
+        <div class="hero-wrap">
+          <div class="hero-grid">
+            <div>
+              <span class="eyebrow" data-en="PATIENT JOURNEY · MHCS OVERVIEW" data-id="PERJALANAN PASIEN · IKHTISAR MHCS">PATIENT JOURNEY · MHCS OVERVIEW</span>
+              <p class="version-line">MHCS Continuous Healthcare Journey Mockup <b>v0.4</b></p>
+              <h1 id="journey-title" data-en="From healthcare capabilities to continuous health outcomes." data-id="Dari kapabilitas kesehatan menuju hasil kesehatan yang berkelanjutan.">From healthcare capabilities to continuous health outcomes.</h1>
+              <p class="hero-lead" data-en="MHCS orchestrates existing healthcare capabilities into continuous end-to-end healthcare services." data-id="MHCS mengorkestrasi kapabilitas kesehatan yang sudah ada menjadi layanan kesehatan berkelanjutan dari hulu ke hilir.">MHCS orchestrates existing healthcare capabilities into continuous end-to-end healthcare services.</p>
+              <p class="hero-copy" data-en="Madeena Health Care System is an Indonesia-led healthcare orchestration and coordination system. It helps keep care moving until the required action happens and the intended health outcome is reached — and, where appropriate, maintained over time." data-id="Madeena Health Care System adalah sistem orkestrasi dan koordinasi kesehatan yang dipimpin Indonesia. MHCS membantu menjaga layanan tetap berjalan hingga tindakan yang diperlukan terlaksana dan hasil kesehatan yang dituju tercapai — serta, bila diperlukan, dipertahankan dari waktu ke waktu.">Madeena Health Care System is an Indonesia-led healthcare orchestration and coordination system. It helps keep care moving until the required action happens and the intended health outcome is reached — and, where appropriate, maintained over time.</p>
+              <div class="origin-note">
+                <span class="origin-mark" aria-hidden="true">MI</span>
+                <span data-en="Made in Ina / Made in Indonesia — for the people of Indonesia." data-id="Made in Ina / Made in Indonesia — untuk masyarakat Indonesia.">Made in Ina / Made in Indonesia — for the people of Indonesia.</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="button button-primary" data-view="imaging"><span data-en="See an example use case" data-id="Lihat contoh kasus penggunaan">See an example use case</span><span aria-hidden="true">→</span></button>
+                <button type="button" class="button button-secondary" data-view="operations"><span data-en="Open POC operations" data-id="Buka operasional POC">Open POC operations</span></button>
+              </div>
+            </div>
+
+            <aside class="hero-aside" aria-label="MHCS summary">
+              <div class="aside-kicker" data-en="THE POINT OF MHCS" data-id="INTI DARI MHCS">THE POINT OF MHCS</div>
+              <p data-en="Healthcare should not stop at screening, a result, data entry, or a referral." data-id="Layanan kesehatan tidak boleh berhenti pada skrining, hasil, entri data, atau pembuatan rujukan.">Healthcare should not stop at screening, a result, data entry, or a referral.</p>
+              <div class="aside-rule" aria-hidden="true"></div>
+              <strong data-en="The pathway continues toward the intended outcome." data-id="Perjalanan berlanjut menuju hasil yang dituju.">The pathway continues toward the intended outcome.</strong>
+              <small data-en="Monitoring can continue after recovery or control when health needs change over time." data-id="Pemantauan dapat berlanjut setelah pemulihan atau kondisi terkendali ketika kebutuhan kesehatan berubah dari waktu ke waktu.">Monitoring can continue after recovery or control when health needs change over time.</small>
+            </aside>
+          </div>
+
+          <div class="function-bar" aria-label="Four core functions">
+            <span class="function-label" data-en="Four core functions" data-id="Empat fungsi inti">Four core functions</span>
+            <div class="function-list">
+              <div><b>01</b><strong data-en="Orchestration" data-id="Orkestrasi">Orchestration</strong></div>
+              <div><b>02</b><strong data-en="Integration" data-id="Integrasi">Integration</strong></div>
+              <div><b>03</b><strong data-en="Localisation" data-id="Lokalisasi">Localisation</strong></div>
+              <div><b>04</b><strong data-en="Delivery" data-id="Pelaksanaan">Delivery</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="section-block orchestra-section" aria-labelledby="orchestra-title">
+          <div class="section-heading">
+            <span class="eyebrow" data-en="01 · THE ORCHESTRA MODEL" data-id="01 · MODEL ORKESTRA">01 · THE ORCHESTRA MODEL</span>
+            <h2 id="orchestra-title" data-en="MHCS coordinates the ecosystem; it does not replace it." data-id="MHCS mengoordinasikan ekosistem; bukan menggantikannya.">MHCS coordinates the ecosystem; it does not replace it.</h2>
+            <p data-en="The validated healthcare problem is the score. Existing capabilities are brought together around the care that must be delivered." data-id="Masalah kesehatan yang tervalidasi adalah partiturnya. Kapabilitas yang sudah ada dipertemukan di sekitar layanan yang harus diberikan.">The validated healthcare problem is the score. Existing capabilities are brought together around the care that must be delivered.</p>
+          </div>
+
+          <div class="orchestra-card">
+            <div class="authority-ribbon">
+              <span class="status-dot status-dot-blue" aria-hidden="true"></span>
+              <strong data-en="Government systems remain authoritative in their respective domains." data-id="Sistem Pemerintah tetap berwenang dalam domainnya masing-masing.">Government systems remain authoritative in their respective domains.</strong>
+            </div>
+            <div class="orchestra-diagram" aria-label="Conceptual relationship between MHCS and healthcare capabilities" data-aria-en="Conceptual relationship between MHCS and healthcare capabilities" data-aria-id="Hubungan konseptual antara MHCS dan kapabilitas kesehatan">
+              <div class="orchestra-row orchestra-row-top">
+                <div class="ecosystem-node government-node">
+                  <span data-en="Government Systems" data-id="Sistem Pemerintah">Government Systems</span>
+                  <strong>SATUSEHAT · SITB · BPJS</strong>
+                  <small data-en="Authoritative in respective domains" data-id="Berwenang dalam domainnya masing-masing">Authoritative in respective domains</small>
+                </div>
+              </div>
+              <div class="orchestra-connector vertical-connector" aria-hidden="true">↕</div>
+              <div class="orchestra-row orchestra-row-middle">
+                <div class="ecosystem-node">
+                  <span data-en="Clinical" data-id="Klinis">Clinical</span>
+                  <small data-en="Doctors · facilities · laboratories" data-id="Dokter · fasilitas · laboratorium">Doctors · facilities · laboratories</small>
+                </div>
+                <div class="orchestra-connector" aria-hidden="true">↔</div>
+                <div class="mhcs-node">
+                  <b>MHCS</b>
+                  <span data-en="Orchestration &amp; Coordination" data-id="Orkestrasi &amp; Koordinasi">Orchestration &amp; Coordination</span>
+                  <small data-en="Coordinates the composition around the problem" data-id="Mengoordinasikan komposisi di sekitar masalah">Coordinates the composition around the problem</small>
+                </div>
+                <div class="orchestra-connector" aria-hidden="true">↔</div>
+                <div class="ecosystem-node">
+                  <span data-en="Technology" data-id="Teknologi">Technology</span>
+                  <small data-en="Imaging · PACS · AI · systems" data-id="Pencitraan · PACS · AI · sistem">Imaging · PACS · AI · systems</small>
+                </div>
+              </div>
+              <div class="orchestra-connector vertical-connector" aria-hidden="true">↕</div>
+              <div class="orchestra-row orchestra-row-bottom">
+                <div class="ecosystem-node delivery-node">
+                  <span data-en="Partners / Delivery Channels" data-id="Mitra / Kanal Pelayanan">Partners / Delivery Channels</span>
+                  <small data-en="The channel follows the people" data-id="Kanal mengikuti masyarakat">The channel follows the people</small>
+                </div>
+              </div>
+            </div>
+            <p class="diagram-note" data-en="Conceptual relationship, not a hierarchy. MHCS coordinates what the collective capabilities must accomplish; it does not control authoritative Government systems." data-id="Hubungan konseptual, bukan hierarki. MHCS mengoordinasikan apa yang harus dicapai bersama oleh kapabilitas; MHCS tidak mengendalikan sistem Pemerintah yang berwenang.">Conceptual relationship, not a hierarchy. MHCS coordinates what the collective capabilities must accomplish; it does not control authoritative Government systems.</p>
+          </div>
+        </section>
+
+        <section class="section-block cycle-section" aria-labelledby="cycle-title">
+          <div class="section-heading section-heading-centered">
+            <span class="eyebrow" data-en="02 · CONTINUOUS HEALTHCARE" data-id="02 · LAYANAN KESEHATAN BERKELANJUTAN">02 · CONTINUOUS HEALTHCARE</span>
+            <h2 id="cycle-title" data-en="The journey reaches an outcome — then stays connected when needed." data-id="Perjalanan mencapai hasil — lalu tetap terhubung bila diperlukan.">The journey reaches an outcome — then stays connected when needed.</h2>
+            <p data-en="End-to-end means the required care happens. Continuous means health can change over time, so the cycle can begin again." data-id="Dari hulu ke hilir berarti layanan yang diperlukan terlaksana. Berkelanjutan berarti kondisi kesehatan dapat berubah, sehingga siklus dapat dimulai kembali.">End-to-end means the required care happens. Continuous means health can change over time, so the cycle can begin again.</p>
+          </div>
+
+          <div class="cycle-card">
+            <div class="cycle-key">
+              <span><i class="key-line key-line-solid"></i><b data-en="Immediate care pathway" data-id="Perjalanan layanan segera">Immediate care pathway</b></span>
+              <span><i class="key-line key-line-dashed"></i><b data-en="Continued monitoring" data-id="Pemantauan berkelanjutan">Continued monitoring</b></span>
+            </div>
+            <div class="cycle-sequence" aria-label="Continuous healthcare journey">
+              <div class="cycle-step"><b>01</b><strong data-en="Healthy" data-id="Sehat">Healthy</strong><small data-en="Starting point" data-id="Titik awal">Starting point</small></div>
+              <span class="cycle-arrow" aria-hidden="true">↓</span>
+              <div class="cycle-step"><b>02</b><strong data-en="Prevention / Monitoring" data-id="Pencegahan / Pemantauan">Prevention / Monitoring</strong><small data-en="Health over time" data-id="Kesehatan dari waktu ke waktu">Health over time</small></div>
+              <span class="cycle-arrow" aria-hidden="true">↓</span>
+              <div class="cycle-step"><b>03</b><strong data-en="Screening" data-id="Skrining">Screening</strong><small data-en="Detection or check" data-id="Deteksi atau pemeriksaan">Detection or check</small></div>
+              <span class="cycle-arrow" aria-hidden="true">↓</span>
+            </div>
+
+            <div class="cycle-fork">
+              <div class="fork-title"><span class="fork-icon" aria-hidden="true">?</span><strong data-en="Risk or Finding?" data-id="Risiko atau Temuan?">Risk or Finding?</strong></div>
+              <div class="branch-grid">
+                <article class="branch-card branch-card-clear">
+                  <span class="branch-label" data-en="No significant finding" data-id="Tidak ada temuan signifikan">No significant finding</span>
+                  <div class="branch-flow">
+                    <strong data-en="Remain Healthy" data-id="Tetap Sehat">Remain Healthy</strong>
+                    <span aria-hidden="true">→</span>
+                    <strong data-en="Continued Monitoring" data-id="Pemantauan Berkelanjutan">Continued Monitoring</strong>
+                    <span class="loop-arrow" aria-hidden="true">↺</span>
+                  </div>
+                  <small data-en="The person stays in the cycle as health changes." data-id="Orang tersebut tetap berada dalam siklus seiring kondisi kesehatan berubah.">The person stays in the cycle as health changes.</small>
+                </article>
+                <article class="branch-card branch-card-finding">
+                  <span class="branch-label" data-en="Finding / Risk" data-id="Temuan / Risiko">Finding / Risk</span>
+                  <div class="branch-list">
+                    <strong data-en="Assessment / Diagnosis" data-id="Asesmen / Diagnosis">Assessment / Diagnosis</strong>
+                    <span aria-hidden="true">↓</span>
+                    <strong data-en="Required Clinical Action" data-id="Tindakan Klinis yang Diperlukan">Required Clinical Action</strong>
+                    <span aria-hidden="true">↓</span>
+                    <strong data-en="Treatment / Referral" data-id="Perawatan / Rujukan">Treatment / Referral</strong>
+                    <span aria-hidden="true">↓</span>
+                    <strong data-en="Follow-up" data-id="Tindak Lanjut">Follow-up</strong>
+                  </div>
+                  <div class="outcome-loop">
+                    <strong data-en="Controlled / Recovered" data-id="Terkendali / Pulih">Controlled / Recovered</strong>
+                    <span aria-hidden="true">→</span>
+                    <strong data-en="Continued Monitoring" data-id="Pemantauan Berkelanjutan">Continued Monitoring</strong>
+                    <span class="loop-arrow" aria-hidden="true">↺</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="cycle-outcome-note">
+              <strong data-en="The outcome is the point — not just the system event." data-id="Hasil kesehatan adalah tujuannya — bukan sekadar peristiwa di sistem.">The outcome is the point — not just the system event.</strong>
+              <span data-en="A result, referral, or data entry is useful only when it helps the required care happen." data-id="Hasil, rujukan, atau entri data hanya berguna bila membantu layanan yang diperlukan terlaksana.">A result, referral, or data entry is useful only when it helps the required care happen.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-block channel-section" aria-labelledby="channel-title">
+          <div class="section-heading">
+            <span class="eyebrow" data-en="03 · DELIVERY SURFACES" data-id="03 · PERMUKAAN PELAYANAN">03 · DELIVERY SURFACES</span>
+            <h2 id="channel-title" data-en="Channels follow the people, not the other way around." data-id="Kanal mengikuti masyarakat, bukan sebaliknya.">Channels follow the people, not the other way around.</h2>
+            <p data-en="An MHCS-orchestrated service may use several delivery surfaces. The channel is not the definition of MHCS." data-id="Layanan yang diorkestrasi MHCS dapat menggunakan berbagai permukaan pelayanan. Kanal bukanlah definisi MHCS.">An MHCS-orchestrated service may use several delivery surfaces. The channel is not the definition of MHCS.</p>
+          </div>
+          <div class="channel-card">
+            <div class="channel-list">
+              <span>SATUSEHAT Mobile</span><span>Web</span><span>WhatsApp</span><span>SMS</span><span>Email</span><span>Telephone</span><span data-en="Assisted access" data-id="Akses terbantu">Assisted access</span><span data-en="Fasyankes systems" data-id="Sistem fasyankes">Fasyankes systems</span>
+            </div>
+            <div class="governance-note">
+              <span class="note-icon" aria-hidden="true">⌁</span>
+              <p><strong data-en="Governed delivery" data-id="Pelayanan yang terkelola">Governed delivery</strong><span data-en="Appropriate privacy, consent, authentication, and health-data governance still apply. A channel does not make unrestricted sensitive clinical data appropriate." data-id="Privasi, persetujuan, autentikasi, dan tata kelola data kesehatan yang sesuai tetap berlaku. Sebuah kanal tidak otomatis membuat data klinis sensitif dapat dibagikan tanpa batas.">Appropriate privacy, consent, authentication, and health-data governance still apply. A channel does not make unrestricted sensitive clinical data appropriate.</span></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="example-banner" aria-labelledby="example-title">
+          <div>
+            <span class="eyebrow" data-en="EXAMPLE VALIDATION USE CASE" data-id="CONTOH KASUS PENGGUNAAN UNTUK VALIDASI">EXAMPLE VALIDATION USE CASE</span>
+            <h2 id="example-title" data-en="H2 / Imaging is one composition, not the identity of MHCS." data-id="H2 / Pencitraan adalah salah satu komposisi, bukan identitas MHCS.">H2 / Imaging is one composition, not the identity of MHCS.</h2>
+            <p data-en="The same orchestration logic can be composed around other validated healthcare delivery gaps." data-id="Logika orkestrasi yang sama dapat disusun untuk kesenjangan layanan kesehatan lain yang tervalidasi.">The same orchestration logic can be composed around other validated healthcare delivery gaps.</p>
+          </div>
+          <button type="button" class="button button-light" data-view="imaging"><span data-en="Open imaging example" data-id="Buka contoh pencitraan">Open imaging example</span><span aria-hidden="true">↗</span></button>
+        </section>
+
+        <div class="truth-strip">
+          <strong data-en="Capability truth" data-id="Kebenaran kapabilitas">Capability truth</strong>
+          <div class="truth-tags">
+            <span class="truth-government" data-en="Government Existing Capability" data-id="Kapabilitas Pemerintah yang Sudah Ada">Government Existing Capability</span>
+            <span class="truth-market" data-en="Indonesia Market Existing Capability" data-id="Kapabilitas Pasar Indonesia yang Sudah Ada">Indonesia Market Existing Capability</span>
+            <span class="truth-external" data-en="External Existing Capability" data-id="Kapabilitas Eksternal yang Sudah Ada">External Existing Capability</span>
+            <span class="truth-pending" data-en="Madeena / UGM — Internal Validation Pending" data-id="Madeena / UGM — Menunggu Validasi Internal">Madeena / UGM — Internal Validation Pending</span>
+            <span class="truth-concept" data-en="Conceptual Integration" data-id="Integrasi Konseptual">Conceptual Integration</span>
+            <span class="truth-pending" data-en="Localization Required" data-id="Memerlukan Lokalisasi">Localization Required</span>
+            <span class="truth-pending" data-en="Production Integration Not Verified" data-id="Integrasi Produksi Belum Terverifikasi">Production Integration Not Verified</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-imaging" class="view" hidden aria-labelledby="imaging-title">
+        <div class="page-wrap">
+          <div class="page-heading">
+            <span class="eyebrow" data-en="IMAGING · EXAMPLE COMPOSITION" data-id="PENCITRAAN · KOMPOSISI CONTOH">IMAGING · EXAMPLE COMPOSITION</span>
+            <h1 id="imaging-title" data-en="H2 / Imaging is an example use case." data-id="H2 / Pencitraan adalah contoh kasus penggunaan.">H2 / Imaging is an example use case.</h1>
+            <p data-en="This hypothesis helps demonstrate how MHCS can coordinate an existing capability through to the next required action and outcome." data-id="Hipotesis ini membantu menunjukkan bagaimana MHCS dapat mengoordinasikan kapabilitas yang ada hingga tindakan dan hasil yang diperlukan.">This hypothesis helps demonstrate how MHCS can coordinate an existing capability through to the next required action and outcome.</p>
+          </div>
+
+          <div class="callout callout-amber">
+            <span class="callout-mark" aria-hidden="true">!</span>
+            <p><strong data-en="H2 is not the definition of MHCS." data-id="H2 bukanlah definisi MHCS.">H2 is not the definition of MHCS.</strong><span data-en="Capability availability, production integration, and clinical or regulatory validation remain open until verified." data-id="Ketersediaan kapabilitas, integrasi produksi, serta validasi klinis atau regulasi tetap terbuka sampai terverifikasi.">Capability availability, production integration, and clinical or regulatory validation remain open until verified.</span></p>
+          </div>
+
+          <section class="screen-card" aria-labelledby="imaging-flow-title">
+            <div class="card-heading">
+              <span class="eyebrow" data-en="H2 HYPOTHESIS · CONCEPTUAL FLOW" data-id="HIPOTESIS H2 · ALUR KONSEPTUAL">H2 HYPOTHESIS · CONCEPTUAL FLOW</span>
+              <h2 id="imaging-flow-title" data-en="From primary-care imaging to follow-up / outcome" data-id="Dari pencitraan layanan primer menuju tindak lanjut / hasil">From primary-care imaging to follow-up / outcome</h2>
+            </div>
+            <div class="flow-grid flow-grid-imaging">
+              <div class="flow-card"><b>01</b><strong data-en="Primary-care imaging" data-id="Pencitraan layanan primer">Primary-care imaging</strong><small data-en="Entry capability" data-id="Kapabilitas awal">Entry capability</small></div>
+              <div class="flow-card"><b>02</b><strong>DICOM / PACS</strong><small data-en="Existing system boundary" data-id="Batas sistem yang ada">Existing system boundary</small></div>
+              <div class="flow-card"><b>03</b><strong data-en="AI-assisted prioritisation where relevant" data-id="Prioritisasi berbantuan AI bila relevan">AI-assisted prioritisation where relevant</strong><small data-en="External capability — validation pending" data-id="Kapabilitas eksternal — menunggu validasi">External capability — validation pending</small></div>
+              <div class="flow-card"><b>04</b><strong data-en="Clinical / radiologist review" data-id="Tinjauan klinis / radiolog">Clinical / radiologist review</strong><small data-en="Human review remains required" data-id="Tinjauan manusia tetap diperlukan">Human review remains required</small></div>
+              <div class="flow-card"><b>05</b><strong data-en="Structured result" data-id="Hasil terstruktur">Structured result</strong><small data-en="Result is not the endpoint" data-id="Hasil bukan titik akhir">Result is not the endpoint</small></div>
+              <div class="flow-card"><b>06</b><strong data-en="Required next clinical action" data-id="Tindakan klinis berikutnya yang diperlukan">Required next clinical action</strong><small data-en="Coordinate the next step" data-id="Koordinasikan langkah berikutnya">Coordinate the next step</small></div>
+              <div class="flow-card"><b>07</b><strong data-en="Referral / confirmatory action where required" data-id="Rujukan / tindakan konfirmasi bila diperlukan">Referral / confirmatory action where required</strong><small data-en="Completion must be visible" data-id="Penyelesaian harus terlihat">Completion must be visible</small></div>
+              <div class="flow-card flow-card-outcome"><b>08</b><strong data-en="Follow-up / outcome" data-id="Tindak lanjut / hasil">Follow-up / outcome</strong><small data-en="Continued monitoring when needed" data-id="Pemantauan berkelanjutan bila diperlukan">Continued monitoring when needed</small></div>
+            </div>
+          </section>
+
+          <section class="boundary-grid">
+            <article class="screen-card compact-card">
+              <span class="eyebrow" data-en="CAPABILITY BOUNDARY" data-id="BATAS KAPABILITAS">CAPABILITY BOUNDARY</span>
+              <h2 data-en="Problem first. Required capability second." data-id="Masalah terlebih dahulu. Kapabilitas yang dibutuhkan kemudian.">Problem first. Required capability second.</h2>
+              <p data-en="Only the capabilities required to validate the H2 delivery gap belong in a controlled POC." data-id="Hanya kapabilitas yang diperlukan untuk memvalidasi kesenjangan layanan H2 yang termasuk dalam POC terkontrol.">Only the capabilities required to validate the H2 delivery gap belong in a controlled POC.</p>
+            </article>
+            <article class="screen-card compact-card">
+              <span class="eyebrow" data-en="CAPABILITY TRUTH" data-id="KEBENARAN KAPABILITAS">CAPABILITY TRUTH</span>
+              <div class="truth-stack">
+                <span class="truth-market" data-en="Indonesia Market Existing Capability" data-id="Kapabilitas Pasar Indonesia yang Sudah Ada">Indonesia Market Existing Capability</span>
+                <span class="truth-external" data-en="External Existing Capability" data-id="Kapabilitas Eksternal yang Sudah Ada">External Existing Capability</span>
+                <span class="truth-pending" data-en="Madeena / UGM — Internal Validation Pending" data-id="Madeena / UGM — Menunggu Validasi Internal">Madeena / UGM — Internal Validation Pending</span>
+                <span class="truth-concept" data-en="Conceptual Integration" data-id="Integrasi Konseptual">Conceptual Integration</span>
+                <span class="truth-pending" data-en="Indonesia Clinical / Regulatory Validation Required" data-id="Memerlukan Validasi Klinis / Regulasi Indonesia">Indonesia Clinical / Regulatory Validation Required</span>
+              </div>
+            </article>
+          </section>
+
+          <div class="page-actions"><button type="button" class="button button-secondary" data-view="journey">← <span data-en="Back to MHCS overview" data-id="Kembali ke ikhtisar MHCS">Back to MHCS overview</span></button><button type="button" class="button button-primary" data-view="referral"><span data-en="Continue to referral" data-id="Lanjut ke rujukan">Continue to referral</span> →</button></div>
+        </div>
+      </section>
+
+      <section id="screen-referral" class="view" hidden aria-labelledby="referral-title">
+        <div class="page-wrap">
+          <div class="page-heading">
+            <span class="eyebrow" data-en="REFERRAL · COMPLETION MATTERS" data-id="RUJUKAN · PENYELESAIAN ITU PENTING">REFERRAL · COMPLETION MATTERS</span>
+            <h1 id="referral-title" data-en="Referral created is not the same as referral completed." data-id="Rujukan dibuat tidak sama dengan rujukan selesai.">Referral created is not the same as referral completed.</h1>
+            <p data-en="This illustrative state progression keeps the required service visible after a referral is initiated." data-id="Tahapan ilustratif ini menjaga layanan yang diperlukan tetap terlihat setelah rujukan dimulai.">This illustrative state progression keeps the required service visible after a referral is initiated.</p>
+          </div>
+
+          <div class="completion-contrast">
+            <article class="contrast-card contrast-created"><span class="contrast-number">01</span><div><strong data-en="Referral created" data-id="Rujukan dibuat">Referral created</strong><small data-en="A record exists. The care is not yet complete." data-id="Catatan sudah ada. Layanan belum selesai.">A record exists. The care is not yet complete.</small></div></article>
+            <span class="contrast-arrow" aria-hidden="true">≠</span>
+            <article class="contrast-card contrast-complete"><span class="contrast-number">02</span><div><strong data-en="Referral completed" data-id="Rujukan selesai">Referral completed</strong><small data-en="The patient reaches the service and the required action happens." data-id="Pasien mencapai layanan dan tindakan yang diperlukan terlaksana.">The patient reaches the service and the required action happens.</small></div></article>
+          </div>
+
+          <section class="screen-card progression-card" aria-labelledby="referral-flow-title">
+            <div class="card-heading">
+              <span class="eyebrow" data-en="ILLUSTRATIVE STATES · NO GOVERNMENT WORKFLOW CLAIM" data-id="TAHAPAN ILUSTRATIF · TANPA KLAIM ALUR PEMERINTAH">ILLUSTRATIVE STATES · NO GOVERNMENT WORKFLOW CLAIM</span>
+              <h2 id="referral-flow-title" data-en="Keep the handoff moving until the required action returns to the pathway." data-id="Jaga serah terima tetap berjalan hingga tindakan yang diperlukan kembali ke perjalanan layanan.">Keep the handoff moving until the required action returns to the pathway.</h2>
+            </div>
+            <div class="vertical-progress">
+              <div><span>01</span><strong data-en="Referral required" data-id="Rujukan diperlukan">Referral required</strong><small data-en="A next service or action is needed" data-id="Layanan atau tindakan berikutnya diperlukan">A next service or action is needed</small></div>
+              <i aria-hidden="true">↓</i>
+              <div><span>02</span><strong data-en="Referral created" data-id="Rujukan dibuat">Referral created</strong><small data-en="The handoff is recorded" data-id="Serah terima dicatat">The handoff is recorded</small></div>
+              <i aria-hidden="true">↓</i>
+              <div><span>03</span><strong data-en="Facility / service identified" data-id="Fasilitas / layanan diidentifikasi">Facility / service identified</strong><small data-en="The receiving service is known" data-id="Layanan penerima diketahui">The receiving service is known</small></div>
+              <i aria-hidden="true">↓</i>
+              <div><span>04</span><strong data-en="Patient reaches service" data-id="Pasien mencapai layanan">Patient reaches service</strong><small data-en="Access and attendance are visible" data-id="Akses dan kedatangan terlihat">Access and attendance are visible</small></div>
+              <i aria-hidden="true">↓</i>
+              <div><span>05</span><strong data-en="Required action completed" data-id="Tindakan yang diperlukan selesai">Required action completed</strong><small data-en="The intended service happens" data-id="Layanan yang dituju terlaksana">The intended service happens</small></div>
+              <i aria-hidden="true">↓</i>
+              <div class="progression-return"><span>06</span><strong data-en="Result / status returns to pathway" data-id="Hasil / status kembali ke perjalanan layanan">Result / status returns to pathway</strong><small data-en="Follow-up or monitoring can continue when needed" data-id="Tindak lanjut atau pemantauan dapat berlanjut bila diperlukan">Follow-up or monitoring can continue when needed</small></div>
+            </div>
+          </section>
+
+          <div class="page-actions"><button type="button" class="button button-secondary" data-view="imaging">← <span data-en="Back to imaging" data-id="Kembali ke pencitraan">Back to imaging</span></button><button type="button" class="button button-primary" data-view="follow-up"><span data-en="Continue to follow-up" data-id="Lanjut ke tindak lanjut">Continue to follow-up</span> →</button></div>
+        </div>
+      </section>
+
+      <section id="screen-follow-up" class="view" hidden aria-labelledby="follow-up-title">
+        <div class="page-wrap">
+          <div class="page-heading">
+            <span class="eyebrow" data-en="FOLLOW-UP · CONTINUITY OF CARE" data-id="TINDAK LANJUT · KESINAMBUNGAN LAYANAN">FOLLOW-UP · CONTINUITY OF CARE</span>
+            <h1 id="follow-up-title" data-en="Keep incomplete healthcare pathways visible until the outcome is reached." data-id="Jaga perjalanan layanan kesehatan yang belum selesai tetap terlihat hingga hasil tercapai.">Keep incomplete healthcare pathways visible until the outcome is reached.</h1>
+            <p data-en="Follow-up is not a generic CRM. It is the coordination work that helps the required care happen." data-id="Tindak lanjut bukan CRM generik. Ini adalah pekerjaan koordinasi yang membantu layanan yang diperlukan terlaksana.">Follow-up is not a generic CRM. It is the coordination work that helps the required care happen.</p>
+          </div>
+
+          <div class="follow-up-layout">
+            <section class="screen-card follow-card" aria-labelledby="follow-flow-title">
+              <div class="card-heading">
+                <span class="eyebrow" data-en="ILLUSTRATIVE CONTINUITY" data-id="KESINAMBUNGAN ILUSTRATIF">ILLUSTRATIVE CONTINUITY</span>
+                <h2 id="follow-flow-title" data-en="The next action stays visible." data-id="Tindakan berikutnya tetap terlihat.">The next action stays visible.</h2>
+              </div>
+              <div class="follow-flow">
+                <div><span>01</span><strong data-en="Follow-up required" data-id="Tindak lanjut diperlukan">Follow-up required</strong></div>
+                <i aria-hidden="true">↓</i>
+                <div><span>02</span><strong data-en="Appropriate channel / care team action" data-id="Tindakan kanal / tim layanan yang sesuai">Appropriate channel / care team action</strong></div>
+                <i aria-hidden="true">↓</i>
+                <div class="split-action"><span>03</span><strong data-en="Response or no response" data-id="Ada respons atau tidak ada respons">Response or no response</strong><small data-en="Either state remains visible for the next action" data-id="Kedua keadaan tetap terlihat untuk tindakan berikutnya">Either state remains visible for the next action</small></div>
+                <i aria-hidden="true">↓</i>
+                <div><span>04</span><strong data-en="Clinical / service follow-up" data-id="Tindak lanjut klinis / layanan">Clinical / service follow-up</strong></div>
+                <i aria-hidden="true">↓</i>
+                <div><span>05</span><strong data-en="Outcome updated" data-id="Hasil diperbarui">Outcome updated</strong></div>
+                <i aria-hidden="true">↓</i>
+                <div class="follow-return"><span>06</span><strong data-en="Continued monitoring when required" data-id="Pemantauan berkelanjutan bila diperlukan">Continued monitoring when required</strong><b aria-hidden="true">↺</b></div>
+              </div>
+            </section>
+
+            <aside class="screen-card follow-aside">
+              <span class="aside-icon" aria-hidden="true">↗</span>
+              <h2 data-en="Coordination, not autonomous care." data-id="Koordinasi, bukan layanan otonom.">Coordination, not autonomous care.</h2>
+              <p data-en="MHCS conceptually helps keep status, responsibility, and the next action visible across the pathway." data-id="Secara konseptual MHCS membantu menjaga status, tanggung jawab, dan tindakan berikutnya tetap terlihat di sepanjang perjalanan layanan.">MHCS conceptually helps keep status, responsibility, and the next action visible across the pathway.</p>
+              <div class="follow-guard"><strong data-en="No autonomous clinical decision-making" data-id="Tidak ada pengambilan keputusan klinis otonom">No autonomous clinical decision-making</strong><span data-en="People and authorised care teams remain responsible for clinical decisions." data-id="Tenaga kesehatan dan tim layanan yang berwenang tetap bertanggung jawab atas keputusan klinis.">People and authorised care teams remain responsible for clinical decisions.</span></div>
+            </aside>
+          </div>
+
+          <div class="channel-mini">
+            <span class="eyebrow" data-en="POSSIBLE DELIVERY SURFACES" data-id="PERMUKAAN PELAYANAN YANG MUNGKIN">POSSIBLE DELIVERY SURFACES</span>
+            <div><b>SATUSEHAT Mobile</b><b>Web</b><b>WhatsApp</b><b>SMS</b><b data-en="Assisted access" data-id="Akses terbantu">Assisted access</b><b data-en="Fasyankes systems" data-id="Sistem fasyankes">Fasyankes systems</b></div>
+            <small data-en="Channel choice remains subject to privacy, consent, authentication, and health-data governance." data-id="Pilihan kanal tetap tunduk pada privasi, persetujuan, autentikasi, dan tata kelola data kesehatan.">Channel choice remains subject to privacy, consent, authentication, and health-data governance.</small>
+          </div>
+
+          <div class="page-actions"><button type="button" class="button button-secondary" data-view="referral">← <span data-en="Back to referral" data-id="Kembali ke rujukan">Back to referral</span></button><button type="button" class="button button-primary" data-view="operations"><span data-en="Open operations view" data-id="Buka tampilan operasional">Open operations view</span> →</button></div>
+        </div>
+      </section>
+
+      <section id="screen-operations" class="view" hidden aria-labelledby="operations-title">
+        <div class="operations-wrap">
+          <div class="page-heading operations-heading">
+            <span class="eyebrow" data-en="PROGRAMME VIEW · ILLUSTRATIVE DEMO DATA" data-id="TAMPILAN PROGRAM · DATA DEMO ILUSTRATIF">PROGRAMME VIEW · ILLUSTRATIVE DEMO DATA</span>
+            <h1 id="operations-title" data-en="POC Operations View" data-id="Tampilan Operasional POC">POC Operations View</h1>
+            <p data-en="H2 is shown here as an example validation use case. Baselines and targets remain pending field validation." data-id="H2 ditampilkan di sini sebagai contoh kasus penggunaan untuk validasi. Baseline dan target masih menunggu validasi lapangan.">H2 is shown here as an example validation use case. Baselines and targets remain pending field validation.</p>
+          </div>
+
+          <div class="metric-grid">
+            <article><span data-en="Imaging utilisation" data-id="Pemanfaatan pencitraan">Imaging utilisation</span><strong>—</strong><small data-en="Studies / device / day · baseline pending" data-id="Studi / perangkat / hari · baseline menunggu">Studies / device / day · baseline pending</small></article>
+            <article><span data-en="Interpretation" data-id="Interpretasi">Interpretation</span><strong>—</strong><small data-en="% interpreted · median / urgent TAT" data-id="% diinterpretasi · TAT median / mendesak">% interpreted · median / urgent TAT</small></article>
+            <article><span data-en="Clinical completion" data-id="Penyelesaian klinis">Clinical completion</span><strong>—</strong><small data-en="Confirmatory, referral, treatment and follow-up completion" data-id="Penyelesaian konfirmasi, rujukan, perawatan, dan tindak lanjut">Confirmatory, referral, treatment and follow-up completion</small></article>
+            <article><span data-en="Workflow exceptions" data-id="Pengecualian alur kerja">Workflow exceptions</span><strong>3 demo</strong><small data-en="Unread, pending test, lost-to-follow-up" data-id="Belum dibaca, tes tertunda, kehilangan tindak lanjut">Unread, pending test, lost-to-follow-up</small></article>
+            <article><span data-en="Programme completion" data-id="Penyelesaian program">Programme completion</span><strong>Concept</strong><small data-en="Structured results · SATUSEHAT / SITB status" data-id="Hasil terstruktur · status SATUSEHAT / SITB">Structured results · SATUSEHAT / SITB status</small></article>
+            <article><span data-en="Workforce productivity" data-id="Produktivitas tenaga kerja">Workforce productivity</span><strong>—</strong><small data-en="Studies / radiologist · remote coverage" data-id="Studi / radiolog · cakupan jarak jauh">Studies / radiologist · remote coverage</small></article>
+          </div>
+
+          <section class="screen-card operations-card">
+            <div class="card-heading"><span class="eyebrow" data-en="EXAMPLE MEASUREMENT FUNNEL" data-id="CORONG PENGUKURAN CONTOH">EXAMPLE MEASUREMENT FUNNEL</span><h2 data-en="H2 pathway completion" data-id="Penyelesaian perjalanan H2">H2 pathway completion</h2></div>
+            <div class="funnel-flow">
+              <span data-en="Abnormal finding" data-id="Temuan abnormal">Abnormal finding</span><i aria-hidden="true">→</i><span data-en="Confirmatory test ordered" data-id="Tes konfirmasi dipesan">Confirmatory test ordered</span><i aria-hidden="true">→</i><span data-en="Test completed" data-id="Tes selesai">Test completed</span><i aria-hidden="true">→</i><span data-en="Referral completed" data-id="Rujukan selesai">Referral completed</span><i aria-hidden="true">→</i><span data-en="Treatment linked" data-id="Perawatan terhubung">Treatment linked</span><i aria-hidden="true">→</i><span data-en="Follow-up completed" data-id="Tindak lanjut selesai">Follow-up completed</span>
+            </div>
+          </section>
+
+          <div class="value-grid">
+            <section class="screen-card value-card"><span class="eyebrow" data-en="POTENTIAL MOH VALUE" data-id="NILAI POTENSIAL KEMENKES">POTENTIAL MOH VALUE</span><h2 data-en="Potential MoH Value" data-id="Nilai Potensial Kemenkes">Potential MoH Value</h2><ul><li data-en="Faster interpretation" data-id="Interpretasi lebih cepat">Faster interpretation</li><li data-en="Higher confirmatory-test completion" data-id="Penyelesaian tes konfirmasi lebih tinggi">Higher confirmatory-test completion</li><li data-en="Stronger referral / treatment linkage" data-id="Keterkaitan rujukan / perawatan lebih kuat">Stronger referral / treatment linkage</li><li data-en="Improved follow-up" data-id="Tindak lanjut yang lebih baik">Improved follow-up</li><li data-en="Better use of existing imaging capacity" data-id="Pemanfaatan kapasitas pencitraan yang sudah ada lebih baik">Better use of existing imaging capacity</li></ul></section>
+            <section class="screen-card value-card"><span class="eyebrow" data-en="POTENTIAL BAPPENAS VALUE" data-id="NILAI POTENSIAL BAPPENAS">POTENTIAL BAPPENAS VALUE</span><h2 data-en="Potential Bappenas Value" data-id="Nilai Potensial Bappenas">Potential Bappenas Value</h2><ul><li data-en="Better utilisation of existing healthcare investment" data-id="Pemanfaatan investasi kesehatan yang sudah ada lebih baik">Better utilisation of existing healthcare investment</li><li data-en="Improved specialist productivity" data-id="Produktivitas spesialis yang lebih baik">Improved specialist productivity</li><li data-en="Reduced duplicated infrastructure" data-id="Infrastruktur ganda berkurang">Reduced duplicated infrastructure</li><li data-en="Lower incremental CAPEX" data-id="CAPEX tambahan lebih rendah">Lower incremental CAPEX</li><li data-en="Scalable operating model" data-id="Model operasional yang dapat diskalakan">Scalable operating model</li></ul></section>
+          </div>
+
+          <section class="screen-card poc-card">
+            <span class="eyebrow" data-en="H2 · CONTROLLED VALIDATION" data-id="H2 · VALIDASI TERKONTROL">H2 · CONTROLLED VALIDATION</span>
+            <h2 data-en="Proposed Controlled POC" data-id="Usulan POC Terkontrol">Proposed Controlled POC</h2>
+            <div class="poc-grid">
+              <div><span data-en="Target geography" data-id="Wilayah target">Target geography</span><b data-en="To be determined" data-id="Akan ditentukan">To be determined</b></div><div><span data-en="Facilities" data-id="Fasilitas">Facilities</span><b data-en="To be determined" data-id="Akan ditentukan">To be determined</b></div><div><span data-en="Primary use case" data-id="Kasus penggunaan utama">Primary use case</span><b data-en="H2 hypothesis validation" data-id="Validasi hipotesis H2">H2 hypothesis validation</b></div><div><span data-en="Duration" data-id="Durasi">Duration</span><b data-en="To be determined" data-id="Akan ditentukan">To be determined</b></div><div><span data-en="Baseline" data-id="Baseline">Baseline</span><b data-en="Pending field validation" data-id="Menunggu validasi lapangan">Pending field validation</b></div><div><span data-en="KPI" data-id="KPI">KPI</span><b data-en="Interpretation TAT · confirmatory completion · referral completion · treatment linkage · utilisation" data-id="TAT interpretasi · penyelesaian konfirmasi · penyelesaian rujukan · keterkaitan perawatan · pemanfaatan">Interpretation TAT · confirmatory completion · referral completion · treatment linkage · utilisation</b></div><div><span data-en="Integration scope" data-id="Lingkup integrasi">Integration scope</span><b data-en="Only validated required components" data-id="Hanya komponen yang dibutuhkan dan tervalidasi">Only validated required components</b></div><div><span data-en="Regulatory dependencies" data-id="Ketergantungan regulasi">Regulatory dependencies</span><b data-en="Pending validation" data-id="Menunggu validasi">Pending validation</b></div><div><span data-en="Scale-up decision" data-id="Keputusan scale-up">Scale-up decision</span><b data-en="Based on measured POC outcomes" data-id="Berdasarkan hasil POC yang terukur">Based on measured POC outcomes</b></div>
+            </div>
+            <blockquote data-en="First validate the problem and operating model, then scale." data-id="Validasi masalah dan model operasional terlebih dahulu, lalu lakukan scale-up.">First validate the problem and operating model, then scale.</blockquote>
+          </section>
+
+          <div class="truth-strip operations-truth">
+            <strong data-en="Capability truth" data-id="Kebenaran kapabilitas">Capability truth</strong>
+            <div class="truth-tags"><span class="truth-government" data-en="Government Existing Capability" data-id="Kapabilitas Pemerintah yang Sudah Ada">Government Existing Capability</span><span class="truth-market" data-en="Indonesia Market Existing Capability" data-id="Kapabilitas Pasar Indonesia yang Sudah Ada">Indonesia Market Existing Capability</span><span class="truth-external" data-en="External Existing Capability" data-id="Kapabilitas Eksternal yang Sudah Ada">External Existing Capability</span><span class="truth-pending" data-en="Madeena / UGM — Internal Validation Pending" data-id="Madeena / UGM — Menunggu Validasi Internal">Madeena / UGM — Internal Validation Pending</span><span class="truth-concept" data-en="Conceptual Integration" data-id="Integrasi Konseptual">Conceptual Integration</span><span class="truth-pending" data-en="Localization Required" data-id="Memerlukan Lokalisasi">Localization Required</span><span class="truth-pending" data-en="Production Integration Not Verified" data-id="Integrasi Produksi Belum Terverifikasi">Production Integration Not Verified</span><span class="truth-pending" data-en="Indonesia Clinical / Regulatory Validation Required" data-id="Memerlukan Validasi Klinis / Regulasi Indonesia">Indonesia Clinical / Regulatory Validation Required</span></div>
+          </div>
+
+          <section class="capability-card">
+            <div class="capability-intro"><span class="eyebrow">CAPABILITY BOUNDARY</span><h2 data-en="Problem first. Required capability second." data-id="Masalah terlebih dahulu. Kapabilitas yang dibutuhkan kemudian.">Problem first. Required capability second.</h2><p data-en="Candidate Madeena / MHCS workflow coordination connects only the capabilities required to test H2. Capability availability does not prove integration, production deployment, or clinical approval." data-id="Koordinasi alur kerja Madeena / MHCS yang diusulkan hanya menghubungkan kapabilitas yang diperlukan untuk menguji H2. Ketersediaan kapabilitas tidak membuktikan integrasi, penerapan produksi, atau persetujuan klinis.">Candidate Madeena / MHCS workflow coordination connects only the capabilities required to test H2. Capability availability does not prove integration, production deployment, or clinical approval.</p></div>
+            <div class="capability-list"><div><b data-en="Primary-care imaging" data-id="Pencitraan layanan primer">Primary-care imaging</b><small>Madeena / UGM — Internal Validation Pending</small></div><div><b data-en="AI-assisted prioritisation" data-id="Prioritisasi berbantuan AI">AI-assisted prioritisation</b><small>External Existing Capability</small></div><div><b data-en="DICOM / teleradiology" data-id="DICOM / teleradiologi">DICOM / teleradiology</b><small>Indonesia Market Existing Capability</small></div><div><b data-en="Government reporting" data-id="Pelaporan Pemerintah">Government reporting</b><small>Conceptual Integration</small></div></div>
+            <p class="capability-note" data-en="Provider identities remain anonymous. Capability availability does not prove MHCS integration, Indonesia production deployment, or clinical approval." data-id="Identitas penyedia tetap anonim. Ketersediaan kapabilitas tidak membuktikan integrasi MHCS, penerapan produksi di Indonesia, atau persetujuan klinis.">Provider identities remain anonymous. Capability availability does not prove MHCS integration, Indonesia production deployment, or clinical approval.</p>
+          </section>
+
+          <button type="button" class="button button-secondary centered-button" data-view="journey">← <span data-en="Return to Patient Journey" data-id="Kembali ke Perjalanan Pasien">Return to Patient Journey</span></button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <b>MHCS Continuous Healthcare Journey Mockup <span>v0.4</span></b>
+      <span data-en="Fictional demonstration data — no clinical use" data-id="Data demonstrasi fiktif — tidak untuk penggunaan klinis">Fictional demonstration data — no clinical use</span>
+    </footer>
+  </body>
+</html>

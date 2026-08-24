@@ -12,6 +12,15 @@ PAGES = {
     "operator/index.html": ("Operator", "Basic examination & vital signs assessment", "Pair a read-only LCD session"),
     "doctor/index.html": ("Doctor", "shared queue", "amendment"),
     "bpmn/index.html": ("Technical BPMN", "All journeys"),
+    "mock-up/index.html": (
+        "MHCS Continuous Healthcare Journey Mockup",
+        "Madeena Health Care System",
+        "orchestrates existing healthcare capabilities into continuous end-to-end healthcare services",
+        "Government systems remain authoritative",
+        "Healthy",
+        "Continued Monitoring",
+        "H2 / Imaging",
+    ),
 }
 
 
@@ -49,6 +58,15 @@ def main():
             if target.is_dir() or parts.path.endswith("/"):
                 target /= "index.html"
             assert target.is_file(), (relative, link)
+
+    mockup_source = (ROOT / "mock-up/index.html").read_text(encoding="utf-8")
+    for translation in (
+        'data-en="Potential MoH Value" data-id="Nilai Potensial Kemenkes"',
+        'data-en="Potential Bappenas Value" data-id="Nilai Potensial Bappenas"',
+        'data-en="To be determined" data-id="Akan ditentukan"',
+        'data-en="Pending field validation" data-id="Menunggu validasi lapangan"',
+    ):
+        assert translation in mockup_source, translation
 
     design = ROOT.parent / "docs/technical/mhcs-core/design/mhcs-core-design.html"
     parser = PageParser()
