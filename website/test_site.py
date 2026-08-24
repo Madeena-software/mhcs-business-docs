@@ -1,6 +1,7 @@
 """Minimal link and content checks for the static journey website."""
 
 from html.parser import HTMLParser
+from hashlib import sha256
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -20,6 +21,9 @@ PAGES = {
         "Healthy",
         "Continued Monitoring",
         "H2 / Imaging",
+        "Guided journey stages",
+        "Intended outcome",
+        "Action completed",
     ),
 }
 
@@ -61,12 +65,37 @@ def main():
 
     mockup_source = (ROOT / "mock-up/index.html").read_text(encoding="utf-8")
     for translation in (
-        'data-en="Potential MoH Value" data-id="Nilai Potensial Kemenkes"',
-        'data-en="Potential Bappenas Value" data-id="Nilai Potensial Bappenas"',
         'data-en="To be determined" data-id="Akan ditentukan"',
         'data-en="Pending field validation" data-id="Menunggu validasi lapangan"',
     ):
         assert translation in mockup_source, translation
+    assert not any(term in mockup_source for term in ("MoH", "Bappenas", "Kemenkes"))
+
+    for stage in (
+        'data-stage="prevention"',
+        'data-stage="screening"',
+        'data-stage="finding"',
+        'data-stage="action"',
+        'data-stage="follow-up"',
+        'data-stage="outcome"',
+    ):
+        assert stage in mockup_source, stage
+
+    legacy = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3.html"
+    legacy_assets = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/index-2a7W-y2Q.css"
+    legacy_saved_resource = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/saved_resource.html"
+    assert not (ROOT / "mock-up/MHCS Guided Clinical Journey Mockup _ v0.3.html").exists()
+    assert not (ROOT / "mock-up/MHCS Guided Clinical Journey Mockup _ v0.3_files").exists()
+    assert legacy.is_file(), legacy
+    assert legacy_assets.is_file(), legacy_assets
+    assert legacy_saved_resource.is_file(), legacy_saved_resource
+    assert "MHCS Guided Clinical Journey Mockup | v0.3" in legacy.read_text(encoding="utf-8")
+    for path, expected_digest in {
+        legacy: "c79d1bd2f0b8f0f14d309427c3fb007727104038c0b7a2f1e2736b9e282f1594",
+        legacy_assets: "0e37a9544a4447bd5d68adcd6a2e4d7587bd8adf674cdfad0646ddad2f26fa13",
+        legacy_saved_resource: "718afe981e52b556fee6a652a0c3bb4a79cc2c2d71f0f6a1ba753c9413bc7ef0",
+    }.items():
+        assert sha256(path.read_bytes()).hexdigest() == expected_digest, path
 
     design = ROOT.parent / "docs/technical/mhcs-core/design/mhcs-core-design.html"
     parser = PageParser()
