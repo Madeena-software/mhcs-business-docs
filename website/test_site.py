@@ -32,6 +32,19 @@ PAGES = {
         "Faster interpretation",
         "Better utilisation of existing healthcare investment",
     ),
+    "demonstrator/index.html": (
+        "MHCS Operational Demonstrator",
+        "DEMO-001",
+        "Screening / Finding",
+        "Use Demo Image",
+        "External AI Capability",
+        "Human Clinical Review",
+        "Referral created",
+        "Referral completed",
+        "Continued Monitoring",
+        "Fictional demonstration",
+        "Not for clinical use",
+    ),
 }
 
 
@@ -108,6 +121,41 @@ def main():
         'data-stage="outcome"',
     ):
         assert stage in mockup_source, stage
+
+    demonstrator = ROOT / "demonstrator/index.html"
+    demonstrator_source = demonstrator.read_text(encoding="utf-8")
+    demonstrator_app = (ROOT / "demonstrator/app.js").read_text(encoding="utf-8")
+    demonstrator_config = (ROOT / "demonstrator/config.js").read_text(encoding="utf-8")
+    workflow = (ROOT.parent / ".github/workflows/deploy-pages.yml").read_text(
+        encoding="utf-8"
+    )
+    for fragment in (
+        'href="styles.css"',
+        'src="config.js"',
+        'src="app.js"',
+        "Upload Image",
+        "Use Demo Image",
+        "Confirm Image Acquisition",
+        "External AI Capability",
+        "Open AI Analysis",
+        "Continue to Human Clinical Review",
+        "Human Clinical Review",
+        "Referral created",
+        "Referral completed",
+        "Follow-up",
+        "Intended outcome",
+        "Continued Monitoring",
+        "Reset Demo",
+    ):
+        assert fragment in demonstrator_source, fragment
+    assert 'aiDemoUrl: ""' in demonstrator_config
+    assert "http" not in demonstrator_config.lower()
+    assert "window.open" not in demonstrator_app
+    assert "fetch(" not in demonstrator_app
+    assert "XMLHttpRequest" not in demonstrator_app
+    assert "<iframe" not in demonstrator_source.lower()
+    assert "secrets.AI_DEMO_URL" in workflow
+    assert workflow.index("AI_DEMO_URL") < workflow.index("Upload artifact")
 
     legacy = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3.html"
     legacy_assets = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/index-2a7W-y2Q.css"

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MHCS operational demonstrator for a fictional continuous healthcare journey.">
+    <title>MHCS Operational Demonstrator | Case DEMO-001</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="demo-banner" role="note">
+      <div class="demo-banner-copy">
+        <span class="demo-mark" aria-hidden="true">DEMO</span>
+        <strong>Fictional demonstration · Not for clinical use</strong>
+        <span>External capability integration is illustrative.</span>
+      </div>
+      <button class="text-button" id="reset-top" type="button">Reset Demo</button>
+    </div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#journey" data-view="journey" aria-label="MHCS operational demonstrator">
+          <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="brand-copy"><strong>MHCS</strong><small>Madeena Health Care System</small></span>
+        </a>
+
+        <div class="case-context">
+          <span class="case-label">ACTIVE CASE</span>
+          <strong>Demo Patient</strong>
+          <span class="case-id">CASE DEMO-001</span>
+        </div>
+
+        <div class="topbar-tools">
+          <span class="operator-pill"><span class="status-dot" aria-hidden="true"></span>Presentation mode</span>
+          <button class="topbar-reset" id="reset-main" type="button">Reset Demo</button>
+        </div>
+      </header>
+
+      <div class="app-body">
+        <aside class="sidebar">
+          <div class="sidebar-heading">DEMONSTRATION VIEWS</div>
+          <nav class="side-nav" aria-label="Demonstration views">
+            <button class="side-nav-item is-active" type="button" data-view="journey" aria-current="page">
+              <span class="nav-icon" aria-hidden="true">◌</span><span><strong>Journey overview</strong><small>Orchestration status</small></span>
+            </button>
+            <button class="side-nav-item" type="button" data-view="imaging" aria-current="false">
+              <span class="nav-icon" aria-hidden="true">▣</span><span><strong>Operator / imaging</strong><small>Acquire the required image</small></span>
+            </button>
+            <button class="side-nav-item" type="button" data-view="clinical" aria-current="false">
+              <span class="nav-icon" aria-hidden="true">✚</span><span><strong>Clinical review</strong><small>Human decision point</small></span>
+            </button>
+            <button class="side-nav-item" type="button" data-view="referral" aria-current="false">
+              <span class="nav-icon" aria-hidden="true">↗</span><span><strong>Referral &amp; follow-up</strong><small>Delivery and continuity</small></span>
+            </button>
+          </nav>
+
+          <div class="sidebar-case">
+            <div class="sidebar-case-top"><span class="case-avatar">DP</span><span class="case-chip">FICTIONAL</span></div>
+            <strong>Demo Patient</strong>
+            <span>Case DEMO-001</span>
+            <p>One guided case used to show how MHCS keeps required care moving.</p>
+          </div>
+
+          <div class="sidebar-principle">
+            <span class="sidebar-heading">MHCS PRINCIPLE</span>
+            <p>Care does not stop at a screening result, an AI output, or a referral.</p>
+          </div>
+        </aside>
+
+        <main class="workspace">
+          <div class="workspace-heading">
+            <div>
+              <span class="eyebrow">MHCS OPERATIONAL DEMONSTRATOR</span>
+              <h1>Keep one healthcare journey moving.</h1>
+              <p>Operate a fictional case from screening/finding through required action, intended outcome, and continued monitoring.</p>
+            </div>
+            <div class="orchestration-badge" aria-label="MHCS four core functions">
+              <span>ORCHESTRATION</span><i aria-hidden="true">→</i><span>INTEGRATION</span><i aria-hidden="true">→</i><span>LOCALISATION</span><i aria-hidden="true">→</i><span>DELIVERY</span>
+            </div>
+          </div>
+
+          <section class="case-strip" aria-label="Current case status">
+            <div class="case-strip-item"><span>PERSON / CASE</span><strong>Demo Patient <small>· DEMO-001</small></strong></div>
+            <div class="case-strip-item"><span>CURRENT STAGE</span><strong id="current-stage">Screening / Finding</strong></div>
+            <div class="case-strip-item"><span>NEXT REQUIRED ACTION</span><strong id="next-action-label">Acquire fictional image</strong></div>
+            <div class="case-strip-status"><span class="status-dot" aria-hidden="true"></span><strong id="case-status">Action required</strong></div>
+          </section>
+
+          <div class="notice" id="demo-notice" role="status" aria-live="polite" hidden></div>
+
+          <section class="journey-progress card" aria-labelledby="progress-title">
+            <div class="card-heading">
+              <div><span class="eyebrow">CONTINUITY OF CARE</span><h2 id="progress-title">One case, nine connected stages</h2></div>
+              <span class="progress-count" id="progress-count">1 / 9 current</span>
+            </div>
+            <ol class="timeline" id="journey-timeline">
+              <li class="timeline-item is-current" data-stage-index="0"><span class="timeline-node">01</span><span class="timeline-copy"><strong>Screening / Finding</strong><small>Finding identified</small></span></li>
+              <li class="timeline-item" data-stage-index="1"><span class="timeline-node">02</span><span class="timeline-copy"><strong>Imaging acquisition</strong><small>Required capability</small></span></li>
+              <li class="timeline-item" data-stage-index="2"><span class="timeline-node">03</span><span class="timeline-copy"><strong>AI capability</strong><small>External demo</small></span></li>
+              <li class="timeline-item" data-stage-index="3"><span class="timeline-node">04</span><span class="timeline-copy"><strong>Human clinical review</strong><small>Professional review</small></span></li>
+              <li class="timeline-item" data-stage-index="4"><span class="timeline-node">05</span><span class="timeline-copy"><strong>Required action</strong><small>Care must happen</small></span></li>
+              <li class="timeline-item" data-stage-index="5"><span class="timeline-node">06</span><span class="timeline-copy"><strong>Referral / handoff</strong><small>Created → completed</small></span></li>
+              <li class="timeline-item" data-stage-index="6"><span class="timeline-node">07</span><span class="timeline-copy"><strong>Follow-up</strong><small>Return to pathway</small></span></li>
+              <li class="timeline-item" data-stage-index="7"><span class="timeline-node">08</span><span class="timeline-copy"><strong>Intended outcome</strong><small>Outcome reached</small></span></li>
+              <li class="timeline-item" data-stage-index="8"><span class="timeline-node">09</span><span class="timeline-copy"><strong>Continued Monitoring</strong><small>Care loop remains</small></span></li>
+            </ol>
+            <div class="timeline-legend" aria-label="Journey status legend"><span><i class="legend-dot is-complete"></i>Completed</span><span><i class="legend-dot is-current"></i>Current</span><span><i class="legend-dot is-pending"></i>Pending</span></div>
+          </section>
+
+          <div class="workspace-grid">
+            <section class="view-panel card" id="view-journey" aria-labelledby="journey-view-title">
+              <div class="card-heading">
+                <div><span class="eyebrow">JOURNEY OVERVIEW</span><h2 id="journey-view-title">Where the case is now</h2></div>
+                <span class="state-chip state-chip-amber" id="journey-state-chip">Finding requires action</span>
+              </div>
+
+              <div class="journey-state">
+                <div class="journey-state-icon" id="journey-state-icon" aria-hidden="true">!</div>
+                <div><h3 id="journey-state-title">Screening / Finding</h3><p id="journey-state-copy">A screening finding is present. The next required capability is imaging; the journey must continue beyond the finding.</p></div>
+              </div>
+
+              <div class="journey-metrics">
+                <div><span>Current healthcare state</span><strong id="metric-state">Finding identified</strong></div>
+                <div><span>Required next capability</span><strong id="metric-capability">Operator / imaging</strong></div>
+                <div><span>What remains incomplete</span><strong id="metric-incomplete">Image acquisition and clinical pathway</strong></div>
+              </div>
+
+              <div class="next-action-card">
+                <div><span class="eyebrow">NEXT REQUIRED ACTION</span><h3 id="next-action-title">Acquire the required image</h3><p id="next-action-copy">Open the bounded operator task and use a safe demo image or choose a local image file.</p></div>
+                <button class="button button-primary" type="button" id="primary-action">Open Imaging Task <span aria-hidden="true">→</span></button>
+              </div>
+
+              <section class="capability-card is-hidden" id="ai-capability-card" aria-labelledby="ai-capability-title">
+                <div class="capability-icon" aria-hidden="true">AI</div>
+                <div class="capability-copy"><span class="eyebrow">NEXT CAPABILITY · EXTERNAL</span><h3 id="ai-capability-title">External AI Capability — Demo</h3><p>Image acquisition is complete. MHCS exposes an existing external capability for AI-assisted analysis; the selected image is not automatically sent.</p><span class="capability-status" id="ai-link-status">Deployment link not configured for local preview.</span></div>
+                <div class="capability-actions"><a class="button button-secondary is-disabled" id="ai-link" target="_blank" rel="noopener" aria-disabled="true">Open AI Analysis ↗</a><button class="button button-quiet" id="continue-review" type="button">Continue to Human Clinical Review</button></div>
+              </section>
+
+              <div class="authority-note"><span class="note-icon" aria-hidden="true">i</span><p><strong>Coordination boundary:</strong> MHCS coordinates existing capabilities and keeps the pathway visible. Government systems remain authoritative within their domains; AI supports human professionals and is not an autonomous doctor.</p></div>
+            </section>
+
+            <aside class="side-summary card" aria-labelledby="summary-title">
+              <div class="card-heading"><div><span class="eyebrow">CASE SNAPSHOT</span><h2 id="summary-title">Demo Patient</h2></div><span class="case-avatar large">DP</span></div>
+              <dl class="summary-list"><div><dt>Case ID</dt><dd>DEMO-001</dd></div><div><dt>Data class</dt><dd>Fictional / synthetic</dd></div><div><dt>Journey type</dt><dd>Screening to monitoring</dd></div><div><dt>Clinical status</dt><dd id="summary-clinical-status">No clinical decision recorded</dd></div></dl>
+              <div class="summary-divider"></div>
+              <p class="summary-callout">The demonstrator shows that an image, result, or referral is not the same as completed care.</p>
+              <button class="button button-secondary button-wide" type="button" data-view="imaging">Open operator view <span aria-hidden="true">→</span></button>
+            </aside>
+          </div>
+
+          <section class="view-panel card is-hidden" id="view-imaging" aria-labelledby="imaging-title">
+            <div class="card-heading"><div><span class="eyebrow">OPERATOR VIEW · BOUNDED DEMO</span><h2 id="imaging-title">Acquire the required image</h2><p class="heading-copy">This is intentionally a small presentation workflow, not a production modality, PACS, or worklist.</p></div><span class="state-chip state-chip-amber" id="imaging-status">Pending task</span></div>
+            <div class="task-banner"><span class="task-icon" aria-hidden="true">▣</span><div><strong>Imaging task for Demo Patient</strong><span>Finding requires clinical review · requested capability: image acquisition</span></div><span class="task-id">TASK IMG-001</span></div>
+            <div class="imaging-grid">
+              <div class="scan-preview" id="scan-preview"><div class="scan-grid" aria-hidden="true"></div><span class="scan-label">DEMO IMAGE SLOT</span><strong id="scan-preview-title">No image selected</strong><small id="scan-preview-copy">Use Demo Image for a reliable live presentation.</small></div>
+              <div class="imaging-controls"><span class="eyebrow">PRESENTATION-SAFE INPUT</span><h3>Select an image source</h3><p>Choose a local file for this browser session or use the built-in fictional state. Nothing is persisted or transmitted.</p><div class="button-row"><label class="button button-secondary" for="image-input">Upload Image</label><input class="visually-hidden" id="image-input" type="file" accept="image/*"><button class="button button-primary" id="demo-image" type="button">Use Demo Image</button></div><p class="selected-file" id="selected-file">No image source selected.</p><button class="button button-primary button-wide" id="confirm-image" type="button" disabled>Confirm Image Acquisition <span aria-hidden="true">→</span></button><p class="micro-note"><span aria-hidden="true">✓</span> Browser-local and transient. This control does not upload to AI, PACS, or any external service.</p></div>
+            </div>
+          </section>
+
+          <section class="view-panel card is-hidden" id="view-clinical" aria-labelledby="clinical-title">
+            <div class="card-heading"><div><span class="eyebrow">CLINICAL RESPONSIBILITY</span><h2 id="clinical-title">Human Clinical Review</h2><p class="heading-copy">AI-assisted analysis can support a professional; it does not complete the clinical pathway.</p></div><span class="state-chip state-chip-blue" id="clinical-status">Review pending</span></div>
+            <div class="review-layout"><div class="review-result"><span class="eyebrow">ILLUSTRATIVE STRUCTURED RESULT</span><h3>Finding requires clinical review</h3><p>Example signal: a non-diagnostic finding is available for professional consideration. No autonomous diagnosis is made here.</p><div class="result-row"><span>AI-assisted capability</span><strong>External demo · not imported automatically</strong></div><div class="result-row"><span>Human review</span><strong id="human-review-state">Required before action</strong></div></div><div class="review-action"><span class="eyebrow">NEXT REQUIRED ACTION</span><h3 id="clinical-action-title">Complete human clinical review</h3><p id="clinical-action-copy">Use this control to simulate a clinician/radiologist reviewing the illustrative result and determining the required next healthcare action.</p><button class="button button-primary button-wide" id="complete-review" type="button" disabled>Complete Human Clinical Review <span aria-hidden="true">→</span></button><p class="micro-note"><span aria-hidden="true">i</span> This records a fictional demonstration state only. It is not a diagnosis or medical advice.</p></div></div>
+          </section>
+
+          <section class="view-panel card is-hidden" id="view-referral" aria-labelledby="referral-title">
+            <div class="card-heading"><div><span class="eyebrow">DELIVERY &amp; CONTINUITY</span><h2 id="referral-title">Referral and follow-up</h2><p class="heading-copy">A referral is a handoff in the journey, not proof that the required service happened.</p></div><span class="state-chip state-chip-green" id="referral-status">Not yet ready</span></div>
+            <div class="referral-grid"><div class="referral-flow"><div class="flow-step" id="referral-action-step"><span class="flow-number">01</span><div><span class="eyebrow">REQUIRED HEALTHCARE ACTION</span><h3>Specialist respiratory review</h3><p>The human review determines that a specialist service is the required next action.</p></div></div><div class="flow-connector" aria-hidden="true"></div><div class="flow-step" id="referral-created-step"><span class="flow-number">02</span><div><span class="eyebrow">HANDOFF STATE</span><h3>Referral created</h3><p>The referral is recorded and visible, but the service has not yet been completed.</p></div></div><div class="flow-connector" aria-hidden="true"></div><div class="flow-step" id="referral-completed-step"><span class="flow-number">03</span><div><span class="eyebrow">DELIVERY STATE</span><h3>Referral completed</h3><p>The required service is delivered and the case can move to follow-up.</p></div></div></div><div class="referral-action"><span class="eyebrow" id="referral-next-eyebrow">NEXT REQUIRED ACTION</span><h3 id="referral-action-title">Human review must happen first</h3><p id="referral-action-copy">The referral action stays unavailable until human clinical review has been completed.</p><button class="button button-primary button-wide" id="referral-action-button" type="button" disabled>Complete Human Review First <span aria-hidden="true">→</span></button><div class="continuity-loop"><span aria-hidden="true">↺</span><div><strong>Follow-up remains part of the journey</strong><small>Outcome and continued monitoring are still visible after delivery.</small></div></div></div></div>
+            <div class="outcome-strip"><div><span class="eyebrow">FOLLOW-UP</span><strong id="followup-state">Pending referral completion</strong></div><div><span class="eyebrow">INTENDED OUTCOME</span><strong id="outcome-state">Not yet recorded</strong></div><div><span class="eyebrow">CONTINUED MONITORING</span><strong id="monitoring-state">Will remain visible where needed</strong></div></div>
+          </section>
+
+          <footer class="workspace-footer"><span><strong>MHCS</strong> coordinates the journey; it does not replace authoritative systems or clinical professionals.</span><span>Fictional data · prototype interface · no clinical use</span></footer>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

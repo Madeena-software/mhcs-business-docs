@@ -32,6 +32,32 @@ jobs:
       - name: Run tests
         run: python website/test_site.py
 
+      - name: Configure AI demonstration link
+        env:
+          AI_DEMO_URL: ${{ secrets.AI_DEMO_URL }}
+        run: |
+          if [ -z "$AI_DEMO_URL" ]; then
+            echo "AI_DEMO_URL is required before the Pages artifact can be uploaded."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import urlsplit
+
+          url = os.environ["AI_DEMO_URL"].strip()
+          parts = urlsplit(url)
+          if parts.scheme not in {"http", "https"} or not parts.netloc or any(char in url for char in "\r\n"):
+              raise SystemExit("AI_DEMO_URL must be an absolute http(s) URL.")
+          Path("website/demonstrator/config.js").write_text(
+              "window.MHCS_DEMO_CONFIG = Object.freeze({ aiDemoUrl: "
+              + json.dumps(url)
+              + " });\n",
+              encoding="utf-8",
+          )
+          PY
+
       - name: Setup Pages
         id: setup_pages
         continue-on-error: true
