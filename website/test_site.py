@@ -24,6 +24,13 @@ PAGES = {
         "Guided journey stages",
         "Intended outcome",
         "Action completed",
+        "Example Guided Clinical Journey",
+        "Demo Patient",
+        "Finding requires clinical review",
+        "Potential MoH Value",
+        "Potential Bappenas Value",
+        "Faster interpretation",
+        "Better utilisation of existing healthcare investment",
     ),
 }
 
@@ -69,7 +76,28 @@ def main():
         'data-en="Pending field validation" data-id="Menunggu validasi lapangan"',
     ):
         assert translation in mockup_source, translation
-    assert not any(term in mockup_source for term in ("MoH", "Bappenas", "Kemenkes"))
+
+    clinical_demo = mockup_source.split('id="clinical-journey-demo"', 1)[1].split(
+        "</section>", 1
+    )[0]
+    for fragment in (
+        "Demo Patient",
+        "Case DEMO-001",
+        "Finding requires clinical review",
+        "Action completed",
+        "Intended outcome",
+        "Continued Monitoring",
+    ):
+        assert fragment in clinical_demo, fragment
+
+    for fragment in (
+        "Potential MoH Value",
+        "Potential Bappenas Value",
+        "Faster interpretation",
+        "Better utilisation of existing healthcare investment",
+        "Potential value — subject to field validation and measured POC outcomes.",
+    ):
+        assert fragment in mockup_source, fragment
 
     for stage in (
         'data-stage="prevention"',
