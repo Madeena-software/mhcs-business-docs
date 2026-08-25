@@ -1,66 +1,90 @@
 (() => {
   const stages = [
-    { label: "Screening / Finding", state: "Finding identified", next: "Acquire fictional image" },
-    { label: "Imaging acquisition", state: "Image acquisition pending", next: "Confirm image acquisition" },
-    { label: "AI capability", state: "External capability available", next: "Review AI-assisted capability" },
-    { label: "Human clinical review", state: "Professional review pending", next: "Complete human clinical review" },
-    { label: "Required action", state: "Required healthcare action pending", next: "Create required referral" },
-    { label: "Referral / handoff", state: "Referral created — completion pending", next: "Complete referral" },
-    { label: "Follow-up", state: "Referral completed — follow-up pending", next: "Complete follow-up" },
-    { label: "Intended outcome", state: "Outcome update pending", next: "Record intended outcome" },
-    { label: "Continued Monitoring", state: "Monitoring loop active", next: "Continue monitoring" },
+    { label: "Screening / Finding", state: "Finding identified", next: "Open imaging task" },
+    { label: "Imaging Acquisition", state: "Image acquisition in progress", next: "Confirm image acquisition" },
+    { label: "External AI Capability", state: "External capability available", next: "Continue to Doctor (Radiologist) review" },
+    { label: "Human Clinical Review", state: "Professional review pending", next: "Complete Human Clinical Review" },
+    { label: "Required Healthcare Action", state: "Required healthcare action pending", next: "Create referral" },
+    { label: "Referral Created", state: "Referral created — completion pending", next: "Complete referral" },
+    { label: "Referral Completed", state: "Referral completed — follow-up pending", next: "Complete follow-up" },
+    { label: "Follow-up / Intended Outcome", state: "Outcome update pending", next: "Record intended outcome" },
+    { label: "Continued Monitoring", state: "Monitoring loop active", next: "Continue routine monitoring" },
   ];
 
   const views = [...document.querySelectorAll(".view-panel")];
   const viewControls = [...document.querySelectorAll("[data-view]")];
-  const timelineItems = [...document.querySelectorAll("[data-stage-index]")];
-  const state = { step: 0, imageSelected: false, imageLabel: "", aiOpened: false };
+  const progressItems = [...document.querySelectorAll("[data-progress-stage]")];
+  const overviewItems = [...document.querySelectorAll("#overview-timeline [data-stage-index]")];
+  const memberItems = [...document.querySelectorAll("[data-member-stage]")];
+  const state = { step: 0, imageSelected: false, imageLabel: "", aiOpened: false, taskOpened: false, doctorCaseOpen: false };
   const aiUrl = typeof window.MHCS_DEMO_CONFIG?.aiDemoUrl === "string" ? window.MHCS_DEMO_CONFIG.aiDemoUrl.trim() : "";
 
   const byId = (id) => document.getElementById(id);
   const elements = {
     notice: byId("demo-notice"),
-    currentStage: byId("current-stage"),
-    nextActionLabel: byId("next-action-label"),
-    caseStatus: byId("case-status"),
-    progressCount: byId("progress-count"),
-    journeyChip: byId("journey-state-chip"),
-    journeyIcon: byId("journey-state-icon"),
-    journeyTitle: byId("journey-state-title"),
-    journeyCopy: byId("journey-state-copy"),
-    metricState: byId("metric-state"),
-    metricCapability: byId("metric-capability"),
-    metricIncomplete: byId("metric-incomplete"),
-    nextTitle: byId("next-action-title"),
-    nextCopy: byId("next-action-copy"),
-    primaryAction: byId("primary-action"),
+    activeWorkspace: byId("active-workspace"),
+    overviewActiveActor: byId("overview-active-actor"),
+    memberStatusIcon: byId("member-status-icon"),
+    memberStatus: byId("member-status"),
+    memberStatusTitle: byId("member-status-title"),
+    memberStatusCopy: byId("member-status-copy"),
+    memberNextLabel: byId("member-next-label"),
+    memberNextAction: byId("member-next-action"),
+    memberScreeningState: byId("member-screening-state"),
+    memberImagingState: byId("member-imaging-state"),
+    memberReviewState: byId("member-review-state"),
+    memberReferralState: byId("member-referral-state"),
+    memberFollowupState: byId("member-followup-state"),
+    memberOutcomeState: byId("member-outcome-state"),
+    memberMonitoringState: byId("member-monitoring-state"),
+    memberNoteCopy: byId("member-note-copy"),
+    operatorWaitingCount: byId("operator-waiting-count"),
+    operatorActiveCount: byId("operator-active-count"),
+    operatorDoneCount: byId("operator-done-count"),
+    operatorTaskSummary: byId("operator-task-summary"),
+    operatorTaskStatus: byId("operator-task-status"),
+    openImagingTask: byId("open-imaging-task"),
+    operatorExamStatus: byId("operator-exam-status"),
+    operatorTaskDetail: byId("operator-task-detail"),
+    operatorCompleteCard: byId("operator-complete-card"),
+    operatorCompleteCopy: byId("operator-complete-copy"),
+    scanPreview: byId("scan-preview"),
+    scanPreviewTitle: byId("scan-preview-title"),
+    scanPreviewCopy: byId("scan-preview-copy"),
+    selectedFile: byId("selected-file"),
+    confirmImage: byId("confirm-image"),
     aiCard: byId("ai-capability-card"),
     aiLink: byId("ai-link"),
     aiLinkStatus: byId("ai-link-status"),
     continueReview: byId("continue-review"),
-    scanPreview: byId("scan-preview"),
-    scanTitle: byId("scan-preview-title"),
-    scanCopy: byId("scan-preview-copy"),
-    selectedFile: byId("selected-file"),
-    confirmImage: byId("confirm-image"),
-    imagingStatus: byId("imaging-status"),
-    clinicalStatus: byId("clinical-status"),
-    humanReviewState: byId("human-review-state"),
-    clinicalActionTitle: byId("clinical-action-title"),
-    clinicalActionCopy: byId("clinical-action-copy"),
-    completeReview: byId("complete-review"),
-    referralStatus: byId("referral-status"),
-    referralNextEyebrow: byId("referral-next-eyebrow"),
-    referralActionTitle: byId("referral-action-title"),
-    referralActionCopy: byId("referral-action-copy"),
-    referralActionButton: byId("referral-action-button"),
-    referralActionStep: byId("referral-action-step"),
-    referralCreatedStep: byId("referral-created-step"),
-    referralCompletedStep: byId("referral-completed-step"),
-    followupState: byId("followup-state"),
-    outcomeState: byId("outcome-state"),
-    monitoringState: byId("monitoring-state"),
-    summaryClinicalStatus: byId("summary-clinical-status"),
+    doctorQueueCount: byId("doctor-queue-count"),
+    doctorQueueSummary: byId("doctor-queue-summary"),
+    doctorQueueStatus: byId("doctor-queue-status"),
+    openDoctorCase: byId("open-doctor-case"),
+    doctorEmptyState: byId("doctor-empty-state"),
+    doctorCasePanel: byId("doctor-case-panel"),
+    doctorReviewStatus: byId("doctor-review-status"),
+    doctorImagingStatus: byId("doctor-imaging-status"),
+    doctorSupportStatus: byId("doctor-support-status"),
+    doctorProfessionalStatus: byId("doctor-professional-status"),
+    doctorActionEyebrow: byId("doctor-action-eyebrow"),
+    doctorActionTitle: byId("doctor-action-title"),
+    doctorActionCopy: byId("doctor-action-copy"),
+    doctorActionButton: byId("doctor-action-button"),
+    overviewStatus: byId("overview-status"),
+    overviewCurrentIcon: byId("overview-current-icon"),
+    overviewCurrentTitle: byId("overview-current-title"),
+    overviewCurrentCopy: byId("overview-current-copy"),
+    overviewNextCopy: byId("overview-next-copy"),
+    overviewNextAction: byId("overview-next-action"),
+    imageInput: byId("image-input"),
+  };
+
+  const viewLabels = {
+    member: "Member (Patient)",
+    operator: "Operator (Radiographer)",
+    doctor: "Doctor (Radiologist)",
+    journey: "Journey Overview",
   };
 
   function showView(name) {
@@ -70,10 +94,13 @@
     views.forEach((view) => view.classList.toggle("is-hidden", view !== target));
     viewControls.forEach((control) => {
       const active = control.dataset.view === name;
-      control.classList.toggle("is-active", active);
-      if (control.matches(".side-nav-item")) control.setAttribute("aria-current", active ? "page" : "false");
+      if (control.matches(".actor-tab")) {
+        control.classList.toggle("is-active", active);
+        control.setAttribute("aria-current", active ? "page" : "false");
+      }
     });
-    if (name !== "journey") target.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.activeWorkspace.textContent = viewLabels[name];
+    elements.overviewActiveActor.textContent = viewLabels[name];
   }
 
   function announce(message) {
@@ -82,148 +109,253 @@
   }
 
   function setProgress() {
-    timelineItems.forEach((item) => {
+    const progressStates = [
+      { complete: true, current: state.step === 0 },
+      { complete: state.step >= 2, current: state.step === 1 },
+      { complete: state.step >= 4, current: state.step === 2 || state.step === 3 },
+      { complete: state.step >= 6, current: state.step === 4 || state.step === 5 },
+      { complete: state.step >= 8, current: state.step === 6 || state.step === 7 },
+      { complete: state.step >= 8, current: state.step === 8 },
+    ];
+
+    progressItems.forEach((item, index) => {
+      const status = progressStates[index];
+      item.classList.toggle("is-complete", status.complete);
+      item.classList.toggle("is-current", status.current);
+      item.classList.toggle("is-pending", !status.complete && !status.current);
+      item.querySelector(".progress-node").textContent = status.complete ? "✓" : String(index + 2).padStart(2, "0");
+    });
+
+    overviewItems.forEach((item) => {
       const index = Number(item.dataset.stageIndex);
       item.classList.toggle("is-complete", index < state.step);
       item.classList.toggle("is-current", index === state.step);
       item.classList.toggle("is-pending", index > state.step);
-      const node = item.querySelector(".timeline-node");
-      if (index < state.step) node.textContent = "✓";
-      else node.textContent = String(index + 1).padStart(2, "0");
+      item.querySelector("span").textContent = index < state.step ? "✓" : index === 8 ? "↺" : String(index + 1).padStart(2, "0");
     });
-    elements.progressCount.textContent = `${state.step + 1} / ${stages.length} current`;
+  }
+
+  function renderMember() {
+    const content = [
+      {
+        icon: "!",
+        status: "Action required",
+        title: "Further examination required",
+        copy: "Your health screening is complete. A fictional chest X-ray examination is the next step in this demonstration.",
+        next: "Imaging examination",
+        action: "View Next Step",
+        view: "operator",
+        note: "This screen uses fictional information to show how a care journey continues beyond a screening result.",
+      },
+      {
+        icon: "◌",
+        status: "Imaging in progress",
+        title: "Imaging examination",
+        copy: "Your chest X-ray examination is being prepared. The imaging team will confirm the image before clinical review.",
+        next: "Complete imaging examination",
+        action: "View Imaging Step",
+        view: "operator",
+        note: "The selected image stays in the demonstration browser session until the demo is reset.",
+      },
+      {
+        icon: "✓",
+        status: "Clinical review pending",
+        title: "Your examination is being reviewed",
+        copy: "Your imaging examination is complete. A Doctor (Radiologist) will review the information next.",
+        next: "Clinical review",
+        action: "View Clinical Review",
+        view: "doctor",
+        note: "A supporting capability may assist the care team, but a Doctor (Radiologist) remains responsible for review.",
+      },
+      {
+        icon: "◌",
+        status: "Clinical review in progress",
+        title: "Your examination is being reviewed",
+        copy: "A Doctor (Radiologist) is reviewing your examination. The next care step will be recorded after professional review.",
+        next: "Professional review",
+        action: "View Clinical Review",
+        view: "doctor",
+        note: "Professional review is still required before any next care step is created.",
+      },
+      {
+        icon: "→",
+        status: "Next care step",
+        title: "Referral arranged",
+        copy: "A referral has been arranged for the next required service. It is awaiting completion.",
+        next: "Referral awaiting completion",
+        action: "View Care Progress",
+        view: "doctor",
+        note: "A referral being arranged does not mean that the required service has already been delivered.",
+      },
+      {
+        icon: "→",
+        status: "Referral created",
+        title: "Referral arranged",
+        copy: "Your referral is recorded and the receiving service still needs to complete the next step.",
+        next: "Referral completion",
+        action: "View Care Progress",
+        view: "doctor",
+        note: "The referral remains separate from completion of the required service.",
+      },
+      {
+        icon: "✓",
+        status: "Follow-up required",
+        title: "Referral completed",
+        copy: "The referral has been completed. A follow-up is still needed to keep your care journey moving.",
+        next: "Follow-up",
+        action: "View Follow-up",
+        view: "doctor",
+        note: "Your care journey continues after referral completion so the next update is not lost.",
+      },
+      {
+        icon: "✓",
+        status: "Follow-up completed",
+        title: "Follow-up completed",
+        copy: "Your follow-up is complete. The fictional intended outcome can now be recorded.",
+        next: "Intended outcome",
+        action: "View Outcome",
+        view: "doctor",
+        note: "This is a fictional status update, not a clinical result or medical recommendation.",
+      },
+      {
+        icon: "↺",
+        status: "Continued Monitoring",
+        title: "Required care completed",
+        copy: "The required care in this demonstration is completed. Continue routine monitoring at the next planned touchpoint.",
+        next: "Continue routine monitoring",
+        action: "View Journey Overview",
+        view: "journey",
+        note: "The immediate care step is complete, while continued monitoring remains part of the journey.",
+      },
+    ][state.step];
+
+    elements.memberStatusIcon.textContent = content.icon;
+    elements.memberStatus.textContent = content.status;
+    elements.memberStatusTitle.textContent = content.title;
+    elements.memberStatusCopy.textContent = content.copy;
+    elements.memberNextLabel.textContent = content.next;
+    elements.memberNextAction.textContent = `${content.action} →`;
+    elements.memberNextAction.dataset.view = content.view;
+    elements.memberNoteCopy.textContent = content.note;
+
+    const memberStages = [
+      { key: "screening", complete: true, current: state.step === 0, status: "Completed" },
+      { key: "imaging", complete: state.step >= 2, current: state.step === 1, status: state.step >= 2 ? "Completed ✓" : state.step === 1 ? "In progress" : "Next step" },
+      { key: "review", complete: state.step >= 4, current: state.step === 2 || state.step === 3, status: state.step >= 4 ? "Completed ✓" : state.step === 3 ? "In progress" : state.step === 2 ? "Ready for review" : "Waiting" },
+      { key: "referral", complete: state.step >= 6, current: state.step === 4 || state.step === 5, status: state.step >= 6 ? "Completed ✓" : state.step === 5 ? "Created · awaiting completion" : state.step === 4 ? "Next step" : "Not started" },
+      { key: "followup", complete: state.step >= 7, current: state.step === 6, status: state.step >= 7 ? "Completed ✓" : state.step === 6 ? "Required next" : "Will be shown here" },
+      { key: "outcome", complete: state.step >= 8, current: state.step === 7, status: state.step >= 8 ? "Recorded ✓" : state.step === 7 ? "Ready to record" : "Will be updated here" },
+      { key: "monitoring", complete: state.step >= 8, current: state.step === 8, status: state.step >= 8 ? "Active" : "Remains visible" },
+    ];
+    memberStages.forEach((stage) => {
+      const item = memberItems.find((candidate) => candidate.dataset.memberStage === stage.key);
+      item.classList.toggle("is-complete", stage.complete);
+      item.classList.toggle("is-current", stage.current);
+      item.classList.toggle("is-pending", !stage.complete && !stage.current);
+      item.querySelector(".member-step-node").textContent = stage.complete ? "✓" : stage.key === "monitoring" ? "↺" : String(memberStages.indexOf(stage) + 1).padStart(2, "0");
+      byId(`member-${stage.key === "screening" ? "screening" : stage.key}-state`).textContent = stage.status;
+    });
+  }
+
+  function renderOperator() {
+    const taskOpened = state.step >= 1 || state.taskOpened;
+    const complete = state.step >= 2;
+    elements.operatorWaitingCount.textContent = state.step === 0 ? "01" : "00";
+    elements.operatorActiveCount.textContent = state.step === 1 ? "01" : "00";
+    elements.operatorDoneCount.textContent = complete ? "01" : "00";
+    elements.operatorTaskSummary.textContent = complete ? "Image acquisition completed" : taskOpened ? "Ready for image source" : "Further examination required";
+    elements.operatorTaskStatus.textContent = complete ? "Completed" : taskOpened ? "In progress" : "Waiting";
+    elements.operatorTaskStatus.className = `queue-badge ${complete ? "queue-badge-green" : taskOpened ? "queue-badge-blue" : "queue-badge-amber"}`;
+    elements.openImagingTask.hidden = taskOpened;
+    elements.operatorExamStatus.textContent = complete ? "Completed" : taskOpened ? "In progress" : "Waiting";
+    elements.operatorExamStatus.className = `state-chip ${complete ? "state-chip-green" : taskOpened ? "state-chip-blue" : "state-chip-amber"}`;
+    elements.operatorTaskDetail.hidden = !taskOpened || complete;
+    elements.operatorCompleteCard.hidden = !complete;
+    elements.operatorCompleteCopy.textContent = state.step >= 3 ? "The case has been handed to the Doctor (Radiologist) for explicit human clinical review." : "The image is confirmed for this fictional case. The next review step is now available.";
+    elements.scanPreview.classList.toggle("is-ready", state.imageSelected);
+    elements.scanPreviewTitle.textContent = state.imageSelected ? state.imageLabel : "No image selected";
+    elements.scanPreviewCopy.textContent = complete ? "Acquisition confirmed · local demo state" : state.imageSelected ? "Ready for explicit acquisition confirmation." : "Use Demo Image for a reliable presentation.";
+    elements.selectedFile.textContent = state.imageSelected ? `Selected source: ${state.imageLabel}` : "No image source selected.";
+    elements.confirmImage.disabled = complete || !state.imageSelected || state.step !== 1;
+    elements.aiCard.hidden = state.step < 2;
+    elements.continueReview.hidden = state.step !== 2;
+    if (state.step >= 3) elements.aiCard.querySelector(".ai-copy p").textContent = "The external capability remains illustrative. The case is now with the Doctor (Radiologist) for human clinical review.";
+  }
+
+  function renderDoctor() {
+    const capabilityAvailable = state.step >= 2;
+    const reviewReady = state.step === 3;
+    const caseReady = state.step >= 3;
+    const caseOpen = caseReady && state.doctorCaseOpen;
+    elements.doctorQueueCount.textContent = caseReady ? "01" : "00";
+    elements.doctorQueueSummary.textContent = caseReady ? "Imaging available · review required" : "No review case ready yet";
+    elements.doctorQueueStatus.textContent = caseReady ? "Ready" : "Waiting";
+    elements.doctorQueueStatus.className = `queue-badge ${caseReady ? "queue-badge-green" : "queue-badge-blue"}`;
+    elements.openDoctorCase.hidden = !caseReady || caseOpen;
+    elements.doctorEmptyState.hidden = caseOpen;
+    elements.doctorCasePanel.hidden = !caseOpen;
+
+    const emptyHeading = elements.doctorEmptyState.querySelector("h2");
+    const emptyCopy = elements.doctorEmptyState.querySelector("p");
+    const emptyEyebrow = elements.doctorEmptyState.querySelector(".eyebrow");
+    emptyEyebrow.textContent = caseReady ? "CASE READY" : "NO CASE READY";
+    emptyHeading.textContent = caseReady ? "Open the review case" : "Review case not available yet";
+    emptyCopy.textContent = caseReady ? "The imaging examination is available. Open the case to perform the explicit professional review." : "Complete image acquisition in the Operator (Radiographer) workspace, then continue to this queue.";
+
+    elements.doctorReviewStatus.textContent = state.step >= 4 ? "Review completed" : "Review required";
+    elements.doctorReviewStatus.className = `state-chip ${state.step >= 4 ? "state-chip-green" : "state-chip-blue"}`;
+    elements.doctorImagingStatus.textContent = capabilityAvailable ? "Completed ✓" : "Pending";
+    elements.doctorSupportStatus.textContent = capabilityAvailable ? "External Demo Capability" : "Not yet available";
+    elements.doctorProfessionalStatus.textContent = state.step >= 4 ? "Completed ✓" : "Required";
+    elements.doctorActionButton.hidden = !caseOpen || state.step >= 8;
+
+    const actions = {
+      3: ["HUMAN CLINICAL REVIEW", "Complete Human Clinical Review", "Use this explicit control to record a fictional professional review. AI-assisted support does not determine the next step by itself."],
+      4: ["REQUIRED HEALTHCARE ACTION", "Create Referral", "The professional review is complete. Create the illustrative referral so the required service becomes a separate, visible handoff."],
+      5: ["REFERRAL CREATED · SERVICE PENDING", "Complete Referral", "Referral created is not referral completed. Record completion only when the fictional receiving service has happened."],
+      6: ["FOLLOW-UP", "Complete Follow-up", "The referral is complete, but the care journey continues. Record the fictional follow-up explicitly."],
+      7: ["INTENDED OUTCOME", "Record Intended Outcome", "Record the illustrative intended outcome, then keep Continued Monitoring visible."],
+      8: ["CONTINUED MONITORING", "Continued Monitoring", "The required care is complete for this fictional case. Routine monitoring remains visible over time."],
+    };
+    const action = actions[state.step] || ["NEXT REQUIRED ACTION", "Open the review case", "Open the case when it becomes available after image acquisition."];
+    if (reviewReady) elements.doctorActionEyebrow.textContent = "HUMAN CLINICAL REVIEW";
+    elements.doctorActionEyebrow.textContent = action[0];
+    elements.doctorActionTitle.textContent = action[1];
+    elements.doctorActionCopy.textContent = action[2];
+    elements.doctorActionButton.textContent = `${action[1]} →`;
   }
 
   function renderJourney() {
-    const stage = stages[state.step];
-    const incomplete = [
-      "Image acquisition and clinical pathway",
-      "Image confirmation and AI capability",
-      "Human clinical review and required action",
-      "Required healthcare action and referral",
-      "Referral completion, follow-up, and outcome",
-      "Follow-up and intended outcome",
-      "Outcome update and continued monitoring",
-      "Continued monitoring",
-      "Longitudinal monitoring as needed",
-    ][state.step];
-    const copy = [
-      "A screening finding is present. The next required capability is imaging; the journey must continue beyond the finding.",
-      "The fictional image is ready to be confirmed. Completion of acquisition exposes the next required capability; it does not complete care.",
-      "Image acquisition is complete. An external AI-assisted capability is available, but opening it does not send the image or complete clinical review.",
-      "A human clinical/radiologist review remains required before the next healthcare action is determined.",
-      "The illustrative result has been reviewed. MHCS now keeps the required healthcare action visible until the handoff is completed.",
-      "Referral created is not referral completed. The required service still needs to happen before follow-up can begin.",
-      "The referral is completed. MHCS keeps the follow-up step visible so the pathway returns with a status update.",
-      "The follow-up is complete. The intended outcome is now recorded for this fictional demonstration case.",
-      "The intended outcome has been reached, and continued monitoring remains visible where continuity of care is needed.",
-    ][state.step];
-    elements.currentStage.textContent = stage.label;
-    elements.nextActionLabel.textContent = stage.next;
-    elements.caseStatus.textContent = state.step === stages.length - 1 ? "Monitoring active" : state.step === 0 ? "Action required" : "Journey in progress";
-    elements.journeyTitle.textContent = stage.label;
-    elements.journeyCopy.textContent = copy;
-    elements.metricState.textContent = stage.state;
-    elements.metricCapability.textContent = ["Operator / imaging", "Operator / imaging", "External AI Capability — Demo", "Human clinical review", "Referral / specialist service", "Receiving service", "Follow-up channel", "Care team / outcome update", "Monitoring loop"][state.step];
-    elements.metricIncomplete.textContent = incomplete;
-    elements.nextTitle.textContent = stage.next;
-    elements.nextCopy.textContent = [
-      "Open the bounded operator task and use a safe demo image or choose a local image file.",
-      "Select an image source, then explicitly confirm image acquisition.",
-      "Review the external capability when configured, then use the local control to continue to human clinical review.",
-      "Simulate a human professional reviewing the illustrative result before a required action is created.",
-      "Create the fictional referral so the handoff becomes visible as a separate state.",
-      "Explicitly mark the referral completed; creation alone does not mean care happened.",
-      "Record follow-up so the outcome can be updated.",
-      "Record the intended outcome, then keep the monitoring loop visible.",
-      "Use the monitoring view to narrate continued coordination over time.",
-    ][state.step];
-    elements.journeyChip.textContent = state.step === 8 ? "Monitoring remains active" : state.step === 0 ? "Finding requires action" : "Journey in progress";
-    elements.journeyChip.className = `state-chip ${state.step === 8 ? "state-chip-green" : state.step === 0 ? "state-chip-amber" : "state-chip-blue"}`;
-    elements.journeyIcon.textContent = state.step === 8 ? "↺" : state.step === 0 ? "!" : "✓";
-    elements.journeyIcon.style.background = state.step === 8 ? "var(--green)" : state.step === 0 ? "var(--amber)" : "var(--blue)";
-    elements.primaryAction.textContent = `${state.step === 0 ? "Open Imaging Task" : state.step === 1 ? "Open Imaging Task" : state.step === 2 ? "Review AI Capability" : state.step === 3 ? "Open Clinical Review" : "Open Referral & Follow-up"} →`;
-    elements.primaryAction.disabled = false;
-    elements.summaryClinicalStatus.textContent = state.step < 3 ? "No clinical decision recorded" : state.step < 8 ? "Illustrative review and action path" : "Intended outcome recorded; monitoring active";
-    elements.aiCard.classList.toggle("is-hidden", state.step !== 2);
-  }
-
-  function renderImaging() {
-    const complete = state.step > 1;
-    elements.confirmImage.disabled = complete || !state.imageSelected;
-    elements.imagingStatus.textContent = complete ? "Imaging acquired / completed" : state.imageSelected ? "Ready to confirm" : "Pending task";
-    elements.imagingStatus.className = `state-chip ${complete ? "state-chip-green" : "state-chip-amber"}`;
-    elements.scanPreview.classList.toggle("is-ready", state.imageSelected);
-    elements.scanTitle.textContent = state.imageSelected ? state.imageLabel : "No image selected";
-    elements.scanCopy.textContent = complete ? "Acquisition confirmed · local demo state" : state.imageSelected ? "Ready for explicit acquisition confirmation." : "Use Demo Image for a reliable live presentation.";
-    elements.selectedFile.textContent = state.imageSelected ? `Selected source: ${state.imageLabel}` : "No image source selected.";
-  }
-
-  function renderClinical() {
-    const capabilityAvailable = state.step >= 2;
-    const reviewReady = state.step === 3;
-    const complete = state.step > 3;
-    elements.clinicalStatus.textContent = complete ? "Review completed" : capabilityAvailable ? "Review pending" : "Waiting for AI capability";
-    elements.clinicalStatus.className = `state-chip ${complete ? "state-chip-green" : "state-chip-blue"}`;
-    elements.humanReviewState.textContent = complete ? "Completed for this fictional case" : capabilityAvailable ? "Required · not started" : "Required before action";
-    elements.clinicalActionTitle.textContent = complete ? "Human clinical review completed" : "Complete human clinical review";
-    elements.clinicalActionCopy.textContent = complete ? "The fictional professional review is recorded. The next required healthcare action remains separate from the result." : reviewReady ? "Use this control to simulate a clinician/radiologist reviewing the illustrative result and determining the required next healthcare action." : capabilityAvailable ? "Continue to Human Clinical Review from the AI capability stage first. This control remains disabled until that explicit transition is used." : "Complete image acquisition and expose the external AI-assisted capability first. Opening an external link does not complete this review.";
-    elements.completeReview.disabled = !reviewReady || complete;
-  }
-
-  function renderReferral() {
-    const actionReady = state.step >= 4;
-    const created = state.step >= 5;
-    const completed = state.step >= 6;
-    elements.referralStatus.textContent = completed ? "Referral completed" : created ? "Referral created" : actionReady ? "Action ready" : "Not yet ready";
-    elements.referralStatus.className = `state-chip ${completed ? "state-chip-green" : actionReady ? "state-chip-blue" : "state-chip-amber"}`;
-    elements.referralActionStep.classList.toggle("is-complete", actionReady);
-    elements.referralActionStep.classList.toggle("is-current", state.step === 4);
-    elements.referralCreatedStep.classList.toggle("is-complete", created);
-    elements.referralCreatedStep.classList.toggle("is-current", state.step === 5);
-    elements.referralCompletedStep.classList.toggle("is-complete", completed);
-    elements.referralCompletedStep.classList.toggle("is-current", state.step === 6);
-    elements.followupState.textContent = completed ? state.step >= 7 ? "Completed" : "Ready to record" : "Pending referral completion";
-    elements.outcomeState.textContent = state.step >= 8 ? "Intended outcome reached" : "Not yet recorded";
-    elements.monitoringState.textContent = state.step >= 8 ? "Active continuation loop" : "Will remain visible where needed";
-
-    if (!actionReady) {
-      elements.referralNextEyebrow.textContent = "NEXT REQUIRED ACTION";
-      elements.referralActionTitle.textContent = "Human review must happen first";
-      elements.referralActionCopy.textContent = "The referral action stays unavailable until human clinical review has been completed.";
-      elements.referralActionButton.textContent = "Complete Human Review First →";
-      elements.referralActionButton.disabled = true;
-    } else if (!created) {
-      elements.referralNextEyebrow.textContent = "REQUIRED HEALTHCARE ACTION";
-      elements.referralActionTitle.textContent = "Create the referral handoff";
-      elements.referralActionCopy.textContent = "This creates a visible referral state. It does not automatically imply that the receiving service has completed the required action.";
-      elements.referralActionButton.textContent = "Create Referral →";
-      elements.referralActionButton.disabled = false;
-    } else if (!completed) {
-      elements.referralNextEyebrow.textContent = "REFERRAL CREATED · ACTION STILL PENDING";
-      elements.referralActionTitle.textContent = "Complete the referral";
-      elements.referralActionCopy.textContent = "Move the fictional case from Referral created to Referral completed only when the required service is explicitly recorded as delivered.";
-      elements.referralActionButton.textContent = "Mark Referral Completed →";
-      elements.referralActionButton.disabled = false;
-    } else if (state.step === 6) {
-      elements.referralNextEyebrow.textContent = "NEXT REQUIRED ACTION";
-      elements.referralActionTitle.textContent = "Complete follow-up";
-      elements.referralActionCopy.textContent = "The handoff happened, but MHCS continues to coordinate follow-up and return the result to the pathway.";
-      elements.referralActionButton.textContent = "Complete Follow-up →";
-      elements.referralActionButton.disabled = false;
-    } else if (state.step === 7) {
-      elements.referralNextEyebrow.textContent = "OUTCOME UPDATE";
-      elements.referralActionTitle.textContent = "Record the intended outcome";
-      elements.referralActionCopy.textContent = "The outcome is the point of the journey. Continued monitoring remains visible after it is reached.";
-      elements.referralActionButton.textContent = "Record Intended Outcome →";
-      elements.referralActionButton.disabled = false;
-    } else {
-      elements.referralNextEyebrow.textContent = "CONTINUED MONITORING";
-      elements.referralActionTitle.textContent = "Monitoring loop remains active";
-      elements.referralActionCopy.textContent = "The intended outcome is reached for this fictional case, while MHCS keeps the next monitoring touchpoint visible where needed.";
-      elements.referralActionButton.textContent = "Restart Journey ↺";
-      elements.referralActionButton.disabled = false;
-    }
+    const current = stages[state.step];
+    const copies = [
+      "Further examination is required. The next action is visible to the Operator (Radiographer).",
+      "The Operator (Radiographer) is preparing the fictional image. Confirmation is still required.",
+      "Imaging is complete. An external capability is available as support; a Doctor (Radiologist) must still review the case.",
+      "The case is ready for explicit human clinical review by the Doctor (Radiologist).",
+      "Professional review is complete. The required healthcare action remains separate from the review result.",
+      "Referral created is not referral completed. The receiving service still needs to deliver the required care.",
+      "Referral completed. Follow-up remains visible so the care journey can continue.",
+      "Follow-up is complete. Record the intended outcome, then keep Continued Monitoring visible.",
+      "The intended outcome is reached for this fictional case. Continued Monitoring remains active.",
+    ];
+    const nextActions = [
+      "Open imaging task",
+      "Confirm image acquisition",
+      "Continue to Doctor (Radiologist) review",
+      "Complete Human Clinical Review",
+      "Create referral",
+      "Complete referral",
+      "Complete follow-up",
+      "Record intended outcome",
+      "Continue routine monitoring",
+    ];
+    elements.overviewStatus.textContent = state.step === 0 ? "Action required" : state.step === 8 ? "Monitoring active" : "Journey in progress";
+    elements.overviewStatus.className = `state-chip ${state.step === 0 ? "state-chip-amber" : state.step === 8 ? "state-chip-green" : "state-chip-blue"}`;
+    elements.overviewCurrentIcon.textContent = state.step === 0 ? "!" : state.step === 8 ? "↺" : "✓";
+    elements.overviewCurrentTitle.textContent = current.label;
+    elements.overviewCurrentCopy.textContent = copies[state.step];
+    elements.overviewNextCopy.textContent = `Next: ${current.next}. ${copies[state.step]}`;
+    elements.overviewNextAction.textContent = nextActions[state.step];
   }
 
   function configureAiLink() {
@@ -231,7 +363,7 @@
       elements.aiLink.href = aiUrl;
       elements.aiLink.classList.remove("is-disabled");
       elements.aiLink.removeAttribute("aria-disabled");
-      elements.aiLinkStatus.textContent = "Configured for this deployment · opens by explicit user navigation.";
+      elements.aiLinkStatus.textContent = "Configured for this deployment · opens only by explicit user navigation.";
     } else {
       elements.aiLink.removeAttribute("href");
       elements.aiLink.classList.add("is-disabled");
@@ -242,29 +374,18 @@
 
   function render() {
     setProgress();
+    renderMember();
+    renderOperator();
+    renderDoctor();
     renderJourney();
-    renderImaging();
-    renderClinical();
-    renderReferral();
     configureAiLink();
   }
 
   function beginImagingTask() {
     if (state.step !== 0) return false;
     state.step = 1;
+    state.taskOpened = true;
     return true;
-  }
-
-  function goToNextView() {
-    if (state.step === 0) {
-      beginImagingTask();
-      showView("imaging");
-      announce("Imaging task opened. Imaging Acquisition is now the current journey stage.");
-      render();
-    } else if (state.step === 1) showView("imaging");
-    else if (state.step === 2) elements.aiLink.focus();
-    else if (state.step === 3) showView("clinical");
-    else showView("referral");
   }
 
   function resetDemo() {
@@ -272,27 +393,36 @@
     state.imageSelected = false;
     state.imageLabel = "";
     state.aiOpened = false;
-    byId("image-input").value = "";
+    state.taskOpened = false;
+    state.doctorCaseOpen = false;
+    elements.imageInput.value = "";
     elements.notice.hidden = true;
-    showView("journey");
+    showView("member");
     render();
   }
 
-  viewControls.forEach((control) => control.addEventListener("click", () => showView(control.dataset.view)));
+  viewControls.forEach((control) => control.addEventListener("click", (event) => {
+    if (control.matches("a")) event.preventDefault();
+    showView(control.dataset.view);
+  }));
   byId("reset-top").addEventListener("click", resetDemo);
   byId("reset-main").addEventListener("click", resetDemo);
-  elements.primaryAction.addEventListener("click", goToNextView);
-  byId("image-input").addEventListener("change", (event) => {
+  elements.openImagingTask.addEventListener("click", () => {
+    if (!beginImagingTask()) return;
+    announce("Imaging task opened. Image acquisition is now the current step for the Operator (Radiographer).");
+    render();
+  });
+  elements.imageInput.addEventListener("change", (event) => {
+    if (state.step !== 1) return;
     const file = event.target.files[0];
     if (!file) return;
-    beginImagingTask();
     state.imageSelected = true;
     state.imageLabel = file.name || "Local image selected";
     announce("Local image selected. It remains in this browser session until the demo is reset.");
     render();
   });
   byId("demo-image").addEventListener("click", () => {
-    beginImagingTask();
+    if (state.step !== 1) return;
     state.imageSelected = true;
     state.imageLabel = "Safe fictional demo image";
     announce("Safe fictional demo image selected. Confirm acquisition to continue the journey.");
@@ -301,8 +431,7 @@
   elements.confirmImage.addEventListener("click", () => {
     if (!state.imageSelected || state.step !== 1) return;
     state.step = 2;
-    showView("journey");
-    announce("Image acquired / completed. MHCS now exposes the next required external AI-assisted capability; no image was transmitted.");
+    announce("Image acquisition completed. An external AI-assisted capability is now available; no image was transmitted.");
     render();
   });
   elements.aiLink.addEventListener("click", (event) => {
@@ -317,20 +446,22 @@
   elements.continueReview.addEventListener("click", () => {
     if (state.step !== 2) return;
     state.step = 3;
-    showView("clinical");
-    announce("Presentation step advanced to Human Clinical Review. This does not imply that MHCS received or verified an external AI result.");
+    state.doctorCaseOpen = true;
+    showView("doctor");
+    announce("Presentation step advanced to Doctor (Radiologist) review. This does not imply that an external AI result was received or verified.");
     render();
   });
-  elements.completeReview.addEventListener("click", () => {
-    if (state.step !== 3) return;
-    state.step = 4;
-    showView("referral");
-    announce("Human clinical review completed for the fictional case. The required healthcare action is now visible.");
+  elements.openDoctorCase.addEventListener("click", () => {
+    if (state.step < 3) return;
+    state.doctorCaseOpen = true;
     render();
   });
-  elements.referralActionButton.addEventListener("click", () => {
-    if (state.step < 4) return;
-    if (state.step === 4) {
+  elements.doctorActionButton.addEventListener("click", () => {
+    if (!state.doctorCaseOpen || state.step < 3 || state.step >= 8) return;
+    if (state.step === 3) {
+      state.step = 4;
+      announce("Human clinical review completed for the fictional case. The required healthcare action is now visible.");
+    } else if (state.step === 4) {
       state.step = 5;
       announce("Referral created. Referral created ≠ Referral completed; the receiving service still needs to act.");
     } else if (state.step === 5) {
@@ -338,16 +469,16 @@
       announce("Referral completed. The required service happened; follow-up remains visible.");
     } else if (state.step === 6) {
       state.step = 7;
-      announce("Follow-up completed. The fictional outcome can now be updated.");
+      announce("Follow-up completed. The fictional intended outcome can now be recorded.");
     } else if (state.step === 7) {
       state.step = 8;
       announce("Intended outcome reached. Continued Monitoring remains active where continuity of care is needed.");
     } else {
-      resetDemo();
       return;
     }
     render();
   });
 
+  showView("member");
   render();
 })();

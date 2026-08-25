@@ -35,13 +35,25 @@ PAGES = {
     "demonstrator/index.html": (
         "MHCS Operational Demonstrator",
         "DEMO-001",
-        "Screening / Finding",
+        "Member (Patient)",
+        "Operator (Radiographer)",
+        "Doctor (Radiologist)",
+        "Journey Overview",
+        "Your Health Journey",
+        "Imaging Tasks",
+        "Clinical Review Queue",
         "Use Demo Image",
+        "Upload Image",
+        "Confirm Image Acquisition",
         "External AI Capability",
+        "Open AI Analysis",
         "Human Clinical Review",
         "Referral created",
         "Referral completed",
+        "Follow-up",
+        "Intended outcome",
         "Continued Monitoring",
+        "Reset Demo",
         "Fictional demonstration",
         "Not for clinical use",
     ),
@@ -133,12 +145,19 @@ def main():
         'href="styles.css"',
         'src="config.js"',
         'src="app.js"',
+        "Member (Patient)",
+        "Operator (Radiographer)",
+        "Doctor (Radiologist)",
+        "Journey Overview",
+        "Your Health Journey",
+        "Imaging Tasks",
+        "Clinical Review Queue",
         "Upload Image",
         "Use Demo Image",
         "Confirm Image Acquisition",
         "External AI Capability",
         "Open AI Analysis",
-        "Continue to Human Clinical Review",
+        "Continue to Doctor (Radiologist) Review",
         "Human Clinical Review",
         "Referral created",
         "Referral completed",
@@ -146,8 +165,19 @@ def main():
         "Intended outcome",
         "Continued Monitoring",
         "Reset Demo",
+        "Fictional demonstration",
+        "Not for clinical use",
     ):
         assert fragment in demonstrator_source, fragment
+    assert 'id="view-member"' in demonstrator_source
+    assert 'id="view-operator"' in demonstrator_source
+    assert 'id="view-doctor"' in demonstrator_source
+    assert 'id="view-journey"' in demonstrator_source
+    assert 'id="view-member"' in demonstrator_source and 'id="view-member"' in demonstrator_source.split('id="view-journey"', 1)[0]
+    assert 'data-view="member"' in demonstrator_source
+    assert 'data-view="operator"' in demonstrator_source
+    assert 'data-view="doctor"' in demonstrator_source
+    assert 'data-view="journey"' in demonstrator_source
     assert 'aiDemoUrl: ""' in demonstrator_config
     assert "http" not in demonstrator_config.lower()
     assert "window.open" not in demonstrator_app
@@ -160,8 +190,19 @@ def main():
         "function beginImagingTask()",
         "state.step = 1;",
         "if (!state.imageSelected || state.step !== 1) return;",
+        "function showView(name)",
+        "function resetDemo()",
     ):
         assert fragment in demonstrator_app, fragment
+    show_view_body = demonstrator_app.split("function showView(name)", 1)[1].split("function ", 1)[0]
+    assert "state.step" not in show_view_body
+    assert "state.step = 2" in demonstrator_app
+    assert "state.step = 3" in demonstrator_app
+    assert "state.step = 4" in demonstrator_app
+    assert "state.step = 5" in demonstrator_app
+    assert "state.step = 6" in demonstrator_app
+    assert "state.step = 7" in demonstrator_app
+    assert "state.step = 8" in demonstrator_app
     assert "secrets.AI_DEMO_URL" in workflow
     assert workflow.index("AI_DEMO_URL") < workflow.index("Upload artifact")
 
