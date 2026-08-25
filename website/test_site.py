@@ -154,6 +154,14 @@ def main():
     assert "fetch(" not in demonstrator_app
     assert "XMLHttpRequest" not in demonstrator_app
     assert "<iframe" not in demonstrator_source.lower()
+    for fragment in (
+        "const capabilityAvailable = state.step >= 2;",
+        "const reviewReady = state.step === 3;",
+        "function beginImagingTask()",
+        "state.step = 1;",
+        "if (!state.imageSelected || state.step !== 1) return;",
+    ):
+        assert fragment in demonstrator_app, fragment
     assert "secrets.AI_DEMO_URL" in workflow
     assert workflow.index("AI_DEMO_URL") < workflow.index("Upload artifact")
 

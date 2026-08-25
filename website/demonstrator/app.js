@@ -160,14 +160,15 @@
   }
 
   function renderClinical() {
-    const ready = state.step >= 2;
+    const capabilityAvailable = state.step >= 2;
+    const reviewReady = state.step === 3;
     const complete = state.step > 3;
-    elements.clinicalStatus.textContent = complete ? "Review completed" : ready ? "Review pending" : "Waiting for AI capability";
+    elements.clinicalStatus.textContent = complete ? "Review completed" : capabilityAvailable ? "Review pending" : "Waiting for AI capability";
     elements.clinicalStatus.className = `state-chip ${complete ? "state-chip-green" : "state-chip-blue"}`;
-    elements.humanReviewState.textContent = complete ? "Completed for this fictional case" : "Required before action";
+    elements.humanReviewState.textContent = complete ? "Completed for this fictional case" : capabilityAvailable ? "Required · not started" : "Required before action";
     elements.clinicalActionTitle.textContent = complete ? "Human clinical review completed" : "Complete human clinical review";
-    elements.clinicalActionCopy.textContent = complete ? "The fictional professional review is recorded. The next required healthcare action remains separate from the result." : ready ? "Use this control to simulate a clinician/radiologist reviewing the illustrative result and determining the required next healthcare action." : "Complete image acquisition and expose the external AI-assisted capability first. Opening an external link does not complete this review.";
-    elements.completeReview.disabled = !ready || complete;
+    elements.clinicalActionCopy.textContent = complete ? "The fictional professional review is recorded. The next required healthcare action remains separate from the result." : reviewReady ? "Use this control to simulate a clinician/radiologist reviewing the illustrative result and determining the required next healthcare action." : capabilityAvailable ? "Continue to Human Clinical Review from the AI capability stage first. This control remains disabled until that explicit transition is used." : "Complete image acquisition and expose the external AI-assisted capability first. Opening an external link does not complete this review.";
+    elements.completeReview.disabled = !reviewReady || complete;
   }
 
   function renderReferral() {
@@ -248,8 +249,19 @@
     configureAiLink();
   }
 
+  function beginImagingTask() {
+    if (state.step !== 0) return false;
+    state.step = 1;
+    return true;
+  }
+
   function goToNextView() {
-    if (state.step <= 1) showView("imaging");
+    if (state.step === 0) {
+      beginImagingTask();
+      showView("imaging");
+      announce("Imaging task opened. Imaging Acquisition is now the current journey stage.");
+      render();
+    } else if (state.step === 1) showView("imaging");
     else if (state.step === 2) elements.aiLink.focus();
     else if (state.step === 3) showView("clinical");
     else showView("referral");
@@ -273,19 +285,21 @@
   byId("image-input").addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    beginImagingTask();
     state.imageSelected = true;
     state.imageLabel = file.name || "Local image selected";
     announce("Local image selected. It remains in this browser session until the demo is reset.");
-    renderImaging();
+    render();
   });
   byId("demo-image").addEventListener("click", () => {
+    beginImagingTask();
     state.imageSelected = true;
     state.imageLabel = "Safe fictional demo image";
     announce("Safe fictional demo image selected. Confirm acquisition to continue the journey.");
-    renderImaging();
+    render();
   });
   elements.confirmImage.addEventListener("click", () => {
-    if (!state.imageSelected || state.step > 1) return;
+    if (!state.imageSelected || state.step !== 1) return;
     state.step = 2;
     showView("journey");
     announce("Image acquired / completed. MHCS now exposes the next required external AI-assisted capability; no image was transmitted.");
