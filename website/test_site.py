@@ -169,6 +169,67 @@ def main():
         "Not for clinical use",
     ):
         assert fragment in demonstrator_source, fragment
+
+    assert 'id="language-switcher"' in demonstrator_source
+    assert '<html lang="id">' in demonstrator_source
+    assert 'data-language="id"' in demonstrator_source
+    assert 'data-language="en"' in demonstrator_source
+    assert 'aria-pressed="true"' in demonstrator_source
+    assert 'aria-pressed="false"' in demonstrator_source
+    assert 'data-i18n="shell.fictionalDisclaimer"' in demonstrator_source
+    assert 'data-i18n="view.member"' in demonstrator_source
+    assert 'data-i18n="operator.title"' in demonstrator_source
+    assert 'data-i18n="doctor.title"' in demonstrator_source
+    assert 'data-i18n="journey.title"' in demonstrator_source
+    assert not (ROOT / "demonstrator/index-id.html").exists()
+    assert not (ROOT / "demonstrator/index-en.html").exists()
+
+    assert "const translations = {" in demonstrator_app
+    assert "id: {" in demonstrator_app
+    assert "en: {" in demonstrator_app
+    assert 'let currentLanguage = "id";' in demonstrator_app
+    assert "function localize()" in demonstrator_app
+    assert "function setLanguage(language)" in demonstrator_app
+    assert "document.documentElement.lang = currentLanguage" in demonstrator_app
+    assert "elements.notice.textContent = text(currentAnnouncementKey)" in demonstrator_app
+    for fragment in (
+        "Demonstrasi fiktif",
+        "Bukan untuk penggunaan klinis",
+        "Member (Pasien)",
+        "Operator (Radiografer)",
+        "Dokter (Radiolog)",
+        "Ringkasan Perjalanan",
+        "Perjalanan Kesehatan Anda",
+        "Tugas Radiografi",
+        "Antrean Tinjauan Klinis",
+        "Konfirmasi Akuisisi Citra",
+        "Tinjauan Klinis oleh Dokter",
+        "Buat Rujukan",
+        "Rujukan diperlukan",
+        "Rujukan dibuat",
+        "Rujukan selesai",
+        "Tindak lanjut",
+        "Pemantauan Berkelanjutan",
+        "PROGRES DEMO",
+        "Hanya simulasi presentasi",
+    ):
+        assert fragment in demonstrator_app, fragment
+
+    state_definition = demonstrator_app.split("const state = ", 1)[1].split(";", 1)[0]
+    assert "language" not in state_definition
+    language_body = demonstrator_app.split("function setLanguage(language)", 1)[1].split(
+        "function ", 1
+    )[0]
+    assert "state.step" not in language_body
+    assert "resetDemo" not in language_body
+    assert "showView" not in language_body
+    assert "render()" in language_body
+    reset_body = demonstrator_app.split("function resetDemo()", 1)[1].split(
+        "elements.memberNextAction", 1
+    )[0]
+    assert "state.step = 0" in reset_body
+    assert "currentLanguage" not in reset_body
+    assert "announce(\"announcement." in demonstrator_app
     assert 'id="view-member"' in demonstrator_source
     assert 'id="view-operator"' in demonstrator_source
     assert 'id="view-doctor"' in demonstrator_source
@@ -209,26 +270,41 @@ def main():
     )[0]
     assert "dataset.view" not in member_render
     assert "memberNextDetails" in member_render
-    required_action_member = member_render.split(
-        'status: "Next care step"', 1
-    )[1].split('status: "Referral created"', 1)[0]
+    translation_source = demonstrator_app.split("const translations = {", 1)[1].split(
+        "let currentLanguage", 1
+    )[0]
+    id_translation = translation_source.split("id: {", 1)[1].split("en: {", 1)[0]
+    en_translation = translation_source.split("en: {", 1)[1]
+    required_action_member = en_translation.split(
+        '"member.state.4.status"', 1
+    )[1].split('"member.state.5.status"', 1)[0]
     for fragment in (
-        'title: "Referral required"',
-        'next: "Referral creation"',
-        'nextActor: "Doctor (Radiologist)"',
+        '"member.state.4.title": "Referral required"',
+        '"member.state.4.next": "Referral creation"',
+        '"member.state.4.actor": "Doctor (Radiologist)"',
         "has not yet been created in this demonstration",
     ):
         assert fragment in required_action_member, fragment
     for fragment in ("Referral arranged", "A referral has been arranged", "Referral awaiting completion"):
         assert fragment not in required_action_member, fragment
-    referral_created_member = member_render.split(
-        'status: "Referral created"', 1
-    )[1].split('status: "Follow-up required"', 1)[0]
+    id_required_action_member = id_translation.split(
+        '"member.state.4.status"', 1
+    )[1].split('"member.state.5.status"', 1)[0]
+    for fragment in ("Rujukan diperlukan", "belum dibuat"):
+        assert fragment in id_required_action_member, fragment
+    referral_created_member = en_translation.split(
+        '"member.state.5.status"', 1
+    )[1].split('"member.state.6.status"', 1)[0]
     for fragment in (
         "Your referral is recorded",
         "receiving service still needs to complete",
     ):
         assert fragment in referral_created_member, fragment
+    id_referral_created_member = id_translation.split(
+        '"member.state.5.status"', 1
+    )[1].split('"member.state.6.status"', 1)[0]
+    for fragment in ("Rujukan dibuat", "masih perlu menyelesaikan"):
+        assert fragment in id_referral_created_member, fragment
 
     doctor_render = demonstrator_app.split("function renderDoctor()", 1)[1].split(
         "function renderJourney()", 1
@@ -241,23 +317,23 @@ def main():
         "state.step === 3",
         "state.step === 4",
         "state.step >= 5",
-        'summary: "No review case ready yet"',
-        'summary: "Imaging available · review required"',
-        'summary: "Review completed · required action pending"',
-        'summary: "Review completed · referral created"',
-        'status: "Waiting"',
-        'status: "Ready"',
-        'status: "Reviewed"',
-        'status: "Completed"',
+        'text("doctor.queue.noCase.summary")',
+        'text("doctor.queue.ready.summary")',
+        'text("doctor.queue.reviewed.summary")',
+        'text("doctor.queue.completed.summary")',
+        'text("doctor.queue.noCase.status")',
+        'text("doctor.queue.ready.status")',
+        'text("doctor.queue.reviewed.status")',
+        'text("doctor.queue.completed.status")',
     ):
         assert fragment in doctor_queue, fragment
     for fragment in (
-        "HUMAN CLINICAL REVIEW",
-        "REQUIRED HEALTHCARE ACTION",
-        "Create Referral",
+        '"doctor.action.review.eyebrow": "HUMAN CLINICAL REVIEW"',
+        '"doctor.action.referral.eyebrow": "REQUIRED HEALTHCARE ACTION"',
+        '"doctor.action.referral.title": "Create Referral"',
         "Downstream service completion and follow-up continue outside this radiology workspace",
     ):
-        assert fragment in doctor_render, fragment
+        assert fragment in translation_source, fragment
     for fragment in ("Complete Referral", "Complete Follow-up", "Record Intended Outcome"):
         assert fragment not in doctor_render, fragment
 
@@ -278,11 +354,11 @@ def main():
         "function configureAiLink()", 1
     )[0]
     for fragment in (
-        "Simulate Referral Completion",
-        "Simulate Follow-up Completion",
-        "Simulate Intended Outcome",
+        '"journey.simulateReferral": "Simulate Referral Completion"',
+        '"journey.simulateFollowup": "Simulate Follow-up Completion"',
+        '"journey.simulateOutcome": "Simulate Intended Outcome"',
     ):
-        assert fragment in journey_render, fragment
+        assert fragment in translation_source, fragment
     assert "state.step = 2" in demonstrator_app
     assert "state.step = 3" in demonstrator_app
     assert "state.step = 4" in demonstrator_app

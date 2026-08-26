@@ -64,6 +64,12 @@ h3 { margin: 0; font-size: 15px; line-height: 1.3; }
 .topbar-workspace { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-left: 18px; border-left: 1px solid #3a5664; }
 .topbar-workspace span { color: #7997a5; font: 700 8px var(--mono); letter-spacing: .12em; }
 .topbar-workspace strong { overflow: hidden; color: #fff; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+.language-switcher { display: inline-flex; align-items: center; gap: 5px; color: #9cb6c2; font: 700 10px var(--mono); white-space: nowrap; }
+.language-label { color: #7997a5; font-size: 8px; letter-spacing: .08em; }
+.language-option { min-width: 25px; padding: 4px 5px; border: 1px solid transparent; border-radius: 4px; color: #9cb6c2; background: transparent; font: 700 10px var(--mono); }
+.language-option:hover { border-color: #446474; color: #fff; }
+.language-option.is-active { border-color: var(--cyan); color: #07131f; background: var(--cyan); }
 .topbar-reset { padding: 7px 11px; border: 1px solid #446474; border-radius: 5px; color: #e8f3f6; background: transparent; font-size: 11px; font-weight: 700; }
 .topbar-reset:hover { border-color: var(--cyan); color: #fff; }
 
@@ -351,6 +357,7 @@ h3 { margin: 0; font-size: 15px; line-height: 1.3; }
   .demo-banner { align-items: flex-start; padding: 7px 13px; }
   .demo-banner-copy { display: block; line-height: 1.45; }
   .demo-banner-copy > * { margin-right: 6px; }
+  .button { white-space: normal; line-height: 1.3; text-align: center; }
   .actor-switcher { padding: 13px 13px 9px; }
   .actor-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .actor-tab { padding: 9px; }
@@ -399,6 +406,8 @@ h3 { margin: 0; font-size: 15px; line-height: 1.3; }
   .topbar { grid-template-columns: 1fr auto; min-height: 58px; padding: 0 13px; }
   .case-context { display: none; }
   .brand-copy small { display: none; }
+  .topbar-actions { gap: 7px; }
+  .language-label { display: none; }
   .topbar-reset { padding: 6px 8px; }
   .actor-tab { grid-template-columns: 24px minmax(0, 1fr); gap: 6px; padding: 8px 7px; }
   .actor-number { width: 23px; height: 23px; font-size: 8px; }
