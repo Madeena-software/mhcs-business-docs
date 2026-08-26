@@ -137,6 +137,10 @@ def main():
     demonstrator = ROOT / "demonstrator/index.html"
     demonstrator_source = demonstrator.read_text(encoding="utf-8")
     demonstrator_app = (ROOT / "demonstrator/app.js").read_text(encoding="utf-8")
+    id_locale = ROOT / "demonstrator/locales/id.js"
+    en_locale = ROOT / "demonstrator/locales/en.js"
+    id_locale_source = id_locale.read_text(encoding="utf-8") if id_locale.is_file() else ""
+    en_locale_source = en_locale.read_text(encoding="utf-8") if en_locale.is_file() else ""
     demonstrator_config = (ROOT / "demonstrator/config.js").read_text(encoding="utf-8")
     workflow = (ROOT.parent / ".github/workflows/deploy-pages.yml").read_text(
         encoding="utf-8"
@@ -184,9 +188,22 @@ def main():
     assert not (ROOT / "demonstrator/index-id.html").exists()
     assert not (ROOT / "demonstrator/index-en.html").exists()
 
-    assert "const translations = {" in demonstrator_app
-    assert "id: {" in demonstrator_app
-    assert "en: {" in demonstrator_app
+    assert id_locale.is_file(), id_locale
+    assert en_locale.is_file(), en_locale
+    assert demonstrator_source.index('src="config.js"') < demonstrator_source.index('src="locales/id.js"')
+    assert demonstrator_source.index('src="locales/id.js"') < demonstrator_source.index('src="locales/en.js"')
+    assert demonstrator_source.index('src="locales/en.js"') < demonstrator_source.index('src="app.js"')
+    for locale_source, locale_name in ((id_locale_source, "id"), (en_locale_source, "en")):
+        assert "window.MHCS_LOCALES = window.MHCS_LOCALES || {};" in locale_source
+        assert f"window.MHCS_LOCALES.{locale_name} = {{" in locale_source
+        assert "state.step" not in locale_source
+        assert "currentLanguage" not in locale_source
+        assert "addEventListener" not in locale_source
+    assert "const translations = window.MHCS_LOCALES || {};" in demonstrator_app
+    assert "const translations = {" not in demonstrator_app
+    assert "id: {" not in demonstrator_app
+    assert "en: {" not in demonstrator_app
+
     assert 'let currentLanguage = "id";' in demonstrator_app
     assert "function localize()" in demonstrator_app
     assert "function setLanguage(language)" in demonstrator_app
@@ -213,7 +230,20 @@ def main():
         "PROGRES DEMO",
         "Hanya simulasi presentasi",
     ):
-        assert fragment in demonstrator_app, fragment
+        assert fragment in id_locale_source, fragment
+    for fragment in (
+        "Fictional demonstration",
+        "Member (Patient)",
+        "Operator (Radiographer)",
+        "Doctor (Radiologist)",
+        "Your Health Journey",
+        "Clinical Review Queue",
+        "Referral required",
+        "Referral created",
+        "Simulate Referral Completion",
+        "Continued Monitoring",
+    ):
+        assert fragment in en_locale_source, fragment
 
     state_definition = demonstrator_app.split("const state = ", 1)[1].split(";", 1)[0]
     assert "language" not in state_definition
@@ -270,11 +300,9 @@ def main():
     )[0]
     assert "dataset.view" not in member_render
     assert "memberNextDetails" in member_render
-    translation_source = demonstrator_app.split("const translations = {", 1)[1].split(
-        "let currentLanguage", 1
-    )[0]
-    id_translation = translation_source.split("id: {", 1)[1].split("en: {", 1)[0]
-    en_translation = translation_source.split("en: {", 1)[1]
+    translation_source = f"{id_locale_source}\n{en_locale_source}"
+    id_translation = id_locale_source
+    en_translation = en_locale_source
     required_action_member = en_translation.split(
         '"member.state.4.status"', 1
     )[1].split('"member.state.5.status"', 1)[0]
