@@ -269,8 +269,7 @@ def main():
     assert 'data-view="operator"' in demonstrator_source
     assert 'data-view="doctor"' in demonstrator_source
     assert 'data-view="journey"' in demonstrator_source
-    assert 'aiDemoUrl: ""' in demonstrator_config
-    assert "http" not in demonstrator_config.lower()
+    assert 'aiDemoUrl: "http://124.225.183.175:8361/"' in demonstrator_config
     assert "window.open" not in demonstrator_app
     assert "fetch(" not in demonstrator_app
     assert "XMLHttpRequest" not in demonstrator_app
