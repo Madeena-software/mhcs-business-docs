@@ -185,12 +185,12 @@
       {
         icon: "→",
         status: "Next care step",
-        title: "Referral arranged",
-        copy: "A referral has been arranged for the next required service. It is awaiting completion.",
-        next: "Referral awaiting completion",
+        title: "Referral required",
+        copy: "Your examination review is complete. A referral is the next required care step and has not yet been created in this demonstration.",
+        next: "Referral creation",
         action: "View Patient Update",
         nextActor: "Doctor (Radiologist)",
-        note: "A referral being arranged does not mean that the required service has already been delivered.",
+        note: "The Doctor (Radiologist) still needs to create the referral before the receiving service can act.",
       },
       {
         icon: "→",
@@ -292,10 +292,19 @@
     const reviewReady = state.step === 3;
     const caseReady = state.step >= 3;
     const caseOpen = caseReady && state.doctorCaseOpen;
-    elements.doctorQueueCount.textContent = caseReady ? "01" : "00";
-    elements.doctorQueueSummary.textContent = caseReady ? "Imaging available · review required" : "No review case ready yet";
-    elements.doctorQueueStatus.textContent = caseReady ? "Ready" : "Waiting";
-    elements.doctorQueueStatus.className = `queue-badge ${caseReady ? "queue-badge-green" : "queue-badge-blue"}`;
+    const queueState = state.step < 3
+      ? { count: "00", summary: "No review case ready yet", status: "Waiting", badge: "queue-badge-blue" }
+      : state.step === 3
+        ? { count: "01", summary: "Imaging available · review required", status: "Ready", badge: "queue-badge-green" }
+        : state.step === 4
+          ? { count: "00", summary: "Review completed · required action pending", status: "Reviewed", badge: "queue-badge-blue" }
+          : state.step >= 5
+            ? { count: "00", summary: "Review completed · referral created", status: "Completed", badge: "queue-badge-green" }
+            : { count: "00", summary: "No review case ready yet", status: "Waiting", badge: "queue-badge-blue" };
+    elements.doctorQueueCount.textContent = queueState.count;
+    elements.doctorQueueSummary.textContent = queueState.summary;
+    elements.doctorQueueStatus.textContent = queueState.status;
+    elements.doctorQueueStatus.className = `queue-badge ${queueState.badge}`;
     elements.openDoctorCase.hidden = !caseReady || caseOpen;
     elements.doctorEmptyState.hidden = caseOpen;
     elements.doctorCasePanel.hidden = !caseOpen;
@@ -303,9 +312,9 @@
     const emptyHeading = elements.doctorEmptyState.querySelector("h2");
     const emptyCopy = elements.doctorEmptyState.querySelector("p");
     const emptyEyebrow = elements.doctorEmptyState.querySelector(".eyebrow");
-    emptyEyebrow.textContent = caseReady ? "CASE READY" : "NO CASE READY";
-    emptyHeading.textContent = caseReady ? "Open the review case" : "Review case not available yet";
-    emptyCopy.textContent = caseReady ? "The imaging examination is available. Open the case to perform the explicit professional review." : "Complete image acquisition in the Operator (Radiographer) workspace, then continue to this queue.";
+    emptyEyebrow.textContent = reviewReady ? "CASE READY" : caseReady ? "REVIEW COMPLETE" : "NO CASE READY";
+    emptyHeading.textContent = reviewReady ? "Open the review case" : caseReady ? "Review completed" : "Review case not available yet";
+    emptyCopy.textContent = reviewReady ? "The imaging examination is available. Open the case to perform the explicit professional review." : caseReady ? "The professional review is complete. Open the case to review its referral context." : "Complete image acquisition in the Operator (Radiographer) workspace, then continue to this queue.";
 
     elements.doctorReviewStatus.textContent = state.step >= 4 ? "Review completed" : "Review required";
     elements.doctorReviewStatus.className = `state-chip ${state.step >= 4 ? "state-chip-green" : "state-chip-blue"}`;

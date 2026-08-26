@@ -209,10 +209,48 @@ def main():
     )[0]
     assert "dataset.view" not in member_render
     assert "memberNextDetails" in member_render
+    required_action_member = member_render.split(
+        'status: "Next care step"', 1
+    )[1].split('status: "Referral created"', 1)[0]
+    for fragment in (
+        'title: "Referral required"',
+        'next: "Referral creation"',
+        'nextActor: "Doctor (Radiologist)"',
+        "has not yet been created in this demonstration",
+    ):
+        assert fragment in required_action_member, fragment
+    for fragment in ("Referral arranged", "A referral has been arranged", "Referral awaiting completion"):
+        assert fragment not in required_action_member, fragment
+    referral_created_member = member_render.split(
+        'status: "Referral created"', 1
+    )[1].split('status: "Follow-up required"', 1)[0]
+    for fragment in (
+        "Your referral is recorded",
+        "receiving service still needs to complete",
+    ):
+        assert fragment in referral_created_member, fragment
 
     doctor_render = demonstrator_app.split("function renderDoctor()", 1)[1].split(
         "function renderJourney()", 1
     )[0]
+    doctor_queue = doctor_render.split("const queueState = ", 1)[1].split(
+        "elements.doctorQueueCount", 1
+    )[0]
+    for fragment in (
+        "state.step < 3",
+        "state.step === 3",
+        "state.step === 4",
+        "state.step >= 5",
+        'summary: "No review case ready yet"',
+        'summary: "Imaging available · review required"',
+        'summary: "Review completed · required action pending"',
+        'summary: "Review completed · referral created"',
+        'status: "Waiting"',
+        'status: "Ready"',
+        'status: "Reviewed"',
+        'status: "Completed"',
+    ):
+        assert fragment in doctor_queue, fragment
     for fragment in (
         "HUMAN CLINICAL REVIEW",
         "REQUIRED HEALTHCARE ACTION",
