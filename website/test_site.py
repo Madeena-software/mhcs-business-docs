@@ -196,6 +196,55 @@ def main():
         assert fragment in demonstrator_app, fragment
     show_view_body = demonstrator_app.split("function showView(name)", 1)[1].split("function ", 1)[0]
     assert "state.step" not in show_view_body
+    member_workspace = demonstrator_source.split('id="view-member"', 1)[1].split(
+        'id="view-operator"', 1
+    )[0]
+    member_cta = member_workspace.split('id="member-next-action"', 1)[1].split(
+        "</button>", 1
+    )[0]
+    assert 'data-member-action="next-details"' in member_cta
+    assert "data-view=" not in member_cta
+    member_render = demonstrator_app.split("function renderMember()", 1)[1].split(
+        "function renderOperator()", 1
+    )[0]
+    assert "dataset.view" not in member_render
+    assert "memberNextDetails" in member_render
+
+    doctor_render = demonstrator_app.split("function renderDoctor()", 1)[1].split(
+        "function renderJourney()", 1
+    )[0]
+    for fragment in (
+        "HUMAN CLINICAL REVIEW",
+        "REQUIRED HEALTHCARE ACTION",
+        "Create Referral",
+        "Downstream service completion and follow-up continue outside this radiology workspace",
+    ):
+        assert fragment in doctor_render, fragment
+    for fragment in ("Complete Referral", "Complete Follow-up", "Record Intended Outcome"):
+        assert fragment not in doctor_render, fragment
+
+    journey_workspace = demonstrator_source.split('id="view-journey"', 1)[1]
+    for fragment in (
+        'id="demo-progression"',
+        "DEMO PROGRESSION",
+        "Presentation simulation only",
+        'id="simulate-referral-completion"',
+        'id="simulate-followup-completion"',
+        'id="simulate-intended-outcome"',
+        "Simulate Referral Completion",
+        "Simulate Follow-up Completion",
+        "Simulate Intended Outcome",
+    ):
+        assert fragment in journey_workspace, fragment
+    journey_render = demonstrator_app.split("function renderJourney()", 1)[1].split(
+        "function configureAiLink()", 1
+    )[0]
+    for fragment in (
+        "Simulate Referral Completion",
+        "Simulate Follow-up Completion",
+        "Simulate Intended Outcome",
+    ):
+        assert fragment in journey_render, fragment
     assert "state.step = 2" in demonstrator_app
     assert "state.step = 3" in demonstrator_app
     assert "state.step = 4" in demonstrator_app

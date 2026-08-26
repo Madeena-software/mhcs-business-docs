@@ -97,8 +97,9 @@
                   <p id="member-status-copy">Your health screening is complete. A fictional chest X-ray examination is the next step in this demonstration.</p>
                   <div class="member-next-row">
                     <div><span class="next-label">YOUR NEXT STEP</span><strong id="member-next-label">Imaging examination</strong></div>
-                    <button class="button button-primary" id="member-next-action" data-view="operator" type="button">View Next Step <span aria-hidden="true">→</span></button>
+                    <button class="button button-primary" id="member-next-action" data-member-action="next-details" aria-expanded="false" aria-controls="member-next-details" type="button">View Patient Update <span aria-hidden="true">→</span></button>
                   </div>
+                  <p class="micro-note" id="member-next-details" hidden></p>
                 </div>
               </section>
 
@@ -245,6 +246,17 @@
 
             <aside class="overview-side">
               <section class="overview-card handoff-card" aria-labelledby="handoff-title"><span class="eyebrow">PRESENTATION HANDOFF</span><h2 id="handoff-title">What happens next</h2><p id="overview-next-copy">The Operator (Radiographer) needs to complete the imaging task.</p><div class="handoff-row"><span>Active view</span><strong id="overview-active-actor">Member (Patient)</strong></div><div class="handoff-row"><span>Next required action</span><strong id="overview-next-action">Open imaging task</strong></div><button class="button button-secondary button-wide" data-view="member" type="button">Return to Member (Patient) <span aria-hidden="true">→</span></button></section>
+              <section class="overview-card demo-progression-card" id="demo-progression" aria-labelledby="demo-progression-title">
+                <span class="eyebrow">DEMO PROGRESSION</span>
+                <h2 id="demo-progression-title">Presentation simulation only</h2>
+                <p id="demo-progression-copy">These controls simulate downstream stages for this fictional presentation. They do not represent a fourth healthcare actor or production ownership.</p>
+                <div class="handoff-row"><span>Healthcare state</span><strong id="demo-progression-status">Waiting for referral creation</strong></div>
+                <div class="button-row">
+                  <button class="button button-secondary button-wide" id="simulate-referral-completion" type="button" hidden>Simulate Referral Completion</button>
+                  <button class="button button-secondary button-wide" id="simulate-followup-completion" type="button" hidden>Simulate Follow-up Completion</button>
+                  <button class="button button-secondary button-wide" id="simulate-intended-outcome" type="button" hidden>Simulate Intended Outcome</button>
+                </div>
+              </section>
               <section class="overview-card boundary-card" aria-labelledby="boundary-title"><span class="eyebrow">COORDINATION BOUNDARY</span><h2 id="boundary-title">Connected does not mean replaced</h2><p>MHCS coordinates the journey across existing capabilities. Government systems remain authoritative within their domains, and human professionals remain responsible for clinical review.</p></section>
             </aside>
           </div>

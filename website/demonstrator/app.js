@@ -5,9 +5,9 @@
     { label: "External AI Capability", state: "External capability available", next: "Continue to Doctor (Radiologist) review" },
     { label: "Human Clinical Review", state: "Professional review pending", next: "Complete Human Clinical Review" },
     { label: "Required Healthcare Action", state: "Required healthcare action pending", next: "Create referral" },
-    { label: "Referral Created", state: "Referral created — completion pending", next: "Complete referral" },
-    { label: "Referral Completed", state: "Referral completed — follow-up pending", next: "Complete follow-up" },
-    { label: "Follow-up / Intended Outcome", state: "Outcome update pending", next: "Record intended outcome" },
+    { label: "Referral Created", state: "Referral created — completion pending", next: "Simulate referral completion" },
+    { label: "Referral Completed", state: "Referral completed — follow-up pending", next: "Simulate follow-up completion" },
+    { label: "Follow-up / Intended Outcome", state: "Outcome update pending", next: "Simulate intended outcome" },
     { label: "Continued Monitoring", state: "Monitoring loop active", next: "Continue routine monitoring" },
   ];
 
@@ -30,6 +30,7 @@
     memberStatusCopy: byId("member-status-copy"),
     memberNextLabel: byId("member-next-label"),
     memberNextAction: byId("member-next-action"),
+    memberNextDetails: byId("member-next-details"),
     memberScreeningState: byId("member-screening-state"),
     memberImagingState: byId("member-imaging-state"),
     memberReviewState: byId("member-review-state"),
@@ -77,6 +78,10 @@
     overviewCurrentCopy: byId("overview-current-copy"),
     overviewNextCopy: byId("overview-next-copy"),
     overviewNextAction: byId("overview-next-action"),
+    demoProgressionStatus: byId("demo-progression-status"),
+    simulateReferralCompletion: byId("simulate-referral-completion"),
+    simulateFollowupCompletion: byId("simulate-followup-completion"),
+    simulateIntendedOutcome: byId("simulate-intended-outcome"),
     imageInput: byId("image-input"),
   };
 
@@ -143,8 +148,8 @@
         title: "Further examination required",
         copy: "Your health screening is complete. A fictional chest X-ray examination is the next step in this demonstration.",
         next: "Imaging examination",
-        action: "View Next Step",
-        view: "operator",
+        action: "View Patient Update",
+        nextActor: "Operator (Radiographer)",
         note: "This screen uses fictional information to show how a care journey continues beyond a screening result.",
       },
       {
@@ -153,8 +158,8 @@
         title: "Imaging examination",
         copy: "Your chest X-ray examination is being prepared. The imaging team will confirm the image before clinical review.",
         next: "Complete imaging examination",
-        action: "View Imaging Step",
-        view: "operator",
+        action: "View Patient Update",
+        nextActor: "Operator (Radiographer)",
         note: "The selected image stays in the demonstration browser session until the demo is reset.",
       },
       {
@@ -163,8 +168,8 @@
         title: "Your examination is being reviewed",
         copy: "Your imaging examination is complete. A Doctor (Radiologist) will review the information next.",
         next: "Clinical review",
-        action: "View Clinical Review",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Doctor (Radiologist)",
         note: "A supporting capability may assist the care team, but a Doctor (Radiologist) remains responsible for review.",
       },
       {
@@ -173,8 +178,8 @@
         title: "Your examination is being reviewed",
         copy: "A Doctor (Radiologist) is reviewing your examination. The next care step will be recorded after professional review.",
         next: "Professional review",
-        action: "View Clinical Review",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Doctor (Radiologist)",
         note: "Professional review is still required before any next care step is created.",
       },
       {
@@ -183,8 +188,8 @@
         title: "Referral arranged",
         copy: "A referral has been arranged for the next required service. It is awaiting completion.",
         next: "Referral awaiting completion",
-        action: "View Care Progress",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Doctor (Radiologist)",
         note: "A referral being arranged does not mean that the required service has already been delivered.",
       },
       {
@@ -193,8 +198,8 @@
         title: "Referral arranged",
         copy: "Your referral is recorded and the receiving service still needs to complete the next step.",
         next: "Referral completion",
-        action: "View Care Progress",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Required service outside this demonstrator",
         note: "The referral remains separate from completion of the required service.",
       },
       {
@@ -203,8 +208,8 @@
         title: "Referral completed",
         copy: "The referral has been completed. A follow-up is still needed to keep your care journey moving.",
         next: "Follow-up",
-        action: "View Follow-up",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Follow-up care outside this demonstrator",
         note: "Your care journey continues after referral completion so the next update is not lost.",
       },
       {
@@ -213,8 +218,8 @@
         title: "Follow-up completed",
         copy: "Your follow-up is complete. The fictional intended outcome can now be recorded.",
         next: "Intended outcome",
-        action: "View Outcome",
-        view: "doctor",
+        action: "View Patient Update",
+        nextActor: "Journey Overview presentation simulation",
         note: "This is a fictional status update, not a clinical result or medical recommendation.",
       },
       {
@@ -223,8 +228,8 @@
         title: "Required care completed",
         copy: "The required care in this demonstration is completed. Continue routine monitoring at the next planned touchpoint.",
         next: "Continue routine monitoring",
-        action: "View Journey Overview",
-        view: "journey",
+        action: "View Patient Update",
+        nextActor: "Journey Overview presentation simulation",
         note: "The immediate care step is complete, while continued monitoring remains part of the journey.",
       },
     ][state.step];
@@ -235,7 +240,7 @@
     elements.memberStatusCopy.textContent = content.copy;
     elements.memberNextLabel.textContent = content.next;
     elements.memberNextAction.textContent = `${content.action} →`;
-    elements.memberNextAction.dataset.view = content.view;
+    elements.memberNextDetails.textContent = `Next care actor: ${content.nextActor}. ${content.note} Use Presentation Navigation to view another workspace when presenting the next step.`;
     elements.memberNoteCopy.textContent = content.note;
 
     const memberStages = [
@@ -307,18 +312,15 @@
     elements.doctorImagingStatus.textContent = capabilityAvailable ? "Completed ✓" : "Pending";
     elements.doctorSupportStatus.textContent = capabilityAvailable ? "External Demo Capability" : "Not yet available";
     elements.doctorProfessionalStatus.textContent = state.step >= 4 ? "Completed ✓" : "Required";
-    elements.doctorActionButton.hidden = !caseOpen || state.step >= 8;
+    elements.doctorActionButton.hidden = !caseOpen || (!reviewReady && state.step !== 4) || state.step >= 5;
 
     const actions = {
       3: ["HUMAN CLINICAL REVIEW", "Complete Human Clinical Review", "Use this explicit control to record a fictional professional review. AI-assisted support does not determine the next step by itself."],
       4: ["REQUIRED HEALTHCARE ACTION", "Create Referral", "The professional review is complete. Create the illustrative referral so the required service becomes a separate, visible handoff."],
-      5: ["REFERRAL CREATED · SERVICE PENDING", "Complete Referral", "Referral created is not referral completed. Record completion only when the fictional receiving service has happened."],
-      6: ["FOLLOW-UP", "Complete Follow-up", "The referral is complete, but the care journey continues. Record the fictional follow-up explicitly."],
-      7: ["INTENDED OUTCOME", "Record Intended Outcome", "Record the illustrative intended outcome, then keep Continued Monitoring visible."],
-      8: ["CONTINUED MONITORING", "Continued Monitoring", "The required care is complete for this fictional case. Routine monitoring remains visible over time."],
     };
-    const action = actions[state.step] || ["NEXT REQUIRED ACTION", "Open the review case", "Open the case when it becomes available after image acquisition."];
-    if (reviewReady) elements.doctorActionEyebrow.textContent = "HUMAN CLINICAL REVIEW";
+    const action = state.step >= 5
+      ? ["REFERRAL CREATED · SERVICE PENDING", "Referral created", "Downstream service completion and follow-up continue outside this radiology workspace in the fictional demonstration."]
+      : actions[state.step] || ["NEXT REQUIRED ACTION", "Open the review case", "Open the case when it becomes available after image acquisition."];
     elements.doctorActionEyebrow.textContent = action[0];
     elements.doctorActionTitle.textContent = action[1];
     elements.doctorActionCopy.textContent = action[2];
@@ -344,9 +346,9 @@
       "Continue to Doctor (Radiologist) review",
       "Complete Human Clinical Review",
       "Create referral",
-      "Complete referral",
-      "Complete follow-up",
-      "Record intended outcome",
+      "Simulate Referral Completion",
+      "Simulate Follow-up Completion",
+      "Simulate Intended Outcome",
       "Continue routine monitoring",
     ];
     elements.overviewStatus.textContent = state.step === 0 ? "Action required" : state.step === 8 ? "Monitoring active" : "Journey in progress";
@@ -356,6 +358,20 @@
     elements.overviewCurrentCopy.textContent = copies[state.step];
     elements.overviewNextCopy.textContent = `Next: ${current.next}. ${copies[state.step]}`;
     elements.overviewNextAction.textContent = nextActions[state.step];
+    elements.demoProgressionStatus.textContent = [
+      "Waiting for referral creation",
+      "Waiting for referral creation",
+      "Waiting for referral creation",
+      "Waiting for referral creation",
+      "Waiting for referral creation",
+      "Referral created · Required service pending",
+      "Referral completed · Follow-up required",
+      "Follow-up completed · Intended outcome pending",
+      "Intended outcome reached · Continued Monitoring active",
+    ][state.step];
+    elements.simulateReferralCompletion.hidden = state.step !== 5;
+    elements.simulateFollowupCompletion.hidden = state.step !== 6;
+    elements.simulateIntendedOutcome.hidden = state.step !== 7;
   }
 
   function configureAiLink() {
@@ -397,10 +413,17 @@
     state.doctorCaseOpen = false;
     elements.imageInput.value = "";
     elements.notice.hidden = true;
+    elements.memberNextDetails.hidden = true;
+    elements.memberNextAction.setAttribute("aria-expanded", "false");
     showView("member");
     render();
   }
 
+  elements.memberNextAction.addEventListener("click", () => {
+    const expanded = elements.memberNextDetails.hidden;
+    elements.memberNextDetails.hidden = !expanded;
+    elements.memberNextAction.setAttribute("aria-expanded", String(expanded));
+  });
   viewControls.forEach((control) => control.addEventListener("click", (event) => {
     if (control.matches("a")) event.preventDefault();
     showView(control.dataset.view);
@@ -457,25 +480,35 @@
     render();
   });
   elements.doctorActionButton.addEventListener("click", () => {
-    if (!state.doctorCaseOpen || state.step < 3 || state.step >= 8) return;
+    if (!state.doctorCaseOpen || state.step < 3 || state.step >= 5) return;
     if (state.step === 3) {
       state.step = 4;
       announce("Human clinical review completed for the fictional case. The required healthcare action is now visible.");
     } else if (state.step === 4) {
       state.step = 5;
       announce("Referral created. Referral created ≠ Referral completed; the receiving service still needs to act.");
-    } else if (state.step === 5) {
-      state.step = 6;
-      announce("Referral completed. The required service happened; follow-up remains visible.");
-    } else if (state.step === 6) {
-      state.step = 7;
-      announce("Follow-up completed. The fictional intended outcome can now be recorded.");
-    } else if (state.step === 7) {
-      state.step = 8;
-      announce("Intended outcome reached. Continued Monitoring remains active where continuity of care is needed.");
     } else {
       return;
     }
+    render();
+  });
+
+  elements.simulateReferralCompletion.addEventListener("click", () => {
+    if (state.step !== 5) return;
+    state.step = 6;
+    announce("Referral completion simulated for this fictional presentation. Follow-up remains required.");
+    render();
+  });
+  elements.simulateFollowupCompletion.addEventListener("click", () => {
+    if (state.step !== 6) return;
+    state.step = 7;
+    announce("Follow-up completion simulated for this fictional presentation. The intended outcome remains pending.");
+    render();
+  });
+  elements.simulateIntendedOutcome.addEventListener("click", () => {
+    if (state.step !== 7) return;
+    state.step = 8;
+    announce("Intended outcome simulated for this fictional presentation. Continued Monitoring remains active.");
     render();
   });
 
