@@ -1,7 +1,7 @@
 # MHCS Core Image Gateway Module Specification
 
 **Status:** Approved target module
-**Last reviewed:** 21 August 2026
+**Last reviewed:** 29 August 2026
 
 This document defines the Image Gateway module in the approved `mhcs-core`
 modular application. The overall repository and runtime boundary is defined by the
@@ -19,11 +19,11 @@ end-user application or independently deployed MHCS service.
 ## Intended consumers
 
 - The Operator module submits completed capture sets locally.
-- MPIPS receives authorised processing work.
+- MPIPS receives authorized processing work.
 - The Doctor module receives eligible studies and returns reports.
-- The Member module receives member-safe image and result references.
+- The Member module receives member-safe image and result references for WhatsApp delivery.
 - Administrators receive final-failure notifications and manage exceptional
-  compliance actions.
+  compliance actions via the Unified Administration Panel.
 
 ## MHCS Core topology
 
@@ -46,7 +46,7 @@ The Image Gateway module receives:
   frozen gain identity;
 - a frozen member/examination metadata snapshot;
 - the globally unique medical-record ID;
-- organisation and examination identity; and
+- organization and examination identity; and
 - traceability information for the submitting operator.
 
 Durable acceptance of the complete set is the event that allows the Operator
@@ -92,15 +92,15 @@ The examination image set is complete only when every submitted capture has
 successfully produced DICOM.
 
 As each capture successfully produces DICOM, Image Gateway makes that individual
-study available as an authorised reference to any authenticated Operator whose
-active site and current shift authorise the examination. This partial
+study available as an authorized reference to any authenticated Operator whose
+active site and current shift authorize the examination. This partial
 availability never exposes raw NPZ and does not make the result available to a
 Member or Doctor.
 
 Only when every submitted capture has successfully produced DICOM does Image Gateway:
 
 - make the complete image set available to Member and Doctor modules as
-  authorised references; and
+  authorized references; and
 - start each selected result workflow.
 
 A partially successful image set remains hidden from the member until the
@@ -118,10 +118,10 @@ Image Gateway owns long-term storage for:
 - report versions needed for traceability.
 
 The approved policy is indefinite retention for audit and future reprocessing,
-with no routine user deletion. Each organisation is isolated in a separate
+with no routine user deletion. Each organization is isolated in a separate
 storage namespace.
 
-Only an authorised compliance administrator may delete or anonymise a record
+Only an authorized compliance administrator may delete or anonymize a record
 when legally required. The action must be fully audited.
 
 ## Access and distribution
@@ -130,14 +130,14 @@ when legally required. The action must be fully audited.
   and MPIPS.
 - Member, Operator, and Doctor modules receive references rather than
   permanent file copies.
-- Temporary authorised links protect image access, except the standard
+- Temporary authorized links protect image access, except the standard
   authenticated Operator raw-DICOM attachment download defined below.
-- Members view images and export TIFF, JPG, or PDF; they do not download raw
-  DICOM.
-- Any authenticated Operator whose active site and current shift authorise the
+- Members receive member-safe result delivery coordinated via WhatsApp; they do
+  not download raw DICOM.
+- Any authenticated Operator whose active site and current shift authorize the
   examination may view and explicitly download each returned raw DICOM as a
   standard authenticated `.dcm` attachment. Operators never download raw NPZ.
-- Authorised doctors may explicitly download raw DICOM when clinically
+- Authorized doctors may explicitly download raw DICOM when clinically
   necessary; the download is audit logged.
 
 ## AI and doctor routing
@@ -146,18 +146,20 @@ when legally required. The action must be fully audited.
 - AI is requested only when selected by the booked service.
 - Doctor review is requested only when selected.
 - The AI provider is selected by application code, not by the member.
-- A successful AI result becomes visible to the member automatically and emits
-  one idempotent readiness event that automatically completes the matching Operator ticket.
+- A successful AI result becomes visible to Member Core for WhatsApp delivery
+  and emits one idempotent readiness event that automatically completes the
+  matching Operator ticket.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
   report delivery or terminal fallback failure updates Member publication and
   Operator ticket completion status but creates no Operator earning by itself.
 - For a doctor-selected service, placing the DICOM study in the Doctor module
-  dashboard queue starts review and creates no Operator earning.
+  queue starts review and creates no Operator earning.
 - A Doctor module `repeat_required` decision starts a Member module repeat
   entitlement but does not authorize Image Gateway to create a repeat itself.
 - A doctor-only repeat does not rerun AI. The original study and any successful
   original AI result remain unchanged.
-- A submitted doctor report becomes visible automatically.
+- A submitted doctor report becomes visible to Member Core automatically for
+  WhatsApp delivery.
 - AI and doctor outputs are independent and neither waits for the other.
 - A doctor may see available AI output but may finish first.
 - Corrected doctor reports preserve history and are redistributed as the new

@@ -1,7 +1,7 @@
 # MHCS Core Architecture Specification
 
 **Status:** Approved target architecture
-**Last reviewed:** 21 August 2026
+**Last reviewed:** 29 August 2026
 
 This document is the architecture authority for the MHCS application. Detailed
 business rules remain in the module specifications linked below.
@@ -11,7 +11,8 @@ business rules remain in the module specifications linked below.
 MHCS uses exactly two product repositories:
 
 1. `mhcs-core`: one modular application containing Member, Operator, Doctor,
-   and Image Gateway modules; and
+   and Image Gateway modules, served by staff web interfaces, a unified
+   administration panel, and a WhatsApp-only member channel; and
 2. `mpips`: one private black-box NPZ-to-DICOM conversion service.
 
 Member, Operator, Doctor, and Image Gateway are modules, not independently
@@ -25,6 +26,28 @@ the module relevant to its task:
 - [UI/UX Design System Export](design/mhcs-core-design.html) (Google Stitch Project: [2877959425967925287](https://stitch.withgoogle.com/projects/2877959425967925287))
 
 The old five-repository deployment model is superseded.
+
+## Human-facing surfaces
+
+The four distinct human-facing interaction surfaces are:
+
+1. **Member:** WhatsApp-only interaction channel. Members receive notifications,
+   coordinate bookings, and receive member-safe results exclusively via WhatsApp.
+   No authenticated member web portal, native iOS/Android apps, desktop apps, or
+   member username/password credentials exist.
+2. **Operator:** Staff web application supporting examination-day operations.
+   Governed by three independent operational permissions (`TU / Registration`,
+   `Nakes Pemeriksaan Dasar`, `Radiografi`). Staff accounts may hold any combination
+   of permissions. Station selection routes active work and calls but cannot elevate
+   permissions. MVP/beta operator accounts temporarily retain access to all three
+   areas under transitional compatibility.
+3. **Doctor:** Doctor web application for clinical review and reporting, covering
+   radiologists (who perform radiology quality decisions and DICOM reviews) and
+   authorized non-radiologist specialists (who review services within their
+   authorized specialty and modality eligibility).
+4. **Admin:** One unified administration web panel providing administrative
+   interfaces across domain-owned operations (Member, Operator, Doctor, Image
+   Gateway) without creating a separate monolithic Admin business domain.
 
 ## Why this boundary
 
@@ -86,22 +109,22 @@ cross-module service layer.
 `mhcs-core` is one deployable application that may run several processes from
 the same source:
 
-- web processes for member, operator, doctor, and administrator interfaces;
-- queue workers for notifications, image orchestration, AI routing, and
-  payouts; and
+- web processes for operator, doctor, and unified administrator interfaces, plus
+  WhatsApp webhook/integration endpoints;
+- queue workers for WhatsApp message delivery, image orchestration, AI routing,
+  and payouts; and
 - a scheduler for retries, reconciliation, reminders, and daily doctor payout
   batches.
 
-All processes use one authentication and authorization foundation, one
+All processes use one staff authentication and authorization foundation, one
 application database, one cache/queue foundation, and the Image Gateway
 module's controlled object storage. Tables remain module-owned even when the
 database enforces foreign keys across stable identifiers.
 
 The private MPIPS conversion contract is the only internal network service
 boundary. The `mhcs-core` image worker and MPIPS may join a private container
-network, but
-MPIPS is not published through the user-facing reverse proxy. Browser clients,
-Member, Operator, and Doctor modules never call MPIPS directly.
+network, but MPIPS is not published through the user-facing reverse proxy.
+Browser clients, Member, Operator, and Doctor modules never call MPIPS directly.
 
 ## Module interaction rules
 
@@ -111,14 +134,14 @@ Member, Operator, and Doctor modules never call MPIPS directly.
 - Cross-module asynchronous work uses versioned domain events persisted in the
   same database transaction as the source change.
 - A queued handler is idempotent because delivery may repeat.
-- User identity, session, role, site, and case authorization come from the
+- Staff user identity, session, role, site, and case authorization come from the
   shared authenticated application context.
 - Module boundaries do not require duplicated user, site, booking, clinical,
   or payout records.
 - External identifiers remain distinct from local primary keys even though the
   modules share one database.
-- Payment gateways, AI providers, email providers, object storage, and MPIPS
-  remain explicit external adapters.
+- Payment gateways, WhatsApp Business Platform providers, AI providers, email
+  providers, object storage, and MPIPS remain explicit external adapters.
 
 The application may use one transaction for an approved cross-module invariant,
 such as creating a repeat entitlement and its doctor earning event. Long-running
@@ -142,7 +165,7 @@ The Image Gateway module owns:
 - AI and doctor routing; and
 - publication and report-version distribution state.
 
-Operator submits a capture through the public `mhcs-core` application. The
+Operator submits a capture through the staff `mhcs-core` application. The
 request durably persists the radiograph, gain, manifest, and signature to the
 configured private store, then atomically accepts the complete source set and
 queues MPIPS. Each successful component is immutable; a later same-admission
@@ -220,6 +243,26 @@ implementation details in this context.
   contents, clinical payloads, tokens, or patient identifiers.
 - The Image Gateway module validates the returned DICOM before permanent
   acceptance.
+
+## Open design decisions
+
+The following decisions are intentionally unresolved by current human authority and
+remain open design decisions:
+
+1. **WhatsApp Business Platform Provider:** Exact WhatsApp Business Platform provider, API gateway, integration contract, and hosting model.
+2. **WhatsApp Bot / LLM Architecture:** Exact conversation flow design, NLP/LLM orchestration layer, automated triage logic, and human-handoff escalation boundaries.
+3. **Payment Provider Integration:** Exact payment gateway adapter, payment methods (QRIS, VA, e-wallet), webhook schemas, and timeout/settlement contracts.
+4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
+5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
+6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
+7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
+8. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
+9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
+10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
+11. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.
+12. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
+13. **Grabber NPZ Schema:** Whether Grabber NPZ contains TIFF bytes, raw numeric array, or both, and required MPIPS compatibility fields.
+14. **FHIR R5 Conformance Artifacts:** Exact canonical URLs, package IDs, profiles, and validator fixtures.
 
 ## Extraction rule
 
