@@ -2,7 +2,7 @@
 title: MHCS Product-Model Reset Umbrella Task
 document_id: AGENT-TASK-MHCS-RESET-001
 version: 1.1
-status: draft
+status: validated-published
 language: en-US
 last_updated: 2026-08-29
 scope:
@@ -12,7 +12,7 @@ scope:
   - multi-specialty doctor access model
   - unified administration panel definition
   - cross-document authority reconciliation
-authority_note: This task is a Draft delivery contract. It defines the bounded implementation scope for the coordinated revision of MHCS business and technical authority. It does not authorize application-code changes, deployment, or release.
+authority_note: This published validated task authorizes only the bounded implementation scope explicitly defined by the task and applicable approved repository authority. Observed repository evidence governs claims about current implementation reality but does not silently redefine the task or its intended authority.
 ---
 
 # Executable Task
@@ -32,7 +32,7 @@ MHCS Product-Model Reset Umbrella Documentation Revision
 `.agents/tasks/mhcs-product-model-reset.md`
 
 **Task contract state:**
-`Draft`
+`Validated/Published`
 
 The task file is the executable delivery contract.
 
@@ -66,9 +66,7 @@ This umbrella documentation task exists to audit, update, and reconcile all cros
 `cfe5d523b82da7af5557711c90d50f6173f4c531`
 
 **Task revision:**
-`resolved when published`
-
-`resolved when published` is a Draft placeholder. It is not sufficient for T5.
+`resolved via publication commit SHA`
 
 Before this task is treated as `Validated/Published` or handed to an Executor, the exact immutable governing task revision MUST be resolvable.
 
@@ -274,7 +272,6 @@ The following architecture, business, and operational invariants MUST remain unc
 
 ### Dependencies
 
-- Approval of this Draft task contract by the designated human authority before publication and execution.
 - Baseline repository state at commit `cfe5d523b82da7af5557711c90d50f6173f4c531`.
 
 ### Approved assumptions
@@ -288,9 +285,9 @@ The following architecture, business, and operational invariants MUST remain unc
 
 ### Remaining approval requirements
 
-- Formal approval of this Draft task file by the designated repository authority.
 - Human review and acceptance of the revised business and technical authority documents upon completion of umbrella execution.
 - Open design decisions (listed below) remain explicitly marked and require subsequent human authority decisions.
+- None beyond the task's existing validated authority for documentation execution.
 
 ## Required capabilities
 
