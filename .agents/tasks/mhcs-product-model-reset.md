@@ -1,7 +1,7 @@
 ---
 title: MHCS Product-Model Reset Umbrella Task
 document_id: AGENT-TASK-MHCS-RESET-001
-version: 1.0
+version: 1.1
 status: draft
 language: en-US
 last_updated: 2026-08-29
@@ -25,13 +25,13 @@ A task is not a generic coding recipe. Implementation technique remains the Exec
 
 ## Task identity
 
-**Task title:**  
+**Task title:**
 MHCS Product-Model Reset Umbrella Documentation Revision
 
-**Task path:**  
+**Task path:**
 `.agents/tasks/mhcs-product-model-reset.md`
 
-**Task contract state:**  
+**Task contract state:**
 `Draft`
 
 The task file is the executable delivery contract.
@@ -42,10 +42,10 @@ A lifecycle-status update MUST NOT silently replace the immutable task revision 
 
 When remediation materially changes this executable contract, edit the same stable task path, return it to Draft as needed, and republish it as a new immutable governing task revision before renewed execution.
 
-**Delivery objective / Work Package / MVP:**  
+**Delivery objective / Work Package / MVP:**
 MHCS Product-Model Reset / WP-DOC-RESET-001
 
-**Owner / designated planning authority:**  
+**Owner / designated planning authority:**
 Designated MHCS Product Authority / Repository Planner
 
 ## Delivery context
@@ -54,7 +54,7 @@ The MHCS teleradiology platform is undergoing a product-model reset based on app
 
 1. **Member experience is WhatsApp-only:** Members interact exclusively via WhatsApp. All prior assumptions regarding an authenticated Member web portal, native mobile apps (Android/iOS), desktop applications, and username/password credentials are eliminated. The internal Member domain remains necessary for healthcare identity (MRN), booking, payment/financial records, subject-of-care relationships, notifications, and result-delivery orchestration.
 2. **Permission-based Operator authorization with MVP/beta compatibility:** The operator model transitions from an undifferentiated station-label model to three independently assignable operational permissions: `TU / Registration`, `Nakes Pemeriksaan Dasar`, and `Radiografi`. Staff may hold any combination of these permissions. Station selection cannot elevate permissions. For transitional compatibility, existing MVP/beta Operator accounts temporarily retain all three permissions, while newly provisioned staff accounts require explicit administrator selection of permissions.
-3. **Multi-specialty Doctor access:** The doctor-facing web application covers radiologists and appropriately authorized non-radiologist specialists, distinguishing shared foundations from specialty/service authorizations, modality eligibility, and clinical workflow variations without duplicating or copying Operator examination workflows.
+3. **Multi-specialty Doctor access:** The doctor-facing web application covers radiologists and appropriately authorized non-radiologist specialists, preserving the mature radiology workflow for radiology services while identifying reusable shared foundations, explicit specialty/service authorizations, and modality eligibility, without forcing non-radiologist specialists into radiology-specific workflows or copying Operator examination workflows.
 4. **Unified Administration panel:** System administration is unified into one administrator-facing web panel without creating a new monolithic "Admin" business domain. Admin acts as a presentation/role surface over domain-owned operations (Member, Operator, Doctor, Image Gateway).
 5. **Preserved architecture invariants:** The existing modular `mhcs-core` Laravel backend, separate MPIPS conversion runtime boundary, Image Gateway durable storage/orchestration ownership, NPZ-to-DICOM conversion flow, mature Operator examination-day queue/LCD workflows, domain-owned data, local commands/events, and FHIR R5 external interoperability boundaries are strictly preserved.
 
@@ -62,10 +62,10 @@ This umbrella documentation task exists to audit, update, and reconcile all cros
 
 ## Baseline and task revision
 
-**Implementation baseline:**  
+**Implementation baseline:**
 `cfe5d523b82da7af5557711c90d50f6173f4c531`
 
-**Task revision:**  
+**Task revision:**
 `resolved when published`
 
 `resolved when published` is a Draft placeholder. It is not sufficient for T5.
@@ -90,7 +90,7 @@ If parallel or intervening repository changes require reconciliation, return the
 
 ## Objective
 
-**Objective:**  
+**Objective:**
 Reframe MHCS business and technical authority around a WhatsApp-only Member channel, permission-based examination operations with MVP/beta compatibility, multi-specialty Doctor access, and one unified Admin surface, while preserving the established modular backend and mature Operator workflow where compatible.
 
 ## Authoritative inputs
@@ -100,7 +100,7 @@ Reframe MHCS business and technical authority around a WhatsApp-only Member chan
 - **Human-Approved Product Direction (2026-08-29):**
   - *Decision 1 (Member Experience):* WhatsApp-only member interaction channel; removal of Member web portal, mobile apps, desktop apps, and member username/password credentials; preservation of internal Member domain (MRN, booking, payment, notifications, result delivery, subject-of-care relations); conceptual separation of Requester/contact, Payer, Subject of care, Guardian, and Result recipient; booking code is a reservation locator, not sufficient identity proof; official identity verified on-site before clinical check-in; no sensitive identity evidence (KTP/KIA/KK) collected via ordinary WhatsApp chat; open integration details remain explicit.
   - *Decision 2 (Operator Experience):* Three independent operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`); staff account may hold 1, 2, or all 3 permissions; station selection routes work but cannot grant unheld permissions; MVP/beta transitional compatibility: existing Operator accounts temporarily retain access to all 3 operational areas; new staff provisioning requires administrator-selected permissions; no immediate forced migration of existing beta accounts.
-  - *Decision 3 (Doctor Experience):* Distinct doctor-facing web application; target population includes radiologists and authorized non-radiologist specialists; shared foundations with explicit specialty/service authorization and modality eligibility; clinical workflow differences distinguished; no copying of Operator examination workflow.
+  - *Decision 3 (Doctor Experience):* Distinct doctor-facing web application; target population includes radiologists and authorized non-radiologist specialists; preservation of radiology imaging workflow for radiology services; shared foundations with explicit specialty/service authorization and modality eligibility; clinical workflow differences distinguished; non-radiologist doctors not forced into radiology quality decisions or DICOM review; no copying of Operator examination workflow.
   - *Decision 4 (Administration Experience):* One unified administrator-facing panel; Admin is a role/presentation surface over domain-owned operations, not a new monolithic business domain; domain ownership strictly preserved (Member, Operator, Doctor, Image Gateway).
   - *Decision 5 (Preserved Architecture):* Single modular `mhcs-core` application; separate MPIPS trust/runtime boundary; Image Gateway ownership of durable imaging/processing orchestration; NPZ → DICOM conversion boundary; existing mature Operator examination-day flow (FIFO queues, LCD displays, paper consent confirmation, basic examination, Grabber review, atomic claims); module-owned data; local commands/queries/transactions and durable domain events; staff authentication foundation; FHIR R5 external interoperability boundary.
 - **Repository AI Delivery Contract:** `.agents/AGENTS.md` (document_id: AGENTS-CONTRACT-001)
@@ -117,27 +117,75 @@ Reframe MHCS business and technical authority around a WhatsApp-only Member chan
   - `docs/technical/mpips/project.md`
   - `docs/technical/mhcs-core/ui-language.md`
 
-### Requirement traceability
+### Product-decision traceability
 
-- `PD-MEM-001` (WhatsApp-Only Member Channel) → Human-Approved Product Direction §1
-- `PD-MEM-002` (Removal of Member Portal/Credentials & Preservation of Member Domain) → Human-Approved Product Direction §1, `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/member/project.md`
-- `PD-MEM-003` (Requester / Payer / Subject of Care / Guardian / Recipient Separation) → Human-Approved Product Direction §1
-- `PD-MEM-004` (Booking Code vs. On-Site Official Identity Verification) → Human-Approved Product Direction §1, `docs/business/01-business-overview.md`
-- `PD-MEM-005` (WhatsApp Chat Privacy & Sensitive Document Collection Boundary) → Human-Approved Product Direction §1
-- `PD-OPR-001` (Three Independent Operator Permissions: TU, Nakes, Radiografi) → Human-Approved Product Direction §2, `docs/technical/mhcs-core/modules/operator/project.md`
-- `PD-OPR-002` (Multi-Permission Account Assignment & Station Non-Elevation) → Human-Approved Product Direction §2
-- `PD-OPR-003` (MVP/Beta Transitional Compatibility for Existing Operator Accounts) → Human-Approved Product Direction §2
-- `PD-OPR-004` (New Permission-Aware Staff Account Provisioning) → Human-Approved Product Direction §2
-- `PD-OPR-005` (Preservation of Mature Examination-Day Workflow) → Human-Approved Product Direction §2, §5
-- `PD-DOC-001` (Multi-Specialty Doctor Access: Radiologists & Non-Radiologist Specialists) → Human-Approved Product Direction §3, `docs/technical/mhcs-core/modules/doctor/project.md`
-- `PD-DOC-002` (Shared Doctor Foundations vs. Specialty Authorization & Modality Eligibility) → Human-Approved Product Direction §3
-- `PD-DOC-003` (Clinical Workflow Differentiation vs. Operator Workflow Boundary) → Human-Approved Product Direction §3
-- `PD-ADM-001` (Unified Administrator-Facing Web Panel) → Human-Approved Product Direction §4, `docs/technical/mhcs-core/project.md`
-- `PD-ADM-002` (Admin as Role/Presentation Surface, Not a Monolithic Business Domain) → Human-Approved Product Direction §4
-- `PD-ADM-003` (Strict Preservation of Domain Data and Operation Ownership) → Human-Approved Product Direction §4, `docs/business/02-system-responsibilities.md`
-- `PD-ARC-001` (Preservation of Single Modular `mhcs-core` Architecture) → Human-Approved Product Direction §5, `docs/technical/mhcs-core/project.md`
-- `PD-ARC-002` (Preservation of MPIPS Trust/Runtime Boundary & Image Gateway Ownership) → Human-Approved Product Direction §5, `docs/technical/mpips/project.md`, `docs/technical/mhcs-core/modules/image-gateway/project.md`
-- `PD-ARC-003` (Preservation of FHIR R5 Interoperability Boundary) → Human-Approved Product Direction §5, `docs/business/02-system-responsibilities.md`
+- **WhatsApp-only Member channel**
+  → Human-Approved Product Direction §1
+  → `docs/business/01-business-overview.md`, `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/modules/member/project.md`, `docs/technical/mhcs-core/project.md`
+
+- **Removal of Member Portal, credentials, and apps with Member domain preservation**
+  → Human-Approved Product Direction §1
+  → `docs/business/01-business-overview.md`, `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/modules/member/project.md`
+
+- **Requester, Payer, Subject of Care, Guardian, and Recipient separation**
+  → Human-Approved Product Direction §1
+  → `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/member/project.md`
+
+- **Booking code as reservation locator vs. on-site official identity verification**
+  → Human-Approved Product Direction §1
+  → `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/member/project.md`, `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **WhatsApp chat privacy & non-collection of sensitive identity documents via chat**
+  → Human-Approved Product Direction §1
+  → `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/member/project.md`
+
+- **Three independent Operator permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`)**
+  → Human-Approved Product Direction §2
+  → `docs/business/01-business-overview.md`, `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **Multi-permission account assignment & station non-elevation**
+  → Human-Approved Product Direction §2
+  → `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **MVP/beta transitional compatibility for existing Operator accounts**
+  → Human-Approved Product Direction §2
+  → `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **New staff account provisioning via administrator-selected permissions**
+  → Human-Approved Product Direction §2
+  → `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **Preservation of mature examination-day workflow**
+  → Human-Approved Product Direction §2, §5
+  → `docs/business/01-business-overview.md`, `docs/technical/mhcs-core/modules/operator/project.md`
+
+- **Multi-specialty Doctor access (radiologists and authorized non-radiologist specialists)**
+  → Human-Approved Product Direction §3
+  → `docs/business/01-business-overview.md`, `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/modules/doctor/project.md`
+
+- **Shared Doctor foundations vs. specialty authorization & distinct clinical workflows**
+  → Human-Approved Product Direction §3
+  → `docs/technical/mhcs-core/modules/doctor/project.md`
+
+- **Non-radiologist specialists not forced into radiology workflow / operator examination workflow boundary**
+  → Human-Approved Product Direction §3
+  → `docs/technical/mhcs-core/modules/doctor/project.md`
+
+- **Unified Administrator web panel as role/presentation surface over domain-owned operations**
+  → Human-Approved Product Direction §4
+  → `docs/business/01-business-overview.md`, `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/project.md`
+
+- **Preservation of domain data and operation ownership**
+  → Human-Approved Product Direction §4
+  → `docs/business/02-system-responsibilities.md`, `docs/technical/mhcs-core/project.md`
+
+- **Preservation of modular `mhcs-core` architecture, separate MPIPS runtime, and Image Gateway ownership**
+  → Human-Approved Product Direction §5
+  → `docs/technical/mhcs-core/project.md`, `docs/technical/mpips/project.md`, `docs/technical/mhcs-core/modules/image-gateway/project.md`
+
+- **Preservation of FHIR R5 external interoperability boundary**
+  → Human-Approved Product Direction §5
+  → `docs/business/02-system-responsibilities.md`
 
 ## Scope
 
@@ -148,18 +196,18 @@ The Executor MUST revise and reconcile the following core authority documents wi
 1. **`docs/business/01-business-overview.md`:**
    - Update end-to-end service flow and actor journeys to reflect WhatsApp-only member interactions.
    - Remove references to authenticated Member Portal, member username/password login, self-service web portals, and native mobile apps.
-   - Reframe member-facing result access from portal views to WhatsApp-coordinated result delivery / on-site printouts.
+   - Reframe member-facing result access from portal views to WhatsApp-coordinated result delivery (e.g. WhatsApp message/attachment, on-site printout) adhering strictly to the no-web member model.
    - Replace single-permission interchangeable operator model with three independent operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`).
    - Define MVP/beta transitional compatibility for existing operator accounts.
-   - Expand Doctor role and journey to include radiologists and authorized non-radiologist specialists, noting specialty-specific workflow differences.
+   - Expand Doctor role and journey to include radiologists and authorized non-radiologist specialists, preserving radiology workflows for radiology services while recognizing specialty differences.
    - Reframe MHCS administrator into unified administration panel operations over domain-owned capabilities.
-   - Reconcile Madeena Points assumptions: audit current wallet/points references, reflect direct payment / unbundled payment triggers, and mark unresolved commercial policies explicitly.
+   - Audit and reconcile payment assumptions: remove the requirement that the legacy Member Portal/account flow is required for payment; recognize WhatsApp-originated booking/payment coordination; identify the current "Madeena Points is the only member payment instrument" rule as requiring reconciliation; preserve financial and domain integrity while explicitly leaving the final Madeena Points, direct-rupiah, payment provider, deposit/full-payment, and refund architecture unresolved.
    - Update glossary, access maps, and payment trigger tables.
 
 2. **`docs/business/02-system-responsibilities.md`:**
    - Update Member Core responsibility map: retain MRN, healthcare identity, booking, requester/subject-of-care relations, notifications, and result orchestration while removing portal/credential management.
    - Update Operator Core responsibility map: document 3 independent operational permissions, multi-permission account support, station non-elevation, and MVP/beta compatibility rules.
-   - Update Doctor Core responsibility map: document multi-specialty clinical review (radiologists + non-radiologist specialists) and specialty authorization.
+   - Update Doctor Core responsibility map: document multi-specialty clinical review (radiologists + non-radiologist specialists), specialty/service authorization, and clinical workflow boundaries.
    - Define Unified Admin presentation surface across domain-owned operations without introducing an `Admin` business domain.
    - Reconcile payment ownership and access maps to match WhatsApp-only member and unified admin models.
 
@@ -173,7 +221,7 @@ The Executor MUST revise and reconcile the following core authority documents wi
    - Update identity model: separate `Requester / contact`, `Payer`, `Subject of care`, `Guardian`, and `Result recipient`.
    - Explicitly establish that booking code possession is a reservation locator, not sufficient identity proof; define official identity verification as an on-site TU workflow.
    - Remove `users` table linkage for members, password authentication, and self-registration portal credential management.
-   - Reconcile Member data model: remove portal login fields, update booking and guardian relationships, remove or isolate Madeena Points wallet mechanics into unbundled payment/financial structures, and mark open payment provider decisions explicitly.
+   - Reconcile Member data model: remove portal login fields and credentials; update booking, subject-of-care, and guardian relationships; isolate legacy points-wallet assumptions; preserve financial domain integrity and booking payment status tracking while explicitly leaving the final Madeena Points / direct-rupiah / payment-provider / deposit-vs-full-payment architecture unresolved under Open Design Decisions.
    - Update attendance query contract and on-site lookup interfaces for Operator TU check-in.
 
 5. **`docs/technical/mhcs-core/modules/operator/project.md`:**
@@ -186,9 +234,11 @@ The Executor MUST revise and reconcile the following core authority documents wi
 
 6. **`docs/technical/mhcs-core/modules/doctor/project.md`:**
    - Expand user and authorization model to cover radiologists and authorized non-radiologist specialists.
-   - Define shared doctor foundations (shared queue, atomic claim, study viewing, DICOM download when clinically necessary, quality decisions, report drafting/submission, amendments, earnings).
-   - Specify specialty/service authorization and modality eligibility rules (e.g. non-radiologist specialists reviewing relevant clinical modalities/services).
-   - Distinguish clinical workflow differences where applicable without copying Operator examination workflows.
+   - Preserve the existing radiologist imaging workflow for radiology services.
+   - Identify reusable shared technical foundations (e.g. staff authentication, shared case queue/assignment mechanisms, report drafting/submission, amendments, earnings/payout infrastructure).
+   - Explicitly define specialty/service authorization and modality eligibility rules (e.g. non-radiologist specialists reviewing relevant clinical services).
+   - Keep specialty-specific clinical workflows separate where clinically required; do NOT automatically require or assume that non-radiologist specialists perform radiology-specific quality decisions (`usable` / `repeat_required`), raw DICOM review, or repeat-imaging workflows.
+   - Keep exact non-radiologist specialty workflows as an open design decision unless already supported by approved authority; do not copy Operator examination workflows into Doctor.
 
 7. **Downstream technical & supporting document consistency review:**
    - `docs/technical/mhcs-core/modules/image-gateway/project.md`: verify references to Member result distribution and Operator raw DICOM access; ensure no obsolete portal references remain.
@@ -203,8 +253,8 @@ The Executor MUST revise and reconcile the following core authority documents wi
 - Authoring or executing deployment scripts, CI/CD pipelines, or server configurations.
 - Inventing unapproved external vendor/provider solutions (e.g., selecting a specific WhatsApp BSP vendor, choosing a specific payment gateway, or designing specific WhatsApp bot/LLM conversational trees).
 - Modifying historical research artifacts under `docs/research/` (which remain historical context).
-- Complete visual/structural overhaul of `website/` demonstrators and mock-ups (`website/demonstrator/`, `website/mock-up/`, `website/bpmn/`), except for necessary consistency updates or explicit documentation of deferred alignment tasks.
-- Authoring application-level implementation tasks (e.g. `docs/technical/mhcs-core/tasks/` implementation tasks) beyond auditing them for consistency.
+- Modifying website, demonstrator, mock-up, or BPMN files (`website/demonstrator/`, `website/mock-up/`, `website/bpmn/`, `website/index.html`, `website/member/`, `website/operator/`, `website/doctor/`). These artifacts serve as consistency-audit and downstream-impact surfaces only; the Executor may identify stale or conflicting assumptions and record them as deferred follow-up work, but MUST NOT modify website/demonstrator/BPMN files in this umbrella execution.
+- Modifying the governing task file (`.agents/tasks/mhcs-product-model-reset.md`) or authoring implementation task files during execution.
 
 ### Preserved behavior
 
@@ -233,7 +283,7 @@ The following architecture, business, and operational invariants MUST remain unc
 - The internal Member domain remains essential for medical records (MRN), bookings, financial tracking, guardian/dependent relations, notifications, and result orchestration.
 - Operator authorization comprises three independent operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`).
 - Existing MVP/beta Operator accounts temporarily retain access to all three operational areas as a transitional compatibility measure.
-- The Doctor module serves both radiologists and authorized non-radiologist specialists based on configured specialty and modality eligibility.
+- The Doctor module serves both radiologists and authorized non-radiologist specialists based on configured specialty and modality eligibility, preserving radiology workflows for radiology services without universalizing them to non-radiologists.
 - Administration is delivered via one unified web panel acting as a presentation layer over domain-owned services, without creating an `Admin` domain entity.
 
 ### Remaining approval requirements
@@ -253,11 +303,12 @@ The following architecture, business, and operational invariants MUST remain unc
 ### Constraints
 
 - **Strict Authority Hierarchy:** Follow `.agents/AGENTS.md` and `.agents/software-workflow.md`. Distinguish approved authority from observed evidence.
-- **No Invented Decisions:** Genuine unresolved items (WhatsApp BSP, bot architecture, payment provider, Madeena Points commercial policy, result delivery channel mechanics, qualification rules) MUST be explicitly recorded under an "Open Design Decisions" section in the respective documents, rather than fabricated.
+- **No Invented Decisions:** Genuine unresolved items (WhatsApp BSP, bot architecture, payment provider, Madeena Points commercial policy, result delivery channel mechanics, qualification rules, non-radiologist specialist workflows) MUST be explicitly recorded under an "Open Design Decisions" section in the respective documents, rather than fabricated.
+- **Strict No-Web Member Boundary:** All member-facing flows and result-delivery mechanisms must remain strictly compatible with the no-web Member decision. Do not reintroduce member web links or portals.
 - **Terminology Consistency:** Use consistent terms across all documents (e.g., `TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`, `Unified Administration Panel`, `Requester`, `Subject of Care`, `WhatsApp Channel`).
 - **Language Policy Conformance:** Authority documents are written in plain English, while browser UI copy and operational station labels conform to `docs/technical/mhcs-core/ui-language.md` (Bahasa Indonesia for station names like `PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`).
-- **No Parallel Abstractions:** Apply Ponytail reuse discipline; do not introduce extraneous service layers, event systems, or domain entities.
-- **Documentation Only:** Execution of this task MUST NOT alter any application source code, database migrations, or deployment configurations.
+- **Reuse Discipline:** Apply repository reuse discipline and YAGNI; do not introduce extraneous service layers, parallel abstractions, event systems, or domain entities without concrete approved need.
+- **Documentation Only:** Execution of this task MUST NOT alter any application source code, database migrations, website files, or deployment configurations.
 
 ## Acceptance criteria
 
@@ -278,15 +329,15 @@ The Executor's implementation MUST satisfy all of the following observable crite
 - [ ] 9. New staff provisioning is defined as requiring administrator selection of applicable operational permissions.
 - [ ] 10. The specification explicitly states that station selection routes active work and calls but cannot grant or elevate account permissions.
 - [ ] 11. The mature Operator examination-day workflow (FIFO queues, LCD calls, paper consent confirmation, basic measurements, Grabber capture review, atomic claims, stage earnings) is preserved.
-- [ ] 12. Doctor authority covers radiologists and authorized non-radiologist specialists, distinguishing shared foundations from specialty authorizations, modality eligibility, and clinical workflow variations.
+- [ ] 12. Doctor authority covers radiologists and authorized non-radiologist specialists, preserving the radiology workflow for radiology services, identifying shared technical foundations, explicitly defining specialty authorizations and modality eligibility, and keeping specialty-specific clinical workflows distinct without universalizing radiology quality decisions, DICOM reviews, or repeat-imaging flows to non-radiologist doctors.
 - [ ] 13. Admin is defined as one unified human-facing panel without creating a new monolithic `Admin` business domain.
 - [ ] 14. Domain ownership remains strictly explicit across Member, Operator, Doctor, and Image Gateway modules.
 - [ ] 15. Modular `mhcs-core` application topology, separate MPIPS runtime boundary, and Image Gateway storage/orchestration ownership are strictly preserved.
 - [ ] 16. Contradictory legacy assumptions (Member Portal, member login credentials, Madeena Points as exclusive member payment, single interchangeable operator permission, module-fragmented admin panels) are removed, replaced, or explicitly isolated.
 - [ ] 17. Genuine unresolved business and technical decisions are explicitly documented under "Open Design Decisions" sections and not fabricated.
 - [ ] 18. Cross-document terminology, actor journeys, and module responsibility maps are mutually consistent across all updated documents.
-- [ ] 19. Any downstream demonstrator, mock-up, BPMN, or task artifacts that are not updated within this scope are explicitly identified with documented follow-up/deferral rationale.
-- [ ] 20. The execution produces changes exclusively within documentation files and does not modify application code, `mhcs-core`, `mpips`, deployment configs, or external systems.
+- [ ] 19. Downstream website, demonstrator, mock-up, BPMN, and task artifacts are treated strictly as consistency-audit surfaces, with stale assumptions explicitly identified and recorded as deferred follow-up work without modifying website/demonstrator/BPMN files in this execution.
+- [ ] 20. The execution produces changes exclusively within documentation authority files and does not modify application code, `mhcs-core`, `mpips`, website/demonstrator/BPMN files, deployment configs, or external systems.
 
 ## Verification requirements
 
@@ -300,13 +351,13 @@ The Executor MUST run and report results for at least the following verification
    ```
    *Expectation:* Zero whitespace errors or malformed lines.
 
-2. **Repository Site & Link Verification:**
+2. **Repository Site & Link Verification (Read-Only):**
    ```bash
    python3 website/test_site.py
    ```
    *Expectation:* All local links and site tests resolve successfully.
 
-3. **BPMN Validation:**
+3. **BPMN Validation (Read-Only):**
    ```bash
    python3 website/bpmn/test_bpmn.py
    ```
@@ -327,13 +378,13 @@ The Executor MUST run and report results for at least the following verification
    ```bash
    git status --short
    ```
-   *Expectation:* Only authorized markdown documentation files are modified; no application source code, configuration, or deployment files are changed.
+   *Expectation:* Only authorized markdown documentation authority files under `docs/` and `.agents/context/project.md` are modified; no website, application source code, configuration, or task files are changed.
 
 ### Required evidence
 
 The Executor MUST report:
-- Implementation revision (Git commit SHA) and exact working-tree status.
-- Exact list of modified, added, or removed files.
+- Exact implementation revision (Git commit SHA) if an authorized immutable commit exists; otherwise, precisely identified working-tree state.
+- `git status` output and exact changed-file list.
 - Command-by-command verification outputs from the required checks above.
 - Summary of audited and replaced legacy terms.
 - Explicit list of unresolved design decisions recorded in the documents.
@@ -345,7 +396,8 @@ The Executor MUST stop implementation and return the issue to planning when any 
 
 - A required business or product authority decision is contradictory or missing beyond the approved inputs.
 - A conflict arises between the WhatsApp-only model and necessary clinical invariants that cannot be resolved without a new human decision.
-- Execution would require altering application code, deployment scripts, or infrastructure configuration.
+- If safe, compliant, or legitimate member result delivery or interaction proves impossible without a Member browser/web experience, that is a stop condition requiring new human product authority; the Executor MUST NOT solve this by silently reintroducing web or portal access.
+- Execution would require altering application code, website/demonstrator/BPMN files, deployment scripts, or infrastructure configuration.
 - The implementation baseline is no longer applicable.
 - The task requires expanding scope into rewriting historical research documents (`docs/research/`).
 - Acceptance criteria cannot be satisfied within the bounded documentation objective.
@@ -354,12 +406,14 @@ The Executor MUST stop implementation and return the issue to planning when any 
 
 ### Explicitly authorized side effects
 
-- Creation and modification of documentation markdown files under `docs/business/`, `docs/technical/`, `.agents/context/`, and `.agents/tasks/`.
-- Execution of Python test scripts (`website/test_site.py`, `website/bpmn/test_bpmn.py`) and read-only shell commands (`git diff`, `git status`, `grep`).
+- Modification of designated authority and context markdown documentation files under `docs/business/`, `docs/technical/`, and `.agents/context/project.md` (only where explicit synchronization is required).
+- Execution of Python test scripts (`website/test_site.py`, `website/bpmn/test_bpmn.py`) in read-only mode and read-only shell commands (`git diff`, `git status`, `grep`).
 
 ### Unauthorized side effects
 
 - Any modification to application source code in `mhcs-core`, `mpips`, or other repositories.
+- Modifying website, demonstrator, mock-up, or BPMN files (`website/`).
+- Modifying the governing task file (`.agents/tasks/mhcs-product-model-reset.md`) or other files under `.agents/tasks/`.
 - Git commits, pushes, or pull requests unless explicitly authorized by the governing run.
 - Production, staging, or external infrastructure mutations.
 - Network calls to external APIs or services.
@@ -372,7 +426,7 @@ The Executor MUST stop implementation and return the issue to planning when any 
 Use when all 20 acceptance criteria are satisfied, all required authority documents are updated and consistent, and complete verification evidence is documented for Reviewer evaluation.
 
 Expected evidence:
-- Full changed file list and diff summary.
+- Full changed file list and diff summary / working-tree state.
 - Test run results for site tests, BPMN tests, and whitespace checks.
 - Terminology audit search results demonstrating elimination of contradictory legacy rules.
 - Documentation of explicit open design decisions.
@@ -405,7 +459,7 @@ The following decisions are intentionally unresolved by current human authority 
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are completely retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
-7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp (e.g. direct encrypted PDF dispatch, secure time-limited web view link, on-site printed summary, or hybrid model).
+7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
 8. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
