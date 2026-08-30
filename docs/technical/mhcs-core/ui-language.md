@@ -7,7 +7,7 @@ This document defines the approved language, terminology, tone, and content-desi
 It applies to:
 
 * member-facing WhatsApp communications, templates, and result messages;
-* the staff Operator web application (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`);
+* the temporary Site Staff workspaces for Reception / Registration, Basic Examination, and Radiography;
 * the temporary Clinical / DICOM Workspace (Radiologist and non-radiologist specialist interfaces);
 * the Unified Administration Panel;
 * public booking and inquiry flows;
@@ -1033,15 +1033,15 @@ temporary staff workspaces, and Unified Administration Panel). Staff-facing inte
 must use Bahasa Indonesia while retaining precise professional terminology where
 it improves safety and operational clarity.
 
-### Operator permission and station terminology
+### Site Staff role and station terminology
 
-The approved Indonesian terms for operator permissions and operational stations are:
+The approved Indonesian terms for Site Staff roles and operational stations are:
 
-| Permission / Concept | Bahasa Indonesia UI label |
+| Role / Concept | Bahasa Indonesia UI label |
 |---|---|
-| `TU / Registration` | Tata Usaha / Pendaftaran |
-| `Nakes Pemeriksaan Dasar` | Tenaga Kesehatan Pemeriksaan Dasar |
-| `Radiografi` | Radiografer / Operator Radiografi |
+| Reception / Registration | Tata Usaha / Pendaftaran |
+| Basic Examination | Tenaga Kesehatan Pemeriksaan Dasar |
+| Radiography | Radiografer |
 | Front-desk Station | Stasiun Tata Usaha (`TU`) |
 | Basic Exam Station | Stasiun Pemeriksaan Dasar (`PEMERIKSAAN DASAR`) |
 | Radiography Station | Stasiun Radiografi (`SESI FOTO RADIOGRAFI`) |

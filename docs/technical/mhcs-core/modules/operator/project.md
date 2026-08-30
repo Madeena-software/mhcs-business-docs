@@ -9,9 +9,9 @@ application. The overall repository and runtime boundary is defined by the
 
 ## Purpose
 
-Operator Core is the staff-facing module for examination-day operations, opened
+Operator Core is the internal staff-facing module for examination-day operations, opened
 through WhatsApp-dispatched temporary Site Workspaces. It
-owns physical-site master data, operator accounts and assignments, arrivals,
+owns physical-site master data, Site Staff accounts and assignments, arrivals,
 TU identity-verification and consent-confirmation workflows, the staged operational
 queue, basic examination & vital signs capture, examination execution, session-only NPZ drafts, submission
 to Image Gateway, the public queue display, read-only AI result monitoring, operator earnings,
@@ -22,40 +22,42 @@ bookings, queue items, and examinations provide the required business context.
 
 ## Users and authorization
 
-Operator Core enforces a granular, permission-based authorization model with
-three independent operational permissions:
+Operator Core applies the Site Staff role model with three independently
+assignable operational roles:
 
-1. **`TU / Registration`:** Front-desk check-in, on-site official identity verification
+1. **Reception / Registration:** Front-desk check-in, on-site official identity verification
    using approved minimum evidence and comparison, booking locator lookup, paper consent
    confirmation, ticket issuance, and queue ticket thermal slip printing.
-2. **`Nakes Pemeriksaan Dasar`:** Claiming basic examination tickets, recording
+2. **Basic Examination:** Claiming basic examination tickets, recording
    vital signs, point-of-care blood screening, structured interview capture, and paper
    questionnaire confirmation.
-3. **`Radiografi`:** Claiming X-ray tickets, reviewing Grabber radiograph/gain NPZ
+3. **Radiography:** Claiming X-ray tickets, reviewing Grabber radiograph/gain NPZ
    captures, managing retakes/omissions, and submitting the complete capture set.
 
 In addition, **Global Admin / Super Admin** manages Operator Core sites, staff accounts,
 shift assignments, protocol mappings, earning rates, and operational configuration.
 
-### Multi-permission accounts and station rules
+### Multiple roles and station rules
 
-- **Multi-permission assignment:** A staff account may be assigned 1, 2, or all 3
-  operational permissions by Global Admin / Super Admin.
-- **Station selection:** An operator working an assigned shift selects an operational
+- **Multiple-role assignment:** A person may hold one or more roles when eligible;
+  qualification, credential, and assignment evidence determine eligibility.
+- **Station selection:** A Site Staff member working an assigned shift selects an operational
   station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`). This label routes
-  active work and LCD calls but **cannot** grant or elevate permissions beyond what the
-  account holds. An operator without `Radiografi` permission cannot claim X-ray tickets
+  active work and LCD calls but **cannot** grant or elevate a role beyond what the
+  person is eligible and assigned to perform. A person without the Radiography role cannot claim X-ray tickets
   even if selecting the X-ray station.
-- **MVP/beta transitional compatibility:** Existing MVP/beta operator accounts
-  temporarily retain access to all three operational areas (`TU / Registration`,
-  `Nakes Pemeriksaan Dasar`, `Radiografi`) as a transitional compatibility measure.
+- **MVP/beta transitional compatibility:** Existing MVP/beta accounts may
+  temporarily map to all three operational roles as a compatibility measure.
 - **New staff provisioning:** Provisioning of new staff accounts requires an
-  Global Admin / Super Admin to explicitly select the applicable operational permissions.
+  Global Admin / Super Admin to explicitly select the applicable operational roles.
 
-Staff holding operational permissions are represented as FHIR `Practitioner`,
+Implementation permissions/RBAC may enforce these roles underneath the business
+model. Station selection routes work but cannot create or elevate a role.
+
+Site Staff holding operational roles are represented as FHIR `Practitioner`,
 with site-specific `PractitionerRole` for each authorized site.
 
-An operator may be authorized for multiple sites but works in exactly one
+Site Staff may be authorized for multiple sites but work in exactly one
 active site context at a time. Switching sites requires confirmation, is audited,
 and is blocked while the operator has a claimed ticket, an unfinished queue action,
 or an unclosed cash shift.
@@ -103,7 +105,7 @@ Staffing is demand-triggered:
 1. Members may book an open shift before an operator is assigned.
 2. At five confirmed bookings, the Member module emits an idempotent `shift_eligible`
    domain event for the Operator module.
-3. Global Admin / Super Admin assigns one or more operators to the
+3. Global Admin / Super Admin assigns one or more Site Staff members to the
    shift manually or initiates the **Automated Sequential Operator Assignment** workflow.
 4. When sequential assignment is active, invitation offers are dispatched one
    candidate at a time based on the configured sequence.
@@ -113,10 +115,10 @@ Staffing is demand-triggered:
    the system advances to the next candidate.
 7. If the sequence is exhausted without acceptance, an escalation alert is sent
    to Global Admin / Super Admin.
-8. Assigned operators receive a WhatsApp reminder and open the temporary Site
-   Workspace for the task. Any assigned operator may perform operational tasks for which they hold the
-   corresponding permission (`TU / Registration`, `Nakes Pemeriksaan Dasar`, or `Radiografi`).
-   Atomic claims ensure that only one operator handles a ticket stage at a time.
+8. Assigned Site Staff receive a WhatsApp reminder and open the temporary Site
+   Workspace for the task. Each staff member may perform operational tasks for which
+   they hold the corresponding role (Reception / Registration, Basic Examination, or Radiography).
+   Atomic claims ensure that only one staff member handles a ticket stage at a time.
 
 Site schedules do not overlap and include an operational gap, so Operator Core
 does not merge tickets between shifts. Multiple assigned operators may serve
@@ -128,7 +130,7 @@ Operator Core obtains the current site's eligible attendance list from Member
 Core. A booking code presented by an arriving member serves as a reservation
 locator and is **not** sufficient proof of patient identity.
 
-Staff holding `TU / Registration` permission perform front-desk verification:
+Site Staff holding the Reception / Registration role perform front-desk verification:
 
 1. Record the member's physical arrival using its actual occurrence time.
 2. Look up the booking using the booking code and the minimum additional identifier
@@ -157,9 +159,9 @@ flow, subject to the approved minimum-data procedure.
 An operator cannot override an unresolved mismatch. Check-in remains blocked
 until Global Admin / Super Admin resolves the dispute with a mandatory reason.
 
-## Operator interaction and work history
+## Site Staff interaction and work history
 
-WhatsApp is the persistent operator interaction layer:
+WhatsApp is the persistent Site Staff interaction layer:
 
 ```text
 operational need / shift → eligible staff → WhatsApp offer
@@ -171,13 +173,13 @@ operational need / shift → eligible staff → WhatsApp offer
 upcoming assignments, role, site, date/time, simple counts, and applicable
 earnings or payment status. If detailed inspection is genuinely required,
 `LIHAT RIWAYAT LENGKAP` opens a secure temporary Work History surface; it is not
-a permanent Operator Portal. Exact authentication and temporary-session mechanics
+a permanent staff portal. Exact authentication and temporary-session mechanics
 remain open.
 
 ## Basic examination & vital signs assessment
 
-Basic examination assessment is mandatory before X-ray and is performed by staff
-holding `Nakes Pemeriksaan Dasar` permission:
+Basic examination assessment is mandatory before X-ray and is performed by Site Staff
+holding the Basic Examination role:
 
 - systolic and diastolic blood pressure;
 - body temperature;
@@ -240,7 +242,7 @@ details, assessments, images, results, or waiting-list positions.
 
 ## Walk-in boundary
 
-Staff holding `TU / Registration` permission initiate the assisted walk-in flow.
+Site Staff holding the Reception / Registration role initiate the assisted walk-in flow.
 Member Core owns the member record, verification assets, MRN, booking, and
 `ServiceRequest`.
 
@@ -261,10 +263,10 @@ before the examination continues.
 
 ## NPZ draft and submission flow
 
-The target examination flow is performed by staff holding `Radiografi` permission:
+The target examination flow is performed by Site Staff holding the Radiography role:
 
-1. After basic examination completion, an assigned operator holding `Radiografi`
-   permission atomically claims and calls the next ready X-ray ticket and starts
+1. After basic examination completion, an assigned Site Staff member holding the
+   Radiography role atomically claims and calls the next ready X-ray ticket and starts
    the examination.
 2. The Operator module creates the R5 `Encounter`, snapshots the protocol, and
    updates the Member-owned booking. Stage earning rates were already frozen when
@@ -366,10 +368,10 @@ Indonesian rupiah. They are not Madeena Points and are not FHIR resources.
 Stage earning rules:
 
 - **Basic examination & vital signs:** becomes eligible when the required assessment completes
-  and belongs to the worker holding `Nakes Pemeriksaan Dasar` recorded on that completion.
+  and belongs to the worker holding the Basic Examination role recorded on that completion.
 - **X-ray:** becomes eligible when Image Gateway durably accepts the complete capture
-  set and belongs to the submitting worker holding `Radiografi`.
-- **Same worker:** one operator holding multiple permissions who completes multiple
+  set and belongs to the submitting worker holding the Radiography role.
+- **Same worker:** one Site Staff member holding multiple roles who completes multiple
   stages receives each applicable stage earning independently.
 - **Later repeat or doctor decision:** never cancels or revalues an already
   completed stage earning.
@@ -394,8 +396,8 @@ compares it with its cash ledger, closing as `reconciled` or `reconciliation_req
 
 Global Admin / Super Admin manages:
 
-- staff accounts, activation, suspension, and permission assignment (`TU / Registration`,
-  `Nakes Pemeriksaan Dasar`, `Radiografi`);
+- Site Staff accounts, activation, suspension, and role assignment (Reception / Registration,
+  Basic Examination, Radiography);
 - physical sites and operational status;
 - multi-operator shift assignments;
 - protocol templates and service-to-projection mappings;
@@ -422,8 +424,8 @@ Global Admin / Super Admin manages:
 
 ## Security and audit requirements
 
-- Enforce granular operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`,
-  `Radiografi`), active site, and current shift assignment on every operation.
+- Enforce operational roles (Reception / Registration, Basic Examination, Radiography),
+  eligibility evidence, active site, and current shift assignment on every operation.
 - Keep identity and clinical views private without permanent public links.
 - Validate NPZ schema, bounds, dimensions, and checksums securely.
 - Cryptographically verify payment confirmations.
@@ -434,18 +436,18 @@ Global Admin / Super Admin manages:
 
 Operator Core satisfies this specification when:
 
-- [ ] Operational authorization enforces three independent permissions: `TU / Registration`, `Nakes Pemeriksaan Dasar`, and `Radiografi`.
-- [ ] A staff account can be assigned one, two, or all three operational permissions.
-- [ ] Existing MVP/beta operator accounts temporarily retain access to all three operational areas under transitional compatibility.
-- [ ] New staff accounts require explicit Global Admin / Super Admin selection of operational permissions.
-- [ ] Station selection routes work and calls but cannot grant or elevate permissions.
+- [ ] Operational authorization enforces three independently assignable roles: Reception / Registration, Basic Examination, and Radiography.
+- [ ] A person may hold multiple operational roles when eligible.
+- [ ] Existing MVP/beta accounts may temporarily map to all three operational areas under transitional compatibility.
+- [ ] New staff accounts require explicit Global Admin / Super Admin selection of operational roles.
+- [ ] Station selection routes work and calls but cannot grant or elevate a role.
 - [ ] Front-desk TU check-in verifies approved identity evidence and required comparison against stored Member Core records before check-in.
 - [ ] Booking code functions as a reservation locator and does not bypass official identity verification.
 - [ ] Paper informed consent is confirmed once for the visit before ticket issuance.
 - [ ] Queue ticket thermal slip prints without displaying patient name or MRN.
 - [ ] Basic examination completion releases ticket to X-ray and triggers basic exam stage earning.
 - [ ] X-ray capture set submission requires Grabber NPZ review and triggers X-ray stage earning upon durable Image Gateway acceptance.
-- [ ] A worker holding multiple permissions who completes both basic examination and X-ray receives both stage earnings independently.
+- [ ] A worker holding multiple roles who completes both basic examination and X-ray receives both stage earnings independently.
 - [ ] Public LCD displays show only ticket numbers and destinations (`PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) with zero clinical data.
 - [ ] Read-only AI Results Status Monitor displays published AI results and supports on-demand printing.
 - [ ] Authorized operators can download raw DICOM as authenticated `.dcm` attachments for current-shift examinations at their active site.
@@ -455,7 +457,7 @@ Operator Core satisfies this specification when:
 
 The following decisions are intentionally unresolved by current human authority:
 
-1. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.
+1. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
 2. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
 3. **Grabber NPZ Schema:** Representative NPZ schema, dimensions, and safe parsing limits.
 4. **Payment Gateway Integration:** Payment provider adapter, account verification, transfer schemas, and fee contracts for operator payouts.

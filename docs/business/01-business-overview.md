@@ -14,9 +14,9 @@ booking coordination remain available through the WhatsApp channel.
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, WhatsApp is the persistent Member interaction and orchestration channel for booking and payment coordination; Members may open a secure temporary result surface when required. |
 | 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to the Operator module inside `mhcs-core`. |
 | 3 | Site Staff — Reception / Registration | Site Staff holding the Reception / Registration role verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The staff member records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
-| 4 | Basic examination & vital signs operator | An operator holding `Nakes Pemeriksaan Dasar` permission claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
-| 5 | Radiography operator | An operator holding `Radiografi` permission claims the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and matching gain NPZ input; the operator reviews the draft and may remove or retake captures. |
-| 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
+| 4 | Site Staff — Basic Examination | Site Staff holding the Basic Examination role claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
+| 5 | Site Staff — Radiography | Site Staff holding the Radiography role claims the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and matching gain NPZ input; the staff member reviews the draft and may remove or retake captures. |
+| 6 | Operator Core | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
 | 7 | Image Gateway | Persist each source component, manifest, and signature privately. Once the complete source set is durable, atomically accept it and queue processing. Durable source acceptance completes the X-ray stage while the ticket waits for AI without occupying an operator station. |
 | 8 | Image Gateway worker and MPIPS | For every capture, convert one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file asynchronously. |
 | 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to an authorized Operator for the authorized examination. |
@@ -51,7 +51,7 @@ creating permanent copies in every module.
 | Module or repository | Business responsibility |
 |---|---|
 | Member module in `mhcs-core` | Healthcare identity (MRN), demographics, B2B/B2C booking coordination, financial tracking, subject-of-care and guardian relationships, notifications, and temporary result-surface delivery orchestration. Does not provide a persistent member portal, mobile apps, or member login credentials. |
-| Operator module in `mhcs-core` | Physical sites, operator permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`), front-desk TU check-in, paper consent confirmation, staged FIFO queues, capture-set submission, image viewing, operator earnings, and payouts. |
+| Operator Core module in `mhcs-core` | Physical sites, Site Staff roles (Reception / Registration, Basic Examination, Radiography), front-desk check-in, paper consent confirmation, staged FIFO queues, capture-set submission, image viewing, staff earnings, and payouts. |
 | Image Gateway module in `mhcs-core` | Permanent image storage, MPIPS orchestration, routing, and controlled distribution. |
 | Doctor module in `mhcs-core` | Shared doctor work queues across specialties, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts. |
 | Unified Administration Panel | Single Global Admin / Super Admin web interface acting as a presentation/role surface over domain-owned operations without creating a separate monolithic Admin business domain. |
@@ -77,13 +77,14 @@ Member Core owns:
 - member-safe result delivery orchestration: WhatsApp notification → secure temporary result link → temporary result web surface where appropriate.
 
 Member Core does **not** provide a member web portal, native iOS/Android apps,
-desktop applications, or member username/password credentials. Members interact
-exclusively through WhatsApp.
+desktop applications, or member username/password credentials. Messaging is the
+persistent Member interaction and orchestration layer; a secure temporary result
+surface is available when richer viewing or downloading is needed.
 
 A booking code received by a member via WhatsApp serves as a reservation locator
 and is **not** sufficient proof of patient identity. Official identity verification
 (using approved minimum identity evidence and comparison) is conducted on-site by
-staff holding `TU / Registration` permission before clinical check-in. The permitted
+Site Staff holding the Reception / Registration role before clinical check-in. The permitted
 evidence, comparison method, and minimum data capture remain open design decisions.
 
 To protect member privacy, sensitive identity documents are never requested or
@@ -123,9 +124,9 @@ Operator Core owns examination-day work:
   1. Reception / Registration: front-desk check-in, approved identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
   2. Basic Examination: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
   3. Radiography: claiming X-ray tickets, NPZ capture review, retake/omission handling, and complete-set submission;
-- multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
-- station selection rules: an operator selects an active station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) to route active work and LCD calls, but station selection **cannot** grant or elevate permissions beyond what the account holds;
-- MVP/beta transitional compatibility: existing operator accounts temporarily retain access to all three operational areas, while new staff provisioning requires Global Admin / Super Admin selection of permissions;
+- multi-role account support: a person may hold one or more eligible Site Staff roles;
+- station selection rules: Site Staff select an active station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) to route active work and LCD calls, but station selection **cannot** grant or elevate a role;
+- MVP/beta transitional compatibility: existing accounts may temporarily map to all three operational roles, while new staff provisioning requires Global Admin / Super Admin selection of eligible roles;
 - ready-time FIFO calling, atomic work claims, and privacy-safe LCD displays (`PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`);
 - draft capture review on dedicated Grabber workstations;
 - one Submit action for the complete capture set;
@@ -220,8 +221,8 @@ domains without introducing an artificial "Admin" business domain.
 | Booking confirmation | Confirm appointment details and complete required payment coordination via WhatsApp. | The booking is confirmed. The member receives date, time, site, and preparation instructions via WhatsApp. No web portal login or password is created. |
 | Attendance | Arrive on-site at the scheduled examination site and present the booking code and the approved identity evidence required by the current verification procedure. | Reception / Registration staff look up the booking using the code and perform mandatory physical identity verification before clinical check-in. |
 | Consent confirmation | Review and sign the paper informed consent form once at the TU desk. | TU staff records consent confirmation and private scan. A ticket slip is printed. |
-| Basic examination | Undergo vital signs, basic measurements, and structured interview. | Staff holding `Nakes Pemeriksaan Dasar` records the assessment and advances the ticket to X-ray. |
-| Radiography session | Undergo radiograph capture in the X-ray room. | Staff holding `Radiografi` captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
+| Basic examination | Undergo vital signs, basic measurements, and structured interview. | Site Staff holding the Basic Examination role records the assessment and advances the ticket to X-ray. |
+| Radiography session | Undergo radiograph capture in the X-ray room. | Site Staff holding the Radiography role captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
 | Image processing | Wait while submitted captures are converted to DICOM and processed by AI asynchronously. | Image Gateway orchestrates MPIPS conversion and AI analysis. |
 | Result receipt | Receive a WhatsApp notification and open the secure temporary result link when a richer result surface is required. | Member Core authorizes a task-specific result surface for view/download; it is not a persistent Member Portal. |
 | Doctor review (if selected) | Receive clinical report notification via WhatsApp when doctor review completes. | Member Core delivers the doctor conclusion and recommendations via WhatsApp. |
@@ -231,13 +232,13 @@ domains without introducing an artificial "Admin" business domain.
 
 | Phase | Site Staff action or decision | System outcome |
 |---|---|---|
-| Staff access | Receive an operational offer in WhatsApp, accept or decline, and open the assigned temporary Site Workspace. Backend staff identity, authentication, and authorization remain mandatory. | Access is scoped by staff identity, held permission, assignment, site, shift/time window, and operational scope. Station selection cannot elevate permissions. |
+| Staff access | Receive an operational offer in WhatsApp, accept or decline, and open the assigned temporary Site Workspace. Backend staff identity, authentication, and authorization remain mandatory. | Access is scoped by staff identity, held role, eligibility evidence, assignment, site, shift/time window, and operational scope. Station selection cannot elevate a role. |
 | Work history | Select `PEKERJAAN SAYA / RIWAYAT SAYA` in WhatsApp. | Return a concise summary of completed/upcoming assignments, role, site, date/time, counts, and applicable earnings status. A detailed view, if justified, opens as a secure temporary Work History surface. |
-| TU Check-in (TU permission) | Receive arriving patient, look up booking by booking code, verify approved identity evidence against Member Core records, and perform the approved comparison. | Official identity is verified. Booking is marked `checked_in`. |
-| Consent confirmation (TU permission) | Confirm signed paper consent, record consent version, signer, timestamp, and upload private scan. | Single consent is recorded for the visit. Ticket number is issued and thermal slip is printed. |
-| Basic examination (`Pemeriksaan Dasar` permission) | Claim next ready ticket from PEMERIKSAAN DASAR FIFO queue, record vital signs, blood screening, and interview responses. | Completion releases ticket to X-ray queue and makes basic examination stage earning eligible. |
-| Radiography capture (`Radiografi` permission) | Claim next ready ticket from SESI FOTO RADIOGRAFI FIFO queue, capture radiograph NPZ and gain NPZ via Grabber, review draft, retake if necessary. | Accepted captures form the draft set. |
-| Set submission (`Radiografi` permission) | Submit complete draft set with matching gain input and frozen metadata snapshot. | Operator module hands the set to Image Gateway. |
+| TU Check-in (Reception / Registration role) | Receive arriving patient, look up booking by booking code, verify approved identity evidence against Member Core records, and perform the approved comparison. | Official identity is verified. Booking is marked `checked_in`. |
+| Consent confirmation (Reception / Registration role) | Confirm signed paper consent, record consent version, signer, timestamp, and upload private scan. | Single consent is recorded for the visit. Ticket number is issued and thermal slip is printed. |
+| Basic examination (Basic Examination role) | Claim next ready ticket from PEMERIKSAAN DASAR FIFO queue, record vital signs, blood screening, and interview responses. | Completion releases ticket to X-ray queue and makes basic examination stage earning eligible. |
+| Radiography capture (Radiography role) | Claim next ready ticket from SESI FOTO RADIOGRAFI FIFO queue, capture radiograph NPZ and gain NPZ via Grabber, review draft, retake if necessary. | Accepted captures form the draft set. |
+| Set submission (Radiography role) | Submit complete draft set with matching gain input and frozen metadata snapshot. | Operator Core hands the set to Image Gateway. |
 | Gateway acceptance | Wait for durable source acceptance. | Image Gateway durably persists all source files and atomically accepts the submission. Acceptance completes X-ray, makes X-ray stage earning eligible, and moves ticket to `awaiting_ai`. |
 | Background AI waiting | AI processes asynchronously; ticket completes automatically when AI result publishes. | Desk staff can view status on the read-only AI Results Status Monitor and print results on demand if requested onsite. |
 | LCD calling | Pair a read-only site-and-shift display and call tickets for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI. | Display shows active and recent ticket calls with zero patient clinical data. |
@@ -332,7 +333,7 @@ coordination to image processing and secure temporary result delivery without:
 | Image Gateway | The backend that stores, coordinates, routes, and distributes clinical imaging |
 | Member | The person receiving the healthcare service (primarily interacts via WhatsApp and may open a secure temporary result surface) |
 | MPIPS | Madeena's image-processing product; MHCS uses its NPZ-to-DICOM capability |
-| Nakes Pemeriksaan Dasar | Operator permission authorizing basic measurements, vital signs, and screening |
+| Basic Examination | Site Staff role authorizing basic measurements, vital signs, and screening |
 | NPZ | The patient-free capture file produced by Grabber |
 | Site Staff | Human staff assigned one or more eligible examination-site roles |
 | Radiografi | Site Staff role authorizing radiograph capture review and submission |
@@ -341,7 +342,7 @@ coordination to image processing and secure temporary result delivery without:
 | Subject of Care | The individual who physically attends and receives the clinical examination |
 | TU / Registration | Reception / Registration role authorizing front-desk check-in, identity verification, consent, and ticket issuance |
 | Unified Administration Panel | Single web panel for system administration spanning domain-owned operations |
-| WhatsApp Channel | The exclusive member interaction interface for bookings, notifications, and results |
+| Messaging ecosystem | Persistent Member interaction and orchestration layer; richer results may use a secure temporary web surface |
 
 ## 6. Open design decisions
 
@@ -358,5 +359,5 @@ remain open design decisions:
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
-11. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.
+11. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
 12. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.

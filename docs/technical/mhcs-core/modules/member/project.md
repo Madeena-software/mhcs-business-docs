@@ -519,7 +519,7 @@ The Operator module queries Member Core for eligible attendance:
 
 ## Operator-assisted walk-in application contract
 
-An operator holding `TU / Registration` permission creates a walk-in through
+Site Staff holding the Reception / Registration role creates a walk-in through
 one idempotent application operation:
 
 1. Match an existing member by exact protected NIK.
@@ -614,7 +614,7 @@ Global Admin / Super Admin manages Member operations via the Unified Administrat
 
 Member Core satisfies this specification when:
 
-- [ ] Members interact exclusively via WhatsApp with zero web portal or password login requirements.
+- [ ] Messaging is the persistent Member interaction layer; richer result viewing may use a secure temporary web surface without portal or password login requirements.
 - [ ] Member records are created without requiring `users` login account linkages.
 - [ ] Conceptual separation of Requester, Payer, Subject of care, Guardian, and Result recipient is maintained.
 - [ ] Booking code functions as a reservation locator and does not bypass on-site official identity verification.

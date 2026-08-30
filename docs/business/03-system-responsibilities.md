@@ -56,7 +56,7 @@ secure temporary result-link delivery where appropriate.
 A booking code received via WhatsApp serves as a reservation locator and is not
 sufficient proof of patient identity. At front-desk check-in, Reception /
 Registration Site Staff
-holding `TU / Registration` permission verify official physical identity documents
+holding the Reception / Registration role verify official physical identity documents
 (approved physical identity evidence and comparison) against Member Core records, and record the signed
 paper consent and its required private scan once for the visit. Downstream stations
 reuse this consent confirmation and do not re-request consent.
@@ -100,14 +100,14 @@ via WhatsApp:
 ### Owns
 
 - physical-site master data and staff shift assignment;
-- permission-based operator authorization:
-  1. `TU / Registration`: front-desk check-in, approved physical identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
-  2. `Nakes Pemeriksaan Dasar`: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
-  3. `Radiografi`: claiming X-ray tickets, Grabber NPZ capture review, retake/omission handling, and complete-set submission;
-- multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
-- station selection rules: station selection (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) routes work and LCD calls but cannot grant or elevate account permissions;
-- MVP/beta transitional compatibility: existing beta operator accounts temporarily retain access to all three operational areas;
-- new staff provisioning: Global Admin / Super Admin explicitly selects applicable operational permissions;
+- role-based Site Staff authorization:
+  1. Reception / Registration: front-desk check-in, approved physical identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
+  2. Basic Examination: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
+  3. Radiography: claiming X-ray tickets, Grabber NPZ capture review, retake/omission handling, and complete-set submission;
+- multi-role support: a person may hold multiple roles when eligible; implementation permissions/RBAC may enforce these roles;
+- station selection rules: station selection (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) routes work and LCD calls but cannot grant or elevate a role;
+- MVP/beta transitional compatibility: existing beta accounts may temporarily map to all three operational roles;
+- new staff provisioning: Global Admin / Super Admin explicitly selects applicable operational roles;
 - one site-and-shift ticket across ready-time FIFO basic examination and X-ray queues;
 - atomic stage claims, public number-to-station calls for `PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`, and paired LCD displays;
 - basic examination & vital signs measurements, point-of-care screening, and structured interview capture;
@@ -224,7 +224,7 @@ Unified Administration provides a single Global Admin / Super Admin web panel sp
 domain-owned operations. It acts as a role and presentation surface over:
 
 - Member domain: agreement tracking, booking reconciliation, payment monitoring;
-- Operator domain: site master data, shift schedules, staff permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`), protocol templates, earning rates;
+- Operator Core domain: site master data, shift schedules, Site Staff roles (Reception / Registration, Basic Examination, Radiography), protocol templates, earning rates;
 - Doctor domain: doctor specialty/modality authorizations, queue reassignment, reporting rates;
 - Image Gateway domain: submission monitoring, processing errors, storage compliance.
 
@@ -292,7 +292,7 @@ remain open design decisions:
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
-11. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.
+11. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
 12. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
 13. **Grabber NPZ Schema:** Whether Grabber NPZ contains TIFF bytes, raw numeric array, or both, and required MPIPS compatibility fields.
 14. **FHIR R5 Conformance Artifacts:** Exact canonical URLs, package IDs, profiles, and validator fixtures.

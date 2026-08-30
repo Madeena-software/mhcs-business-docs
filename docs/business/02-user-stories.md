@@ -27,7 +27,7 @@ Acceptance criteria:
 
 As a Member, I want to be notified when a result is finalized and open a
 temporary secure result surface when richer viewing or downloading is needed,
-so that I can access my result without a permanent Member Portal.
+so that I can access my result without a permanent member portal.
 
 Acceptance criteria:
 
@@ -129,4 +129,4 @@ Acceptance criteria:
 
 Traceability: See the corresponding Member, Site Staff, Doctor, and Admin
 journeys in [Business Overview](01-business-overview.md) and ownership in
-[System Responsibilities](02-system-responsibilities.md).
+[System Responsibilities](03-system-responsibilities.md).
