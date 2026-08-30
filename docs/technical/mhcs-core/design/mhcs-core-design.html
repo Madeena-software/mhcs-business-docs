@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MHCS Core — Unified Member & Radiographer Workstation (Google Stitch Design Export)</title>
+  <title>MHCS Core — Temporary Staff Workspace Design Export</title>
 
   <!-- 
     ========================================================================
@@ -125,7 +125,7 @@
     }
 
     /* ============================================================
-       PORTAL 1: MEMBER PORTAL DESIGN SYSTEM & STYLES (.portal-member)
+       MEMBER WHATSAPP / RESULT SURFACE CONCEPT STYLES (.portal-member)
        ============================================================ */
     .portal-member {
       /* Color: Surfaces (Corporate Precision System / DESIGN.md) */
@@ -1106,27 +1106,33 @@
   <header class="master-switcher-bar">
     <div class="master-brand">
       <div class="master-brand-logo">M</div>
-      <span>MHCS Core Suite</span>
+      <span>MHCS Core Workspace Concepts</span>
       <span style="color:#56655c; font-weight:400; font-size:11px;">(Unified Stitch Prototype)</span>
     </div>
 
     <div class="master-portal-tabs">
       <button class="master-portal-btn active" id="btn-portal-member" onclick="switchPortal('member')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Member Portal (Light)
+        Member WhatsApp / Result Surface (Concept)
       </button>
       <button class="master-portal-btn" id="btn-portal-operator" onclick="switchPortal('operator')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Operator Workstation (Dark DICOM)
+        Temporary Operator Site Workspace (Dark DICOM)
       </button>
     </div>
 
     <div class="master-info-tag">Google Stitch Ready v2.4</div>
   </header>
 
+  <div style="margin:16px auto; max-width:1400px; padding:12px 16px; border:1px solid #d7b56d; background:#fff8e6; color:#5f4615; font:13px/1.5 sans-serif;">
+    Product-model boundary: Members use WhatsApp and do not receive a permanent portal or login.
+    The member panel below is a visual concept for WhatsApp-coordinated result content and must not be
+    implemented as a persistent member dashboard. Staff surfaces are temporary, assignment-scoped workspaces.
+  </div>
+
 
   <!-- ============================================================
-       CONTAINER 1: MEMBER PORTAL
+       CONTAINER 1: MEMBER WHATSAPP / RESULT SURFACE CONCEPT
        ============================================================ -->
   <div class="portal-container active-portal" id="portal-member-container">
     <div class="portal-member">
@@ -1140,15 +1146,15 @@
           </div>
 
           <div class="topbar-crumbs">
-            <span id="crumb-portal">Member Portal</span>
+            <span id="crumb-portal">Member WhatsApp / Result Surface</span>
             <span class="sep">/</span>
             <span class="active" id="crumb-screen">Dashboard</span>
           </div>
 
           <div class="topbar-tools">
             <div class="role-switcher">
-              <button class="role-btn active" id="role-member-btn" onclick="switchRoute('dashboard')">MEMBER PORTAL</button>
-              <button class="role-btn" id="role-operator-btn" onclick="switchPortal('operator')">CLINIC DESK</button>
+              <button class="role-btn active" id="role-member-btn" onclick="switchRoute('dashboard')">WHATSAPP RESULT SURFACE</button>
+              <button class="role-btn" id="role-operator-btn" onclick="switchPortal('operator')">TEMPORARY SITE WORKSPACE</button>
             </div>
 
             <button class="tool-btn" onclick="toggleDensity()" title="Toggle Interface Density">
@@ -1256,7 +1262,7 @@
                   </div>
                 </div>
 
-                <!-- Active Visit Banner (No Ticket Number shown in Member Portal) -->
+                <!-- Active Visit Banner (conceptual WhatsApp/result content; not a member portal) -->
                 <div class="queue-active-box">
                   <div style="display:flex; align-items:center; gap:16px;">
                     <div style="width:44px; height:44px; background:var(--brand-soft); border:1px solid var(--brand); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--brand-deep)">
@@ -1796,7 +1802,7 @@
             <div class="card-header"><div class="card-title">Awaiting AI <span class="badge badge-pending">2 async</span></div></div>
             <div class="card-body" style="display:grid; gap:8px;">
               <div class="queue-item"><div class="patient-avatar">A04</div><div><strong>A-004</strong><div class="muted">Processing · 02:14</div></div><span class="badge badge-pending">No station</span></div>
-              <div class="queue-item"><div class="patient-avatar">A06</div><div><strong>A-006</strong><div class="muted">AI running</div></div><span class="badge badge-amber">Portal/email</span></div>
+              <div class="queue-item"><div class="patient-avatar">A06</div><div><strong>A-006</strong><div class="muted">AI running</div></div><span class="badge badge-amber">WhatsApp delivery</span></div>
             </div>
           </article>
           <article class="card">

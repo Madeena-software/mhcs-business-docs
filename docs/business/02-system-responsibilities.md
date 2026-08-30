@@ -55,11 +55,11 @@ doctor reports, and amendments through Image Gateway for WhatsApp delivery.
 A booking code received via WhatsApp serves as a reservation locator and is not
 sufficient proof of patient identity. At front-desk check-in, Operator staff
 holding `TU / Registration` permission verify official physical identity documents
-(KTP/KIA/KK) and face match against Member Core records, and record the signed
+(approved physical identity evidence and comparison) against Member Core records, and record the signed
 paper consent and its required private scan once for the visit. Downstream stations
 reuse this consent confirmation and do not re-request consent.
 
-Sensitive identity documents (KTP/KIA/KK) are never requested or collected via
+Sensitive identity documents are never requested or collected via
 ordinary WhatsApp chat to preserve privacy.
 
 Member Core accepts authenticated, idempotent repeat requests only from Doctor
@@ -99,7 +99,7 @@ via WhatsApp:
 
 - physical-site master data and staff shift assignment;
 - permission-based operator authorization:
-  1. `TU / Registration`: front-desk check-in, official physical identity verification (KTP/KIA/KK), booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
+  1. `TU / Registration`: front-desk check-in, approved physical identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
   2. `Nakes Pemeriksaan Dasar`: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
   3. `Radiografi`: claiming X-ray tickets, Grabber NPZ capture review, retake/omission handling, and complete-set submission;
 - multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
@@ -286,7 +286,7 @@ remain open design decisions:
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
-8. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
+8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
 11. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.
@@ -302,6 +302,7 @@ Doctor-access and report-amendment rules use:
 - [DICOM WADO-RS study retrieval](https://dicom.nema.org/medical/dicom/2017b/output/chtml/part18/sect_6.5.html);
 - [HL7 FHIR DiagnosticReport](https://hl7.org/fhir/diagnosticreport.html);
 - [Indonesian Ministry of Health Regulation No. 24 of 2022](https://jdih.kemkes.go.id/common/dokumen/2022permenkes024.pdf); and
+- [Indonesian Personal Data Protection Law No. 27 of 2022](https://peraturan.bpk.go.id/Details/229798/uu-no-27-); and
 - [ACR Practice Parameter for Communication of Diagnostic Imaging Findings](https://www.acr.org/-/media/acr/files/practice-parameters/communicationdiag.pdf).
 
 External requirements must be revalidated before a compliance claim.

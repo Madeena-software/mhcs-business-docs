@@ -82,9 +82,9 @@ It is **not** sufficient proof of patient identity.
 
 Official identity verification is a mandatory on-site TU workflow:
 
-1. The patient presents their physical official identity document (KTP for adults 17+, KIA for children under 17, KK where applicable).
-2. The TU operator matches the physical document against stored Member Core verification assets.
-3. The TU operator compares the arriving patient's face with the stored profile photograph.
+1. The patient presents the approved physical identity evidence required by the current verification procedure.
+2. The TU operator performs the approved minimum comparison against Member Core verification records.
+3. Any face or photograph comparison occurs only if the approved procedure requires it.
 4. Only after positive document and face verification does the booking transition to `checked_in`.
 
 ### WhatsApp chat privacy
@@ -96,14 +96,15 @@ To protect member privacy and comply with healthcare data protection principles:
 
 ### Children and guardians
 
-Registering a child requires the child's KIA, profile photograph, KK, and at
+Registering a child requires the approved minimum evidence for the child and at
 least one parent or legal guardian whose own verified record is linked. More than
-one guardian may be linked after an administrator verifies the KTP, KIA, and KK
-evidence. Every active guardian has equal access to coordinate the child's
+one guardian may be linked after an administrator verifies the approved evidence.
+Every active guardian has equal access to coordinate the child's
 bookings and receive member-safe results.
 
-The child has no independent credentials. At age 17, the member presents a KTP
-for verification and activates independent communication authority; guardian
+The child has no independent credentials. At the applicable age or legal-status
+transition, the member presents the approved evidence for verification and activates
+independent communication authority; guardian
 coordination then ends automatically unless a separately verified legal authority
 continues it.
 
@@ -439,8 +440,7 @@ erDiagram
 ### Schema requirements
 
 - Member demographics and MRN belong to `members`. Members do not have login credentials or web accounts.
-- NIK is a mandatory official identifier stored with encrypted value and keyed lookup hash for exact matching.
-- Official identity assets (KTP/KIA, profile photos) are private verification assets.
+- An approved minimum identity identifier and any verification assets are private and purpose-bound; exact fields and storage mechanics remain open.
 - `bookings.booking_code` is the unique alphanumeric reservation locator.
 - Active schedules for one site cannot overlap.
 - One member identity may have at most one active booking across all sites, shifts, and services.
@@ -510,7 +510,7 @@ The Operator module queries Member Core for eligible attendance:
 - Authenticated operator session determines organization and active site.
 - Returns confirmed, paid, non-cancelled bookings for the schedule.
 - The attendance list exposes only masked NIK and booking code.
-- Operator may enter the booking code or full NIK from physical KTP/KIA for exact lookup.
+- Operator may enter the booking code and the minimum additional identifier permitted by the approved verification procedure.
 - Email, phone, address, and financial details are not exposed to the operator.
 - Every lookup is audited with operator, booking, site, and purpose.
 
@@ -520,7 +520,7 @@ An operator holding `TU / Registration` permission creates a walk-in through
 one idempotent application operation:
 
 1. Match an existing member by exact protected NIK.
-2. Reuse existing member or capture KTP/KIA and profile photo to create `members` and verification assets.
+2. Reuse existing member or capture only the approved minimum identity evidence and verification assets to create `members`.
 3. Assign immutable MRN for a new member.
 4. Record cash or on-site payment tracking.
 5. Create confirmed walk-in booking and `ServiceRequest`.
@@ -533,9 +533,9 @@ No member login credentials or temporary passwords are created.
 
 At the TU station:
 
-1. Patient presents physical KTP/KIA/KK and booking code.
+1. Patient presents the booking code and the approved identity evidence required by the current procedure.
 2. TU operator opens short-lived verification view.
-3. Operator compares physical document with stored KTP/KIA and compares arriving face with profile photo.
+3. Operator applies the approved minimum comparison using protected Member Core records.
 4. Positive match changes booking to `checked_in`.
 5. Mismatch blocks queue entry and opens an administrative exception.
 
@@ -614,8 +614,8 @@ Member Core satisfies this specification when:
 - [ ] Member records are created without requiring `users` login account linkages.
 - [ ] Conceptual separation of Requester, Payer, Subject of care, Guardian, and Result recipient is maintained.
 - [ ] Booking code functions as a reservation locator and does not bypass on-site official identity verification.
-- [ ] On-site TU check-in verifies physical KTP/KIA/KK and face comparison before changing booking to `checked_in`.
-- [ ] No sensitive identity documents (KTP/KIA/KK) are requested or collected via WhatsApp chat.
+- [ ] On-site TU check-in verifies approved identity evidence and required comparison before changing booking to `checked_in`.
+- [ ] No sensitive identity documents are requested or collected via WhatsApp chat.
 - [ ] Repeat entitlements create zero-cost, doctor-only bookings coordinated via WhatsApp.
 - [ ] Walk-in creation completes registration, booking, and order without generating member passwords.
 - [ ] Attendance queries return masked NIK and booking code scoped strictly to the active site and shift.
@@ -634,7 +634,7 @@ The following decisions are intentionally unresolved by current human authority:
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
-8. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
+8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.
 
 ## Standards references
@@ -652,4 +652,3 @@ The following decisions are intentionally unresolved by current human authority:
 - [HL7 FHIR R5 Provenance](https://hl7.org/fhir/R5/provenance.html)
 - [HL7 FHIR R5 AuditEvent](https://hl7.org/fhir/R5/auditevent.html)
 - [HL7 FHIR R5 Consent](https://hl7.org/fhir/R5/consent.html)
-- [Indonesia.go.id KTP/KIA identity guidance](https://indonesia.go.id/layanan/kependudukan/sosial/cara-membuat-ktp-anak-atau-kartu-identitas-anak-kia)

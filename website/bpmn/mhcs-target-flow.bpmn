@@ -57,11 +57,11 @@
     <bpmn:startEvent id="StartEvent_Booking" name="Examination needed">
       <bpmn:outgoing>Flow_Start_Book</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:userTask id="Task_BookPay" name="Confirm booking and points payment">
+    <bpmn:userTask id="Task_BookPay" name="Coordinate WhatsApp booking and approved payment">
       <bpmn:incoming>Flow_Start_Book</bpmn:incoming>
       <bpmn:outgoing>Flow_Book_Confirm</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_ConfirmAttendance" name="Confirm registration, consent, and issue one ticket">
+    <bpmn:userTask id="Task_ConfirmAttendance" name="Verify identity onsite, consent, and issue one ticket">
       <bpmn:incoming>Flow_Book_Confirm</bpmn:incoming>
       <bpmn:outgoing>Flow_Confirm_MCU</bpmn:outgoing>
     </bpmn:userTask>
@@ -105,7 +105,7 @@
       <bpmn:outgoing>Flow_AIReady_Yes</bpmn:outgoing>
       <bpmn:outgoing>Flow_AIReady_No</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Task_PublishAIReport" name="Publish AI report automatically">
+    <bpmn:serviceTask id="Task_PublishAIReport" name="Make AI result available for WhatsApp delivery">
       <bpmn:incoming>Flow_AIReady_Yes</bpmn:incoming>
       <bpmn:outgoing>Flow_PublishAI_View</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -113,7 +113,7 @@
       <bpmn:incoming>Flow_PublishAI_View</bpmn:incoming>
       <bpmn:outgoing>Flow_ViewAI_Education</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_ResultEducation" name="Explain AI result and record delivery">
+    <bpmn:userTask id="Task_ResultEducation" name="Coordinate member-safe WhatsApp result delivery">
       <bpmn:incoming>Flow_ViewAI_Education</bpmn:incoming>
       <bpmn:outgoing>Flow_Education_Merge</bpmn:outgoing>
     </bpmn:userTask>
@@ -148,7 +148,7 @@
       <bpmn:incoming>Flow_Review_SubmitReport</bpmn:incoming>
       <bpmn:outgoing>Flow_SubmitReport_Publish</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Task_PublishReport" name="Publish report automatically">
+    <bpmn:serviceTask id="Task_PublishReport" name="Make doctor report available for WhatsApp delivery">
       <bpmn:incoming>Flow_SubmitReport_Publish</bpmn:incoming>
       <bpmn:outgoing>Flow_Publish_ViewReport</bpmn:outgoing>
     </bpmn:serviceTask>

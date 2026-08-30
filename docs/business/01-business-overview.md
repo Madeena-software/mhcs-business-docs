@@ -13,7 +13,7 @@ booking coordination remain available through the WhatsApp channel.
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, the member initiates booking and payment coordination exclusively through WhatsApp. |
 | 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to the Operator module inside `mhcs-core`. |
-| 3 | TU / Registration operator | An operator holding `TU / Registration` permission verifies the member's physical official identity (KTP/KIA/KK) against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The operator records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
+| 3 | TU / Registration operator | An operator holding `TU / Registration` permission verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The operator records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
 | 4 | Basic examination & vital signs operator | An operator holding `Nakes Pemeriksaan Dasar` permission claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
 | 5 | Radiography operator | An operator holding `Radiografi` permission claims the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and matching gain NPZ input; the operator reviews the draft and may remove or retake captures. |
 | 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
@@ -82,11 +82,12 @@ exclusively through WhatsApp.
 
 A booking code received by a member via WhatsApp serves as a reservation locator
 and is **not** sufficient proof of patient identity. Official identity verification
-(matching physical KTP/KIA/KK documents and face comparison) is conducted on-site
-by staff holding `TU / Registration` permission before clinical check-in.
+(using approved minimum identity evidence and comparison) is conducted on-site by
+staff holding `TU / Registration` permission before clinical check-in. The permitted
+evidence, comparison method, and minimum data capture remain open design decisions.
 
-To protect member privacy, sensitive identity documents (such as KTP, KIA, or KK
-scans) are never requested or collected via ordinary WhatsApp chat.
+To protect member privacy, sensitive identity documents are never requested or
+collected via ordinary WhatsApp chat.
 
 ### B2B operating model and payment reconciliation
 
@@ -119,7 +120,7 @@ Operator Core owns examination-day work:
 
 - physical-site master data and staff shift assignment;
 - permission-based operator authorization:
-  1. `TU / Registration`: front-desk check-in, official identity verification (KTP/KIA/KK), booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
+  1. `TU / Registration`: front-desk check-in, approved identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
   2. `Nakes Pemeriksaan Dasar`: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
   3. `Radiografi`: claiming X-ray tickets, NPZ capture review, retake/omission handling, and complete-set submission;
 - multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
@@ -217,7 +218,7 @@ domains without introducing an artificial "Admin" business domain.
 |---|---|---|
 | Booking initiation | Receive a B2B booking notification via WhatsApp or initiate a B2C booking conversation via WhatsApp. | Member Core coordinates booking details, confirms quota availability, and issues a booking code (reservation locator). |
 | Booking confirmation | Confirm appointment details and complete required payment coordination via WhatsApp. | The booking is confirmed. The member receives date, time, site, and preparation instructions via WhatsApp. No web portal login or password is created. |
-| Attendance | Arrive on-site at the scheduled examination site and present the booking code and physical official identity document (KTP/KIA/KK). | The TU operator looks up the booking using the code and performs mandatory physical identity verification before clinical check-in. |
+| Attendance | Arrive on-site at the scheduled examination site and present the booking code and the approved identity evidence required by the current verification procedure. | The TU operator looks up the booking using the code and performs mandatory physical identity verification before clinical check-in. |
 | Consent confirmation | Review and sign the paper informed consent form once at the TU desk. | TU staff records consent confirmation and private scan. A ticket slip is printed. |
 | Basic examination | Undergo vital signs, basic measurements, and structured interview. | Staff holding `Nakes Pemeriksaan Dasar` records the assessment and advances the ticket to X-ray. |
 | Radiography session | Undergo radiograph capture in the X-ray room. | Staff holding `Radiografi` captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
@@ -231,7 +232,7 @@ domains without introducing an artificial "Admin" business domain.
 | Phase | Operator action or decision | System outcome |
 |---|---|---|
 | Staff access | Sign in to the staff web application with staff credentials. The account reflects assigned operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`). | The operator opens an assigned site and shift and selects the station label corresponding to the work being performed. Station selection cannot elevate permissions beyond held permissions. |
-| TU Check-in (TU permission) | Receive arriving patient, look up booking by booking code, verify physical KTP/KIA/KK against Member Core records, and compare face. | Official identity is verified. Booking is marked `checked_in`. |
+| TU Check-in (TU permission) | Receive arriving patient, look up booking by booking code, verify approved identity evidence against Member Core records, and perform the approved comparison. | Official identity is verified. Booking is marked `checked_in`. |
 | Consent confirmation (TU permission) | Confirm signed paper consent, record consent version, signer, timestamp, and upload private scan. | Single consent is recorded for the visit. Ticket number is issued and thermal slip is printed. |
 | Basic examination (`Pemeriksaan Dasar` permission) | Claim next ready ticket from PEMERIKSAAN DASAR FIFO queue, record vital signs, blood screening, and interview responses. | Completion releases ticket to X-ray queue and makes basic examination stage earning eligible. |
 | Radiography capture (`Radiografi` permission) | Claim next ready ticket from SESI FOTO RADIOGRAFI FIFO queue, capture radiograph NPZ and gain NPZ via Grabber, review draft, retake if necessary. | Accepted captures form the draft set. |
@@ -352,7 +353,7 @@ remain open design decisions:
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
-8. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
+8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
 11. **Staff Permission Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for the three operator permissions.

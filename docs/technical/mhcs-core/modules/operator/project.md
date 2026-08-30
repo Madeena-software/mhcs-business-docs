@@ -25,7 +25,7 @@ Operator Core enforces a granular, permission-based authorization model with
 three independent operational permissions:
 
 1. **`TU / Registration`:** Front-desk check-in, on-site official identity verification
-   (physical KTP/KIA/KK and face comparison), booking locator lookup, paper consent
+   using approved minimum evidence and comparison, booking locator lookup, paper consent
    confirmation, ticket issuance, and queue ticket thermal slip printing.
 2. **`Nakes Pemeriksaan Dasar`:** Claiming basic examination tickets, recording
    vital signs, point-of-care blood screening, structured interview capture, and paper
@@ -129,9 +129,10 @@ locator and is **not** sufficient proof of patient identity.
 Staff holding `TU / Registration` permission perform front-desk verification:
 
 1. Record the member's physical arrival using its actual occurrence time.
-2. Look up the booking using the booking code or exact NIK from the physical document.
-3. Compare the physical KTP/KIA/KK and arriving face with protected Member Core
-   identity views.
+2. Look up the booking using the booking code and the minimum additional identifier
+   permitted by the approved verification procedure.
+3. Apply the approved minimum identity-evidence and comparison procedure using
+   protected Member Core identity views.
 4. Show the latest profile photograph first. Previous profile photographs are
    available only when the latest photograph is insufficient for verification.
 5. Confirm that the member has read and signed the applicable paper informed
@@ -147,8 +148,9 @@ Staff holding `TU / Registration` permission perform front-desk verification:
    examination stations reuse this visit consent confirmation and do not re-request
    consent.
 
-KTP/KIA and profile photographs are purpose-bound, temporary, non-downloadable,
-and available to the operator only during the active verification flow.
+Identity evidence and any profile photographs are purpose-bound, temporary,
+non-downloadable, and available to the operator only during the active verification
+flow, subject to the approved minimum-data procedure.
 
 An operator cannot override an unresolved mismatch. Check-in remains blocked
 until an administrator resolves the dispute with a mandatory reason.
@@ -416,7 +418,7 @@ Operator Core satisfies this specification when:
 - [ ] Existing MVP/beta operator accounts temporarily retain access to all three operational areas under transitional compatibility.
 - [ ] New staff accounts require explicit administrator selection of operational permissions.
 - [ ] Station selection routes work and calls but cannot grant or elevate permissions.
-- [ ] Front-desk TU check-in verifies physical KTP/KIA/KK documents and face matching against stored Member Core assets before check-in.
+- [ ] Front-desk TU check-in verifies approved identity evidence and required comparison against stored Member Core records before check-in.
 - [ ] Booking code functions as a reservation locator and does not bypass official identity verification.
 - [ ] Paper informed consent is confirmed once for the visit before ticket issuance.
 - [ ] Queue ticket thermal slip prints without displaying patient name or MRN.
@@ -437,5 +439,5 @@ The following decisions are intentionally unresolved by current human authority:
 3. **Grabber NPZ Schema:** Representative NPZ schema, dimensions, and safe parsing limits.
 4. **Payment Gateway Integration:** Payment provider adapter, account verification, transfer schemas, and fee contracts for operator payouts.
 5. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, and radiographers.
-6. **On-Site Identity Verification Storage Procedure:** Exact data capture and storage mechanics for physical KTP/KIA/KK verification and photo comparison at the TU station.
+6. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 7. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.
