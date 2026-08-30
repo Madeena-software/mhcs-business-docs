@@ -466,7 +466,7 @@ def main():
         "Every configured field requires either a value",
         "temporary Site Workspace provides a read-only **AI Results Status Monitor**",
         "expires automatically at shift end",
-        "`portal`, `email`, and/or `print` delivery status",
+        "WhatsApp notification, secure temporary result-link, and/or print delivery status.",
         "**Basic examination & vital signs:** becomes eligible",
         "**X-ray:** becomes eligible",
     ):
