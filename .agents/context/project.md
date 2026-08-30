@@ -48,8 +48,9 @@ specifications for exactly two target repositories:
 
 - `mhcs-core`: the modular Laravel application repository containing Member,
   Operator, Doctor, and Image Gateway modules, accessed via WhatsApp (Member),
-  staff web application (Operator), doctor web application (Doctor), and unified
-  administration web panel (Admin); and
+  temporary Site Workspace (Operator), temporary Clinical / DICOM Workspace
+  (Doctor), and persistent unified administration web panel (Global Admin / Super
+  Admin); and
 - `mpips`: a separate public GitHub repository whose MHCS processing
   service/API boundary is private.
 
@@ -79,8 +80,9 @@ applications or repositories.
 - `mhcs-core` is the application implementation repository and consumes this
   repository's approved specifications. This repository does not contain or
   define that implementation.
-- The member experience is WhatsApp-only; no member web portal, mobile apps,
-  desktop apps, or member login credentials exist.
+- The member interaction is WhatsApp-led; finalized results may open in a secure
+  temporary result web surface. No permanent member portal, mobile apps, desktop
+  apps, or member login credentials exist.
 - Operator authorization comprises three independent permissions (`TU / Registration`,
   `Nakes Pemeriksaan Dasar`, `Radiografi`) with MVP/beta transitional compatibility.
 - Doctor authorization covers radiologists and authorized non-radiologist specialists
@@ -112,7 +114,7 @@ applications or repositories.
 - Madeena Points commercial policy (retirement, loyalty conversion, direct rupiah pricing).
 - Deposit vs. full-payment policies for WhatsApp bookings.
 - Cancellation cutoffs and automated refund settlement workflows.
-- Clinical result delivery channel mechanics via WhatsApp conforming to no-web model.
+- Clinical result delivery via WhatsApp notification followed, where required, by a secure temporary result web surface.
 - On-site identity verification data capture and storage mechanics at TU station.
 - Staff credential and regulatory qualification criteria for all roles.
 - Specialty-specific doctor workflows, modality matrices, and reporting templates.

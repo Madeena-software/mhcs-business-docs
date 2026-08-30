@@ -1,6 +1,6 @@
 # MHCS Core Image Gateway Module Specification
 
-**Status:** Approved target module
+**Status:** Candidate target module — pending human approval
 **Last reviewed:** 29 August 2026
 
 This document defines the Image Gateway module in the approved `mhcs-core`
@@ -21,7 +21,7 @@ end-user application or independently deployed MHCS service.
 - The Operator module submits completed capture sets locally.
 - MPIPS receives authorized processing work.
 - The Doctor module receives eligible studies and returns reports.
-- The Member module receives member-safe image and result references for WhatsApp delivery.
+- The Member module receives member-safe image and result references for WhatsApp notification and secure temporary result-link delivery where appropriate.
 - Administrators receive final-failure notifications and manage exceptional
   compliance actions via the Unified Administration Panel.
 
@@ -146,7 +146,7 @@ when legally required. The action must be fully audited.
 - AI is requested only when selected by the booked service.
 - Doctor review is requested only when selected.
 - The AI provider is selected by application code, not by the member.
-- A successful AI result becomes visible to Member Core for WhatsApp delivery
+- A successful AI result becomes visible to Member Core for WhatsApp notification and secure temporary result-link delivery where appropriate
   and emits one idempotent readiness event that automatically completes the
   matching Operator ticket.
 - If AI processing fails, Image Gateway invokes the configured fallback. AI
@@ -159,7 +159,7 @@ when legally required. The action must be fully audited.
 - A doctor-only repeat does not rerun AI. The original study and any successful
   original AI result remain unchanged.
 - A submitted doctor report becomes visible to Member Core automatically for
-  WhatsApp delivery.
+  WhatsApp notification and secure temporary result-link delivery.
 - AI and doctor outputs are independent and neither waits for the other.
 - A doctor may see available AI output but may finish first.
 - Corrected doctor reports preserve history and are redistributed as the new

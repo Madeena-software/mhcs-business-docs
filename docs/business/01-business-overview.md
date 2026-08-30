@@ -1,8 +1,8 @@
 # MHCS Business Overview and Actor Journeys
 
 MHCS is a teleradiology and clinical examination platform. It supports B2B and B2C
-services through WhatsApp-orchestrated member interactions and specialized staff web
-applications. B2B is the initial commercial priority, while B2C registration and
+services through WhatsApp-orchestrated member interactions and temporary specialized
+staff workspaces. B2B is the initial commercial priority, while B2C registration and
 booking coordination remain available through the WhatsApp channel.
 
 ## 1. How MHCS works
@@ -22,7 +22,7 @@ booking coordination remain available through the WhatsApp channel.
 | 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to an authorized Operator for the authorized examination. |
 | 10 | Image Gateway and Member Core | When every capture has produced DICOM, make the complete image set available under Member and Doctor publication rules. |
 | 11 | AI service | Run the selected AI analysis asynchronously. When its result is available, publish it to Member Core and emit an AI completed event that automatically completes the ticket. |
-| 12 | Member module | Coordinate result delivery strictly through the WhatsApp channel (e.g. WhatsApp message/attachment conforming to the no-web member model) or provide an optional on-site printout on demand if requested at the front desk via the read-only AI Results Status Monitor. |
+| 12 | Member module | After a result is finalized, notify the member through WhatsApp and issue a secure temporary result link to a task-specific result web surface when required, or use another approved delivery path. This surface is not a Member Portal and does not create a persistent member login. |
 | 13 | Member | If desired, independently request and fund later doctor review coordinated through the WhatsApp channel; Operator Core does not create the add-on. |
 | 14 | Doctor Core and Doctor | For a selected doctor service, route, claim, review, and report under the appropriate clinical workflow (radiologist or authorized non-radiologist specialist). |
 
@@ -37,10 +37,10 @@ creating permanent copies in every module.
 | Actor or system | Business role |
 |---|---|
 | Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
-| Member | Interacts exclusively via WhatsApp to receive B2B bookings or initiate B2C bookings, receive notifications, attend sessions, and receive completed results. Member roles are conceptually separated into Requester/contact, Payer, Subject of care, Guardian, and Result recipient. |
-| Operator staff | Uses the staff web application for TU / front-desk verification, basic examination and vital signs assessment, radiograph capture review, queue management, and the read-only AI Results Status Monitor. Staff authorization is governed by three independent permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`). Station selection routes active work but cannot elevate permissions. Existing MVP/beta accounts temporarily retain all three permissions under transitional compatibility. |
-| Doctor | Uses the doctor web application to claim eligible cases, review studies, and submit clinical reports. Target population includes radiologists (who perform study quality decisions and DICOM reviews) and authorized non-radiologist specialists (who review clinical services within their authorized specialty and modality eligibility without being forced into radiology-specific workflows). |
-| MHCS administrator | Uses the unified administration web panel to manage domain-owned configurations, perform approved B2B booking changes, manage staff permissions, and monitor system health across Member, Operator, Doctor, and Image Gateway domains. |
+| Member | Interacts primarily through WhatsApp for bookings and notifications; opens a secure temporary result surface when required. Member roles are conceptually separated into Requester/contact, Payer, Subject of care, Guardian, and Result recipient. |
+| Operator staff | Receives WhatsApp offers and opens temporary Site Workspaces for TU / front-desk verification, basic examination and vital signs assessment, radiograph capture review, queue management, and AI status monitoring. Staff authorization is governed by three independent permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`). Station selection routes active work but cannot elevate permissions. Existing MVP/beta accounts temporarily retain all three permissions under transitional compatibility. |
+| Doctor | Receives WhatsApp case offers and opens temporary Clinical / DICOM Workspaces to claim eligible cases, review studies, and submit clinical reports. Target population includes radiologists and authorized non-radiologist specialists within their specialty and modality eligibility. |
+| Global Admin / Super Admin | Uses the persistent secure Admin Web to manage domain-owned configurations, approved B2B booking changes, staff permissions, doctor credentials, and system monitoring across Member, Operator, Doctor, and Image Gateway domains. |
 | Grabber | Produces patient-free radiograph and gain NPZ inputs while its software may remain offline. |
 | Image Gateway | Stores clinical files and coordinates processing, access, routing, and publication. |
 | MPIPS | Converts each radiograph NPZ, matching gain NPZ, and signed manifest into DICOM. |
@@ -50,7 +50,7 @@ creating permanent copies in every module.
 
 | Module or repository | Business responsibility |
 |---|---|
-| Member module in `mhcs-core` | Healthcare identity (MRN), demographics, B2B/B2C booking coordination, financial tracking, subject-of-care and guardian relationships, notifications, and WhatsApp result delivery orchestration. Does not provide an authenticated member web portal, mobile apps, or member login credentials. |
+| Member module in `mhcs-core` | Healthcare identity (MRN), demographics, B2B/B2C booking coordination, financial tracking, subject-of-care and guardian relationships, notifications, and temporary result-surface delivery orchestration. Does not provide a persistent member portal, mobile apps, or member login credentials. |
 | Operator module in `mhcs-core` | Physical sites, operator permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`), front-desk TU check-in, paper consent confirmation, staged FIFO queues, capture-set submission, image viewing, operator earnings, and payouts. |
 | Image Gateway module in `mhcs-core` | Permanent image storage, MPIPS orchestration, routing, and controlled distribution. |
 | Doctor module in `mhcs-core` | Shared doctor work queues across specialties, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts. |
@@ -74,7 +74,7 @@ Member Core owns:
 - AI-only, doctor-only, and combined choices;
 - walk-in registration and on-site payment tracking;
 - WhatsApp-based member notifications; and
-- member-safe result delivery orchestration (strictly non-web).
+- member-safe result delivery orchestration: WhatsApp notification → secure temporary result link → temporary result web surface where appropriate.
 
 Member Core does **not** provide a member web portal, native iOS/Android apps,
 desktop applications, or member username/password credentials. Members interact
@@ -96,7 +96,7 @@ MHCS supports B2B enterprise partnerships and direct B2C member services:
 - After a B2B agreement is signed, an MHCS developer or administrator provisions
   the agreed members, entitlements, locations, dates, and shifts.
 - B2B bookings are fully business-determined and business-funded. Members cannot
-  cancel or reschedule B2B bookings. An MHCS administrator may do so only following
+  cancel or reschedule B2B bookings. Global Admin / Super Admin may do so only following
   an official business request.
 - A B2B no-show remains paid and consumes the agreed quota. The business, not MHCS,
   owns employee attendance consequences.
@@ -223,7 +223,7 @@ domains without introducing an artificial "Admin" business domain.
 | Basic examination | Undergo vital signs, basic measurements, and structured interview. | Staff holding `Nakes Pemeriksaan Dasar` records the assessment and advances the ticket to X-ray. |
 | Radiography session | Undergo radiograph capture in the X-ray room. | Staff holding `Radiografi` captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
 | Image processing | Wait while submitted captures are converted to DICOM and processed by AI asynchronously. | Image Gateway orchestrates MPIPS conversion and AI analysis. |
-| Result receipt | Receive completed results via the WhatsApp channel (or request an optional on-site printout). | Member Core delivers the member-safe result summary and approved documentation via WhatsApp conforming strictly to the no-web model. |
+| Result receipt | Receive a WhatsApp notification and open the secure temporary result link when a richer result surface is required. | Member Core authorizes a task-specific result surface for view/download; it is not a persistent Member Portal. |
 | Doctor review (if selected) | Receive clinical report notification via WhatsApp when doctor review completes. | Member Core delivers the doctor conclusion and recommendations via WhatsApp. |
 | Repeat recommendation | If a radiologist recommends a clinical repeat, receive a zero-cost repeat booking offer via WhatsApp. | Member coordinates the replacement site and shift via WhatsApp. |
 
@@ -231,7 +231,8 @@ domains without introducing an artificial "Admin" business domain.
 
 | Phase | Operator action or decision | System outcome |
 |---|---|---|
-| Staff access | Sign in to the staff web application with staff credentials. The account reflects assigned operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`). | The operator opens an assigned site and shift and selects the station label corresponding to the work being performed. Station selection cannot elevate permissions beyond held permissions. |
+| Staff access | Receive an operational offer in WhatsApp, accept or decline, and open the assigned temporary Site Workspace. Backend staff identity, authentication, and authorization remain mandatory. | Access is scoped by staff identity, held permission, assignment, site, shift/time window, and operational scope. Station selection cannot elevate permissions. |
+| Work history | Select `PEKERJAAN SAYA / RIWAYAT SAYA` in WhatsApp. | Return a concise summary of completed/upcoming assignments, role, site, date/time, counts, and applicable earnings status. A detailed view, if justified, opens as a secure temporary Work History surface. |
 | TU Check-in (TU permission) | Receive arriving patient, look up booking by booking code, verify approved identity evidence against Member Core records, and perform the approved comparison. | Official identity is verified. Booking is marked `checked_in`. |
 | Consent confirmation (TU permission) | Confirm signed paper consent, record consent version, signer, timestamp, and upload private scan. | Single consent is recorded for the visit. Ticket number is issued and thermal slip is printed. |
 | Basic examination (`Pemeriksaan Dasar` permission) | Claim next ready ticket from PEMERIKSAAN DASAR FIFO queue, record vital signs, blood screening, and interview responses. | Completion releases ticket to X-ray queue and makes basic examination stage earning eligible. |
@@ -245,12 +246,13 @@ domains without introducing an artificial "Admin" business domain.
 
 | Phase | Doctor action or decision | System outcome |
 |---|---|---|
-| Authorised access | Sign in to the doctor web application as an authorized doctor (radiologist or authorized non-radiologist specialist). | Access opens the shared doctor queue filtered by the doctor's specialty authorization and modality eligibility. |
+| Authorised access | Receive a minimal-information case offer in WhatsApp, accept or decline, and select `OPEN CASE`. | MHCS checks professional identity, credentials, specialty, service permission, modality eligibility, and assignment before opening a temporary Clinical / DICOM Workspace. |
+| Work history | Select `KASUS SAYA / RIWAYAT SAYA` in WhatsApp. | Return a concise professional history. Detailed inspection, if justified, opens as a secure temporary Doctor History surface. |
 | Shared queue claim | Claim an eligible case from the shared queue. | Atomic claim assigns the case to the doctor, preventing concurrent claims. |
 | Study review | Review imaging study and clinical context inside Doctor Core. | Images and clinical data are reviewed within authorized scope. Raw NPZ is never accessible. |
 | Optional DICOM download | If clinically necessary for external diagnostic tools, request raw DICOM download. | Short-lived, authorized, and audited download link is provided. |
 | Quality decision (Radiology) | For radiology services, explicitly mark study `usable` or `repeat_required`. | For `usable`, report drafting proceeds. For `repeat_required`, the doctor records a controlled reason and clinical note, triggering a repeat entitlement in Member Core. Non-radiologist specialists are not forced into radiology quality decisions. |
-| Report drafting & submission | Draft clinical findings, conclusion, and recommendations, then submit final report. | Report becomes immutable, final-report earning (100%) becomes eligible, and Member Core begins WhatsApp result delivery. |
+| Report drafting & submission | Draft clinical findings, conclusion, and recommendations, then submit final report. | Report becomes immutable, final-report earning (100%) becomes eligible, and Member Core begins WhatsApp notification plus appropriate temporary result-link delivery. |
 | Traceable amendment | If clinically necessary later, issue a signed amendment. | New version is created with preserved lineage; original remains traceable and member is notified via WhatsApp. No additional doctor payment is created. |
 
 ## 4. Processing, publication, access, and payment
@@ -270,7 +272,7 @@ Every submitted capture remains part of the examination. If one capture fails:
 ### Publication rules
 
 - The processed image set becomes eligible for result generation only after every submitted capture has successfully produced DICOM.
-- Completed AI and doctor results publish automatically to Member Core for WhatsApp delivery.
+- Completed AI and doctor results become available to Member Core for WhatsApp notification and secure temporary result-link delivery where appropriate.
 - When both result types are selected, neither waits for the other.
 - Failure in one selected result branch does not block a successful result from the other branch.
 - A successful AI result is final and is not rerun. Automatic retry applies to failed execution, not to successful AI output.
@@ -303,7 +305,7 @@ Doctor earnings enter automated daily payouts with no minimum positive balance.
 ### End-to-end completion
 
 The service journey is complete when an authorized examination moves from booking
-coordination to image processing and WhatsApp result delivery without:
+coordination to image processing and secure temporary result delivery without:
 
 - staff re-entering or inferring patient identity from filenames;
 - uncontrolled file transfer;
@@ -328,7 +330,7 @@ coordination to image processing and WhatsApp result delivery without:
 | Doctor Core | The module serving radiologists and authorized non-radiologist specialists |
 | Grabber | Offline-capable software that produces patient-free radiograph and gain NPZ inputs |
 | Image Gateway | The backend that stores, coordinates, routes, and distributes clinical imaging |
-| Member | The person receiving the healthcare service (interacts exclusively via WhatsApp) |
+| Member | The person receiving the healthcare service (primarily interacts via WhatsApp and may open a secure temporary result surface) |
 | MPIPS | Madeena's image-processing product; MHCS uses its NPZ-to-DICOM capability |
 | Nakes Pemeriksaan Dasar | Operator permission authorizing basic measurements, vital signs, and screening |
 | NPZ | The patient-free capture file produced by Grabber |
@@ -352,7 +354,7 @@ remain open design decisions:
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
-7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
+7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link, session/authentication, disclosure, retention, and fallback mechanics; the result surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.

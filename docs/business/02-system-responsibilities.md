@@ -1,10 +1,10 @@
 # System Responsibilities
 
-This document defines ownership and collaboration in the approved target
+This document defines ownership and collaboration in the candidate target
 architecture: one `mhcs-core` application repository containing Member, Operator,
 Doctor, and Image Gateway modules, plus the separate `mpips` black-box
-conversion repository, served by specialized staff web interfaces, a unified
-administration panel, and a WhatsApp-only member channel.
+conversion repository, served by temporary task-specific staff web workspaces, a
+persistent unified administration panel, and a WhatsApp-led member channel.
 
 ## Responsibility map
 
@@ -39,7 +39,7 @@ Detailed foundations:
 - service choices per examination type or body part;
 - zero-cost, doctor-requested repeat entitlements and member-controlled repeat scheduling via WhatsApp;
 - WhatsApp-based member notifications; and
-- WhatsApp-orchestrated member result delivery (strictly non-web).
+- WhatsApp notification followed, where appropriate, by secure temporary result-link delivery to a task-specific web surface; this is not a persistent Member Portal.
 
 Member Core does **not** own front-desk queues, image capture, raw NPZ, permanent
 DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
@@ -50,7 +50,8 @@ desktop apps, or member login credentials.
 
 Member Core supplies authorized attendance, booking locator, and examination
 information to Operator Core. It receives temporary image references, AI results,
-doctor reports, and amendments through Image Gateway for WhatsApp delivery.
+doctor reports, and amendments through Image Gateway for WhatsApp notification and
+secure temporary result-link delivery where appropriate.
 
 A booking code received via WhatsApp serves as a reservation locator and is not
 sufficient proof of patient identity. At front-desk check-in, Operator staff
@@ -80,7 +81,7 @@ via WhatsApp:
 - B2B enterprise agreements provision members, entitlements, locations, dates,
   and shifts.
 - The business funds B2B bookings centrally. The member cannot cancel or reschedule
-  a B2B booking; only an MHCS administrator acting on an official business request
+  a B2B booking; only Global Admin / Super Admin acting on an official business request
   may do so. A B2B no-show remains paid and consumes the business quota.
 - For B2C services, members initiate booking and payment coordination through
   the WhatsApp channel.
@@ -149,7 +150,7 @@ data, create DICOM, or publish results.
 - MPIPS coordination;
 - three total attempts for a failed capture;
 - email notification after final failure;
-- AI and doctor routing, including the AI-readiness event used for member WhatsApp delivery and automatic ticket completion;
+- AI and doctor routing, including the AI-readiness event used for member WhatsApp notification, temporary result-link delivery, and automatic ticket completion;
 - temporary authorized links;
 - complete-image publication;
 - report-version distribution; and
@@ -159,7 +160,7 @@ data, create DICOM, or publish results.
 
 Each successful DICOM becomes available to an authenticated Operator whose
 active site and current shift authorize the examination. The complete image
-set is published to Member Core (for WhatsApp delivery) and Doctor Core only after
+set is published to Member Core (for WhatsApp notification and temporary result-link delivery where appropriate) and Doctor Core only after
 every submitted radiograph NPZ has produced DICOM. Successful source components
 and sibling files are preserved during a partial failure, but the incomplete set
 remains hidden from the Member and Doctor.
@@ -285,7 +286,7 @@ remain open design decisions:
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
-7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
+7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link, session/authentication, disclosure, retention, and fallback mechanics; the result surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
@@ -306,3 +307,14 @@ Doctor-access and report-amendment rules use:
 - [ACR Practice Parameter for Communication of Diagnostic Imaging Findings](https://www.acr.org/-/media/acr/files/practice-parameters/communicationdiag.pdf).
 
 External requirements must be revalidated before a compliance claim.
+
+## External interaction-model evidence
+
+The following evidence challenges the assumption that messaging should contain
+the complete clinical workflow:
+
+| External observation | Implication / trade-off | MHCS working decision |
+|---|---|---|
+| [Telegram Mini Apps](https://core.telegram.org/bots/webapps) and [LINE MINI Apps](https://developers.line.biz/en/docs/line-mini-app/quickstart/) embed web applications inside messaging products and can support richer task interactions. | A message can be a durable entry point into a richer task surface without requiring a permanent standalone consumer portal; platform policy, authentication, and lifecycle constraints still apply. | Keep WhatsApp as the persistent interaction/orchestration layer and use secure temporary web surfaces for tasks requiring richer UI. Telegram/LINE behavior is a benchmark, not an MHCS platform decision. |
+| The [Henan province-wide telepathology evaluation](https://pmc.ncbi.nlm.nih.gov/articles/PMC13010077/) used mobile access alongside a secured platform; clinical records/images remained in protected infrastructure, while case review and reporting remained in the controlled clinical platform. | Mobile messaging/access can improve reach, but diagnostic review and reporting require controlled clinical storage, authorization, audit, and appropriate viewing conditions. | Operators and Doctors receive WhatsApp dispatch, then work in assignment-scoped temporary workspaces; MHCS remains the system of record and Image Gateway retains clinical binary ownership. |
+| [WhatsApp Business Policy](https://whatsappbusiness.com/policy/) requires consent and restricts sharing sensitive identifiers; health-information use may require heightened safeguards depending on applicable regulation. | WhatsApp is suitable for notification, coordination, and minimal-information offers only when policy and applicable safeguards permit; it should not be assumed to be the DICOM viewer or clinical record. | Do not send identity documents or unnecessary clinical detail through ordinary WhatsApp. Notify members and provide a secure temporary result link when a richer result surface is required. |

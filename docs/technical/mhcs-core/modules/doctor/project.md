@@ -1,6 +1,6 @@
 # MHCS Core Doctor Module Specification
 
-**Status:** Approved target foundation
+**Status:** Candidate target foundation — pending human approval
 **Last reviewed:** 29 August 2026
 
 This document defines the Doctor module in the approved `mhcs-core` modular
@@ -14,9 +14,9 @@ studies, performing quality evaluations, requesting clinical repeats (for
 radiology services), writing clinical reports, and managing doctor earnings and
 payouts.
 
-It provides a specialized doctor-facing web application that shares `mhcs-core`'s
-technical foundation and interface conventions without copying Operator Core's
-front-desk or examination workflow.
+It provides a temporary, assignment-scoped Clinical / DICOM Workspace opened from
+WhatsApp. It shares `mhcs-core`'s technical foundation and interface conventions
+without copying Operator Core's front-desk or examination workflow.
 
 ## Intended users and authorization
 
@@ -29,16 +29,17 @@ Doctor Core serves a multi-specialty clinical population:
   review examinations and clinical data within their specific specialty scope and
   modality eligibility. Non-radiologist specialists are **not** forced into
   radiology-specific quality decisions, raw DICOM reviews, or repeat-imaging workflows.
-- **Doctor administrators:** Manage doctor accounts, specialty and service
-  authorizations, modality eligibility, queue reassignment, earning rates, payout
-  suspension, and operational monitoring.
+- **Global Admin / Super Admin:** Manages doctor records, credentials, specialty
+  and service authorizations, modality eligibility, queue reassignment, earning
+  rates, payout suspension, and operational monitoring through the unified Admin Web.
 
 ### Shared foundations vs. specialty authorizations
 
 Doctor Core establishes shared technical foundations:
 
-- shared staff authentication and credential management;
-- shared queue mechanisms, atomic case claims, and release/reassignment controls;
+- shared staff identity, authentication, and credential management for temporary
+  workspace access;
+- shared assignment mechanisms, atomic case claims, and release/reassignment controls;
 - shared clinical report drafting, versioning, signature, and amendment mechanisms;
 - shared earnings tracking and automated daily rupiah payout infrastructure.
 
@@ -65,8 +66,10 @@ Gateway worker crosses the separate private MPIPS boundary.
 
 ## Target work queue
 
-Eligible, unclaimed cases appear in a shared queue filtered by the doctor's
-active specialty authorization and modality eligibility, ordered by:
+When a case becomes available, MHCS determines eligible Doctors and sends a
+minimal-information WhatsApp offer. After acceptance, the Doctor opens the
+temporary Clinical / DICOM Workspace. The underlying eligible-case queue remains
+filtered by active specialty authorization and modality eligibility, ordered by:
 
 1. highest clinical priority;
 2. nearest configured reporting deadline; and
@@ -83,9 +86,26 @@ reassignment preserves prior claims, drafts, access, and reason history.
 Queue, claim, assignment, deadline, and escalation states are ordinary Doctor
 Core application records and workflows. They are not FHIR `Task` resources.
 
+## Doctor interaction and work history
+
+WhatsApp is the persistent Doctor interaction layer:
+
+```text
+case available → eligible Doctors → minimal-information WhatsApp offer
+→ ACCEPT / DECLINE → assignment / claim → OPEN CASE
+→ temporary Clinical / DICOM Workspace → complete → return to WhatsApp
+```
+
+`KASUS SAYA / RIWAYAT SAYA` returns a concise professional history including
+completed cases, current assignment status, report status, simple counts,
+amendment or repeat-request status where useful, and applicable earnings or
+payout status. If detailed inspection is genuinely required, `LIHAT RIWAYAT
+LENGKAP` opens a secure temporary Doctor History surface; it is not a permanent
+Doctor Portal. Exact authentication and temporary-session mechanics remain open.
+
 ## Study access
 
-Doctors view authorized studies inside the Doctor Core viewer.
+Doctors view authorized studies inside the temporary Clinical / DICOM Workspace.
 
 An authorized doctor may explicitly download raw DICOM when clinically
 necessary for an external diagnostic application, referral, or offline work.
@@ -134,8 +154,10 @@ The repeat flow is:
    Member Core.
 3. Member Core creates one zero-cost, doctor-only repeat entitlement; that creation
    and the doctor's 25% repeat-assessment earning commit atomically.
-4. Member Core coordinates repeat scheduling with the member via WhatsApp.
-5. Operator Core performs a new examination and submission. AI is not rerun.
+4. Member Core coordinates member scheduling and notification via WhatsApp.
+5. Operator Core determines eligible `Radiografi` workforce and sends a repeat-
+   radiography WhatsApp offer; after acceptance, the operator opens the temporary
+   Site Workspace and performs a new examination and submission. AI is not rerun.
 6. Image Gateway emits a `ReplacementStudyReady` domain event when the replacement
    study is ready.
 7. The case returns directly to the requesting doctor (or to the eligible queue
@@ -149,7 +171,7 @@ declined via WhatsApp, or clinically cancelled.
 1. A report remains freely editable while it is a draft.
 2. For radiology services, a final report requires an explicit usable quality decision.
 3. Submit finalizes the report and triggers the final-report doctor earning (100%).
-4. The submitted report becomes visible to Member Core for WhatsApp result delivery.
+4. The submitted report becomes visible to Member Core for WhatsApp notification and secure temporary result-link delivery where appropriate.
 5. A submitted report is immutable and cannot be silently overwritten.
 6. A clinically necessary correction may be issued at any later time as a signed amendment.
 7. Each correction preserves the original, records reason, doctor, timestamp, and signature, and identifies the superseded version.
@@ -217,7 +239,7 @@ Doctor Core satisfies this specification when:
 - [ ] Doctor Core does not duplicate or copy Operator examination workflows.
 - [ ] Shared work queues filter cases based on doctor specialty authorization and modality eligibility.
 - [ ] Atomic claims prevent concurrent assignment of the same case.
-- [ ] Final report submission makes the report immutable, triggers 100% final-report earning, and initiates member WhatsApp result delivery.
+- [ ] Final report submission makes the report immutable, triggers 100% final-report earning, and initiates Member Core WhatsApp notification plus appropriate secure temporary result-link delivery.
 - [ ] Traceable report amendments preserve original versions with explicit lineage.
 - [ ] Repeat requests create zero-cost entitlements in Member Core and trigger 25% repeat-assessment earnings.
 - [ ] Automated IDR payouts process doctor earnings on a daily schedule.

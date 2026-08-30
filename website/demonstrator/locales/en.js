@@ -33,7 +33,7 @@ window.MHCS_LOCALES.en = {
       "progress.monitoring": "Monitoring",
 
       "member.title": "Your WhatsApp Care Updates",
-      "member.intro": "This presentation represents updates coordinated through WhatsApp, not a permanent member portal.",
+      "member.intro": "WhatsApp sends the result notification; a secure temporary result link opens the task-specific result surface when required. This is not a permanent member portal.",
       "member.personalView": "Personal view",
       "member.yourNextStep": "YOUR NEXT STEP",
       "member.viewPatientUpdate": "View Patient Update",
@@ -128,6 +128,7 @@ window.MHCS_LOCALES.en = {
 
       "operator.workstation": "Demo workstation",
       "operator.title": "Imaging Tasks",
+      "operator.interactionModel": "A WhatsApp offer opens this temporary assignment-scoped Site Workspace.",
       "operator.waiting": "WAITING",
       "operator.active": "ACTIVE",
       "operator.done": "DONE",
@@ -177,6 +178,7 @@ window.MHCS_LOCALES.en = {
       "operator.aiStatus.opened": "External capability opened by explicit user navigation; no result was imported automatically.",
 
       "doctor.title": "Clinical Review Queue",
+      "doctor.interactionModel": "A minimal-information WhatsApp case offer opens this temporary Clinical / DICOM Workspace.",
       "doctor.intro": "Review the case as a human professional before any required healthcare action is created.",
       "doctor.reviewDesk": "Review desk",
       "doctor.queue": "CLINICAL REVIEW QUEUE",

@@ -464,7 +464,7 @@ def main():
         "Each stage uses FIFO by its own ready time.",
         "issue one site-and-shift ticket only after",
         "Every configured field requires either a value",
-        "Operator Core provides a read-only **AI Results Status Monitor**",
+        "temporary Site Workspace provides a read-only **AI Results Status Monitor**",
         "expires automatically at shift end",
         "`portal`, `email`, and/or `print` delivery status",
         "**Basic examination & vital signs:** becomes eligible",

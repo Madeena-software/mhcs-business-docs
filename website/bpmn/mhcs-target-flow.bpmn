@@ -105,7 +105,7 @@
       <bpmn:outgoing>Flow_AIReady_Yes</bpmn:outgoing>
       <bpmn:outgoing>Flow_AIReady_No</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Task_PublishAIReport" name="Make AI result available for WhatsApp delivery">
+    <bpmn:serviceTask id="Task_PublishAIReport" name="Notify via WhatsApp and issue secure temporary result link">
       <bpmn:incoming>Flow_AIReady_Yes</bpmn:incoming>
       <bpmn:outgoing>Flow_PublishAI_View</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -113,7 +113,7 @@
       <bpmn:incoming>Flow_PublishAI_View</bpmn:incoming>
       <bpmn:outgoing>Flow_ViewAI_Education</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_ResultEducation" name="Coordinate member-safe WhatsApp result delivery">
+    <bpmn:userTask id="Task_ResultEducation" name="Open temporary result surface and view/download result">
       <bpmn:incoming>Flow_ViewAI_Education</bpmn:incoming>
       <bpmn:outgoing>Flow_Education_Merge</bpmn:outgoing>
     </bpmn:userTask>
@@ -148,7 +148,7 @@
       <bpmn:incoming>Flow_Review_SubmitReport</bpmn:incoming>
       <bpmn:outgoing>Flow_SubmitReport_Publish</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Task_PublishReport" name="Make doctor report available for WhatsApp delivery">
+    <bpmn:serviceTask id="Task_PublishReport" name="Notify via WhatsApp and issue secure temporary result link">
       <bpmn:incoming>Flow_SubmitReport_Publish</bpmn:incoming>
       <bpmn:outgoing>Flow_Publish_ViewReport</bpmn:outgoing>
     </bpmn:serviceTask>

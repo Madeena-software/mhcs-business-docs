@@ -8,7 +8,7 @@ It applies to:
 
 * member-facing WhatsApp communications, templates, and result messages;
 * the staff Operator web application (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`);
-* the Doctor web application (Radiologist and non-radiologist specialist interfaces);
+* the temporary Clinical / DICOM Workspace (Radiologist and non-radiologist specialist interfaces);
 * the Unified Administration Panel;
 * public booking and inquiry flows;
 * member onboarding and notifications;
@@ -1029,7 +1029,7 @@ Avoid:
 ## Staff-facing interfaces and permission terminology
 
 This document also governs staff-facing browser interfaces (Operator web application,
-Doctor web application, and Unified Administration Panel). Staff-facing interfaces
+temporary staff workspaces, and Unified Administration Panel). Staff-facing interfaces
 must use Bahasa Indonesia while retaining precise professional terminology where
 it improves safety and operational clarity.
 
@@ -1361,7 +1361,7 @@ Member-facing UI copy is acceptable only when:
 
 ## Authority and conflict resolution
 
-This document is authoritative for MHCS-authored browser-interface language and member-facing product communications, including staff web applications and administrative panels.
+This document is authoritative for MHCS-authored browser-interface language and member-facing product communications, including temporary staff workspaces and the persistent administrative panel.
 
 It does not override:
 

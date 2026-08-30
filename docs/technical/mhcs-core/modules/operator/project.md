@@ -1,6 +1,6 @@
 # MHCS Core Operator Module Specification
 
-**Status:** Approved target foundation
+**Status:** Candidate target foundation — pending human approval
 **Last reviewed:** 29 August 2026
 
 This document defines the Operator module in the approved `mhcs-core` modular
@@ -9,7 +9,8 @@ application. The overall repository and runtime boundary is defined by the
 
 ## Purpose
 
-Operator Core is the staff-facing module for examination-day operations. It
+Operator Core is the staff-facing module for examination-day operations, opened
+through WhatsApp-dispatched temporary Site Workspaces. It
 owns physical-site master data, operator accounts and assignments, arrivals,
 TU identity-verification and consent-confirmation workflows, the staged operational
 queue, basic examination & vital signs capture, examination execution, session-only NPZ drafts, submission
@@ -33,7 +34,7 @@ three independent operational permissions:
 3. **`Radiografi`:** Claiming X-ray tickets, reviewing Grabber radiograph/gain NPZ
    captures, managing retakes/omissions, and submitting the complete capture set.
 
-In addition, **Global administrator** manages Operator Core sites, staff accounts,
+In addition, **Global Admin / Super Admin** manages Operator Core sites, staff accounts,
 shift assignments, protocol mappings, earning rates, and operational configuration.
 
 ### Multi-permission accounts and station rules
@@ -106,13 +107,14 @@ Staffing is demand-triggered:
    shift manually or initiates the **Automated Sequential Operator Assignment** workflow.
 4. When sequential assignment is active, invitation offers are dispatched one
    candidate at a time based on the configured sequence.
-5. Candidates receive workstation alerts and SMS/push notifications with a response
+5. Candidates receive a minimal operational offer in WhatsApp with a response
    timeout (defaulting to 5 minutes) to accept or decline.
 6. If accepted, the operator is assigned to the shift; if declined or timed out,
    the system advances to the next candidate.
 7. If the sequence is exhausted without acceptance, an escalation alert is sent
    to the administrator.
-8. Any assigned operator may perform operational tasks for which they hold the
+8. Assigned operators receive a WhatsApp reminder and open the temporary Site
+   Workspace for the task. Any assigned operator may perform operational tasks for which they hold the
    corresponding permission (`TU / Registration`, `Nakes Pemeriksaan Dasar`, or `Radiografi`).
    Atomic claims ensure that only one operator handles a ticket stage at a time.
 
@@ -154,6 +156,23 @@ flow, subject to the approved minimum-data procedure.
 
 An operator cannot override an unresolved mismatch. Check-in remains blocked
 until an administrator resolves the dispute with a mandatory reason.
+
+## Operator interaction and work history
+
+WhatsApp is the persistent operator interaction layer:
+
+```text
+operational need / shift → eligible staff → WhatsApp offer
+→ ACCEPT / DECLINE → assignment → reminder → OPEN SITE WORKSPACE
+→ temporary assignment-scoped Site Workspace → finish → return to WhatsApp
+```
+
+`PEKERJAAN SAYA / RIWAYAT SAYA` returns a concise summary of completed and
+upcoming assignments, role, site, date/time, simple counts, and applicable
+earnings or payment status. If detailed inspection is genuinely required,
+`LIHAT RIWAYAT LENGKAP` opens a secure temporary Work History surface; it is not
+a permanent Operator Portal. Exact authentication and temporary-session mechanics
+remain open.
 
 ## Basic examination & vital signs assessment
 
@@ -290,7 +309,7 @@ event that automatically completes the matching Operator ticket.
 Patient presence onsite is optional during AI processing; patients may leave
 immediately after X-ray capture or choose to wait.
 
-Operator Core provides a read-only **AI Results Status Monitor** in the Operator interface.
+The temporary Site Workspace provides a read-only **AI Results Status Monitor**.
 Desk staff may search and view published AI results to answer patient inquiries or
 generate an optional physical printout on demand if requested onsite.
 
@@ -299,7 +318,7 @@ Operator Core records only:
 - the AI result version printed or checked;
 - the responsible operator and desk station;
 - occurrence times; and
-- `portal`, `email`, and/or `print` delivery status (coordinated for WhatsApp member delivery).
+- WhatsApp notification, secure temporary result-link, and/or print delivery status.
 
 It does not sell or create doctor review. A fixed notice informs patients that
 paid doctor review can be requested later via WhatsApp.
@@ -316,7 +335,9 @@ a clinical repeat. The repeat flow is:
 3. The member selects any compatible site and shift via WhatsApp.
 4. The repeat consumes one advance-booking quota slot and follows normal advance-booking
    check-in priority.
-5. Operator Core performs a new examination and submission. AI is not rerun.
+5. Operator Core determines eligible `Radiografi` workforce and sends a repeat-radiography
+   offer through WhatsApp. After acceptance, the operator opens the temporary Site
+   Workspace and performs a new examination and submission. AI is not rerun.
 
 Controlled Doctor Core preliminary reasons (`operator_error`, `equipment_failure`,
 `incorrect_order`, `medical_limitation`, `other`) remain clinical source evidence
@@ -325,7 +346,7 @@ and do not change already completed Operator stage earnings.
 ## Read-only image access
 
 An ordinary operator may view only current-shift examinations at the active site.
-A global administrator may view operational cases across all sites.
+Global Admin / Super Admin may view operational cases across all sites.
 
 The Operator Core DICOM viewer is read-only:
 
@@ -357,8 +378,8 @@ Stage earning rules:
 
 Operator Core automatically initiates an IDR transfer as soon as an earning
 becomes eligible via its payment-gateway adapter. Operators enter and manage
-their own bank-account destination, verified via password re-authentication and
-a one-time code.
+their own bank-account destination through an approved secure authentication flow;
+the exact re-authentication mechanism remains open.
 
 MHCS absorbs transfer fees by default so the operator receives the full configured
 earning.
@@ -371,7 +392,7 @@ compares it with its cash ledger, closing as `reconciled` or `reconciliation_req
 
 ## Administrator capabilities
 
-The global Operator Core administrator manages:
+Global Admin / Super Admin manages:
 
 - staff accounts, activation, suspension, and permission assignment (`TU / Registration`,
   `Nakes Pemeriksaan Dasar`, `Radiografi`);

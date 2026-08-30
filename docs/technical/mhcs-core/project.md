@@ -1,6 +1,6 @@
 # MHCS Core Architecture Specification
 
-**Status:** Approved target architecture
+**Status:** Candidate target architecture — pending human approval
 **Last reviewed:** 29 August 2026
 
 This document is the architecture authority for the MHCS application. Detailed
@@ -31,21 +31,25 @@ The old five-repository deployment model is superseded.
 
 The four distinct human-facing interaction surfaces are:
 
-1. **Member:** WhatsApp-only interaction channel. Members receive notifications,
-   coordinate bookings, and receive member-safe results exclusively via WhatsApp.
+1. **Member:** WhatsApp interaction and orchestration channel. Members receive
+   notifications, coordinate bookings, and may open a secure temporary result web
+   surface when a richer result view/download is required.
    No authenticated member web portal, native iOS/Android apps, desktop apps, or
    member username/password credentials exist.
-2. **Operator:** Staff web application supporting examination-day operations.
+2. **Operator:** WhatsApp-dispatched, temporary assignment-scoped Site Workspace
+   supporting examination-day operations.
    Governed by three independent operational permissions (`TU / Registration`,
    `Nakes Pemeriksaan Dasar`, `Radiografi`). Staff accounts may hold any combination
    of permissions. Station selection routes active work and calls but cannot elevate
    permissions. MVP/beta operator accounts temporarily retain access to all three
    areas under transitional compatibility.
-3. **Doctor:** Doctor web application for clinical review and reporting, covering
+3. **Doctor:** WhatsApp-dispatched, temporary Clinical / DICOM Workspace for clinical
+   review and reporting, covering
    radiologists (who perform radiology quality decisions and DICOM reviews) and
    authorized non-radiologist specialists (who review services within their
    authorized specialty and modality eligibility).
-4. **Admin:** One unified administration web panel providing administrative
+4. **Global Admin / Super Admin:** The only human actor with a persistent
+   conventional web login. One unified secure Admin Web provides administrative
    interfaces across domain-owned operations (Member, Operator, Doctor, Image
    Gateway) without creating a separate monolithic Admin business domain.
 
@@ -255,7 +259,9 @@ remain open design decisions:
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
-7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
+7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link,
+   session/authentication, disclosure, retention, and fallback mechanics; the result
+   surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.

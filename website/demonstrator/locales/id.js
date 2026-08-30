@@ -33,7 +33,7 @@ window.MHCS_LOCALES.id = {
       "progress.monitoring": "Pemantauan",
 
       "member.title": "Pembaruan Perawatan melalui WhatsApp",
-      "member.intro": "Presentasi ini mewakili pembaruan yang dikoordinasikan melalui WhatsApp, bukan portal Member permanen.",
+      "member.intro": "WhatsApp mengirim notifikasi hasil; tautan hasil sementara yang aman membuka permukaan hasil khusus tugas bila diperlukan. Ini bukan portal Member permanen.",
       "member.personalView": "Tampilan pribadi",
       "member.yourNextStep": "LANGKAH BERIKUTNYA",
       "member.viewPatientUpdate": "Lihat Pembaruan Pasien",
@@ -128,6 +128,7 @@ window.MHCS_LOCALES.id = {
 
       "operator.workstation": "Stasiun kerja demo",
       "operator.title": "Tugas Radiografi",
+      "operator.interactionModel": "Penawaran WhatsApp membuka Site Workspace sementara yang dibatasi oleh penugasan.",
       "operator.waiting": "MENUNGGU",
       "operator.active": "AKTIF",
       "operator.done": "SELESAI",
@@ -177,6 +178,7 @@ window.MHCS_LOCALES.id = {
       "operator.aiStatus.opened": "Kapabilitas eksternal dibuka melalui navigasi pengguna secara eksplisit; tidak ada hasil yang diimpor otomatis.",
 
       "doctor.title": "Antrean Tinjauan Klinis",
+      "doctor.interactionModel": "Penawaran kasus WhatsApp dengan informasi minimum membuka Clinical / DICOM Workspace sementara.",
       "doctor.intro": "Tinjau kasus sebagai profesional manusia sebelum tindakan layanan kesehatan yang diperlukan dibuat.",
       "doctor.reviewDesk": "Meja tinjauan",
       "doctor.queue": "ANTREAN TINJAUAN KLINIS",

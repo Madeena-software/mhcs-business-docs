@@ -1,7 +1,7 @@
 # MHCS Core Member Module Specification
 
 **Specification status:** Expected end-state specification
-**Business foundation:** Approved
+**Business foundation:** Candidate — pending human approval
 **Last reviewed:** 29 August 2026
 
 This is the Member module specification for the approved `mhcs-core` modular
@@ -35,7 +35,8 @@ Member Core is the backend domain authority for:
 - booking pricing snapshots, payment tracking, and financial reconciliation;
 - the attendance list and booking locator queries supplied to Operator Core;
 - WhatsApp-based member notifications; and
-- WhatsApp-orchestrated member-safe result delivery (strictly non-web).
+- WhatsApp notification followed, where appropriate, by secure temporary result-link
+  delivery to a task-specific result web surface; this is not a persistent Member Portal.
 
 Member Core does **not** provide an authenticated member web portal, native iOS/Android
 apps, desktop applications, or member username/password credentials. Members interact
@@ -46,7 +47,7 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 
 ## Users and admin panel
 
-- Members interact exclusively via WhatsApp.
+- Members interact primarily via WhatsApp; finalized results may open through a secure temporary result surface.
 - Administrators manage Member domain operations through the Unified Administration
   Panel (e.g. at `/admin`).
 - The admin panel manages member records, service offerings, schedules, B2B and B2C
@@ -123,7 +124,7 @@ because members interact via WhatsApp without web credentials.
 
 - The business centrally funds B2B bookings for covered members.
 - The business determines the examination, service, location, date, and shift.
-  A member cannot cancel or reschedule a B2B booking; only an MHCS administrator
+  A member cannot cancel or reschedule a B2B booking; only Global Admin / Super Admin
   acting on an official business request may do so.
 - A B2B no-show remains paid and consumes the agreed examination quota.
 - For B2C services, members coordinate bookings directly through WhatsApp.
@@ -577,7 +578,8 @@ history, occupational exposure, and family history.
 - Members do not have login credentials or passwords.
 - Official identity documents (KTP/KIA/KK) use private object storage with opaque keys and are never collected via ordinary WhatsApp chat.
 - Raw NPZ and DICOM never pass through Member Core.
-- Results delivered via WhatsApp contain member-safe summaries and attachments conforming strictly to the no-web model.
+- Results are announced through WhatsApp and may be viewed/downloaded through a secure
+  temporary result surface; exact mechanics remain open.
 
 ## FHIR R5 boundary
 
@@ -633,7 +635,9 @@ The following decisions are intentionally unresolved by current human authority:
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
-7. **Clinical Result Delivery Channel Mechanics:** Specific delivery pattern for member results via WhatsApp strictly conforming to the no-web member model (e.g. WhatsApp-delivered member-safe result content or attachment where legally, clinically, technically, and platform-policy appropriate; on-site printout on demand; human-mediated delivery through the WhatsApp channel; or another non-web delivery mechanism approved later).
+7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link,
+   session/authentication, disclosure, retention, and fallback mechanics; the result
+   surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 9. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.
 
