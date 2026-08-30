@@ -25,7 +25,7 @@ The nested module contexts mirror the `mhcs-core/.agents/context` layout. They
 partition one application specification so an agent can load only the module
 relevant to its task. `mhcs-core` is the application implementation repository
 that consumes these specifications; this repository remains the business and
-approved target technical authority. `mpips` is a separate public GitHub
+candidate target technical authority pending human approval. `mpips` is a separate public GitHub
 repository whose MHCS processing service/API boundary is private.
 
 Modules inside `mhcs-core` communicate through local commands, queries,

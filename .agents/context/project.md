@@ -7,8 +7,10 @@
 ## Purpose
 
 `mhcs-business-docs` records the approved MHCS teleradiology business flow and
-the central technical specifications that application repositories must
-follow.
+candidate next-authority specifications that application repositories must follow
+after human approval. `main` is the currently approved authority; the
+`docs/mhcs-product-model-reset` branch is the candidate next authority and its
+committed documentation remains provisional until explicitly approved and merged.
 
 Detailed business decisions live under `docs/`; this file remains a concise
 agent orientation and must not duplicate them.

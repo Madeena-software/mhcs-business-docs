@@ -11,7 +11,7 @@ booking coordination remain available through the WhatsApp channel.
 
 | Step | Owner | Action and outcome |
 |---:|---|---|
-| 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, the member initiates booking and payment coordination exclusively through WhatsApp. |
+| 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, WhatsApp is the persistent Member interaction and orchestration channel for booking and payment coordination; Members may open a secure temporary result surface when required. |
 | 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to the Operator module inside `mhcs-core`. |
 | 3 | TU / Registration operator | An operator holding `TU / Registration` permission verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The operator records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
 | 4 | Basic examination & vital signs operator | An operator holding `Nakes Pemeriksaan Dasar` permission claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
@@ -54,7 +54,7 @@ creating permanent copies in every module.
 | Operator module in `mhcs-core` | Physical sites, operator permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`), front-desk TU check-in, paper consent confirmation, staged FIFO queues, capture-set submission, image viewing, operator earnings, and payouts. |
 | Image Gateway module in `mhcs-core` | Permanent image storage, MPIPS orchestration, routing, and controlled distribution. |
 | Doctor module in `mhcs-core` | Shared doctor work queues across specialties, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts. |
-| Unified Administration Panel | Single administrator web interface acting as a presentation/role surface over domain-owned operations without creating a separate monolithic Admin business domain. |
+| Unified Administration Panel | Single Global Admin / Super Admin web interface acting as a presentation/role surface over domain-owned operations without creating a separate monolithic Admin business domain. |
 | `mpips` repository | Separate public GitHub repository whose private MHCS processing service/API boundary converts radiograph NPZ plus gain NPZ and a signed DICOM manifest into DICOM. |
 
 Member, Operator, Doctor, and Image Gateway run as modules in one `mhcs-core`
@@ -93,7 +93,7 @@ collected via ordinary WhatsApp chat.
 
 MHCS supports B2B enterprise partnerships and direct B2C member services:
 
-- After a B2B agreement is signed, an MHCS developer or administrator provisions
+- After a B2B agreement is signed, an MHCS developer or Global Admin / Super Admin provisions
   the agreed members, entitlements, locations, dates, and shifts.
 - B2B bookings are fully business-determined and business-funded. Members cannot
   cancel or reschedule B2B bookings. Global Admin / Super Admin may do so only following
@@ -125,7 +125,7 @@ Operator Core owns examination-day work:
   3. `Radiografi`: claiming X-ray tickets, NPZ capture review, retake/omission handling, and complete-set submission;
 - multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
 - station selection rules: an operator selects an active station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) to route active work and LCD calls, but station selection **cannot** grant or elevate permissions beyond what the account holds;
-- MVP/beta transitional compatibility: existing operator accounts temporarily retain access to all three operational areas, while new staff provisioning requires administrator selection of permissions;
+- MVP/beta transitional compatibility: existing operator accounts temporarily retain access to all three operational areas, while new staff provisioning requires Global Admin / Super Admin selection of permissions;
 - ready-time FIFO calling, atomic work claims, and privacy-safe LCD displays (`PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`);
 - draft capture review on dedicated Grabber workstations;
 - one Submit action for the complete capture set;
@@ -157,7 +157,7 @@ not from the NPZ filename or content.
 
 ### Image Gateway boundary
 
-Image Gateway has administrator-only internal access. It owns:
+Image Gateway has Global Admin / Super Admin-only internal access. It owns:
 
 - durable acceptance of the complete submission;
 - permanent NPZ and DICOM storage;
@@ -169,7 +169,7 @@ Image Gateway has administrator-only internal access. It owns:
 - durable-acceptance and AI-readiness events consumed by Operator Core.
 
 MHCS retains NPZ and DICOM with no routine user deletion. Only an authorised
-compliance administrator may delete or anonymise a record when legally
+Global Admin / Super Admin may delete or anonymise a record when legally
 required, and the action must be fully audited.
 
 ### MPIPS boundary
@@ -206,7 +206,7 @@ of the completed original booking.
 ### Administration boundary
 
 Administration is delivered via one unified web panel spanning domain-owned
-operations. System administrators manage staff permissions, site configurations,
+operations. Global Admin / Super Admin manages staff permissions, site configurations,
 B2B bookings, and system health across Member, Operator, Doctor, and Image Gateway
 domains without introducing an artificial "Admin" business domain.
 
@@ -267,7 +267,7 @@ Every submitted capture remains part of the examination. If one capture fails:
 - each successful DICOM may be viewed and downloaded by the authorised Operator for that examination;
 - the member does not receive an incomplete result;
 - the already eligible X-ray-stage earning remains unchanged; and
-- after the third failed attempt, an administrator receives an email notification.
+- after the third failed attempt, Global Admin / Super Admin receives an email notification.
 
 ### Publication rules
 
@@ -284,7 +284,7 @@ Every submitted capture remains part of the examination. If one capture fails:
 | Member (WhatsApp channel) | No | Member-safe delivery | No | When selected and complete (WhatsApp) | When selected and complete (WhatsApp) |
 | Operator (`TU`, `Pemeriksaan Dasar`, `Radiografi`) | No | Yes, as each authorized DICOM is available | Yes, authenticated `.dcm` attachment when active site/shift authorizes examination | Read-only view via AI Results Status Monitor | No |
 | Doctor (Radiologist / Specialist) | No | Yes, for authorized study | Explicit, audited clinical need | If available | Own workflow |
-| Administrator (Unified Admin) | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version and audit context |
+| Global Admin / Super Admin | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version and audit context |
 
 ### Payment ownership and triggers
 

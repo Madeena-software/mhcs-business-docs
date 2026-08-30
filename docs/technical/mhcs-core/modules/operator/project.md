@@ -40,7 +40,7 @@ shift assignments, protocol mappings, earning rates, and operational configurati
 ### Multi-permission accounts and station rules
 
 - **Multi-permission assignment:** A staff account may be assigned 1, 2, or all 3
-  operational permissions by an administrator.
+  operational permissions by Global Admin / Super Admin.
 - **Station selection:** An operator working an assigned shift selects an operational
   station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`). This label routes
   active work and LCD calls but **cannot** grant or elevate permissions beyond what the
@@ -50,7 +50,7 @@ shift assignments, protocol mappings, earning rates, and operational configurati
   temporarily retain access to all three operational areas (`TU / Registration`,
   `Nakes Pemeriksaan Dasar`, `Radiografi`) as a transitional compatibility measure.
 - **New staff provisioning:** Provisioning of new staff accounts requires an
-  administrator to explicitly select the applicable operational permissions.
+  Global Admin / Super Admin to explicitly select the applicable operational permissions.
 
 Staff holding operational permissions are represented as FHIR `Practitioner`,
 with site-specific `PractitionerRole` for each authorized site.
@@ -76,7 +76,7 @@ Gateway worker crosses the separate private MPIPS boundary.
 
 Operator Core is the source authority for MHCS physical sites and the FHIR
 `Organization` and `Location` records that identify them. A global
-administrator creates and updates site identity, address, time zone,
+Global Admin / Super Admin creates and updates site identity, address, time zone,
 operational status, and operator authorization.
 
 The Member module references stable site identifiers and owns the booking catalogue,
@@ -103,7 +103,7 @@ Staffing is demand-triggered:
 1. Members may book an open shift before an operator is assigned.
 2. At five confirmed bookings, the Member module emits an idempotent `shift_eligible`
    domain event for the Operator module.
-3. The global Operator Core administrator assigns one or more operators to the
+3. Global Admin / Super Admin assigns one or more operators to the
    shift manually or initiates the **Automated Sequential Operator Assignment** workflow.
 4. When sequential assignment is active, invitation offers are dispatched one
    candidate at a time based on the configured sequence.
@@ -112,7 +112,7 @@ Staffing is demand-triggered:
 6. If accepted, the operator is assigned to the shift; if declined or timed out,
    the system advances to the next candidate.
 7. If the sequence is exhausted without acceptance, an escalation alert is sent
-   to the administrator.
+   to Global Admin / Super Admin.
 8. Assigned operators receive a WhatsApp reminder and open the temporary Site
    Workspace for the task. Any assigned operator may perform operational tasks for which they hold the
    corresponding permission (`TU / Registration`, `Nakes Pemeriksaan Dasar`, or `Radiografi`).
@@ -155,7 +155,7 @@ non-downloadable, and available to the operator only during the active verificat
 flow, subject to the approved minimum-data procedure.
 
 An operator cannot override an unresolved mismatch. Check-in remains blocked
-until an administrator resolves the dispute with a mandatory reason.
+until Global Admin / Super Admin resolves the dispute with a mandatory reason.
 
 ## Operator interaction and work history
 
@@ -250,12 +250,12 @@ tracking, and booking. No member login credentials or passwords are created.
 
 ## Examination protocol configuration
 
-The global Operator administrator maintains versioned X-ray protocol templates
+Global Admin / Super Admin maintains versioned X-ray protocol templates
 and maps each Member service code to its required projections (e.g. PA, AP, lateral).
 Operator Core snapshots the active protocol version when the examination starts.
 
 The operator may correct an incorrect requested body part or laterality before
-submission without administrator approval. The correction requires a reason,
+submission without Global Admin / Super Admin approval. The correction requires a reason,
 operator identity, and timestamp and must succeed through the Member module
 before the examination continues.
 
@@ -390,7 +390,7 @@ Operator Core submits the operator-counted cash total to Member Core after the
 accepted queue is complete and all cash collections are final. Member Core
 compares it with its cash ledger, closing as `reconciled` or `reconciliation_required`.
 
-## Administrator capabilities
+## Global Admin / Super Admin capabilities
 
 Global Admin / Super Admin manages:
 
@@ -437,7 +437,7 @@ Operator Core satisfies this specification when:
 - [ ] Operational authorization enforces three independent permissions: `TU / Registration`, `Nakes Pemeriksaan Dasar`, and `Radiografi`.
 - [ ] A staff account can be assigned one, two, or all three operational permissions.
 - [ ] Existing MVP/beta operator accounts temporarily retain access to all three operational areas under transitional compatibility.
-- [ ] New staff accounts require explicit administrator selection of operational permissions.
+- [ ] New staff accounts require explicit Global Admin / Super Admin selection of operational permissions.
 - [ ] Station selection routes work and calls but cannot grant or elevate permissions.
 - [ ] Front-desk TU check-in verifies approved identity evidence and required comparison against stored Member Core records before check-in.
 - [ ] Booking code functions as a reservation locator and does not bypass official identity verification.

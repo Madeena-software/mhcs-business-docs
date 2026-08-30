@@ -39,16 +39,17 @@ Member Core is the backend domain authority for:
   delivery to a task-specific result web surface; this is not a persistent Member Portal.
 
 Member Core does **not** provide an authenticated member web portal, native iOS/Android
-apps, desktop applications, or member username/password credentials. Members interact
-exclusively through WhatsApp.
+apps, desktop applications, or member username/password credentials. WhatsApp is the
+persistent Member interaction and orchestration channel; Members may open a secure
+temporary result surface when required.
 
 Member Core does not own front-desk queues, image capture, raw NPZ, permanent
 DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
 
 ## Users and admin panel
 
-- Members interact primarily via WhatsApp; finalized results may open through a secure temporary result surface.
-- Administrators manage Member domain operations through the Unified Administration
+- WhatsApp is the persistent Member interaction and orchestration channel; finalized results may open through a secure temporary result surface.
+- Global Admin / Super Admin manages Member domain operations through the Unified Administration
   Panel (e.g. at `/admin`).
 - The admin panel manages member records, service offerings, schedules, B2B and B2C
   bookings, payment statuses, promotions, and settings.
@@ -61,7 +62,8 @@ MHCS models healthcare identity and relationship roles explicitly:
 
 - `members` owns the healthcare identity, MRN, and clinical demographics.
 - Member records are **not** linked to login credentials in a `users` table; members
-  do not log in to a web application.
+  have no persistent conventional web account or login. Temporary result-surface
+  authentication and session mechanics remain open.
 - Operational roles are conceptually distinguished:
   - **Requester / contact:** the individual initiating WhatsApp communication;
   - **Payer:** the party funding the booking (enterprise customer for B2B, individual for B2C);
@@ -99,7 +101,7 @@ To protect member privacy and comply with healthcare data protection principles:
 
 Registering a child requires the approved minimum evidence for the child and at
 least one parent or legal guardian whose own verified record is linked. More than
-one guardian may be linked after an administrator verifies the approved evidence.
+one guardian may be linked after Global Admin / Super Admin verifies the approved evidence.
 Every active guardian has equal access to coordinate the child's
 bookings and receive member-safe results.
 
@@ -116,7 +118,7 @@ Member Core supports B2B enterprise agreements and direct B2C bookings:
 ### Initial B2B provisioning
 
 After a business agreement and its member data are available, an MHCS
-developer or administrator provisions the agreed members, entitlements,
+developer or Global Admin / Super Admin provisions the agreed members, entitlements,
 locations, dates, and shifts. Plaintext passwords are not generated or distributed
 because members interact via WhatsApp without web credentials.
 
@@ -140,7 +142,7 @@ because members interact via WhatsApp without web credentials.
 
 ### B2C cancellation and postponement
 
-- An administrator-configured cancellation cutoff applies to B2C bookings.
+- A Global Admin / Super Admin-configured cancellation cutoff applies to B2C bookings.
 - A member may cancel before the cutoff via WhatsApp according to the configured
   refund policy.
 - At or after the cutoff, member cancellation is rejected. A no-show forfeits
@@ -597,7 +599,7 @@ history, occupational exposure, and family history.
 
 ## Admin panel
 
-Member administrators manage via the Unified Administration Panel:
+Global Admin / Super Admin manages Member operations via the Unified Administration Panel:
 
 - member identity reconciliation;
 - protected NIK/KK reconciliation, verification assets, and guardian verification;

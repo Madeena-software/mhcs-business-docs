@@ -11,8 +11,9 @@ business rules remain in the module specifications linked below.
 MHCS uses exactly two product repositories:
 
 1. `mhcs-core`: one modular application containing Member, Operator, Doctor,
-   and Image Gateway modules, served by staff web interfaces, a unified
-   administration panel, and a WhatsApp-only member channel; and
+   and Image Gateway modules, delivered through temporary Site and Clinical / DICOM
+   Workspaces, a unified persistent Admin Web, and a WhatsApp-led Member channel
+   with a temporary result surface; and
 2. `mpips`: one private black-box NPZ-to-DICOM conversion service.
 
 Member, Operator, Doctor, and Image Gateway are modules, not independently
@@ -113,7 +114,7 @@ cross-module service layer.
 `mhcs-core` is one deployable application that may run several processes from
 the same source:
 
-- web processes for operator, doctor, and unified administrator interfaces, plus
+- web processes for temporary operator and doctor workspaces, and the persistent unified Admin Web, plus
   WhatsApp webhook/integration endpoints;
 - queue workers for WhatsApp message delivery, image orchestration, AI routing,
   and payouts; and

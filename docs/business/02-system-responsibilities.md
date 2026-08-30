@@ -16,7 +16,7 @@ persistent unified administration panel, and a WhatsApp-led member channel.
 | Image Gateway module in `mhcs-core` | Private durable source and NPZ/DICOM storage, atomic source acceptance, queued MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorized references, completion, and publication events |
 | `mpips` repository | Public GitHub repository containing the black-box radiograph NPZ plus gain NPZ conversion through a private MHCS processing service/API boundary | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
 | Doctor module in `mhcs-core` | Shared doctor queues across specialties, specialty/modality eligibility, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts | Eligible and replacement studies, supporting output, and repeat status | Quality events, repeat commands, reports, revisions, earnings, and payout status |
-| Unified Administration Panel | Presentation and administrative routing surface over domain-owned capabilities | Administrator interactions across domains | Domain-owned configuration, provisioning, and monitoring actions |
+| Unified Administration Panel | Presentation and administrative routing surface over domain-owned capabilities | Global Admin / Super Admin interactions across domains | Domain-owned configuration, provisioning, and monitoring actions |
 
 Detailed foundations:
 
@@ -69,9 +69,9 @@ member via WhatsApp, lets the member choose any compatible site and shift, and
 returns entitlement or decline status to Doctor Core. A scheduled repeat consumes
 ordinary booking capacity and does not request AI.
 
-Members receive completed results and summaries strictly through WhatsApp or
-on-site printout on demand. Member Core does not store raw NPZ or permanent DICOM
-copies.
+Members receive a WhatsApp notification and, where appropriate, a secure temporary
+result surface for viewing or download; on-site print remains an available operational
+fallback. Member Core does not store raw NPZ or permanent DICOM copies.
 
 ### B2B and B2C target rules
 
@@ -106,7 +106,7 @@ via WhatsApp:
 - multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
 - station selection rules: station selection (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) routes work and LCD calls but cannot grant or elevate account permissions;
 - MVP/beta transitional compatibility: existing beta operator accounts temporarily retain access to all three operational areas;
-- new staff provisioning: administrator explicitly selects applicable operational permissions;
+- new staff provisioning: Global Admin / Super Admin explicitly selects applicable operational permissions;
 - one site-and-shift ticket across ready-time FIFO basic examination and X-ray queues;
 - atomic stage claims, public number-to-station calls for `PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`, and paired LCD displays;
 - basic examination & vital signs measurements, point-of-care screening, and structured interview capture;
@@ -185,7 +185,7 @@ transport and security contract for this boundary.
 
 - shared doctor work queues filtered by specialty authorization and modality eligibility;
 - multi-specialty clinical review (radiologists and authorized non-radiologist specialists);
-- case claim, release, and administrator reassignment;
+- case claim, release, and Global Admin / Super Admin reassignment;
 - study viewing and controlled clinical access;
 - explicit, audited DICOM download when clinically necessary;
 - radiology-specific workflows: immutable study-level `usable` or `repeat_required` decisions;
@@ -219,7 +219,7 @@ balance. MHCS absorbs transfer fees by default.
 
 ### Presentation surface
 
-Unified Administration provides a single administrator web panel spanning
+Unified Administration provides a single Global Admin / Super Admin web panel spanning
 domain-owned operations. It acts as a role and presentation surface over:
 
 - Member domain: agreement tracking, booking reconciliation, payment monitoring;
@@ -249,14 +249,15 @@ doctor-queue entry do not create additional operator earnings.
 
 | User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
-| Member (WhatsApp channel) | No | Member-safe delivery | No | When selected (WhatsApp) | When selected (WhatsApp) |
+| Member (WhatsApp channel) | No | Member-safe delivery | No | WhatsApp notification plus secure temporary result surface where appropriate | WhatsApp notification plus secure temporary result surface where appropriate |
 | Operator (`TU`, `Pemeriksaan Dasar`, `Radiografi`) | No | Yes, as each authorized DICOM is available | Yes, authenticated `.dcm` attachment when active site/shift authorizes examination | Read-only view via AI Results Status Monitor | No |
 | Doctor (Radiologist / Specialist) | No | Yes, for authorized study | Explicit, audited clinical need | If available | Own workflow |
-| Administrator (Unified Admin) | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
+| Global Admin / Super Admin | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
 
 Operator raw-DICOM downloads are authenticated, non-public attachments with no
-permanent public URL. Members receive member-safe result summaries via WhatsApp
-and do not receive raw DICOM. Operators never receive raw NPZ.
+permanent public URL. Members receive member-safe result notifications via WhatsApp
+and may open a secure temporary result surface; they do not receive raw DICOM.
+Operators never receive raw NPZ.
 
 ## FHIR R5 boundary
 
