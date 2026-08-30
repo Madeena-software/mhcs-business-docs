@@ -12,7 +12,8 @@ teleradiology service.
 | Document | Purpose |
 |---|---|
 | [Business overview and actor journeys](docs/business/01-business-overview.md) | End-to-end business flow, actor journeys, responsibilities, and rules |
-| [System responsibilities](docs/business/03-system-responsibilities.md) | Ownership, collaboration, access, payment triggers, and the FHIR R5 boundary |
+| [System responsibilities](docs/business/02-system-responsibilities.md) | Ownership, collaboration, access, payment triggers, and the FHIR R5 boundary |
+| [Business user stories](docs/business/03-user-stories.md) | Human intent, value, acceptance criteria, and journey traceability |
 
 ## Target repository foundations
 

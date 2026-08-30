@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="only light">
-  <meta name="description" content="Detailed MHCS Operator user-flow diagram.">
-  <title>MHCS Operator Journey</title>
+  <meta name="description" content="Detailed MHCS Site Staff user-flow diagram.">
+  <title>MHCS Site Staff Journey</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="../assets/journey.css">
 </head>
@@ -15,7 +15,7 @@
       <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
         <a href="../member/">Member</a>
-        <a href="./" aria-current="page">Operator</a>
+        <a href="./" aria-current="page">Site Staff</a>
         <a href="../doctor/">Doctor</a>
         <a href="../bpmn/">Technical BPMN</a>
       </div>
@@ -25,12 +25,12 @@
   <main class="page">
     <section class="hero">
       <div>
-        <p class="page-context">Operator · detailed user flow</p>
+        <p class="page-context">Site Staff · detailed user flow</p>
         <h1>One ticket, three concurrent service queues</h1>
       </div>
     </section>
 
-    <section class="journey-grid" aria-label="Operator journey phases">
+    <section class="journey-grid" aria-label="Site Staff journey phases">
       <article class="phase">
         <header class="phase-header">
           <span class="phase-number">01</span>
@@ -193,8 +193,8 @@
           </div>
         </div>
         <p class="restriction">
-          Operator restriction: no patient data on the LCD, no unassigned patient record browsing, no doctor reports,
-          and no raw NPZ. An authenticated Operator whose active site and current shift authorise the examination may
+          Site Staff restriction: no patient data on the LCD, no unassigned patient record browsing, no doctor reports,
+          and no raw NPZ. Authenticated Site Staff whose active site, role, and current shift authorise the examination may
           view and download each returned raw DICOM as a standard `.dcm` attachment; it is not public and has no
           permanent public URL.
         </p>

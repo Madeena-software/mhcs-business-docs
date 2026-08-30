@@ -37,13 +37,12 @@ The four distinct human-facing interaction surfaces are:
    surface when a richer result view/download is required.
    No authenticated member web portal, native iOS/Android apps, desktop apps, or
    member username/password credentials exist.
-2. **Operator:** WhatsApp-dispatched, temporary assignment-scoped Site Workspace
-   supporting examination-day operations.
-   Governed by three independent operational permissions (`TU / Registration`,
-   `Nakes Pemeriksaan Dasar`, `Radiografi`). Staff accounts may hold any combination
-   of permissions. Station selection routes active work and calls but cannot elevate
-   permissions. MVP/beta operator accounts temporarily retain access to all three
-   areas under transitional compatibility.
+2. **Site Staff / Operator Core:** WhatsApp-dispatched, temporary assignment-scoped Site Workspace
+   supporting examination-day operations. Site Staff hold independently assignable
+   roles (Reception / Registration, Basic Examination, or Radiography), subject to
+   eligibility and assignment. Station selection routes active work and calls but
+   cannot elevate a role. MVP/beta accounts temporarily retain all three areas
+   under transitional compatibility.
 3. **Doctor:** WhatsApp-dispatched, temporary Clinical / DICOM Workspace for clinical
    review and reporting, covering
    radiologists (who perform radiology quality decisions and DICOM reviews) and

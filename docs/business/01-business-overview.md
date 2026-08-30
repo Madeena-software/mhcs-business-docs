@@ -13,7 +13,7 @@ booking coordination remain available through the WhatsApp channel.
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, WhatsApp is the persistent Member interaction and orchestration channel for booking and payment coordination; Members may open a secure temporary result surface when required. |
 | 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to the Operator module inside `mhcs-core`. |
-| 3 | TU / Registration operator | An operator holding `TU / Registration` permission verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The operator records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
+| 3 | Site Staff — Reception / Registration | Site Staff holding the Reception / Registration role verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The staff member records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
 | 4 | Basic examination & vital signs operator | An operator holding `Nakes Pemeriksaan Dasar` permission claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
 | 5 | Radiography operator | An operator holding `Radiografi` permission claims the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and matching gain NPZ input; the operator reviews the draft and may remove or retake captures. |
 | 6 | Operator module | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
@@ -38,7 +38,7 @@ creating permanent copies in every module.
 |---|---|
 | Business customer | Funds annual member entitlements and determines each B2B examination, service, location, date, and shift. |
 | Member | Interacts primarily through WhatsApp for bookings and notifications; opens a secure temporary result surface when required. Member roles are conceptually separated into Requester/contact, Payer, Subject of care, Guardian, and Result recipient. |
-| Operator staff | Receives WhatsApp offers and opens temporary Site Workspaces for TU / front-desk verification, basic examination and vital signs assessment, radiograph capture review, queue management, and AI status monitoring. Staff authorization is governed by three independent permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`). Station selection routes active work but cannot elevate permissions. Existing MVP/beta accounts temporarily retain all three permissions under transitional compatibility. |
+| Site Staff | Receives WhatsApp offers and opens temporary Site Workspaces for Reception / Registration, Basic Examination, or Radiography work. Staff authorization is governed by independently assignable roles, eligibility evidence, and assignment scope. Station selection routes active work but cannot elevate a role. Existing MVP/beta accounts temporarily retain all three operational areas under transitional compatibility. |
 | Doctor | Receives WhatsApp case offers and opens temporary Clinical / DICOM Workspaces to claim eligible cases, review studies, and submit clinical reports. Target population includes radiologists and authorized non-radiologist specialists within their specialty and modality eligibility. |
 | Global Admin / Super Admin | Uses the persistent secure Admin Web to manage domain-owned configurations, approved B2B booking changes, staff permissions, doctor credentials, and system monitoring across Member, Operator, Doctor, and Image Gateway domains. |
 | Grabber | Produces patient-free radiograph and gain NPZ inputs while its software may remain offline. |
@@ -119,10 +119,10 @@ members for administrative and guardian purposes but is never a login identifier
 Operator Core owns examination-day work:
 
 - physical-site master data and staff shift assignment;
-- permission-based operator authorization:
-  1. `TU / Registration`: front-desk check-in, approved identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
-  2. `Nakes Pemeriksaan Dasar`: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
-  3. `Radiografi`: claiming X-ray tickets, NPZ capture review, retake/omission handling, and complete-set submission;
+- role-based Site Staff authorization:
+  1. Reception / Registration: front-desk check-in, approved identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
+  2. Basic Examination: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
+  3. Radiography: claiming X-ray tickets, NPZ capture review, retake/omission handling, and complete-set submission;
 - multi-permission account support: staff accounts may hold 1, 2, or all 3 permissions;
 - station selection rules: an operator selects an active station label (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) to route active work and LCD calls, but station selection **cannot** grant or elevate permissions beyond what the account holds;
 - MVP/beta transitional compatibility: existing operator accounts temporarily retain access to all three operational areas, while new staff provisioning requires Global Admin / Super Admin selection of permissions;
@@ -218,7 +218,7 @@ domains without introducing an artificial "Admin" business domain.
 |---|---|---|
 | Booking initiation | Receive a B2B booking notification via WhatsApp or initiate a B2C booking conversation via WhatsApp. | Member Core coordinates booking details, confirms quota availability, and issues a booking code (reservation locator). |
 | Booking confirmation | Confirm appointment details and complete required payment coordination via WhatsApp. | The booking is confirmed. The member receives date, time, site, and preparation instructions via WhatsApp. No web portal login or password is created. |
-| Attendance | Arrive on-site at the scheduled examination site and present the booking code and the approved identity evidence required by the current verification procedure. | The TU operator looks up the booking using the code and performs mandatory physical identity verification before clinical check-in. |
+| Attendance | Arrive on-site at the scheduled examination site and present the booking code and the approved identity evidence required by the current verification procedure. | Reception / Registration staff look up the booking using the code and perform mandatory physical identity verification before clinical check-in. |
 | Consent confirmation | Review and sign the paper informed consent form once at the TU desk. | TU staff records consent confirmation and private scan. A ticket slip is printed. |
 | Basic examination | Undergo vital signs, basic measurements, and structured interview. | Staff holding `Nakes Pemeriksaan Dasar` records the assessment and advances the ticket to X-ray. |
 | Radiography session | Undergo radiograph capture in the X-ray room. | Staff holding `Radiografi` captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
@@ -227,9 +227,9 @@ domains without introducing an artificial "Admin" business domain.
 | Doctor review (if selected) | Receive clinical report notification via WhatsApp when doctor review completes. | Member Core delivers the doctor conclusion and recommendations via WhatsApp. |
 | Repeat recommendation | If a radiologist recommends a clinical repeat, receive a zero-cost repeat booking offer via WhatsApp. | Member coordinates the replacement site and shift via WhatsApp. |
 
-### Operator journey
+### Site Staff journey
 
-| Phase | Operator action or decision | System outcome |
+| Phase | Site Staff action or decision | System outcome |
 |---|---|---|
 | Staff access | Receive an operational offer in WhatsApp, accept or decline, and open the assigned temporary Site Workspace. Backend staff identity, authentication, and authorization remain mandatory. | Access is scoped by staff identity, held permission, assignment, site, shift/time window, and operational scope. Station selection cannot elevate permissions. |
 | Work history | Select `PEKERJAAN SAYA / RIWAYAT SAYA` in WhatsApp. | Return a concise summary of completed/upcoming assignments, role, site, date/time, counts, and applicable earnings status. A detailed view, if justified, opens as a secure temporary Work History surface. |
@@ -334,12 +334,12 @@ coordination to image processing and secure temporary result delivery without:
 | MPIPS | Madeena's image-processing product; MHCS uses its NPZ-to-DICOM capability |
 | Nakes Pemeriksaan Dasar | Operator permission authorizing basic measurements, vital signs, and screening |
 | NPZ | The patient-free capture file produced by Grabber |
-| Operator | Staff managing examination-day work under permission-based authorization |
-| Radiografi | Operator permission authorizing radiograph capture review and submission |
+| Site Staff | Human staff assigned one or more eligible examination-site roles |
+| Radiografi | Site Staff role authorizing radiograph capture review and submission |
 | Repeat entitlement | A zero-cost, doctor-requested right to schedule a clinically required replacement examination |
 | Requester | The individual communicating via WhatsApp to coordinate a booking |
 | Subject of Care | The individual who physically attends and receives the clinical examination |
-| TU / Registration | Operator permission authorizing front-desk check-in, identity verification, consent, and ticket issuance |
+| TU / Registration | Reception / Registration role authorizing front-desk check-in, identity verification, consent, and ticket issuance |
 | Unified Administration Panel | Single web panel for system administration spanning domain-owned operations |
 | WhatsApp Channel | The exclusive member interaction interface for bookings, notifications, and results |
 

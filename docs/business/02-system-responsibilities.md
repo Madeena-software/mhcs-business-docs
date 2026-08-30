@@ -1,7 +1,7 @@
 # System Responsibilities
 
 This document defines ownership and collaboration in the candidate target
-architecture: one `mhcs-core` application repository containing Member, Operator,
+architecture: one `mhcs-core` application repository containing Member, Operator Core,
 Doctor, and Image Gateway modules, plus the separate `mpips` black-box
 conversion repository, served by temporary task-specific staff web workspaces, a
 persistent unified administration panel, and a WhatsApp-led member channel.
@@ -11,7 +11,7 @@ persistent unified administration panel, and a WhatsApp-led member channel.
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
 | Member module in `mhcs-core` | Member healthcare identity (MRN), demographics, requester/payer/subject-of-care/guardian/recipient relations, catalogue, B2B/B2C booking coordination, repeat entitlements, financial tracking, notifications, and WhatsApp result orchestration | Member WhatsApp activity, clinical repeat commands, and member-safe result references | Attendance, booking locator, examination snapshot, repeat status, and WhatsApp-delivered member information |
-| Operator module in `mhcs-core` | Physical sites, staff operational permissions (`TU / Registration`, `Nakes Pemeriksaan Dasar`, `Radiografi`), consent confirmation, completed paper-questionnaire evidence, staged FIFO queues, basic examination & vital signs capture, multi-capture Submit, LCD calling, operator earnings, and payouts | Attendance query results, physical identity documents on-site, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, and operator status |
+| Operator Core module in `mhcs-core` | Physical sites, Site Staff roles and assignments, consent confirmation, completed paper-questionnaire evidence, staged FIFO queues, basic examination & vital signs capture, multi-capture Submit, LCD calling, staff earnings, and payouts | Attendance query results, physical identity documents on-site, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, and staff status |
 | Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input |
 | Image Gateway module in `mhcs-core` | Private durable source and NPZ/DICOM storage, atomic source acceptance, queued MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorized references, completion, and publication events |
 | `mpips` repository | Public GitHub repository containing the black-box radiograph NPZ plus gain NPZ conversion through a private MHCS processing service/API boundary | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
@@ -54,7 +54,8 @@ doctor reports, and amendments through Image Gateway for WhatsApp notification a
 secure temporary result-link delivery where appropriate.
 
 A booking code received via WhatsApp serves as a reservation locator and is not
-sufficient proof of patient identity. At front-desk check-in, Operator staff
+sufficient proof of patient identity. At front-desk check-in, Reception /
+Registration Site Staff
 holding `TU / Registration` permission verify official physical identity documents
 (approved physical identity evidence and comparison) against Member Core records, and record the signed
 paper consent and its required private scan once for the visit. Downstream stations

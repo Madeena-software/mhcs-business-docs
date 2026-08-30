@@ -34,7 +34,7 @@ def main():
     lanes = process.findall(".//bpmn:lane", NS)
     assert [lane.get("name") for lane in lanes] == [
         "Member",
-        "Operator",
+        "Site Staff",
         "MHCS Platform",
         "Doctor",
         "AI Service",

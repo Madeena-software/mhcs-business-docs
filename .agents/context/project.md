@@ -85,8 +85,9 @@ applications or repositories.
 - The member interaction is WhatsApp-led; finalized results may open in a secure
   temporary result web surface. No permanent member portal, mobile apps, desktop
   apps, or member login credentials exist.
-- Operator authorization comprises three independent permissions (`TU / Registration`,
-  `Nakes Pemeriksaan Dasar`, `Radiografi`) with MVP/beta transitional compatibility.
+- Site Staff authorization uses three independently assignable roles (Reception /
+  Registration, Basic Examination, Radiography) with MVP/beta transitional compatibility;
+  `Operator Core` remains the internal module name.
 - Doctor authorization covers radiologists and authorized non-radiologist specialists
   with distinct clinical workflows.
 - Administration is provided via one unified web panel over domain-owned operations.

@@ -23,7 +23,7 @@
         <bpmn:flowNodeRef>Task_ViewReport</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Complete</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_Operator" name="Operator">
+      <bpmn:lane id="Lane_Operator" name="Site Staff">
         <bpmn:flowNodeRef>Task_ConfirmAttendance</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_MCUAssessment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CaptureReview</bpmn:flowNodeRef>
