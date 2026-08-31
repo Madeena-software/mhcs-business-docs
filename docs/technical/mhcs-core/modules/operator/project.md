@@ -318,12 +318,12 @@ Patient presence onsite is optional during AI processing; patients may leave
 immediately after X-ray capture or choose to wait.
 
 The temporary Site Workspace provides a read-only **AI Results Status Monitor**.
-Desk staff may search and view published AI results to answer patient inquiries or
-generate an optional physical printout on demand if requested onsite.
+Desk staff may check operational processing and readiness status to answer patient
+inquiries. Non-clinical Site Staff do not search or view clinical AI-result content.
 
 Operator Core records only:
 
-- the AI result version printed or checked;
+- the AI readiness/status version checked;
 - the responsible operator and desk station;
 - occurrence times; and
 - WhatsApp notification, secure temporary result-link, and/or print delivery status.
@@ -455,8 +455,8 @@ Operator Core satisfies this specification when:
 - [ ] X-ray capture set submission requires Grabber NPZ review and triggers X-ray stage earning upon durable Image Gateway acceptance.
 - [ ] A worker holding multiple roles who completes both basic examination and X-ray receives both stage earnings independently.
 - [ ] Public LCD displays show only ticket numbers and destinations (`PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) with zero clinical data.
-- [ ] Read-only AI Results Status Monitor displays published AI results and supports on-demand printing.
-- [ ] Authorized operators can download raw DICOM as authenticated `.dcm` attachments for current-shift examinations at their active site.
+- [ ] Read-only AI Results Status Monitor displays operational processing/readiness status without exposing clinical AI-result content to non-clinical Site Staff.
+- [ ] Radiography Site Staff can download raw DICOM only as authenticated `.dcm` attachments for current-shift examinations at their active site when operationally required.
 - [ ] Automated IDR payouts process eligible stage earnings.
 
 ## Open design decisions

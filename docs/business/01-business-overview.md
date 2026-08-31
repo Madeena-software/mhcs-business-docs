@@ -19,7 +19,7 @@ booking coordination remain available through the WhatsApp channel.
 | 6 | Operator Core | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
 | 7 | Image Gateway | Persist each source component, manifest, and signature privately. Once the complete source set is durable, atomically accept it and queue processing. Durable source acceptance completes the radiography stage while the ticket waits for AI without occupying a Site Staff station. |
 | 8 | Image Gateway worker and MPIPS | For every capture, convert one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file asynchronously. |
-| 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to an authorized Operator for the authorized examination. |
+| 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to Radiography Site Staff for the authorized examination when operationally required. |
 | 10 | Image Gateway and Member Core | When every capture has produced DICOM, make the complete image set available under Member and Doctor publication rules. |
 | 11 | AI service | Run the selected AI analysis asynchronously. When its result is available, publish it to Member Core and emit an AI completed event that automatically completes the ticket. |
 | 12 | Member module | After a result is finalized, notify the member through WhatsApp and issue a secure temporary result link to a task-specific result web surface when required, or use another approved delivery path. This surface is not a Member Portal and does not create a persistent member login. |
@@ -40,7 +40,7 @@ creating permanent copies in every module.
 | Member | Interacts primarily through WhatsApp for bookings and notifications; opens a secure temporary result surface when required. Member roles are conceptually separated into Requester/contact, Payer, Subject of care, Guardian, and Result recipient. |
 | Site Staff | Receives WhatsApp offers and opens temporary Site Workspaces for Reception / Registration, Basic Examination, or Radiography work. Staff authorization is governed by independently assignable roles, eligibility evidence, and assignment scope. Station selection routes active work but cannot elevate a role. Existing MVP/beta accounts temporarily retain all three operational areas under transitional compatibility. |
 | Doctor | Receives WhatsApp case offers and opens temporary Clinical / DICOM Workspaces to claim eligible cases, review studies, and submit clinical reports. Target population includes radiologists and authorized non-radiologist specialists within their specialty and modality eligibility. |
-| Global Admin / Super Admin | Uses the persistent secure Admin Web to manage domain-owned configurations, approved B2B booking changes, staff permissions, doctor credentials, and system monitoring across Member, Operator, Doctor, and Image Gateway domains. |
+| Global Admin / Super Admin | Uses the persistent secure Admin Web to manage domain-owned configurations, approved B2B booking changes, Site Staff roles and eligibility, Doctor credentials, and system monitoring across Member, Operator, Doctor, and Image Gateway domains. |
 | Grabber | Produces patient-free radiograph and gain NPZ inputs while its software may remain offline. |
 | Image Gateway | Stores clinical files and coordinates processing, access, routing, and publication. |
 | MPIPS | Converts each radiograph NPZ, matching gain NPZ, and signed manifest into DICOM. |
@@ -240,14 +240,14 @@ domains without introducing an artificial "Admin" business domain.
 | Radiography capture (Radiography role) | Claim next ready ticket from SESI FOTO RADIOGRAFI FIFO queue, capture radiograph NPZ and gain NPZ via Grabber, review draft, retake if necessary. | Accepted captures form the draft set. |
 | Set submission (Radiography role) | Submit complete draft set with matching gain input and frozen metadata snapshot. | Operator Core hands the set to Image Gateway. |
 | Gateway acceptance | Wait for durable source acceptance. | Image Gateway durably persists all source files and atomically accepts the submission. Acceptance completes X-ray, makes X-ray stage earning eligible, and moves ticket to `awaiting_ai`. |
-| Background AI waiting | AI processes asynchronously; ticket completes automatically when AI result publishes. | Desk staff can view status on the read-only AI Results Status Monitor and print results on demand if requested onsite. |
+| Background AI waiting | AI processes asynchronously; ticket completes automatically when AI result publishes. | Desk staff can view operational processing/readiness status on the read-only AI Results Status Monitor; non-clinical Site Staff do not view clinical AI-result content. |
 | LCD calling | Pair a read-only site-and-shift display and call tickets for PEMERIKSAAN DASAR and SESI FOTO RADIOGRAFI. | Display shows active and recent ticket calls with zero patient clinical data. |
 
 ### Doctor journey
 
 | Phase | Doctor action or decision | System outcome |
 |---|---|---|
-| Authorised access | Receive a minimal-information case offer in WhatsApp, accept or decline, and select `OPEN CASE`. | MHCS checks professional identity, credentials, specialty, service permission, modality eligibility, and assignment before opening a temporary Clinical / DICOM Workspace. |
+| Authorised access | Receive a minimal-information case offer in WhatsApp, accept or decline, and select `OPEN CASE`. | MHCS checks professional identity, credentials, specialty, service authorization, modality eligibility, and assignment before opening a temporary Clinical / DICOM Workspace. |
 | Work history | Select `KASUS SAYA / RIWAYAT SAYA` in WhatsApp. | Return a concise professional history. Detailed inspection, if justified, opens as a secure temporary Doctor History surface. |
 | Shared queue claim | Claim an eligible case from the shared queue. | Atomic claim assigns the case to the doctor, preventing concurrent claims. |
 | Study review | Review imaging study and clinical context inside Doctor Core. | Images and clinical data are reviewed within authorized scope. Raw NPZ is never accessible. |
@@ -265,7 +265,7 @@ Every submitted capture remains part of the examination. If one capture fails:
 - successful source components and sibling DICOM files are preserved;
 - only the failed capture is retried, for up to three total attempts;
 - a component that is already durably persisted is not retransmitted solely because a sibling component failed;
-- each successful DICOM may be viewed and downloaded by the authorised Operator for that examination;
+- each successful DICOM may be viewed and downloaded by Radiography Site Staff for that examination when the active assignment and operational need authorize it;
 - the member does not receive an incomplete result;
 - the already eligible X-ray-stage earning remains unchanged; and
 - after the third failed attempt, Global Admin / Super Admin receives an email notification.
@@ -283,7 +283,7 @@ Every submitted capture remains part of the examination. If one capture fails:
 | User | Raw NPZ | Processed images | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
 | Member (WhatsApp channel) | No | Member-safe delivery | No | When selected and complete (WhatsApp) | When selected and complete (WhatsApp) |
-| Operator (`TU`, `Pemeriksaan Dasar`, `Radiografi`) | No | Yes, as each authorized DICOM is available | Yes, authenticated `.dcm` attachment when active site/shift authorizes examination | Read-only view via AI Results Status Monitor | No |
+| Radiography Site Staff | No | Yes, as each authorized DICOM is available | Yes, authenticated `.dcm` attachment when active site/shift authorizes examination and operational need requires it | Processing/readiness status only via AI Results Status Monitor | No |
 | Doctor (Radiologist / Specialist) | No | Yes, for authorized study | Explicit, audited clinical need | If available | Own workflow |
 | Global Admin / Super Admin | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version and audit context |
 

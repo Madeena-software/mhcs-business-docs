@@ -156,7 +156,6 @@ Do not use the following as the default member-facing service name:
 * Pemeriksaan Radiografi
 * Sesi Pencitraan
 * Pemeriksaan Baru
-* Sesi Foto Radiografi
 * Foto Radiografi
 
 Formal clinical or technical documents may retain more precise terminology where required.
@@ -529,7 +528,7 @@ Approved example:
 
 Approved example:
 
-“Beri tahu operator apabila Anda sedang hamil, mungkin hamil, atau memiliki kondisi yang perlu dipertimbangkan sebelum sesi.”
+“Beri tahu Site Staff apabila Anda sedang hamil, mungkin hamil, atau memiliki kondisi yang perlu dipertimbangkan sebelum sesi.”
 
 Avoid vague descriptions such as:
 
@@ -1026,7 +1025,7 @@ Avoid:
 
 “Disarankan untuk mengulangnya.”
 
-## Staff-facing interfaces and permission terminology
+## Staff-facing interfaces and role terminology
 
 This document also governs staff-facing browser interfaces (Operator web application,
 temporary staff workspaces, and Unified Administration Panel). Staff-facing interfaces
@@ -1067,7 +1066,7 @@ The approved terms for doctor roles and clinical workflows are:
 | Concept | Bahasa Indonesia UI label |
 |---|---|
 | Unified Administration Panel | Panel Administrasi Terpadu |
-| Staff Permission Management | Manajemen Izin Staf |
+| Staff Role and Eligibility Management | Manajemen Peran dan Kelayakan Staf |
 | Site Master Data | Data Master Lokasi |
 | Shift Schedule | Jadwal Shift |
 | Financial & Payment Monitoring | Pemantauan Keuangan & Pembayaran |

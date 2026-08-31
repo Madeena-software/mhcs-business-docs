@@ -44,7 +44,7 @@
           </div>
           <div class="flow-step step-decision">
             <span class="step-label">Account gate</span>
-            <h3>Are identity, permission, assignment, site, and time valid?</h3>
+            <h3>Are identity, role eligibility, assignment, site, and time valid?</h3>
             <div class="branch-grid">
               <div class="branch"><strong>No</strong><span>Inactive or unassigned staff must contact an administrator.</span></div>
               <div class="branch"><strong>Yes</strong><span>Accept the offer and open the temporary Site Workspace for the assigned task.</span></div>
@@ -52,7 +52,7 @@
           </div>
           <div class="flow-step step-system">
             <span class="step-label">Work context</span>
-            <h3>Work only within an assigned permission</h3>
+            <h3>Work only within an assigned role and eligibility scope</h3>
             <p>Reception / Registration, Basic Examination, and Radiography are independently assignable Site Staff roles. Station selection cannot grant or elevate a role.</p>
           </div>
           <div class="flow-step step-action">
@@ -179,7 +179,7 @@
           <div class="flow-step step-action">
             <span class="step-label">Monitor & Print</span>
           <h3>Desk lookup and optional physical printout</h3>
-            <p>Access published results via the AI Results Status Monitor for patient inquiries and optional on-demand printing.</p>
+            <p>Check processing and readiness status via the AI Results Status Monitor for patient inquiries; clinical AI-result content remains outside non-clinical Site Staff access.</p>
           </div>
           <div class="flow-step step-success">
             <span class="step-label">Complete</span>
@@ -194,7 +194,7 @@
         </div>
         <p class="restriction">
           Site Staff restriction: no patient data on the LCD, no unassigned patient record browsing, no doctor reports,
-          and no raw NPZ. Authenticated Site Staff whose active site, role, and current shift authorise the examination may
+          and no raw NPZ. Authenticated Radiography Site Staff whose active site, role, and current shift authorise the examination may
           view and download each returned raw DICOM as a standard `.dcm` attachment; it is not public and has no
           permanent public URL.
         </p>
