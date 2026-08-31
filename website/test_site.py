@@ -224,6 +224,10 @@ def main():
     assert all(stage in radiologist_source for stage in ("REVIEW", "QUALITY DECISION", "REPORT / REPEAT", "FINALIZE"))
 
     radiography_source = (ROOT / "infographics/actors/radiography/index.html").read_text(encoding="utf-8")
+    assert "radiography-map" in radiography_source
+    assert 'data-convergence="quality-review-to-submit"' in radiography_source
+    assert 'data-convergence-path="ok-to-submit"' in radiography_source
+    assert 'data-loop="capture-review"' in radiography_source
     assert 'data-branch="quality-review"' in radiography_source
     assert 'data-branch-path="retake"' in radiography_source
     assert 'data-branch-path="ok"' in radiography_source
@@ -232,6 +236,7 @@ def main():
     assert "RETAKE → OK" not in radiography_source
     assert radiography_source.count('data-stage="submit"') == 1
     assert radiography_source.index('data-branch="quality-review"') < radiography_source.index('data-stage="submit"')
+    assert radiography_source.index('data-stage="quality-review"') < radiography_source.index('data-branch="quality-review"')
 
     b2b_source = (ROOT / "infographics/actors/b2b-representative/index.html").read_text(encoding="utf-8")
     assert "Messaging" in b2b_source

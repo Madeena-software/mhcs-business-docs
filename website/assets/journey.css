@@ -829,6 +829,15 @@ h1 {
 .journey-branch { display: grid; grid-column: 3 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: -2rem; padding-top: 2.5rem; border-top: 2px dashed #c58c32; }
 .journey-branch .journey-node::before { position: absolute; top: -2.7rem; left: 50%; color: #c58c32; content: "↘"; font-size: 1.5rem; }
 .journey-branch .journey-node:not(:last-child)::after { display: none; }
+.radiography-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.radiography-map > .journey-node::after { display: none; }
+.radiography-map > [data-stage="claim"] { grid-column: 1; }
+.radiography-map > [data-stage="capture"] { grid-column: 2; }
+.radiography-map > [data-stage="quality-review"] { grid-column: 3; }
+.radiography-convergence { display: grid; grid-column: 1 / -1; gap: .8rem; justify-items: center; }
+.radiography-convergence .journey-branch { width: 100%; grid-column: auto; margin-top: 0; padding-top: 2rem; }
+.convergence-arrow { color: #9a620f; font-size: .8rem; font-weight: 900; letter-spacing: .1em; }
+.radiography-convergence > [data-stage="submit"] { width: min(18rem, 100%); }
 .callout-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
 .authority-callout, .outcome-node { padding: 1.2rem; border-radius: 1rem; }
 .authority-callout { border: 1px dashed #bd8730; background: #fff6e3; }
@@ -858,6 +867,8 @@ h1 {
 @media (max-width: 900px) {
   .infographic-page .hero { margin: -1.25rem -1rem 1.25rem; padding: 2.5rem 1rem; }
   .journey-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .radiography-map { grid-template-columns: 1fr; }
+  .radiography-map > [data-stage="claim"], .radiography-map > [data-stage="capture"], .radiography-map > [data-stage="quality-review"] { grid-column: 1; }
   .journey-node:not(:last-child)::after { top: auto; right: auto; bottom: -1.7rem; left: 50%; content: "↓"; }
   .journey-branch { grid-column: 1 / -1; margin-top: 0; }
   .actor-streams { grid-template-columns: 1fr; }.actor-streams::before { top: -1rem; right: 50%; bottom: 50%; left: auto; border-top: 0; border-left: 2px solid #a8cdb8; }.ecosystem-strip { grid-template-columns: 1fr; gap: .3rem; }
