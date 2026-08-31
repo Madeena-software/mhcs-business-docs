@@ -19,6 +19,18 @@ ACTOR_INFOGRAPHICS = (
     "authorized-specialist",
     "global-admin",
 )
+ACTOR_MARKERS = {
+    "member": ("Member", "Temporary Result Surface", "On-site / Physical", "No permanent Member portal/account"),
+    "b2b-representative": ("Authorized B2B Representative", "Messaging", "entitlement", "authorized changes", "reconcile usage"),
+    "site-staff": ("Site Staff", "Temporary Site Workspace", "accept or decline", "assignment-scoped", "earning status"),
+    "reception-registration": ("Reception / Registration", "booking", "identity", "consent", "ticket", "No clinical DICOM"),
+    "basic-examination": ("Basic Examination Site Staff", "measurements", "vitals", "structured assessment", "Radiography"),
+    "radiography": ("Radiography Site Staff", "Temporary Site Workspace", "capture", "review", "retake", "submit"),
+    "doctor": ("Doctor: Radiologist or Authorized Specialist", "Temporary Clinical / DICOM Workspace", "specialty", "qualification"),
+    "radiologist": ("Radiologist", "repeat_required", "controlled repeat", "replacement study", "finalize"),
+    "authorized-specialist": ("Authorized Specialist", "specialty-appropriate", "independent authorization", "Messaging"),
+    "global-admin": ("Global Admin / Super Admin", "Persistent Admin Web", "roles", "eligibility", "audit", "exceptions"),
+}
 PAGES = {
     "index.html": (
         "Indonesia-led healthcare orchestration",
@@ -149,6 +161,16 @@ def main():
         assert "HUMAN ACTIONS" in actor_source and "BOUNDARY" in actor_source and "HANDOFF / OUTCOME" in actor_source
         for component in ("visual-infographic", "who-card", "goal-card", "surface-band", "action-flow", "boundary-card", "outcome-card"):
             assert component in actor_source, (actor, component)
+        for marker in ACTOR_MARKERS[actor]:
+            assert marker in actor_source, (actor, marker)
+        for placeholder in (
+            "Actor / role identified by the page heading",
+            "Achieve the human outcome described for this actor or role",
+            "Messaging → assigned surface → outcome",
+            "Perform the scoped human action",
+            "Return the result or next action through the authorized handoff described below",
+        ):
+            assert placeholder not in actor_source, (actor, placeholder)
         assert any(surface in actor_source for surface in ("Messaging", "On-site / Physical", "Temporary Site Workspace", "Temporary Clinical / DICOM Workspace", "Persistent Admin Web")), actor
         actor_parser = PageParser()
         actor_parser.feed(actor_source)
