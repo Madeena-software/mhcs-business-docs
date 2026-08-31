@@ -28,7 +28,7 @@ ACTOR_MARKERS = {
     "radiography": ("Radiography Site Staff", "Temporary Site Workspace", "capture", "review", "retake", "submit"),
     "doctor": ("Doctor: Radiologist or Authorized Specialist", "Temporary Clinical / DICOM Workspace", "specialty", "qualification"),
     "radiologist": ("Radiologist", "repeat_required", "controlled repeat", "replacement study", "finalize"),
-    "authorized-specialist": ("Authorized Specialist", "specialty-appropriate", "independent authorization", "Messaging"),
+    "authorized-specialist": ("Authorized Specialist", "specialty-appropriate", "independent authorization", "Messaging → Temporary Clinical / DICOM Workspace → Messaging"),
     "global-admin": ("Global Admin / Super Admin", "Persistent Admin Web", "roles", "eligibility", "audit", "exceptions"),
 }
 PAGES = {
