@@ -21,13 +21,13 @@ ACTOR_INFOGRAPHICS = (
 )
 ACTOR_MARKERS = {
     "member": ("Member", "Temporary Result Surface", "On-site / Physical", "No permanent Member portal/account"),
-    "b2b-representative": ("Authorized B2B Representative", "Messaging", "entitlement", "authorized changes", "reconcile usage"),
-    "site-staff": ("Site Staff", "Temporary Site Workspace", "accept or decline", "assignment-scoped", "earning status"),
+    "b2b-representative": ("Authorized B2B Representative", "Messaging", "entitlement", "authorized changes", "RECONCILE"),
+    "site-staff": ("Site Staff", "Temporary Site Workspace", "accept or decline", "assignment", "COMPLETE"),
     "reception-registration": ("Reception / Registration", "booking", "identity", "consent", "ticket", "No clinical DICOM"),
     "basic-examination": ("Basic Examination Site Staff", "measurements", "vitals", "structured assessment", "Radiography"),
     "radiography": ("Radiography Site Staff", "Temporary Site Workspace", "capture", "review", "retake", "submit"),
     "doctor": ("Doctor: Radiologist or Authorized Specialist", "Temporary Clinical / DICOM Workspace", "specialty", "qualification"),
-    "radiologist": ("Radiologist", "repeat_required", "controlled repeat", "replacement study", "finalize"),
+    "radiologist": ("Radiologist", "repeat_required", "REPORT / REPEAT", "controlled reason", "finalize"),
     "authorized-specialist": ("Authorized Specialist", "specialty-appropriate", "independent authorization", "Messaging → Temporary Clinical / DICOM Workspace → Messaging"),
     "global-admin": ("Global Admin / Super Admin", "Persistent Admin Web", "roles", "eligibility", "audit", "exceptions"),
 }
@@ -55,15 +55,17 @@ PAGES = {
     "journeys/admin/index.html": ("Global Admin / Super Admin", "Persistent Admin Web", "Suspend or resume payout processing", "identity and access exceptions"),
     "bpmn/index.html": ("Technical BPMN", "All journeys"),
     "infographics/index.html": (
-        "Overall MHCS / All Actors",
+        "MHCS",
+        "Healthcare Orchestration",
+        "Persistent interaction",
         "Member",
-        "Authorized B2B Representative",
-        "Reception / Registration",
-        "Basic Examination",
-        "Radiography",
-        "Radiologist",
-        "Authorized Specialist",
+        "SITE STAFF",
+        "DOCTOR",
         "Global Admin / Super Admin",
+        "Temporary Result Surface",
+        "Temporary Site Workspace",
+        "Temporary Clinical / DICOM Workspace",
+        "Persistent Admin Web",
         "Interaction Surface legend",
     ),
     "concept/index.html": (
@@ -162,7 +164,7 @@ def main():
         for component in ("visual-infographic", "who-card", "goal-card", "surface-band", "action-flow", "boundary-card", "outcome-card"):
             assert component in actor_source, (actor, component)
         for marker in ACTOR_MARKERS[actor]:
-            assert marker in actor_source, (actor, marker)
+            assert marker.lower() in actor_source.lower(), (actor, marker)
         for placeholder in (
             "Actor / role identified by the page heading",
             "Achieve the human outcome described for this actor or role",
@@ -182,6 +184,39 @@ def main():
             if target.is_dir() or parts.path.endswith("/"):
                 target /= "index.html"
             assert target.is_file(), (actor, link)
+
+        assert "One authorized person, one scoped outcome" not in actor_source
+        assert "Visible handoff" not in actor_source
+        assert "Scoped activity" not in actor_source
+
+    overall = infographic_source
+    for marker in (
+        "orchestration-core", "messaging-hub", "actor-streams", "MEMBER",
+        "SITE STAFF", "DOCTOR", "GLOBAL ADMIN / SUPER ADMIN",
+        "Temporary Result Surface", "Temporary Site Workspace",
+        "Temporary Clinical / DICOM Workspace", "Persistent Admin Web",
+    ):
+        assert marker in overall, marker
+    assert "01 · OFFER" not in overall
+
+    member_source = (ROOT / "infographics/actors/member/index.html").read_text(encoding="utf-8")
+    assert all(stage in member_source for stage in ("COORDINATE", "ATTEND", "RESULT", "NEXT ACTION"))
+    assert "01 · OFFER" not in member_source
+
+    admin_source = (ROOT / "infographics/actors/global-admin/index.html").read_text(encoding="utf-8")
+    assert "Persistent Admin Web → Persistent Admin Web" not in admin_source
+    assert "01 · OFFER" not in admin_source
+
+    radiologist_source = (ROOT / "infographics/actors/radiologist/index.html").read_text(encoding="utf-8")
+    assert all(stage in radiologist_source for stage in ("REVIEW", "QUALITY DECISION", "REPORT / REPEAT", "FINALIZE"))
+
+    radiography_source = (ROOT / "infographics/actors/radiography/index.html").read_text(encoding="utf-8")
+    assert 'data-branch="quality-review"' in radiography_source
+    assert 'data-branch-path="retake"' in radiography_source
+    assert 'data-branch-path="ok"' in radiography_source
+    assert "Capture / review again" in radiography_source
+    assert "OK</span><strong>Submit" in radiography_source
+    assert "RETAKE → OK" not in radiography_source
 
     landing = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "permissioned" not in landing.lower()
