@@ -185,6 +185,18 @@ def main():
                 target /= "index.html"
             assert target.is_file(), (actor, link)
 
+    role_visuals = {
+        "member": "member", "b2b-representative": "b2b",
+        "site-staff": "site-staff", "reception-registration": "reception",
+        "basic-examination": "basic", "radiography": "radiography",
+        "doctor": "doctor", "radiologist": "radiologist",
+        "authorized-specialist": "specialist", "global-admin": "admin",
+    }
+    for actor, role in role_visuals.items():
+        actor_source = (ROOT / f"infographics/actors/{actor}/index.html").read_text(encoding="utf-8")
+        assert f'data-role="{role}"' in actor_source
+        assert 'class="actor-illustration"' in actor_source
+
         assert "One authorized person, one scoped outcome" not in actor_source
         assert "Visible handoff" not in actor_source
         assert "Scoped activity" not in actor_source
@@ -195,6 +207,7 @@ def main():
         "SITE STAFF", "DOCTOR", "GLOBAL ADMIN / SUPER ADMIN",
         "Temporary Result Surface", "Temporary Site Workspace",
         "Temporary Clinical / DICOM Workspace", "Persistent Admin Web",
+        "AUTHORIZED B2B REPRESENTATIVE",
     ):
         assert marker in overall, marker
     assert "01 · OFFER" not in overall
@@ -215,8 +228,15 @@ def main():
     assert 'data-branch-path="retake"' in radiography_source
     assert 'data-branch-path="ok"' in radiography_source
     assert "Capture / review again" in radiography_source
-    assert "OK</span><strong>Submit" in radiography_source
+    assert "OK</span><strong>Continue to SUBMIT" in radiography_source
     assert "RETAKE → OK" not in radiography_source
+    assert radiography_source.count('data-stage="submit"') == 1
+    assert radiography_source.index('data-branch="quality-review"') < radiography_source.index('data-stage="submit"')
+
+    b2b_source = (ROOT / "infographics/actors/b2b-representative/index.html").read_text(encoding="utf-8")
+    assert "Messaging" in b2b_source
+    assert "Temporary Site Workspace" not in b2b_source
+    assert "On-site / Physical" not in b2b_source
 
     landing = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "permissioned" not in landing.lower()
