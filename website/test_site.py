@@ -147,6 +147,8 @@ def main():
         assert "Actor Journeys" in actor_source
         assert "Goal:" in actor_source and "INTERACTION SURFACE" in actor_source
         assert "HUMAN ACTIONS" in actor_source and "BOUNDARY" in actor_source and "HANDOFF / OUTCOME" in actor_source
+        for component in ("visual-infographic", "who-card", "goal-card", "surface-band", "action-flow", "boundary-card", "outcome-card"):
+            assert component in actor_source, (actor, component)
         assert any(surface in actor_source for surface in ("Messaging", "On-site / Physical", "Temporary Site Workspace", "Temporary Clinical / DICOM Workspace", "Persistent Admin Web")), actor
         actor_parser = PageParser()
         actor_parser.feed(actor_source)
