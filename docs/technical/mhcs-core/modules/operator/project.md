@@ -18,8 +18,8 @@ through WhatsApp-dispatched temporary Site Workspaces. It
 owns physical-site master data, Site Staff accounts and assignments, arrivals,
 TU identity-verification and consent-confirmation workflows, the staged operational
 queue, basic examination & vital signs capture, examination execution, session-only NPZ drafts, submission
-to Image Gateway, the public queue display, read-only AI result monitoring, operator earnings,
-and operator payouts.
+to Image Gateway, the public queue display, read-only AI result monitoring, Site Staff earnings,
+and Site Staff payouts.
 
 Operator Core does not model a separate project entity. Sites, shifts,
 bookings, queue items, and examinations provide the required business context.
@@ -83,7 +83,7 @@ Gateway worker crosses the separate private MPIPS boundary.
 Operator Core is the source authority for MHCS physical sites and the FHIR
 `Organization` and `Location` records that identify them. A global
 Global Admin / Super Admin creates and updates site identity, address, time zone,
-operational status, and operator authorization.
+operational status, and Site Staff authorization.
 
 The Member module references stable site identifiers and owns the booking catalogue,
 shifts, quotas, prices, and `ServiceRequest` associated with each site. It cannot
@@ -111,7 +111,7 @@ Staffing is demand-triggered:
 2. At five confirmed bookings, the Member module emits an idempotent `shift_eligible`
    domain event for the Operator module.
 3. Global Admin / Super Admin assigns one or more Site Staff members to the
-   shift manually or initiates the **Automated Sequential Operator Assignment** workflow.
+   shift manually or initiates the sequential Site Staff assignment workflow.
 4. When sequential assignment is active, invitation offers are dispatched one
    candidate at a time based on the configured sequence.
 5. Candidates receive a minimal operational offer in WhatsApp with a response
@@ -127,7 +127,7 @@ Staffing is demand-triggered:
    Atomic claims ensure that only one staff member handles a ticket stage at a time.
 
 Site schedules do not overlap and include an operational gap, so Operator Core
-does not merge tickets between shifts. Multiple assigned operators may serve
+does not merge tickets between shifts. Multiple assigned Site Staff members may serve
 different patients or stages concurrently.
 
 ## Attendance and TU identity verification
@@ -148,7 +148,7 @@ Site Staff holding the Reception / Registration role perform front-desk verifica
 5. Confirm that the member has read and signed the applicable paper informed
    consent (recorded strictly once at the start of the visit).
 6. Record the consent form version, signer, signature-confirmation time,
-   responsible operator, and required private scan through Member Core.
+   responsible Site Staff member, and required private scan through Member Core.
 7. Mark the booking `checked_in` and issue one site-and-shift ticket only after
    successful verification and consent confirmation, then trigger paper ticket printing
    via the web print dialog (`window.print()`). The printed thermal slip contains only
@@ -264,7 +264,7 @@ Operator Core snapshots the active protocol version when the examination starts.
 
 The assigned Site Staff member may correct an incorrect requested body part or laterality before
 submission without Global Admin / Super Admin approval. The correction requires a reason,
-operator identity, and timestamp and must succeed through the Member module
+Site Staff identity, and timestamp and must succeed through the Member module
 before the examination continues.
 
 ## NPZ draft and submission flow
@@ -324,7 +324,7 @@ inquiries. Non-clinical Site Staff do not search or view clinical AI-result cont
 Operator Core records only:
 
 - the AI readiness/status version checked;
-- the responsible operator and desk station;
+- the responsible Site Staff member and desk station;
 - occurrence times; and
 - WhatsApp notification, secure temporary result-link, and/or print delivery status.
 
@@ -349,7 +349,7 @@ a clinical repeat. The repeat flow is:
 
 Controlled Doctor Core preliminary reasons (`operator_error`, `equipment_failure`,
 `incorrect_order`, `medical_limitation`, `other`) remain clinical source evidence
-and do not change already completed Operator stage earnings.
+and do not change already completed Site Staff stage earnings.
 
 ## Read-only image access
 
@@ -366,9 +366,9 @@ The Operator Core DICOM viewer is read-only:
   examination may view and download each returned raw DICOM as a standard
   authenticated `.dcm` attachment.
 
-## Operator earnings
+## Site Staff earnings
 
-Operator earnings are ordinary Operator Core financial records denominated in
+Site Staff earnings are ordinary Operator Core financial records denominated in
 Indonesian rupiah. They are not Madeena Points and are not FHIR resources.
 
 Stage earning rules:
@@ -382,10 +382,10 @@ Stage earning rules:
 - **Later repeat or doctor decision:** never cancels or revalues an already
   completed stage earning.
 
-## Automated operator payouts
+## Automated Site Staff payouts
 
 Operator Core automatically initiates an IDR transfer as soon as an earning
-becomes eligible via its payment-gateway adapter. Operators enter and manage
+becomes eligible via its payment-gateway adapter. Site Staff members enter and manage
 their own bank-account destination through an approved secure authentication flow;
 the exact re-authentication mechanism remains open.
 
@@ -394,7 +394,7 @@ earning.
 
 ## Cash closing
 
-Operator Core submits the operator-counted cash total to Member Core after the
+Operator Core submits the Site Staff-counted cash total to Member Core after the
 accepted queue is complete and all cash collections are final. Member Core
 compares it with its cash ledger, closing as `reconciled` or `reconciliation_required`.
 
@@ -405,7 +405,7 @@ Global Admin / Super Admin manages:
 - Site Staff accounts, activation, suspension, and role assignment (Reception / Registration,
   Basic Examination, Radiography);
 - physical sites and operational status;
-- multi-operator shift assignments;
+- multi-Site Staff shift assignments;
 - protocol templates and service-to-projection mappings;
 - site-and-service basic examination and X-ray stage earning rates;
 - display pairing revocation;
@@ -466,7 +466,7 @@ The following decisions are intentionally unresolved by current human authority:
 1. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
 2. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
 3. **Grabber NPZ Schema:** Representative NPZ schema, dimensions, and safe parsing limits.
-4. **Payment Gateway Integration:** Payment provider adapter, account verification, transfer schemas, and fee contracts for operator payouts.
+4. **Payment Gateway Integration:** Payment provider adapter, account verification, transfer schemas, and fee contracts for Site Staff payouts.
 5. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, and Radiography Site Staff.
-6. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
+6. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the Reception / Registration station (`TU` compatibility label).
 7. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.

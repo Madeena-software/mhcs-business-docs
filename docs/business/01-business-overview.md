@@ -20,9 +20,9 @@ booking coordination remain available through the WhatsApp channel.
 | 7 | Image Gateway and processing services | Convert and process the submitted image set under the controlled Image Gateway and MPIPS boundary. |
 | 8 | Image Gateway and Member Core | When processing is complete, make the result and complete image set available under Member and Doctor publication rules. |
 | 9 | AI service | Run the selected AI analysis and publish its result for the applicable Member and operational status flows. |
-| 12 | Member module | After a result is finalized, notify the member through WhatsApp and issue a secure temporary result link to a task-specific result web surface when required, or use another approved delivery path. This surface is not a Member Portal and does not create a persistent member login. |
-| 13 | Member | If desired, independently request and fund later doctor review coordinated through the WhatsApp channel; Operator Core does not create the add-on. |
-| 14 | Doctor Core and Doctor | For a selected doctor service, route, claim, review, and report under the appropriate clinical workflow (radiologist or authorized non-radiologist specialist). |
+| 10 | Member module | After a result is finalized, notify the member through WhatsApp and issue a secure temporary result link to a task-specific result web surface when required, or use another approved delivery path. This surface is not a Member Portal and does not create a persistent member login. |
+| 11 | Member | If desired, independently request and fund later doctor review coordinated through the WhatsApp channel; Operator Core does not create the add-on. |
+| 12 | Doctor Core and Doctor | For a selected doctor service, route, claim, review, and report under the appropriate clinical workflow (radiologist or authorized non-radiologist specialist). |
 
 Each MHCS Core module has a distinct business responsibility. Image Gateway stores
 each clinical file once and shares it through controlled references instead of
@@ -251,12 +251,12 @@ to the technical specifications.
 |---|---|---|
 | B2B member entitlement | Member Core | Central agreement provisions member entitlements; tracked in Member Core financial records. |
 | B2C member charge | Member Core | Member booking coordination completed via WhatsApp; payment tracked before visit confirmation. |
-| Operator basic exam earning | Operator Core | Basic examination completion triggers configured stage rate for the performing worker. |
-| Operator X-ray earning | Operator Core | Image Gateway acceptance triggers the configured stage rate for the submitting worker. |
+| Site Staff basic-examination earning | Operator Core | Basic examination completion triggers the configured stage rate for the performing Site Staff member. |
+| Site Staff radiography earning | Operator Core | Image Gateway acceptance triggers the configured stage rate for the submitting Site Staff member. |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms creation of doctor-requested repeat entitlement: 25% of snapshotted final-report rate. |
 | Doctor final-report earning | Doctor Core | Signing doctor submits completed report: 100% of snapshotted final-report rate. |
 
-Each operator stage is independently eligible. Doctor queue entry does not affect operator earnings.
+Each Site Staff stage is independently eligible. Doctor queue entry does not affect Site Staff earnings.
 Doctor earnings enter automated daily payouts with no minimum positive balance.
 
 ## 5. Service completion and glossary
@@ -314,7 +314,7 @@ remain open design decisions:
 5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link, session/authentication, disclosure, retention, and fallback mechanics; the result surface must remain task-specific and must not become a persistent Member Portal.
-8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
+8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the Reception / Registration station (`TU` compatibility label).
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, Radiography Site Staff, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
 11. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.

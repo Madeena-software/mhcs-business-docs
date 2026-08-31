@@ -459,7 +459,7 @@ def main():
         ).read_text(encoding="utf-8").split()
     )
     for contract in (
-        "Multiple assigned operators may serve different patients or stages concurrently.",
+        "Multiple assigned Site Staff members may serve different patients or stages concurrently.",
         "a competing claim fails",
         "Each stage uses FIFO by its own ready time.",
         "issue one site-and-shift ticket only after",

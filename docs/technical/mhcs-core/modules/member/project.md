@@ -32,7 +32,7 @@ This module is the technical authority for [Member stories](../../../../business
 Member Core is the backend domain authority for:
 
 - member healthcare identity and the globally unique MHCS medical-record number (MRN);
-- member registration and demographics, including operator-assisted on-site walk-ins;
+- member registration and demographics, including Site Staff-assisted on-site walk-ins;
 - conceptual separation of Requester/contact, Payer, Subject of care, Guardian, and Result recipient;
 - examination sites, service offerings, schedules, and bookings;
 - B2B and B2C booking authority and coordination via the WhatsApp channel;
@@ -48,7 +48,7 @@ persistent Member interaction and orchestration channel; Members may open a secu
 temporary result surface when required.
 
 Member Core does not own front-desk queues, image capture, raw NPZ, permanent
-DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
+DICOM storage, AI execution, doctor work queues, or Site Staff/Doctor earnings.
 
 ## Users and admin panel
 
@@ -57,7 +57,7 @@ DICOM storage, AI execution, doctor work queues, or operator/doctor earnings.
   Panel (e.g. at `/admin`).
 - The admin panel manages member records, service offerings, schedules, B2B and B2C
   bookings, payment statuses, promotions, and settings.
-- Operator features use the authenticated MHCS Core staff user, role, and active
+- Site Staff features use the authenticated MHCS Core staff user, role, and active
   site context. No separate member web login is required or supported.
 
 ## Identity and relationship model
@@ -87,7 +87,7 @@ Identifiers have distinct purposes:
 A booking code received by a member is a reservation locator used for on-site lookup.
 It is **not** sufficient proof of patient identity.
 
-Official identity verification is a mandatory on-site TU workflow:
+Official identity verification is a mandatory on-site Reception / Registration workflow:
 
 1. The patient presents the approved physical identity evidence required by the current verification procedure.
 2. Reception / Registration Site Staff performs the approved minimum comparison against Member Core verification records.
@@ -99,7 +99,7 @@ Official identity verification is a mandatory on-site TU workflow:
 To protect member privacy and comply with healthcare data protection principles:
 
 - Sensitive official identity documents (such as KTP/KIA/KK scans) are **never** requested, transmitted, or collected via ordinary WhatsApp chat.
-- Identity document scans are captured and verified exclusively on-site at the TU station or via secure administrative verification procedures.
+- Identity document scans are captured and verified exclusively on-site at the Reception / Registration station or via secure administrative verification procedures.
 
 ### Children and guardians
 
@@ -151,13 +151,11 @@ Business Customer; the representative does not gain authority beyond the agreeme
 
 ### B2C cancellation and postponement
 
-- A Global Admin / Super Admin-configured cancellation cutoff applies to B2C bookings.
-- A member may cancel before the cutoff via WhatsApp according to the configured
-  refund policy.
-- At or after the cutoff, member cancellation is rejected. A no-show forfeits
-  booking fees because operator capacity has already been committed.
-- If MHCS or the examination site cancels or postpones, the member receives
-  full reimbursement or a rescheduled replacement.
+Member Core enforces the active approved B2C cancellation, rescheduling, and
+refund policy. Requests and outcomes are recorded and auditable. Exact cutoffs,
+refund amounts or fees, no-show treatment, and settlement mechanics remain open
+where the business authority has not decided them; this specification does not
+create or imply a commercial outcome.
 
 ### Family participation
 
@@ -459,7 +457,7 @@ erDiagram
 - A doctor-requested repeat entitlement is zero-cost, doctor-only, linked to the original booking and study, and allows the member to choose any compatible site and shift via WhatsApp.
 - Every booking preserves B2B or B2C authority and financial provenance.
 - Booking status events retain source, occurrence time, receipt time, and idempotency key.
-- Examination consent and basic examination assessments are timestamped history linked to member, booking, site, and responsible operator. Corrections create a new row through `supersedes_id`.
+- Examination consent and basic examination assessments are timestamped history linked to member, booking, site, and responsible Site Staff member. Corrections create a new row through `supersedes_id`.
 
 ## Booking states
 
@@ -514,7 +512,7 @@ Member Core atomically creates:
 The command and Doctor module's 25% repeat-assessment earning commit atomically.
 Member Core coordinates repeat scheduling with the member via WhatsApp.
 
-## Operator attendance and lookup application contract
+## Site Staff attendance and lookup application contract
 
 The Operator module queries Member Core for eligible attendance:
 
@@ -524,9 +522,9 @@ The Operator module queries Member Core for eligible attendance:
 - The attendance list exposes only masked NIK and booking code.
 - Reception / Registration Site Staff may enter the booking code and the minimum additional identifier permitted by the approved verification procedure.
 - Email, phone, address, and financial details are not exposed to Site Staff.
-- Every lookup is audited with operator, booking, site, and purpose.
+- Every lookup is audited with the responsible Site Staff member, booking, site, and purpose.
 
-## Operator-assisted walk-in application contract
+## Site Staff-assisted walk-in application contract
 
 Site Staff holding the Reception / Registration role creates a walk-in through
 one idempotent application operation:
@@ -543,7 +541,7 @@ No member login credentials or temporary passwords are created.
 
 ## Arrival identity verification
 
-At the TU station:
+At the Reception / Registration station (`TU` compatibility label):
 
 1. Patient presents the booking code and the approved identity evidence required by the current procedure.
 2. Reception / Registration Site Staff opens the short-lived verification view.
@@ -555,10 +553,10 @@ At the TU station:
 
 Informed consent is confirmed on paper strictly once per visit at front-desk check-in.
 Before ticket issuance, Member Core records the consent form version, signer, signature
-confirmation, signing time, responsible operator, site, booking, and required private scan.
+confirmation, signing time, responsible Site Staff member, site, booking, and required private scan.
 Downstream stations reuse this visit consent confirmation.
 
-## Operator cash-closing application contract
+## Site Staff cash-closing application contract
 
 After ending operational work, the Operator module submits counted cash.
 Member Core compares it against expected cash from on-site collections and returns
@@ -627,7 +625,7 @@ Member Core satisfies this specification when:
 - [ ] Member records are created without requiring `users` login account linkages.
 - [ ] Conceptual separation of Requester, Payer, Subject of care, Guardian, and Result recipient is maintained.
 - [ ] Booking code functions as a reservation locator and does not bypass on-site official identity verification.
-- [ ] On-site TU check-in verifies approved identity evidence and required comparison before changing booking to `checked_in`.
+- [ ] Reception / Registration Site Staff check-in verifies approved identity evidence and required comparison before changing booking to `checked_in`.
 - [ ] No sensitive identity documents are requested or collected via WhatsApp chat.
 - [ ] Repeat entitlements create zero-cost, doctor-only bookings coordinated via WhatsApp.
 - [ ] Walk-in creation completes registration, booking, and order without generating member passwords.
@@ -649,7 +647,7 @@ The following decisions are intentionally unresolved by current human authority:
 7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link,
    session/authentication, disclosure, retention, and fallback mechanics; the result
    surface must remain task-specific and must not become a persistent Member Portal.
-8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
+8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the Reception / Registration station (`TU` compatibility label).
 9. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.
 
 ## Standards references
