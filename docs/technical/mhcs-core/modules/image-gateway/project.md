@@ -7,6 +7,10 @@ This document defines the Image Gateway module in the approved `mhcs-core`
 modular application. The overall repository and runtime boundary is defined by the
 [MHCS Core architecture](../../project.md).
 
+## Business Traceability
+
+This module is the technical authority for the complete-set handoff and result-publication responsibilities in [System Responsibilities](../../../../business/03-system-responsibilities.md#image-gateway), supporting [Radiography story US-STAFF-RAD-002](../../../../business/02-user-stories.md#site-staff--radiography) and [Member story US-MEMBER-003](../../../../business/02-user-stories.md#member). MPIPS remains the separate technical conversion boundary.
+
 ## Purpose
 
 Image Gateway is the controlled module between operational capture, permanent
@@ -47,7 +51,7 @@ The Image Gateway module receives:
 - a frozen member/examination metadata snapshot;
 - the globally unique medical-record ID;
 - organization and examination identity; and
-- traceability information for the submitting operator.
+- traceability information for the submitting Radiography Site Staff member.
 
 Durable acceptance of the complete set is the event that allows the Operator
 module to complete the X-ray stage and move the ticket to asynchronous AI
@@ -92,7 +96,7 @@ The examination image set is complete only when every submitted capture has
 successfully produced DICOM.
 
 As each capture successfully produces DICOM, Image Gateway makes that individual
-study available as an authorized reference to any authenticated Operator whose
+study available as an authorized reference to any authenticated Radiography Site Staff member whose
 active site and current shift authorize the examination. This partial
 availability never exposes raw NPZ and does not make the result available to a
 Member or Doctor.
@@ -131,10 +135,11 @@ when legally required. The action must be fully audited.
 - Member, Operator, and Doctor modules receive references rather than
   permanent file copies.
 - Temporary authorized links protect image access, except the standard
-  authenticated Operator raw-DICOM attachment download defined below.
-- Members receive member-safe result delivery coordinated via WhatsApp; they do
+  authenticated Radiography Site Staff raw-DICOM attachment download defined below.
+- Members receive member-safe result notification coordinated via WhatsApp and a
+  secure temporary result surface when richer content is needed; they do
   not download raw DICOM.
-- Any authenticated Operator whose active site and current shift authorize the
+- Any authenticated Radiography Site Staff member whose active site and current shift authorize the
   examination may view and explicitly download each returned raw DICOM as a
   standard authenticated `.dcm` attachment. Operators never download raw NPZ.
 - Authorized doctors may explicitly download raw DICOM when clinically

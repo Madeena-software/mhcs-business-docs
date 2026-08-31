@@ -156,8 +156,8 @@ Do not use the following as the default member-facing service name:
 * Pemeriksaan Radiografi
 * Sesi Pencitraan
 * Pemeriksaan Baru
-* Sesi X-ray
-* Foto X-ray
+* Sesi Foto Radiografi
+* Foto Radiografi
 
 Formal clinical or technical documents may retain more precise terminology where required.
 
@@ -208,7 +208,7 @@ Use the approved radiography terminology instead:
 * Gambar Radiografi
 * Proses Radiografi
 * Ruang Foto Radiografi
-* Operator Radiografi
+* Site Staff Radiografi
 
 This rule applies to MHCS-authored content in:
 

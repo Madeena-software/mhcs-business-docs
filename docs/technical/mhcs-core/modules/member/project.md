@@ -9,6 +9,10 @@ application. It defines the expected state that creation and implementation
 work must move toward. The overall runtime and repository boundary is defined
 by the [MHCS Core architecture](../../project.md).
 
+## Business Traceability
+
+This module is the technical authority for [Member stories](../../../../business/02-user-stories.md#member) and the Member Core responsibilities in [System Responsibilities](../../../../business/03-system-responsibilities.md#member-core): booking and relationship roles, approved attendance/identity handoff, Messaging notifications, optional doctor-review coordination, repeat entitlements, and temporary secure result-surface delivery.
+
 ## Agent rules
 
 - Treat every requirement in this document as the expected state that the
@@ -86,9 +90,9 @@ It is **not** sufficient proof of patient identity.
 Official identity verification is a mandatory on-site TU workflow:
 
 1. The patient presents the approved physical identity evidence required by the current verification procedure.
-2. The TU operator performs the approved minimum comparison against Member Core verification records.
+2. Reception / Registration Site Staff performs the approved minimum comparison against Member Core verification records.
 3. Any face or photograph comparison occurs only if the approved procedure requires it.
-4. Only after positive document and face verification does the booking transition to `checked_in`.
+4. Only after positive approved identity verification does the booking transition to `checked_in`; photo/face comparison is used only when required by the approved procedure.
 
 ### WhatsApp chat privacy
 
@@ -159,10 +163,10 @@ labeled patient-reported until reviewed by an authorized doctor.
 
 ## Organization and examination-site rule
 
-Every schedule and booking belongs to one examination site operated by an Operator
-Core organization.
+Every schedule and booking belongs to one examination site operated by an Operator Core
+organization.
 
-A site must not have overlapping active shift schedules. The authenticated operator
+A site must not have overlapping active shift schedules. The authenticated Site Staff
 session determines organization and active site, preventing cross-site attendance
 leakage.
 
@@ -510,11 +514,11 @@ Member Core coordinates repeat scheduling with the member via WhatsApp.
 The Operator module queries Member Core for eligible attendance:
 
 - `at` timestamp is normalized to UTC.
-- Authenticated operator session determines organization and active site.
+- Authenticated Site Staff session determines organization and active site.
 - Returns confirmed, paid, non-cancelled bookings for the schedule.
 - The attendance list exposes only masked NIK and booking code.
-- Operator may enter the booking code and the minimum additional identifier permitted by the approved verification procedure.
-- Email, phone, address, and financial details are not exposed to the operator.
+- Reception / Registration Site Staff may enter the booking code and the minimum additional identifier permitted by the approved verification procedure.
+- Email, phone, address, and financial details are not exposed to Site Staff.
 - Every lookup is audited with operator, booking, site, and purpose.
 
 ## Operator-assisted walk-in application contract
@@ -537,8 +541,8 @@ No member login credentials or temporary passwords are created.
 At the TU station:
 
 1. Patient presents the booking code and the approved identity evidence required by the current procedure.
-2. TU operator opens short-lived verification view.
-3. Operator applies the approved minimum comparison using protected Member Core records.
+2. Reception / Registration Site Staff opens the short-lived verification view.
+3. Reception / Registration Site Staff applies the approved minimum comparison using protected Member Core records.
 4. Positive match changes booking to `checked_in`.
 5. Mismatch blocks queue entry and opens an administrative exception.
 

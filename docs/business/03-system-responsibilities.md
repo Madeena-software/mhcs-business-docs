@@ -27,6 +27,31 @@ Detailed foundations:
 - [MPIPS additions required by MHCS](../technical/mpips/project.md)
 - [Doctor module](../technical/mhcs-core/modules/doctor/project.md)
 
+## Business-to-technical traceability
+
+The business story remains the authority for human intent. This map records
+the corresponding system responsibility and the technical specification that
+defines its implementation boundary.
+
+| User Story / Business Rule | System Responsibility | Owner | Technical Authority |
+|---|---|---|---|
+| [US-MEMBER-001](02-user-stories.md#member) booking and coordination | Maintain B2B/B2C booking, requester/payer/subject relationships, and Messaging coordination | Member Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-MEMBER-002](02-user-stories.md#member) approved attendance and identity verification | Supply authorized attendance lookup; perform approved on-site verification before check-in | Member Core + Operator Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-STAFF-SHARED-001](02-user-stories.md#site-staff--shared) eligible work dispatch | Determine role/eligibility/assignment scope and dispatch work offers | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-REG-002](02-user-stories.md#site-staff--reception--registration) consent and ticket handoff | Record one consent confirmation and issue the visit ticket | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-EXAM-001](02-user-stories.md#site-staff--basic-examination) basic examination | Own the basic-examination stage, queue claim, capture, and release | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-RAD-002](02-user-stories.md#site-staff--radiography) complete image submission | Accept the complete patient-free capture set and hand it to Image Gateway | Operator Core → Image Gateway | [Image Gateway specification](../technical/mhcs-core/modules/image-gateway/project.md#business-traceability) |
+| [US-MEMBER-003](02-user-stories.md#member) result publication | Notify through Messaging and offer a temporary secure result surface when needed | Member Core + Image Gateway | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability); [Image Gateway specification](../technical/mhcs-core/modules/image-gateway/project.md#business-traceability) |
+| [US-DOCTOR-RAD-002](02-user-stories.md#doctor--radiologist) controlled repeat | Record the radiologist's clinical decision and create a linked repeat handoff | Doctor Core + Member Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-RAD-003](02-user-stories.md#doctor--radiologist) report lifecycle | Own clinical authorship, finalization, correction/amendment, and publication handoff | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-SPECIALIST-001](02-user-stories.md#doctor--authorized-specialist) scoped specialist output | Enforce specialty/service/modality eligibility and differentiated clinical workflow | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-ADMIN-001](02-user-stories.md#global-admin--super-admin) and [US-ADMIN-004](02-user-stories.md#global-admin--super-admin) administration | Provide one presentation surface over domain-owned provisioning, configuration, audit, and exceptions | Unified Administration | [MHCS Core architecture](../technical/mhcs-core/project.md#business-traceability) |
+
+This bridge prevents technical module specifications from becoming an
+independent source of human requirements. Detailed mechanics remain in those
+technical authorities; unresolved commercial, identity, credential, and
+workspace-mechanism decisions remain open below.
+
 ## Member Core
 
 ### Owns
@@ -131,7 +156,7 @@ eligible. Asynchronous AI completion automatically marks the ticket as completed
 
 Grabber captures images and calibration input only. It may remain offline and
 produces patient-free radiograph NPZ captures plus the required gain NPZ. The
-operator opens MHCS Core on the Grabber computer and uploads the inputs into the
+Radiography Site Staff opens MHCS Core on the Grabber computer and uploads the inputs into the
 active examination.
 
 The Grabber computer is dedicated to authorized staff. Gain and calibration
@@ -159,7 +184,7 @@ data, create DICOM, or publish results.
 
 ### Completion boundary
 
-Each successful DICOM becomes available to an authenticated Operator whose
+Each successful DICOM becomes available to an authenticated Radiography Site Staff member whose
 active site and current shift authorize the examination. The complete image
 set is published to Member Core (for WhatsApp notification and temporary result-link delivery where appropriate) and Doctor Core only after
 every submitted radiograph NPZ has produced DICOM. Successful source components
@@ -246,12 +271,33 @@ modules.
 Gateway acceptance is the X-ray-stage earning trigger. DICOM completion and
 doctor-queue entry do not create additional operator earnings.
 
+## Business-policy classification
+
+Technical specifications may describe enforcement, but these policies are not
+silent technical inventions:
+
+| Policy | Classification | Business authority / status |
+|---|---|---|
+| Advance-booking threshold, booking quota, and walk-in quota | Configurable operating policy | Candidate defaults are documented in Operator Core; Product Authority may revise them. |
+| Sequential work-offer response timeout | Configurable operating policy | Candidate default is five minutes; exact operational setting remains configurable. |
+| B2B cancellation, reschedule, and no-show treatment | Business authority | Candidate B2B rule is business-funded, non-member-cancellable, and paid on no-show; exceptions require an official business request. |
+| B2C cancellation, deposit/full payment, and refunds | Open business decision | Provider, timing, fees, settlement, and refund policy remain unresolved. |
+| Stage and Doctor earning triggers/rates | Business authority with configured rates | Completion/acceptance/report events define eligibility; exact rates and payout mechanics remain configured/open where listed. |
+| Guardian and Result Recipient authority | Business authority with unresolved evidence mechanics | Relationships and member-safe access are distinct; evidence, legal-status transition, and delivery mechanics remain open. |
+| DICOM access | Business/security rule | Least-privilege access is role and assignment scoped; implementation/session mechanics remain technical authority. |
+
+This classification is the required bridge for technical-only operational rules:
+implementation specifications may enforce these decisions, but may not create
+new commercial, clinical, identity, or authorization policy without authority.
+
 ## Access map
 
 | User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
 | Member (WhatsApp channel) | No | Member-safe delivery | No | WhatsApp notification plus secure temporary result surface where appropriate | WhatsApp notification plus secure temporary result surface where appropriate |
-| Operator (`TU`, `Pemeriksaan Dasar`, `Radiografi`) | No | Yes, as each authorized DICOM is available | Yes, authenticated `.dcm` attachment when active site/shift authorizes examination | Read-only view via AI Results Status Monitor | No |
+| Reception / Registration Site Staff | No | Only the minimum member/booking information needed for check-in | No raw DICOM | No | No doctor report |
+| Basic Examination Site Staff | No | Only information needed for the assigned basic examination | No raw DICOM | No | No doctor report |
+| Radiography Site Staff | No | Authorized image view for the active assigned examination | Only where operationally required for the active assigned examination; authenticated attachment | No | No doctor report |
 | Doctor (Radiologist / Specialist) | No | Yes, for authorized study | Explicit, audited clinical need | If available | Own workflow |
 | Global Admin / Super Admin | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
 

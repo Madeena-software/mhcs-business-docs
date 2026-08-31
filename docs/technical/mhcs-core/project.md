@@ -28,6 +28,10 @@ the module relevant to its task:
 
 The old five-repository deployment model is superseded.
 
+## Business Traceability
+
+This architecture implements the bridge in [System Responsibilities](../../business/03-system-responsibilities.md#business-to-technical-traceability): Messaging is the persistent coordination layer, temporary Site and Clinical / DICOM Workspaces serve assigned work, Member Core owns member/result coordination, Operator Core owns Site Staff operations, Doctor Core owns clinical decisions, Image Gateway owns clinical binaries, and Unified Administration presents domain-owned administration.
+
 ## Human-facing surfaces
 
 The four distinct human-facing interaction surfaces are:

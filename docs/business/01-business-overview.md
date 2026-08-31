@@ -12,12 +12,12 @@ booking coordination remain available through the WhatsApp channel.
 | Step | Owner | Action and outcome |
 |---:|---|---|
 | 1 | Business or member, and Member Core | For B2B, MHCS provisions agreed members, services, locations, dates, shifts, and funding allocations. For B2C, WhatsApp is the persistent Member interaction and orchestration channel for booking and payment coordination; Members may open a secure temporary result surface when required. |
-| 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to the Operator module inside `mhcs-core`. |
+| 2 | Member module | The Member module provides authorized attendance, booking locator, and examination information to Operator Core inside `mhcs-core`. |
 | 3 | Site Staff — Reception / Registration | Site Staff holding the Reception / Registration role verifies the member's approved physical identity evidence against stored Member Core records, confirms registration, payment/eligibility, and signed paper consent. The booking code serves as a reservation locator and is not sufficient proof of identity. The staff member records consent version and signature metadata, then issues one site-and-shift ticket number and prints a paper queue ticket slip. Ticket numbers are managed on-site via paper slips. |
 | 4 | Site Staff — Basic Examination | Site Staff holding the Basic Examination role claims the next ready ticket, records required basic measurements, point-of-care blood screening, and structured interview, then releases the ticket to the X-ray queue. |
 | 5 | Site Staff — Radiography | Site Staff holding the Radiography role claims the next ready ticket. Offline-capable Grabber software creates patient-free radiograph NPZ captures and matching gain NPZ input; the staff member reviews the draft and may remove or retake captures. |
 | 6 | Operator Core | Submit the complete radiograph set with its matching gain input and a frozen member/examination snapshot. |
-| 7 | Image Gateway | Persist each source component, manifest, and signature privately. Once the complete source set is durable, atomically accept it and queue processing. Durable source acceptance completes the X-ray stage while the ticket waits for AI without occupying an operator station. |
+| 7 | Image Gateway | Persist each source component, manifest, and signature privately. Once the complete source set is durable, atomically accept it and queue processing. Durable source acceptance completes the radiography stage while the ticket waits for AI without occupying a Site Staff station. |
 | 8 | Image Gateway worker and MPIPS | For every capture, convert one radiograph NPZ plus its matching gain NPZ and signed DICOM manifest into one DICOM file asynchronously. |
 | 9 | Image Gateway | Preserve successful source components and returned DICOM files. Retry only failed or missing components, and make each successful returned DICOM available to an authorized Operator for the authorized examination. |
 | 10 | Image Gateway and Member Core | When every capture has produced DICOM, make the complete image set available under Member and Doctor publication rules. |
@@ -137,10 +137,10 @@ Basic examination completion makes the recorded worker's stage earning eligible.
 Gateway acceptance completes X-ray and makes the submitting worker's stage earning
 eligible. When AI completes asynchronously, the ticket automatically marks as completed.
 
-Operators see images and processing status. As each capture produces a valid DICOM,
-an authenticated Operator whose active site and current shift authorise that
-examination may view and explicitly download that raw DICOM as a standard
-authenticated `.dcm` attachment. Operators cannot browse unassigned patient records,
+Radiography Site Staff see images and processing status only for an active
+authorized assignment. Raw DICOM access is limited to Radiography Site Staff
+where operationally required; Reception / Registration and Basic Examination
+Site Staff have no raw-DICOM access. Site Staff cannot browse unassigned records,
 see doctor reports, or access raw NPZ.
 
 ### Grabber boundary
@@ -149,7 +149,7 @@ Grabber only captures images and calibration input. It may remain offline and
 produces patient-free radiograph NPZ captures plus the gain NPZ required by
 MPIPS.
 
-The operator opens MHCS Core from a dedicated Grabber computer restricted to
+Radiography Site Staff open MHCS Core from a dedicated Grabber computer restricted to
 authorised staff. Radiograph and gain remain separate NPZ inputs correlated by
 the frozen gain identity.
 
@@ -225,7 +225,7 @@ domains without introducing an artificial "Admin" business domain.
 | Radiography session | Undergo radiograph capture in the X-ray room. | Site Staff holding the Radiography role captures, reviews, and submits the NPZ set. Patient is free to leave after capture. |
 | Image processing | Wait while submitted captures are converted to DICOM and processed by AI asynchronously. | Image Gateway orchestrates MPIPS conversion and AI analysis. |
 | Result receipt | Receive a WhatsApp notification and open the secure temporary result link when a richer result surface is required. | Member Core authorizes a task-specific result surface for view/download; it is not a persistent Member Portal. |
-| Doctor review (if selected) | Receive clinical report notification via WhatsApp when doctor review completes. | Member Core delivers the doctor conclusion and recommendations via WhatsApp. |
+| Doctor review (if selected) | Receive a doctor-review completion notification via WhatsApp. | Member Core notifies through Messaging and, when richer or sensitive content is needed, opens a secure temporary result surface for the authorized report; ordinary WhatsApp chat is not the full clinical report store. |
 | Repeat recommendation | If a radiologist recommends a clinical repeat, receive a zero-cost repeat booking offer via WhatsApp. | Member coordinates the replacement site and shift via WhatsApp. |
 
 ### Site Staff journey

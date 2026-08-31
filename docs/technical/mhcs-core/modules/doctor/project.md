@@ -7,6 +7,10 @@ This document defines the Doctor module in the approved `mhcs-core` modular
 application. The overall repository and runtime boundary is defined by the
 [MHCS Core architecture](../../project.md).
 
+## Business Traceability
+
+This module is the technical authority for [Doctor stories](../../../../business/02-user-stories.md#doctor--shared), [Radiologist stories](../../../../business/02-user-stories.md#doctor--radiologist), and [Authorized Specialist stories](../../../../business/02-user-stories.md#doctor--authorized-specialist), plus Doctor Core responsibilities for scoped clinical access, repeat decisions, reports, amendments, and publication handoff.
+
 ## Purpose
 
 Doctor Core is the doctor-facing module for claiming clinical cases, reviewing
@@ -156,7 +160,7 @@ The repeat flow is:
    and the doctor's 25% repeat-assessment earning commit atomically.
 4. Member Core coordinates member scheduling and notification via WhatsApp.
 5. Operator Core determines eligible `Radiografi` workforce and sends a repeat-
-   radiography WhatsApp offer; after acceptance, the operator opens the temporary
+   radiography WhatsApp offer; after acceptance, Radiography Site Staff opens the temporary
    Site Workspace and performs a new examination and submission. AI is not rerun.
 6. Image Gateway emits a `ReplacementStudyReady` domain event when the replacement
    study is ready.

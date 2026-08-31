@@ -10,6 +10,10 @@ non-MHCS use cases remain outside this contract.
 The overall two-repository decision is defined by the
 [MHCS Core architecture](../mhcs-core/project.md).
 
+## Business Traceability
+
+MPIPS supports the Image Gateway responsibility for converting a complete patient-free capture submission. It does not own human stories, clinical decisions, booking, authorization, publication, or payment; the business-to-technical bridge is maintained by [System Responsibilities](../../business/03-system-responsibilities.md#business-to-technical-traceability).
+
 ## Repository role
 
 MPIPS is the only separate internal processing service used by `mhcs-core`.

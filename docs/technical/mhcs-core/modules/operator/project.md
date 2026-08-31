@@ -7,6 +7,10 @@ This document defines the Operator module in the approved `mhcs-core` modular
 application. The overall repository and runtime boundary is defined by the
 [MHCS Core architecture](../../project.md).
 
+## Business Traceability
+
+This module is the technical authority for [Site Staff stories](../../../../business/02-user-stories.md#site-staff--shared) and the Reception / Registration, Basic Examination, and Radiography responsibilities in [System Responsibilities](../../../../business/03-system-responsibilities.md#operator-core). `Operator Core` is a module name; human actors are Site Staff.
+
 ## Purpose
 
 Operator Core is the internal staff-facing module for examination-day operations, opened
@@ -59,7 +63,7 @@ with site-specific `PractitionerRole` for each authorized site.
 
 Site Staff may be authorized for multiple sites but work in exactly one
 active site context at a time. Switching sites requires confirmation, is audited,
-and is blocked while the operator has a claimed ticket, an unfinished queue action,
+and is blocked while the Site Staff member has a claimed ticket, an unfinished queue action,
 or an unclosed cash shift.
 
 ## MHCS Core topology
@@ -92,17 +96,18 @@ Disabling one site:
 - sends existing bookings through the Member module's audited reschedule,
   cancellation, or refund handling.
 
-## Shift eligibility and operator assignment
+## Shift eligibility and Site Staff assignment
 
-Member Core opens and owns bookable shifts. The initial advance-booking
-eligibility threshold is five confirmed members, and the configured
-advance-booking quota is between five and twenty. Member Core also owns the
-global walk-in quota, initially five, making the current maximum accepted shift
-capacity twenty-five.
+Member Core opens and owns bookable shifts. The current candidate operating
+policy uses five confirmed members as the advance-booking eligibility threshold,
+an advance-booking quota configurable between five and twenty, and an initial
+global walk-in quota of five. These are configurable operating policies, not
+technical invariants; Product Authority may change them without changing the
+Site Staff authorization model.
 
 Staffing is demand-triggered:
 
-1. Members may book an open shift before an operator is assigned.
+1. Members may book an open shift before Site Staff is assigned.
 2. At five confirmed bookings, the Member module emits an idempotent `shift_eligible`
    domain event for the Operator module.
 3. Global Admin / Super Admin assigns one or more Site Staff members to the
@@ -110,8 +115,9 @@ Staffing is demand-triggered:
 4. When sequential assignment is active, invitation offers are dispatched one
    candidate at a time based on the configured sequence.
 5. Candidates receive a minimal operational offer in WhatsApp with a response
-   timeout (defaulting to 5 minutes) to accept or decline.
-6. If accepted, the operator is assigned to the shift; if declined or timed out,
+   timeout (currently defaulting to 5 minutes as a configurable operating
+   policy) to accept or decline.
+6. If accepted, the Site Staff member is assigned to the shift; if declined or timed out,
    the system advances to the next candidate.
 7. If the sequence is exhausted without acceptance, an escalation alert is sent
    to Global Admin / Super Admin.
@@ -153,10 +159,10 @@ Site Staff holding the Reception / Registration role perform front-desk verifica
    consent.
 
 Identity evidence and any profile photographs are purpose-bound, temporary,
-non-downloadable, and available to the operator only during the active verification
+non-downloadable, and available to the authorized Site Staff member only during the active verification
 flow, subject to the approved minimum-data procedure.
 
-An operator cannot override an unresolved mismatch. Check-in remains blocked
+A Site Staff member cannot override an unresolved mismatch. Check-in remains blocked
 until Global Admin / Super Admin resolves the dispute with a mandatory reason.
 
 ## Site Staff interaction and work history
@@ -205,13 +211,13 @@ Basic Examination & Vital Signs -> X-ray -> awaiting AI -> completed
 ```
 
 The ticket records its current stage and state, stage-ready time, claimed
-operator, station label, and append-only transition history. Supported states
+Site Staff member, station label, and append-only transition history. Supported states
 cover `waiting`, `called`, `in_service`, `awaiting_ai`, `deferred`, and
 `completed`. A stage becomes visible in its private worklist only when its
-prerequisite is complete. `awaiting_ai` consumes no operator station.
+prerequisite is complete. `awaiting_ai` consumes no Site Staff station.
 
 Each stage uses FIFO by its own ready time. Claiming a waiting ticket is atomic;
-a competing claim fails and refreshes the worklist. An operator may have only
+a competing claim fails and refreshes the worklist. An assigned Site Staff member may have only
 one claimed clinical-stage ticket at a time. A skip requires a reason and
 returns the patient to the same stage with a new ready time. Recall repeats the
 public call without changing order.
@@ -227,7 +233,7 @@ the examination even if work continues beyond nominal shift end.
 
 ### Public LCD display
 
-Operator Core owns a number-only fullscreen display. An authenticated operator
+Operator Core owns a number-only fullscreen display. An authenticated Site Staff member
 pairs a TV browser using a single-use short code. The resulting session is
 read-only, restricted to one site and shift, revocable, and expires
 automatically at shift end.
@@ -256,7 +262,7 @@ Global Admin / Super Admin maintains versioned X-ray protocol templates
 and maps each Member service code to its required projections (e.g. PA, AP, lateral).
 Operator Core snapshots the active protocol version when the examination starts.
 
-The operator may correct an incorrect requested body part or laterality before
+The assigned Site Staff member may correct an incorrect requested body part or laterality before
 submission without Global Admin / Super Admin approval. The correction requires a reason,
 operator identity, and timestamp and must succeed through the Member module
 before the examination continues.
@@ -272,14 +278,14 @@ The target examination flow is performed by Site Staff holding the Radiography r
    updates the Member-owned booking. Stage earning rates were already frozen when
    the ticket was issued.
 3. Grabber produces patient-free radiograph NPZ captures and the required gain NPZ.
-4. The operator drags one or more radiograph NPZ files and matching gain NPZ into
+4. Radiography Site Staff drags one or more radiograph NPZ files and matching gain NPZ into
    the active examination on the Grabber computer.
 5. The Operator and Image Gateway modules validate content, schema, fields, size,
    and compatibility.
-6. The operator previews the image, confirms or corrects its actual projection,
+6. Radiography Site Staff previews the image, confirms or corrects its actual projection,
    and explicitly confirms each required capture.
 7. A required projection may be omitted only with a mandatory reason.
-8. The operator clicks one Submit action for the complete confirmed set.
+8. Radiography Site Staff submits one complete confirmed set.
 9. The Operator module invokes the Image Gateway module with the radiograph
    files, matching gain input, and immutable examination snapshot under one
    stable submission ID.
@@ -293,7 +299,7 @@ deletes temporary local copies.
 ## Submission reliability and completion
 
 - Transient queued or storage failures retry automatically with the same submission ID.
-- The operator sees `submission_pending`; duplicate retries return the original result.
+- Site Staff sees `submission_pending`; duplicate retries return the original result.
 - The ticket remains in X-ray service until durable acceptance.
 - A permanent validation rejection returns the examination to an editable draft.
 - The Operator module deletes temporary draft copies after Image Gateway confirms
@@ -304,7 +310,7 @@ authorized, checksum-verified, and recoverable.
 
 ## AI waiting and result status monitoring
 
-AI processing is asynchronous and never reserves an operator station. Image Gateway
+AI processing is asynchronous and never reserves a Site Staff station. Image Gateway
 publishes the selected AI result to Member Core and emits an idempotent readiness
 event that automatically completes the matching Operator ticket.
 
@@ -338,7 +344,7 @@ a clinical repeat. The repeat flow is:
 4. The repeat consumes one advance-booking quota slot and follows normal advance-booking
    check-in priority.
 5. Operator Core determines eligible `Radiografi` workforce and sends a repeat-radiography
-   offer through WhatsApp. After acceptance, the operator opens the temporary Site
+   offer through WhatsApp. After acceptance, Radiography Site Staff opens the temporary Site
    Workspace and performs a new examination and submission. AI is not rerun.
 
 Controlled Doctor Core preliminary reasons (`operator_error`, `equipment_failure`,
@@ -347,7 +353,7 @@ and do not change already completed Operator stage earnings.
 
 ## Read-only image access
 
-An ordinary operator may view only current-shift examinations at the active site.
+An ordinary Site Staff member may view only current-shift examinations at the active site.
 Global Admin / Super Admin may view operational cases across all sites.
 
 The Operator Core DICOM viewer is read-only:
@@ -356,7 +362,7 @@ The Operator Core DICOM viewer is read-only:
 - zoom and pan are allowed;
 - manual window/level, annotations, measurements, and saved presentation states are disabled;
 - raw NPZ download remains disabled;
-- any authenticated Operator whose active site and current shift authorise an
+- any authenticated Radiography Site Staff member whose active site and current shift authorise an
   examination may view and download each returned raw DICOM as a standard
   authenticated `.dcm` attachment.
 
@@ -383,7 +389,7 @@ becomes eligible via its payment-gateway adapter. Operators enter and manage
 their own bank-account destination through an approved secure authentication flow;
 the exact re-authentication mechanism remains open.
 
-MHCS absorbs transfer fees by default so the operator receives the full configured
+MHCS absorbs transfer fees by default so the Site Staff member receives the full configured
 earning.
 
 ## Cash closing
