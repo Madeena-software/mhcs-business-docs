@@ -28,6 +28,7 @@
     memberNextLabel: byId("member-next-label"),
     memberNextAction: byId("member-next-action"),
     memberOpenResult: byId("member-open-result"),
+    memberLayout: document.querySelector(".member-layout"),
     memberNextDetails: byId("member-next-details"),
     memberResultSurface: byId("member-result-surface"),
     memberBackMessaging: byId("member-back-messaging"),
@@ -46,6 +47,11 @@
     operatorTaskStatus: byId("operator-task-status"),
     openImagingTask: byId("open-imaging-task"),
     declineWork: byId("decline-work"),
+    operatorMessaging: byId("operator-messaging-state"),
+    operatorHeader: byId("view-operator").querySelector(".operator-header"),
+    operatorLayout: byId("view-operator").querySelector(".operator-layout"),
+    operatorOpenWorkspace: byId("operator-open-workspace"),
+    operatorDeclineMessage: byId("operator-decline-message"),
     operatorExamStatus: byId("operator-exam-status"),
     operatorTaskDetail: byId("operator-task-detail"),
     operatorCompleteCard: byId("operator-complete-card"),
@@ -65,6 +71,11 @@
     doctorQueueStatus: byId("doctor-queue-status"),
     openDoctorCase: byId("open-doctor-case"),
     declineDoctorCase: byId("decline-doctor-case"),
+    doctorMessaging: byId("doctor-messaging-state"),
+    doctorHeader: byId("view-doctor").querySelector(".doctor-header"),
+    doctorLayout: byId("view-doctor").querySelector(".doctor-layout"),
+    doctorOpenCaseMessage: byId("doctor-open-case-message"),
+    doctorDeclineMessage: byId("doctor-decline-message"),
     doctorEmptyState: byId("doctor-empty-state"),
     doctorCasePanel: byId("doctor-case-panel"),
     doctorBackMessaging: byId("doctor-back-messaging"),
@@ -133,6 +144,7 @@
     if (!target) return;
 
     currentView = name;
+    if (["member", "operator", "doctor"].includes(name)) setSurface("messaging");
     views.forEach((view) => view.classList.toggle("is-hidden", view !== target));
     viewControls.forEach((control) => {
       const active = control.dataset.view === name;
@@ -205,6 +217,7 @@
     elements.memberNextDetails.textContent = format("member.nextDetails", { actor: content.actor, note: content.note });
     elements.memberNoteCopy.textContent = content.note;
     elements.memberOpenResult.hidden = state.step < 2;
+    elements.memberLayout.hidden = state.surface === "result";
     elements.memberResultSurface.hidden = state.surface !== "result";
 
     const memberStages = [
@@ -253,6 +266,9 @@
     elements.continueReview.hidden = state.step !== 2;
     if (state.step >= 3) elements.aiCard.querySelector(".ai-copy p").textContent = text("operator.externalCapabilityAfterReview");
     elements.operatorBackMessaging.hidden = state.surface !== "site";
+    elements.operatorMessaging.hidden = state.surface === "site";
+    elements.operatorHeader.hidden = state.surface !== "site";
+    elements.operatorLayout.hidden = state.surface !== "site";
   }
 
   function renderDoctor() {
@@ -305,6 +321,9 @@
     elements.doctorActionCopy.textContent = action[2];
     elements.doctorActionButton.textContent = `${action[1]} →`;
     elements.doctorBackMessaging.hidden = state.surface !== "clinical";
+    elements.doctorMessaging.hidden = state.surface === "clinical";
+    elements.doctorHeader.hidden = state.surface !== "clinical";
+    elements.doctorLayout.hidden = state.surface !== "clinical";
   }
 
   function renderJourney() {
@@ -398,6 +417,8 @@
     render();
   });
   elements.declineWork.addEventListener("click", () => announce("announcement.workDeclined"));
+  elements.operatorOpenWorkspace.addEventListener("click", () => elements.openImagingTask.click());
+  elements.operatorDeclineMessage.addEventListener("click", () => announce("announcement.workDeclined"));
   elements.operatorBackMessaging.addEventListener("click", () => { setSurface("messaging"); render(); });
   elements.imageInput.addEventListener("change", (event) => {
     if (state.step !== 1) return;
@@ -446,6 +467,8 @@
     render();
   });
   elements.declineDoctorCase.addEventListener("click", () => announce("announcement.caseDeclined"));
+  elements.doctorOpenCaseMessage.addEventListener("click", () => elements.openDoctorCase.click());
+  elements.doctorDeclineMessage.addEventListener("click", () => announce("announcement.caseDeclined"));
   elements.doctorBackMessaging.addEventListener("click", () => { setSurface("messaging"); render(); });
   elements.doctorActionButton.addEventListener("click", () => {
     if (!state.doctorCaseOpen || state.step < 3 || state.step >= 5) return;

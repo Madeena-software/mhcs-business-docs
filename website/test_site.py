@@ -23,7 +23,7 @@ PAGES = {
     "index.html": (
         "Indonesia-led healthcare orchestration",
         "current examination / radiography / AI / optional Doctor Review",
-        "Strategic concept mock-up",
+        "Strategic Concept",
         "Infographics",
         "Operational demonstrator",
     ),
@@ -145,6 +145,8 @@ def main():
         actor_source = page.read_text(encoding="utf-8")
         assert "Overall Infographic" in actor_source
         assert "Actor Journeys" in actor_source
+        assert "Goal:" in actor_source and "INTERACTION SURFACE" in actor_source
+        assert "HUMAN ACTIONS" in actor_source and "BOUNDARY" in actor_source and "HANDOFF / OUTCOME" in actor_source
         assert any(surface in actor_source for surface in ("Messaging", "On-site / Physical", "Temporary Site Workspace", "Temporary Clinical / DICOM Workspace", "Persistent Admin Web")), actor
         actor_parser = PageParser()
         actor_parser.feed(actor_source)
@@ -161,6 +163,7 @@ def main():
     assert "permissioned" not in landing.lower()
     assert "permission" not in landing.lower()
     assert "concept/" in landing and "demonstrator/" in landing
+    assert "Strategic concept mock-up" not in landing
     assert "infographics/" in landing and "journeys/" in landing and "bpmn/" in landing
 
     member = (ROOT / "journeys/member/index.html").read_text(encoding="utf-8")
@@ -273,6 +276,11 @@ def main():
         "BACK TO MESSAGING",
         "Persistent Admin Web",
         "does not imply one persistent web application",
+        "id=\"operator-messaging-state\"",
+        "id=\"view-operator\"",
+        "id=\"doctor-messaging-state\"",
+        "id=\"view-doctor\"",
+        "id=\"member-result-surface\"",
     ):
         assert fragment in demonstrator_source, fragment
     demonstrator_app = (ROOT / "demonstrator/app.js").read_text(encoding="utf-8")
@@ -288,6 +296,9 @@ def main():
         'decline-work',
         'decline-doctor-case',
         'state.doctorCaseOpen = false',
+        'operatorMessaging.hidden = state.surface === "site"',
+        'doctorMessaging.hidden = state.surface === "clinical"',
+        'memberLayout.hidden = state.surface === "result"',
     ):
         assert fragment in demonstrator_app, fragment
     assert '<html lang="id">' in demonstrator_source
