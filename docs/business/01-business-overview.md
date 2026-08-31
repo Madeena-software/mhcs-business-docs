@@ -18,10 +18,14 @@ MHCS value is therefore more than API connectivity: it coordinates capabilities
 so the required healthcare pathway can progress. Government health systems,
 healthcare facilities (including hospitals and Puskesmas), healthcare
 professionals, laboratories, imaging/PACS capabilities, AI, payers, partners,
-and communication or delivery channels may participate where applicable. They
-remain externally owned, and authoritative systems remain authoritative within
-their respective domains. MHCS does not claim control of any Government or
-partner system, and no specific integration is implied by this overview.
+and communication or delivery channels may participate where applicable.
+External capabilities remain externally owned where applicable, and authoritative
+external systems remain authoritative within their respective domains. MHCS does
+not claim control of any Government or partner system. MHCS may build or own a
+separately validated and authorized capability where a required capability is
+genuinely missing; that does not imply ownership of the wider external ecosystem.
+No specific integration or future capability ownership is implied by this
+overview.
 
 The strategic MHCS product is broader healthcare orchestration and coordination.
 The current specified service slice is the examination / radiography / AI /
