@@ -313,4 +313,6 @@ window.MHCS_LOCALES.id = {
       "announcement.referralCompleted": "Penyelesaian rujukan disimulasikan untuk presentasi fiktif ini. Tindak lanjut tetap diperlukan.",
       "announcement.followupCompleted": "Penyelesaian tindak lanjut disimulasikan untuk presentasi fiktif ini. Outcome yang diharapkan masih menunggu.",
       "announcement.outcomeCompleted": "Outcome yang diharapkan disimulasikan untuk presentasi fiktif ini. Pemantauan Berkelanjutan tetap aktif.",
+      "announcement.workDeclined": "Penawaran pekerjaan Site Staff ditolak; tidak ada workspace yang dibuka.",
+      "announcement.caseDeclined": "Penawaran kasus Dokter ditolak; tidak ada workspace klinis yang dibuka.",
 };

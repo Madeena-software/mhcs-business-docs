@@ -13,7 +13,7 @@
   const memberItems = [...document.querySelectorAll("[data-member-stage]")];
   const demoImageLabelKey = "operator.safeDemoImage";
   const localImageLabelKey = "operator.localImage";
-  const state = { step: 0, imageSelected: false, imageLabel: "", aiOpened: false, taskOpened: false, doctorCaseOpen: false };
+  const state = { step: 0, surface: "messaging", imageSelected: false, imageLabel: "", aiOpened: false, taskOpened: false, doctorCaseOpen: false };
   const aiUrl = typeof window.MHCS_DEMO_CONFIG?.aiDemoUrl === "string" ? window.MHCS_DEMO_CONFIG.aiDemoUrl.trim() : "";
 
   const byId = (id) => document.getElementById(id);
@@ -27,7 +27,10 @@
     memberStatusCopy: byId("member-status-copy"),
     memberNextLabel: byId("member-next-label"),
     memberNextAction: byId("member-next-action"),
+    memberOpenResult: byId("member-open-result"),
     memberNextDetails: byId("member-next-details"),
+    memberResultSurface: byId("member-result-surface"),
+    memberBackMessaging: byId("member-back-messaging"),
     memberScreeningState: byId("member-screening-state"),
     memberImagingState: byId("member-imaging-state"),
     memberReviewState: byId("member-review-state"),
@@ -42,10 +45,12 @@
     operatorTaskSummary: byId("operator-task-summary"),
     operatorTaskStatus: byId("operator-task-status"),
     openImagingTask: byId("open-imaging-task"),
+    declineWork: byId("decline-work"),
     operatorExamStatus: byId("operator-exam-status"),
     operatorTaskDetail: byId("operator-task-detail"),
     operatorCompleteCard: byId("operator-complete-card"),
     operatorCompleteCopy: byId("operator-complete-copy"),
+    operatorBackMessaging: byId("operator-back-messaging"),
     scanPreview: byId("scan-preview"),
     scanPreviewTitle: byId("scan-preview-title"),
     scanPreviewCopy: byId("scan-preview-copy"),
@@ -59,8 +64,10 @@
     doctorQueueSummary: byId("doctor-queue-summary"),
     doctorQueueStatus: byId("doctor-queue-status"),
     openDoctorCase: byId("open-doctor-case"),
+    declineDoctorCase: byId("decline-doctor-case"),
     doctorEmptyState: byId("doctor-empty-state"),
     doctorCasePanel: byId("doctor-case-panel"),
+    doctorBackMessaging: byId("doctor-back-messaging"),
     doctorReviewStatus: byId("doctor-review-status"),
     doctorImagingStatus: byId("doctor-imaging-status"),
     doctorSupportStatus: byId("doctor-support-status"),
@@ -138,6 +145,13 @@
     elements.overviewActiveActor.textContent = text(viewLabelKeys[name]);
   }
 
+  function setSurface(surface) {
+    state.surface = surface;
+    document.querySelectorAll("[data-surface-state]").forEach((element) => {
+      element.hidden = element.dataset.surfaceState !== surface;
+    });
+  }
+
   function announce(key) {
     currentAnnouncementKey = key;
     elements.notice.textContent = text(key);
@@ -190,6 +204,8 @@
     elements.memberNextAction.querySelector("[data-i18n]").textContent = text("member.viewPatientUpdate");
     elements.memberNextDetails.textContent = format("member.nextDetails", { actor: content.actor, note: content.note });
     elements.memberNoteCopy.textContent = content.note;
+    elements.memberOpenResult.hidden = state.step < 2;
+    elements.memberResultSurface.hidden = state.surface !== "result";
 
     const memberStages = [
       { key: "screening", complete: true, current: state.step === 0, status: text("member.status.completed") },
@@ -236,6 +252,7 @@
     elements.aiCard.hidden = state.step < 2;
     elements.continueReview.hidden = state.step !== 2;
     if (state.step >= 3) elements.aiCard.querySelector(".ai-copy p").textContent = text("operator.externalCapabilityAfterReview");
+    elements.operatorBackMessaging.hidden = state.surface !== "site";
   }
 
   function renderDoctor() {
@@ -257,6 +274,7 @@
     elements.doctorQueueStatus.textContent = queueState.status;
     elements.doctorQueueStatus.className = `queue-badge ${queueState.badge}`;
     elements.openDoctorCase.hidden = !caseReady || caseOpen;
+    elements.declineDoctorCase.hidden = !caseReady || caseOpen;
     elements.doctorEmptyState.hidden = caseOpen;
     elements.doctorCasePanel.hidden = !caseOpen;
 
@@ -286,6 +304,7 @@
     elements.doctorActionTitle.textContent = action[1];
     elements.doctorActionCopy.textContent = action[2];
     elements.doctorActionButton.textContent = `${action[1]} →`;
+    elements.doctorBackMessaging.hidden = state.surface !== "clinical";
   }
 
   function renderJourney() {
@@ -342,6 +361,7 @@
 
   function resetDemo() {
     state.step = 0;
+    state.surface = "messaging";
     state.imageSelected = false;
     state.imageLabel = "";
     state.aiOpened = false;
@@ -353,6 +373,7 @@
     elements.memberNextDetails.hidden = true;
     elements.memberNextAction.setAttribute("aria-expanded", "false");
     showView("member");
+    setSurface("messaging");
     render();
   }
 
@@ -361,6 +382,8 @@
     elements.memberNextDetails.hidden = !expanded;
     elements.memberNextAction.setAttribute("aria-expanded", String(expanded));
   });
+  byId("member-open-result")?.addEventListener("click", () => { setSurface("result"); render(); });
+  elements.memberBackMessaging.addEventListener("click", () => { setSurface("messaging"); render(); });
   viewControls.forEach((control) => control.addEventListener("click", (event) => {
     if (control.matches("a")) event.preventDefault();
     showView(control.dataset.view);
@@ -371,8 +394,11 @@
   elements.openImagingTask.addEventListener("click", () => {
     if (!beginImagingTask()) return;
     announce("announcement.imagingOpened");
+    setSurface("site");
     render();
   });
+  elements.declineWork.addEventListener("click", () => announce("announcement.workDeclined"));
+  elements.operatorBackMessaging.addEventListener("click", () => { setSurface("messaging"); render(); });
   elements.imageInput.addEventListener("change", (event) => {
     if (state.step !== 1) return;
     const file = event.target.files[0];
@@ -407,16 +433,20 @@
   elements.continueReview.addEventListener("click", () => {
     if (state.step !== 2) return;
     state.step = 3;
-    state.doctorCaseOpen = true;
+    state.doctorCaseOpen = false;
     showView("doctor");
+    setSurface("messaging");
     announce("announcement.doctorReview");
     render();
   });
   elements.openDoctorCase.addEventListener("click", () => {
     if (state.step < 3) return;
     state.doctorCaseOpen = true;
+    setSurface("clinical");
     render();
   });
+  elements.declineDoctorCase.addEventListener("click", () => announce("announcement.caseDeclined"));
+  elements.doctorBackMessaging.addEventListener("click", () => { setSurface("messaging"); render(); });
   elements.doctorActionButton.addEventListener("click", () => {
     if (!state.doctorCaseOpen || state.step < 3 || state.step >= 5) return;
     if (state.step === 3) {
@@ -451,5 +481,6 @@
   });
 
   showView("member");
+  setSurface("messaging");
   render();
 })();

@@ -119,7 +119,8 @@
                   <p id="member-status-copy">Your health screening is complete. A fictional chest X-ray examination is the next step in this demonstration.</p>
                   <div class="member-next-row">
                     <div><span class="next-label" data-i18n="member.yourNextStep">YOUR NEXT STEP</span><strong id="member-next-label">Imaging examination</strong></div>
-                    <button class="button button-primary" id="member-next-action" data-member-action="next-details" aria-expanded="false" aria-controls="member-next-details" type="button"><span data-i18n="member.viewPatientUpdate">View Patient Update</span> <span class="surface-action-label">OPEN RESULT</span> <span aria-hidden="true">→</span></button>
+                    <button class="button button-primary" id="member-next-action" data-member-action="next-details" aria-expanded="false" aria-controls="member-next-details" type="button"><span data-i18n="member.viewPatientUpdate">View Patient Update</span> <span aria-hidden="true">→</span></button>
+                    <button class="button button-secondary" id="member-open-result" type="button">OPEN RESULT</button>
                   </div>
                   <p class="micro-note" id="member-next-details" hidden></p>
                 </div>
@@ -159,6 +160,11 @@
               </section>
             </aside>
           </div>
+          <section class="temporary-result-surface" id="member-result-surface" data-surface-state="result" hidden aria-labelledby="result-surface-title">
+            <span class="workspace-identity">Temporary Result Surface</span><h2 id="result-surface-title">Member result view</h2>
+            <p>This separate, task-specific surface shows member-safe result content for the fictional case. It is not a permanent Member portal.</p>
+            <button class="button button-secondary" id="member-back-messaging" type="button">BACK TO MESSAGING</button>
+          </section>
         </section>
 
         <section class="view-panel operator-workspace is-hidden" id="view-operator" aria-labelledby="operator-title">
@@ -175,7 +181,8 @@
                 <div class="queue-avatar">DP</div>
                 <div class="queue-case-copy"><strong data-i18n="shell.demoPatient">Demo Patient</strong><span>DEMO-001 · <span data-i18n="member.chestXray">Chest X-Ray</span></span><small id="operator-task-summary">Further examination required</small></div>
                 <span class="queue-badge queue-badge-amber" id="operator-task-status">Waiting</span>
-                <button class="button button-small button-accent" id="open-imaging-task" type="button" data-i18n="operator.openTask">Open Task <span class="surface-action-label">OPEN SITE WORKSPACE</span></button>
+                <button class="button button-small button-secondary" id="decline-work" type="button">DECLINE</button>
+                <button class="button button-small button-accent" id="open-imaging-task" type="button" data-i18n="operator.openTask">ACCEPT · Open Task <span class="surface-action-label">OPEN SITE WORKSPACE</span></button>
               </article>
               <p class="operator-queue-note" data-i18n="operator.queueNote">One fictional case is used for this presentation. No patient data is stored.</p>
             </aside>
@@ -194,6 +201,7 @@
               <section class="operator-complete-card" id="operator-complete-card" hidden>
                 <div class="complete-icon" aria-hidden="true">✓</div><div><span class="eyebrow" data-i18n="operator.imageAcquisition">IMAGE ACQUISITION</span><h2 data-i18n="operator.imageAcquisitionCompleted">Image acquisition completed</h2><p id="operator-complete-copy">The image is confirmed for this fictional case. The next review step is now available.</p></div><span class="queue-badge queue-badge-green" data-i18n="operator.status.completed">Completed</span>
               </section>
+              <button class="button button-ghost" id="operator-back-messaging" type="button">BACK TO MESSAGING</button>
 
               <section class="ai-capability-card" id="ai-capability-card" aria-labelledby="ai-capability-title" hidden>
                 <div class="ai-mark" aria-hidden="true">AI</div>
@@ -219,7 +227,7 @@
                 <div class="queue-avatar doctor-avatar">DP</div>
                 <div><strong data-i18n="shell.demoPatient">Demo Patient</strong><span>DEMO-001</span><small id="doctor-queue-summary">No review case ready yet</small></div>
                 <span class="queue-badge queue-badge-blue" id="doctor-queue-status">Waiting</span>
-                <button class="button button-small button-doctor" id="open-doctor-case" type="button" hidden data-i18n="doctor.openCase">Open Case</button>
+                <button class="button button-small button-doctor-ghost" id="decline-doctor-case" type="button" hidden>DECLINE</button><button class="button button-small button-doctor" id="open-doctor-case" type="button" hidden data-i18n="doctor.openCase">ACCEPT · Open Case</button>
               </article>
               <p class="queue-panel-note" data-i18n="doctor.queueNote">AI-assisted information supports the professional review. It never replaces the Doctor (Radiologist).</p>
             </aside>
@@ -240,6 +248,7 @@
                 </div>
                 <div class="doctor-continuity" id="doctor-continuity"><span class="note-icon" aria-hidden="true">i</span><p data-i18n="doctor.continuity">This demonstration records a review and care progression only. It does not produce a diagnosis or medical recommendation.</p></div>
               </section>
+              <button class="button button-doctor-ghost" id="doctor-back-messaging" type="button">BACK TO MESSAGING</button>
             </main>
           </div>
         </section>

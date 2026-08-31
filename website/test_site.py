@@ -7,6 +7,18 @@ from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).parent
+ACTOR_INFOGRAPHICS = (
+    "member",
+    "b2b-representative",
+    "site-staff",
+    "reception-registration",
+    "basic-examination",
+    "radiography",
+    "doctor",
+    "radiologist",
+    "authorized-specialist",
+    "global-admin",
+)
 PAGES = {
     "index.html": (
         "Indonesia-led healthcare orchestration",
@@ -123,6 +135,27 @@ def main():
             if target.is_dir() or parts.path.endswith("/"):
                 target /= "index.html"
             assert target.is_file(), (relative, link)
+
+    infographic = ROOT / "infographics/index.html"
+    infographic_source = infographic.read_text(encoding="utf-8")
+    for actor in ACTOR_INFOGRAPHICS:
+        page = ROOT / f"infographics/actors/{actor}/index.html"
+        assert page.is_file(), page
+        assert f'href="actors/{actor}/"' in infographic_source, actor
+        actor_source = page.read_text(encoding="utf-8")
+        assert "Overall Infographic" in actor_source
+        assert "Actor Journeys" in actor_source
+        assert any(surface in actor_source for surface in ("Messaging", "On-site / Physical", "Temporary Site Workspace", "Temporary Clinical / DICOM Workspace", "Persistent Admin Web")), actor
+        actor_parser = PageParser()
+        actor_parser.feed(actor_source)
+        for link in actor_parser.links:
+            parts = urlsplit(link)
+            if parts.scheme == "data" or parts.fragment:
+                continue
+            target = (page.parent / parts.path).resolve()
+            if target.is_dir() or parts.path.endswith("/"):
+                target /= "index.html"
+            assert target.is_file(), (actor, link)
 
     landing = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "permissioned" not in landing.lower()
@@ -242,6 +275,21 @@ def main():
         "does not imply one persistent web application",
     ):
         assert fragment in demonstrator_source, fragment
+    demonstrator_app = (ROOT / "demonstrator/app.js").read_text(encoding="utf-8")
+    for fragment in (
+        'surface: "messaging"',
+        'setSurface("result")',
+        'setSurface("site")',
+        'setSurface("clinical")',
+        'setSurface("messaging")',
+        'member-open-result',
+        'operator-back-messaging',
+        'doctor-back-messaging',
+        'decline-work',
+        'decline-doctor-case',
+        'state.doctorCaseOpen = false',
+    ):
+        assert fragment in demonstrator_app, fragment
     assert '<html lang="id">' in demonstrator_source
     assert 'data-language="id"' in demonstrator_source
     assert 'data-language="en"' in demonstrator_source

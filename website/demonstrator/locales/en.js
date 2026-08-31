@@ -313,4 +313,6 @@ window.MHCS_LOCALES.en = {
       "announcement.referralCompleted": "Referral completion simulated for this fictional presentation. Follow-up remains required.",
       "announcement.followupCompleted": "Follow-up completion simulated for this fictional presentation. The intended outcome remains pending.",
       "announcement.outcomeCompleted": "Intended outcome simulated for this fictional presentation. Continued Monitoring remains active.",
+      "announcement.workDeclined": "The Site Staff work offer was declined; no workspace was opened.",
+      "announcement.caseDeclined": "The Doctor case offer was declined; no clinical workspace was opened.",
 };
