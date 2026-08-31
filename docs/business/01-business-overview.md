@@ -1,11 +1,61 @@
 # MHCS Business Overview and Actor Journeys
 
-MHCS is a teleradiology and clinical examination platform. It supports B2B and B2C
-services through WhatsApp-orchestrated member interactions and temporary specialized
-staff workspaces. B2B is the initial commercial priority, while B2C registration and
-booking coordination remain available through the WhatsApp channel.
+MHCS is an Indonesia-led healthcare orchestration and coordination system. It
+coordinates appropriate Government, healthcare-provider, clinical, technological,
+partner, and delivery-channel capabilities around validated healthcare-delivery
+gaps, so that healthcare can progress toward intended outcomes across the
+relevant service pathway.
+
+MHCS is not itself a PACS, generic teleradiology platform, AI doctor, generic
+HIS/RME, or monolithic healthcare application. It may use, integrate, localise,
+partner with, or build capabilities according to what the pathway requires:
+
+> Use existing capability; integrate where necessary; localise for the operating
+> context; partner where appropriate; build only where capability is genuinely
+> missing.
+
+MHCS value is therefore more than API connectivity: it coordinates capabilities
+so the required healthcare pathway can progress. Government health systems,
+healthcare facilities (including hospitals and Puskesmas), healthcare
+professionals, laboratories, imaging/PACS capabilities, AI, payers, partners,
+and communication or delivery channels may participate where applicable. They
+remain externally owned, and authoritative systems remain authoritative within
+their respective domains. MHCS does not claim control of any Government or
+partner system, and no specific integration is implied by this overview.
+
+The strategic MHCS product is broader healthcare orchestration and coordination.
+The current specified service slice is the examination / radiography / AI /
+optional Doctor Review model described below. Teleradiology, radiography,
+clinical examination, and AI are current service capabilities within that slice,
+not the complete identity of MHCS. The detailed current service flows remain
+valid as the present specified operating model; future pathways require their
+own validation and authorization.
+
+Messaging is the persistent human interaction and orchestration layer. Temporary
+Secure Web is a specialized task/result workspace where richer interaction is
+required, and WhatsApp is the current practical/reference Messaging channel for
+the Indonesian operating model. The appropriate channel follows the people,
+service context, and operating environment; no channel grants authorization,
+which remains based on identity, role, eligibility, assignment, and scope.
 
 ## 1. How MHCS works
+
+### Strategic product and current service slice
+
+The strategic MHCS product coordinates the capabilities needed to move a
+healthcare pathway toward its intended outcome. The current specified service
+slice is narrower:
+
+`booking → on-site examination → radiography → processing → result / optional
+clinical review → secure result delivery`
+
+This is the current examination-service episode. It may be complete at secure
+result delivery even though the broader healthcare journey may, when required,
+continue from a result or finding through required clinical action, referral,
+treatment or another service, follow-up, intended outcome, and continued
+monitoring where appropriate. Service-episode completion is therefore not
+necessarily healthcare-journey completion, and the broader stages do not imply
+that every current imaging Member enters them.
 
 ### End-to-end service flow
 
@@ -263,8 +313,9 @@ Doctor earnings enter automated daily payouts with no minimum positive balance.
 
 ### End-to-end completion
 
-The service journey is complete when an authorized examination moves from booking
-coordination to image processing and secure temporary result delivery without:
+The current examination-service episode is complete when an authorized
+examination moves from booking coordination to image processing and secure
+temporary result delivery without:
 
 - staff re-entering or inferring patient identity from filenames;
 - uncontrolled file transfer;
@@ -274,6 +325,12 @@ coordination to image processing and secure temporary result delivery without:
 - member exposure to web portal login or credential requirements;
 - unverified identity check-in; or
 - payment becoming eligible before its business trigger.
+
+This episode boundary does not assert that the broader MHCS healthcare journey
+ends there. When a result requires further care, MHCS may coordinate the next
+authorized capability or service toward the intended outcome; those future
+pathways are not part of the current specified service slice unless separately
+validated and authorized.
 
 ### Glossary
 

@@ -1,10 +1,25 @@
 # System Responsibilities
 
-This document defines ownership and collaboration in the candidate target
-architecture: one `mhcs-core` application repository containing Member, Operator Core,
-Doctor, and Image Gateway modules, plus the separate `mpips` black-box
-conversion repository, served by temporary task-specific staff web workspaces, a
-persistent unified administration panel, and a WhatsApp-led member channel.
+This document defines the current specified technical responsibility slice within
+the broader MHCS strategic product. Strategically, MHCS is an Indonesia-led
+healthcare orchestration and coordination system that may coordinate Government,
+provider, clinical, technological, partner, and delivery-channel capabilities.
+The present slice is one examination / radiography / AI / optional Doctor Review
+service model.
+
+Within that slice, ownership and collaboration are defined for one `mhcs-core`
+application repository containing Member, Operator Core, Doctor, and Image
+Gateway modules, plus the separate `mpips` black-box conversion repository,
+temporary task-specific staff web workspaces, a persistent unified
+administration panel, and a WhatsApp-led member channel.
+
+The current ownership map describes the present specified service architecture;
+it does not assert that every future MHCS healthcare capability must be
+implemented inside `mhcs-core`. External Government systems, healthcare
+facilities, professionals, laboratories, imaging/PACS capabilities, AI, payers,
+partners, and channels remain externally owned where applicable, with each
+authoritative system retaining authority in its own domain. This document does
+not prescribe an integration that has not been authorized.
 
 In the B2B model, the **Business Customer** is the organization that funds and
 defines the agreed service scope. The **Authorized B2B Representative** is the
