@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="only light">
-  <meta name="description" content="Editable BPMN 2.0 overview of the approved MHCS teleradiology target flow.">
-  <title>MHCS Teleradiology Target Flow</title>
+  <meta name="description" content="Candidate BPMN for the current MHCS examination service episode.">
+  <title>MHCS Current Examination-Service Episode BPMN</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./vendor/diagram-js.css">
   <link rel="stylesheet" href="./vendor/bpmn-js.css">
@@ -16,9 +16,11 @@
     <nav class="nav" aria-label="Diagram navigation">
       <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
-        <a href="../member/">Member</a>
-        <a href="../operator/">Site Staff</a>
-        <a href="../doctor/">Doctor</a>
+        <a href="../journeys/member/">Member</a>
+        <a href="../journeys/operator/">Site Staff</a>
+        <a href="../journeys/doctor/">Doctor</a>
+        <a href="../journeys/b2b/">B2B Representative</a>
+        <a href="../journeys/admin/">Global Admin</a>
         <a href="./" aria-current="page">Technical BPMN</a>
       </div>
     </nav>
@@ -30,8 +32,8 @@
         <p class="page-context">Cross-actor process · candidate target</p>
         <h1>Technical BPMN</h1>
         <p class="intro">
-          WhatsApp coordinates the member interaction and staff dispatch while temporary workspaces handle richer tasks.
-          One consented ticket moves through basic examination & vital signs, radiography, AI waiting, and result delivery.
+          Candidate BPMN for the current examination / radiography / AI / optional Doctor Review service episode within broader MHCS.
+          WhatsApp coordinates human interaction while temporary workspaces handle richer tasks.
         </p>
       </div>
       <nav class="controls" aria-label="Diagram controls">
@@ -61,10 +63,10 @@
       <li>The same ticket enters X-ray, where Radiography Site Staff captures, reviews, and submits the image set.</li>
       <li>The MHCS Platform accepts and processes the complete image set.</li>
       <li>The complete images become available to the member independently of AI and doctor review.</li>
-      <li>If AI analysis was selected, the AI Service generates a report; a ready result enters education, while a delay defers education without keeping the patient onsite.</li>
+      <li>If AI analysis was selected, the AI Service generates a report; a ready result is notified to the Member, while a delay leaves the result surface pending without keeping the patient onsite.</li>
         <li>Member Core sends a WhatsApp result notification and issues a secure temporary result link when a richer view/download is required; doctor review remains a separate WhatsApp-coordinated request.</li>
       <li>If doctor review was selected, the doctor claims the study, reviews it, and submits a final report.</li>
-      <li>The member can view each selected report independently before the journey completes.</li>
+      <li>The member can view each selected report independently before the current examination-service episode completes.</li>
     </ol>
   </main>
 

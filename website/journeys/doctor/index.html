@@ -7,17 +7,19 @@
   <meta name="description" content="Detailed MHCS Doctor target user-flow diagram.">
   <title>MHCS Doctor Journey</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="../assets/journey.css">
+  <link rel="stylesheet" href="../../assets/journey.css">
 </head>
 <body>
   <header class="site-header">
     <nav class="nav" aria-label="Diagram navigation">
-      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <a class="brand" href="../../"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
         <a href="../member/">Member</a>
         <a href="../operator/">Site Staff</a>
         <a href="./" aria-current="page">Doctor</a>
-        <a href="../bpmn/">Technical BPMN</a>
+        <a href="../b2b/">B2B Representative</a>
+        <a href="../admin/">Global Admin</a>
+        <a href="../../bpmn/">Technical BPMN</a>
       </div>
     </nav>
   </header>
@@ -26,7 +28,7 @@
     <section class="hero">
       <div>
         <p class="page-context">Doctor · detailed user flow</p>
-        <h1>Claim to report</h1>
+        <h1>Doctor paths: Radiologist and Authorized Specialist</h1>
       </div>
     </section>
 
@@ -40,7 +42,7 @@
           <div class="flow-step step-action">
             <span class="step-label">Authentication</span>
             <h3>Receive an eligible case offer in WhatsApp</h3>
-            <p>Verified professional identity, credentials, specialty, service permission, and modality eligibility are checked before the case can be opened.</p>
+            <p>Verified professional identity, credentials, specialty, service authorization, and modality eligibility are checked before the case can be opened.</p>
           </div>
           <div class="flow-step step-system">
             <span class="step-label">Shared queue</span>
@@ -87,11 +89,25 @@
             <h3>View AI output when available</h3>
             <p>The doctor may use it as supporting information but never waits for it.</p>
           </div>
+          <div class="flow-step step-system">
+            <span class="step-label">Authorized Specialist path</span>
+            <h3>Work within authorized specialty and service scope</h3>
+            <p>Produce specialty-appropriate clinical output. This path does not inherit radiology DICOM, quality, or repeat steps unless independently authorized.</p>
+          </div>
           <div class="flow-step step-warning">
             <span class="step-label">Release option</span>
             <h3>Release the case if review cannot continue</h3>
             <p>Return it to the shared queue before final submission.</p>
           </div>
+        </div>
+      </article>
+      <article class="phase">
+        <header class="phase-header"><span class="phase-number">04</span><div><h2>Radiologist controlled repeat</h2><p class="phase-subtitle">Clinical decision inside the Temporary Clinical / DICOM Workspace</p></div></header>
+        <div class="flow">
+          <div class="flow-step step-decision"><span class="step-label">Study review</span><h3>Mark the study usable or repeat_required</h3><p>Make the clinical repeat decision only in the Temporary Clinical / DICOM Workspace, not ordinary Messaging.</p></div>
+          <div class="flow-step step-action"><span class="step-label">Clinical reason</span><h3>Record a controlled clinical reason or note</h3><p>MHCS records the audited decision and links the repeat entitlement to the case.</p></div>
+          <div class="flow-step step-action"><span class="step-label">Radiography repeat</span><h3>Dispatch the linked Radiography repeat</h3><p>Eligible Radiography Site Staff receive the repeat-work offer through Messaging and open the Temporary Site Workspace.</p></div>
+          <div class="flow-step step-success"><span class="step-label">Continuation</span><h3>Review the replacement study</h3><p>Continue the Radiologist review against the replacement study without creating an unrelated case.</p></div>
         </div>
       </article>
 

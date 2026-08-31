@@ -7,17 +7,19 @@
   <meta name="description" content="Detailed MHCS Site Staff user-flow diagram.">
   <title>MHCS Site Staff Journey</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="../assets/journey.css">
+  <link rel="stylesheet" href="../../assets/journey.css">
 </head>
 <body>
   <header class="site-header">
     <nav class="nav" aria-label="Diagram navigation">
-      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <a class="brand" href="../../"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
         <a href="../member/">Member</a>
         <a href="./" aria-current="page">Site Staff</a>
         <a href="../doctor/">Doctor</a>
-        <a href="../bpmn/">Technical BPMN</a>
+        <a href="../b2b/">B2B Representative</a>
+        <a href="../admin/">Global Admin</a>
+        <a href="../../bpmn/">Technical BPMN</a>
       </div>
     </nav>
   </header>
@@ -70,27 +72,27 @@
         </header>
         <div class="flow">
           <div class="flow-step step-action">
-            <span class="step-label">Single ticket</span>
-            <h3>Issue one site-and-shift ticket number</h3>
-            <p>The same number follows basic examination & vital signs and radiography.</p>
+            <span class="step-label">Booking lookup</span>
+            <h3>Look up the booking</h3>
+            <p>Use the reservation context before beginning the on-site sequence.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Eligibility</span>
-            <h3>Is the member registered, eligible, and verified?</h3>
+            <span class="step-label">Identity verification</span>
+            <h3>Verify identity and eligibility</h3>
             <div class="branch-grid">
               <div class="branch"><strong>No</strong><span>Send registration or payment back to Member Core.</span></div>
-              <div class="branch"><strong>Yes</strong><span>Continue with paper informed consent.</span></div>
+              <div class="branch"><strong>Yes</strong><span>Continue with payment or eligibility confirmation.</span></div>
             </div>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Consent</span>
-            <h3>Record the signed paper form</h3>
+            <span class="step-label">Consent confirmation</span>
+            <h3>Confirm paper consent</h3>
             <p>Store its version, signer, time, responsible staff, and required private scan. Downstream stations do not ask for consent again.</p>
           </div>
           <div class="flow-step step-action">
-            <span class="step-label">Ticket</span>
+            <span class="step-label">Ticket issuance</span>
             <h3>Issue one site-and-shift number</h3>
-            <p>The same number follows basic examination & vital signs, radiography, and result education.</p>
+            <p>Issue it once after identity, eligibility, payment, and consent are complete; the same number follows both service stages.</p>
           </div>
           <div class="flow-step step-success">
             <span class="step-label">Queue rule</span>
@@ -164,7 +166,7 @@
             <h3>Release the Site Staff station</h3>
             <div class="branch-grid">
               <div class="branch"><strong>Ready</strong><span>Member Core sends a WhatsApp notification and issues a secure temporary result link when required; the Site Staff workspace is not a member portal.</span></div>
-              <div class="branch"><strong>Desk Lookup</strong><span>Desk staff can check the read-only monitor and print result on demand if patient asks.</span></div>
+              <div class="branch"><strong>Authorized print</strong><span>Where supported, an authorized print action is a fallback; it does not grant clinical result viewing rights.</span></div>
             </div>
           </div>
         </div>
@@ -178,13 +180,13 @@
         <div class="flow">
           <div class="flow-step step-action">
             <span class="step-label">Monitor & Print</span>
-          <h3>Desk lookup and optional physical printout</h3>
+          <h3>Check readiness and optional authorized print</h3>
             <p>Check processing and readiness status via the AI Results Status Monitor for patient inquiries; clinical AI-result content remains outside non-clinical Site Staff access.</p>
           </div>
           <div class="flow-step step-success">
             <span class="step-label">Complete</span>
             <h3>Auto-close the visit</h3>
-          <p>Ticket completes automatically when AI readiness is published. Doctor review remains a separate WhatsApp-coordinated request.</p>
+          <p>Ticket processing reaches its current service endpoint when AI readiness is published. Doctor review remains a separate WhatsApp-coordinated request.</p>
           </div>
           <div class="flow-step step-system">
             <span class="step-label">Public display</span>

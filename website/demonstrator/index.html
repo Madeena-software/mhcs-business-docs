@@ -72,6 +72,18 @@
         </div>
       </nav>
 
+      <section class="surface-map" aria-labelledby="surface-map-title">
+        <div><span class="eyebrow">INTERACTION SURFACES</span><h2 id="surface-map-title">Each actor returns to the channel that coordinates them.</h2></div>
+        <div class="surface-map-grid">
+          <p><strong>Member</strong><span>Messaging · WhatsApp reference channel → OPEN RESULT → Temporary Result Surface → BACK TO MESSAGING</span></p>
+          <p><strong>Site Staff</strong><span>Messaging work/shift offer → ACCEPT / DECLINE → OPEN SITE WORKSPACE → BACK TO MESSAGING</span></p>
+          <p><strong>Doctor</strong><span>Messaging case offer → ACCEPT / DECLINE / CLAIM → OPEN CASE → Temporary Clinical / DICOM Workspace → BACK TO MESSAGING</span></p>
+          <p><strong>Authorized B2B Representative</strong><span>Primarily Messaging for entitlement, booking coordination, and usage.</span></p>
+          <p><strong>Global Admin / Super Admin</strong><span>Persistent Admin Web for high-privilege administration.</span></p>
+        </div>
+        <p class="surface-note">A hosted demonstrator is one presentation artifact; it does not imply one persistent web application, a Member account, or authority from Messaging or URL possession.</p>
+      </section>
+
       <section class="compact-progress" aria-label="Shared case progress" data-i18n-aria-label="shell.sharedCaseProgress">
         <div class="progress-heading"><span data-i18n="shell.oneSharedCase">ONE SHARED CASE</span><strong>DEMO-001</strong></div>
         <ol class="progress-track">
@@ -107,7 +119,7 @@
                   <p id="member-status-copy">Your health screening is complete. A fictional chest X-ray examination is the next step in this demonstration.</p>
                   <div class="member-next-row">
                     <div><span class="next-label" data-i18n="member.yourNextStep">YOUR NEXT STEP</span><strong id="member-next-label">Imaging examination</strong></div>
-                    <button class="button button-primary" id="member-next-action" data-member-action="next-details" aria-expanded="false" aria-controls="member-next-details" type="button"><span data-i18n="member.viewPatientUpdate">View Patient Update</span> <span aria-hidden="true">→</span></button>
+                    <button class="button button-primary" id="member-next-action" data-member-action="next-details" aria-expanded="false" aria-controls="member-next-details" type="button"><span data-i18n="member.viewPatientUpdate">View Patient Update</span> <span class="surface-action-label">OPEN RESULT</span> <span aria-hidden="true">→</span></button>
                   </div>
                   <p class="micro-note" id="member-next-details" hidden></p>
                 </div>
@@ -163,7 +175,7 @@
                 <div class="queue-avatar">DP</div>
                 <div class="queue-case-copy"><strong data-i18n="shell.demoPatient">Demo Patient</strong><span>DEMO-001 · <span data-i18n="member.chestXray">Chest X-Ray</span></span><small id="operator-task-summary">Further examination required</small></div>
                 <span class="queue-badge queue-badge-amber" id="operator-task-status">Waiting</span>
-                <button class="button button-small button-accent" id="open-imaging-task" type="button" data-i18n="operator.openTask">Open Task</button>
+                <button class="button button-small button-accent" id="open-imaging-task" type="button" data-i18n="operator.openTask">Open Task <span class="surface-action-label">OPEN SITE WORKSPACE</span></button>
               </article>
               <p class="operator-queue-note" data-i18n="operator.queueNote">One fictional case is used for this presentation. No patient data is stored.</p>
             </aside>

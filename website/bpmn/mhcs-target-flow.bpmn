@@ -8,10 +8,11 @@
   xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0"
   id="Definitions_MHCS_Target"
   targetNamespace="https://mhcs.example/bpmn">
-  <bpmn:process id="Process_MHCS_Target" name="MHCS Teleradiology Target Flow" isExecutable="false">
+  <bpmn:process id="Process_MHCS_Target" name="Current Examination-Service Episode" isExecutable="false">
     <bpmn:documentation>
-      Approved actor-focused target flow. Processing retries, earnings, and report
-      amendments are intentionally outside this diagram.
+      Candidate flow for the current examination / radiography / AI / optional Doctor Review
+      service episode within broader MHCS. Processing retries, earnings, and report amendments
+      are intentionally outside this diagram.
     </bpmn:documentation>
 
     <bpmn:laneSet id="LaneSet_MHCS">
@@ -20,6 +21,8 @@
         <bpmn:flowNodeRef>Task_BookPay</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ViewImages</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ViewAIReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResultSurface</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DeferResult</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ViewReport</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Complete</bpmn:flowNodeRef>
       </bpmn:lane>
@@ -28,8 +31,6 @@
         <bpmn:flowNodeRef>Task_MCUAssessment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CaptureReview</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SubmitSet</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ResultEducation</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_DeferEducation</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Platform" name="MHCS Platform">
         <bpmn:flowNodeRef>Task_ProcessSet</bpmn:flowNodeRef>
@@ -113,11 +114,11 @@
       <bpmn:incoming>Flow_PublishAI_View</bpmn:incoming>
       <bpmn:outgoing>Flow_ViewAI_Education</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_ResultEducation" name="Open temporary result surface and view/download result">
+    <bpmn:userTask id="Task_ResultSurface" name="Member opens temporary result surface and views/downloads result">
       <bpmn:incoming>Flow_ViewAI_Education</bpmn:incoming>
       <bpmn:outgoing>Flow_Education_Merge</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Task_DeferEducation" name="Explain delay and defer education">
+    <bpmn:userTask id="Task_DeferResult" name="Member receives notification; result surface remains pending">
       <bpmn:incoming>Flow_AIReady_No</bpmn:incoming>
       <bpmn:outgoing>Flow_Defer_Merge</bpmn:outgoing>
     </bpmn:userTask>
@@ -167,7 +168,7 @@
       <bpmn:incoming>Flow_DoctorMerge_Join</bpmn:incoming>
       <bpmn:outgoing>Flow_Join_End</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:endEvent id="EndEvent_Complete" name="Journey complete">
+    <bpmn:endEvent id="EndEvent_Complete" name="Current examination-service episode complete">
       <bpmn:incoming>Flow_Join_End</bpmn:incoming>
     </bpmn:endEvent>
 
@@ -189,11 +190,11 @@
     <bpmn:sequenceFlow id="Flow_AIReady_Yes" name="Ready" sourceRef="Gateway_AIAvailable" targetRef="Task_PublishAIReport">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${aiResultReadyOnsite}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_AIReady_No" name="Delayed" sourceRef="Gateway_AIAvailable" targetRef="Task_DeferEducation" />
+    <bpmn:sequenceFlow id="Flow_AIReady_No" name="Delayed" sourceRef="Gateway_AIAvailable" targetRef="Task_DeferResult" />
     <bpmn:sequenceFlow id="Flow_PublishAI_View" sourceRef="Task_PublishAIReport" targetRef="Task_ViewAIReport" />
-    <bpmn:sequenceFlow id="Flow_ViewAI_Education" sourceRef="Task_ViewAIReport" targetRef="Task_ResultEducation" />
-    <bpmn:sequenceFlow id="Flow_Education_Merge" sourceRef="Task_ResultEducation" targetRef="Gateway_AIMerge" />
-    <bpmn:sequenceFlow id="Flow_Defer_Merge" sourceRef="Task_DeferEducation" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_ViewAI_Education" sourceRef="Task_ViewAIReport" targetRef="Task_ResultSurface" />
+    <bpmn:sequenceFlow id="Flow_Education_Merge" sourceRef="Task_ResultSurface" targetRef="Gateway_AIMerge" />
+    <bpmn:sequenceFlow id="Flow_Defer_Merge" sourceRef="Task_DeferResult" targetRef="Gateway_AIMerge" />
     <bpmn:sequenceFlow id="Flow_AIMerge_Join" sourceRef="Gateway_AIMerge" targetRef="Gateway_ResultJoin" />
     <bpmn:sequenceFlow id="Flow_Split_DoctorChoice" sourceRef="Gateway_IndependentResults" targetRef="Gateway_DoctorSelected" />
     <bpmn:sequenceFlow id="Flow_Doctor_Yes" name="Yes" sourceRef="Gateway_DoctorSelected" targetRef="Task_RouteDoctor">
@@ -279,10 +280,10 @@
       <bpmndi:BPMNShape id="Task_ViewAIReport_di" bpmnElement="Task_ViewAIReport" bioc:fill="#DBEAFE" bioc:stroke="#1D4ED8">
         <dc:Bounds x="1700" y="115" width="150" height="100" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ResultEducation_di" bpmnElement="Task_ResultEducation" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+    <bpmndi:BPMNShape id="Task_ResultSurface_di" bpmnElement="Task_ResultSurface" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
         <dc:Bounds x="1880" y="265" width="165" height="70" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_DeferEducation_di" bpmnElement="Task_DeferEducation" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
+    <bpmndi:BPMNShape id="Task_DeferResult_di" bpmnElement="Task_DeferResult" bioc:fill="#FFEDD5" bioc:stroke="#C2410C">
         <dc:Bounds x="1880" y="345" width="165" height="60" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_AIMerge_di" bpmnElement="Gateway_AIMerge" isMarkerVisible="true" bioc:fill="#F5F3FF" bioc:stroke="#6D28D9">

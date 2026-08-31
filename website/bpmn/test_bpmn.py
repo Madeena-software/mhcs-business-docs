@@ -79,8 +79,15 @@ def main():
     assert len(nodes["Gateway_AIMerge"].findall("bpmn:incoming", NS)) == 3
     assert flows["Flow_Confirm_MCU"].get("targetRef") == "Task_MCUAssessment"
     assert flows["Flow_MCU_Capture"].get("targetRef") == "Task_CaptureReview"
-    assert flows["Flow_ViewAI_Education"].get("targetRef") == "Task_ResultEducation"
-    assert flows["Flow_AIReady_No"].get("targetRef") == "Task_DeferEducation"
+    assert flows["Flow_ViewAI_Education"].get("targetRef") == "Task_ResultSurface"
+    assert flows["Flow_AIReady_No"].get("targetRef") == "Task_DeferResult"
+    assert nodes["Task_ResultSurface"].get("name") == "Member opens temporary result surface and views/downloads result"
+    assert nodes["Task_DeferResult"].get("name") == "Member receives notification; result surface remains pending"
+    assert "Task_ResultSurface" in [ref.text for ref in lanes[0].findall("bpmn:flowNodeRef", NS)]
+    assert "Task_DeferResult" in [ref.text for ref in lanes[0].findall("bpmn:flowNodeRef", NS)]
+    assert "Task_ResultEducation" not in nodes and "Task_DeferEducation" not in nodes
+    assert "Journey complete" not in ET.tostring(root, encoding="unicode")
+    assert "Current examination-service episode complete" in ET.tostring(root, encoding="unicode")
     assert len(nodes["Gateway_IndependentResults"].findall("bpmn:outgoing", NS)) == 3
     assert len(nodes["Gateway_ResultJoin"].findall("bpmn:incoming", NS)) == 3
 

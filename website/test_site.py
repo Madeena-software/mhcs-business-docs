@@ -8,12 +8,41 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).parent
 PAGES = {
-    "index.html": ("Read the care process by role.", "MHCS Actor Journey Maps"),
-    "member/index.html": ("Member", "WhatsApp", "reservation locator"),
-    "operator/index.html": ("Site Staff", "Basic examination & vital signs assessment", "Pair a read-only LCD session"),
-    "doctor/index.html": ("Doctor", "shared queue", "amendment"),
+    "index.html": (
+        "Indonesia-led healthcare orchestration",
+        "current examination / radiography / AI / optional Doctor Review",
+        "Strategic concept mock-up",
+        "Infographics",
+        "Operational demonstrator",
+    ),
+    "journeys/member/index.html": (
+        "Member",
+        "WhatsApp",
+        "reservation locator",
+        "price/fee awareness",
+        "payment status",
+        "cancellation",
+        "reschedule",
+        "applicable refund",
+    ),
+    "journeys/operator/index.html": ("Site Staff", "Basic examination & vital signs assessment", "Pair a read-only LCD session", "Booking lookup", "Identity verification", "Consent confirmation", "Ticket issuance"),
+    "journeys/doctor/index.html": ("Doctor", "Radiologist", "Authorized Specialist", "repeat_required", "controlled clinical reason", "amendment"),
+    "journeys/b2b/index.html": ("Authorized B2B Representative", "Confirm entitlement", "no-show consequences", "Reconcile usage"),
+    "journeys/admin/index.html": ("Global Admin / Super Admin", "Persistent Admin Web", "Suspend or resume payout processing", "identity and access exceptions"),
     "bpmn/index.html": ("Technical BPMN", "All journeys"),
-    "mock-up/index.html": (
+    "infographics/index.html": (
+        "Overall MHCS / All Actors",
+        "Member",
+        "Authorized B2B Representative",
+        "Reception / Registration",
+        "Basic Examination",
+        "Radiography",
+        "Radiologist",
+        "Authorized Specialist",
+        "Global Admin / Super Admin",
+        "Interaction Surface legend",
+    ),
+    "concept/index.html": (
         "MHCS Continuous Healthcare Journey Mockup",
         "Madeena Health Care System",
         "orchestrates existing healthcare capabilities into continuous end-to-end healthcare services",
@@ -82,7 +111,7 @@ def main():
         page = ROOT / relative
         parser = PageParser()
         parser.feed(page.read_text(encoding="utf-8"))
-        text = " ".join(parser.text)
+        text = " ".join(" ".join(parser.text).split())
         assert all(fragment in text for fragment in expected_text), relative
 
         for link in parser.links:
@@ -95,7 +124,34 @@ def main():
                 target /= "index.html"
             assert target.is_file(), (relative, link)
 
-    mockup_source = (ROOT / "mock-up/index.html").read_text(encoding="utf-8")
+    landing = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "permissioned" not in landing.lower()
+    assert "permission" not in landing.lower()
+    assert "concept/" in landing and "demonstrator/" in landing
+    assert "infographics/" in landing and "journeys/" in landing and "bpmn/" in landing
+
+    member = (ROOT / "journeys/member/index.html").read_text(encoding="utf-8")
+    assert "Suspended account" not in member
+    assert "Wallet rule" not in member
+    assert "permanent conventional Member account" not in member
+
+    operator = (ROOT / "journeys/operator/index.html").read_text(encoding="utf-8")
+    assert operator.index("Booking lookup") < operator.index("Identity verification") < operator.index("Consent confirmation") < operator.index("Ticket issuance")
+    assert "result education" not in operator.lower()
+    assert "clinical AI-result content remains outside non-clinical Site Staff access" in operator
+
+    doctor = (ROOT / "journeys/doctor/index.html").read_text(encoding="utf-8")
+    assert "ordinary Messaging" in doctor
+    assert "Radiologist" in doctor and "Authorized Specialist" in doctor
+    assert doctor.index("repeat_required") < doctor.index("Radiography repeat") < doctor.index("replacement study")
+    assert "service permission" not in doctor
+
+    for page in (ROOT / "journeys/b2b/index.html", ROOT / "journeys/admin/index.html"):
+        source = page.read_text(encoding="utf-8")
+        assert "permission" not in source.lower()
+
+    mockup_source = (ROOT / "concept/index.html").read_text(encoding="utf-8")
+    assert "Active strategic concept artifact" in mockup_source
     for translation in (
         'data-en="To be determined" data-id="Akan ditentukan"',
         'data-en="Pending field validation" data-id="Menunggu validasi lapangan"',
@@ -175,6 +231,17 @@ def main():
         assert fragment in demonstrator_source, fragment
 
     assert 'id="language-switcher"' in demonstrator_source
+    for fragment in (
+        "INTERACTION SURFACES",
+        "Messaging · WhatsApp reference channel",
+        "OPEN RESULT",
+        "OPEN SITE WORKSPACE",
+        "OPEN CASE",
+        "BACK TO MESSAGING",
+        "Persistent Admin Web",
+        "does not imply one persistent web application",
+    ):
+        assert fragment in demonstrator_source, fragment
     assert '<html lang="id">' in demonstrator_source
     assert 'data-language="id"' in demonstrator_source
     assert 'data-language="en"' in demonstrator_source
@@ -396,11 +463,11 @@ def main():
     assert "secrets.AI_DEMO_URL" in workflow
     assert workflow.index("AI_DEMO_URL") < workflow.index("Upload artifact")
 
-    legacy = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3.html"
-    legacy_assets = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/index-2a7W-y2Q.css"
-    legacy_saved_resource = ROOT / "mock-up/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/saved_resource.html"
-    assert not (ROOT / "mock-up/MHCS Guided Clinical Journey Mockup _ v0.3.html").exists()
-    assert not (ROOT / "mock-up/MHCS Guided Clinical Journey Mockup _ v0.3_files").exists()
+    legacy = ROOT / "concept/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3.html"
+    legacy_assets = ROOT / "concept/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/index-2a7W-y2Q.css"
+    legacy_saved_resource = ROOT / "concept/v0.3/MHCS Guided Clinical Journey Mockup _ v0.3_files/saved_resource.html"
+    assert not (ROOT / "concept/MHCS Guided Clinical Journey Mockup _ v0.3.html").exists()
+    assert not (ROOT / "concept/MHCS Guided Clinical Journey Mockup _ v0.3_files").exists()
     assert legacy.is_file(), legacy
     assert legacy_assets.is_file(), legacy_assets
     assert legacy_saved_resource.is_file(), legacy_saved_resource

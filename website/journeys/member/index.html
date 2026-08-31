@@ -7,17 +7,19 @@
   <meta name="description" content="Detailed MHCS Member user-flow diagram.">
   <title>MHCS Member Journey</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="../assets/journey.css">
+  <link rel="stylesheet" href="../../assets/journey.css">
 </head>
 <body>
   <header class="site-header">
     <nav class="nav" aria-label="Diagram navigation">
-      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <a class="brand" href="../../"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
         <a href="./" aria-current="page">Member</a>
         <a href="../operator/">Site Staff</a>
         <a href="../doctor/">Doctor</a>
-        <a href="../bpmn/">Technical BPMN</a>
+        <a href="../b2b/">B2B Representative</a>
+        <a href="../admin/">Global Admin</a>
+        <a href="../../bpmn/">Technical BPMN</a>
       </div>
     </nav>
   </header>
@@ -78,17 +80,17 @@
             <p>Confirm the service, subject, site, schedule, and payment or funding status through the approved conversation flow.</p>
           </div>
           <div class="flow-step step-decision">
-            <span class="step-label">Wallet rule</span>
-            <h3>Who is involved in the booking?</h3>
+            <span class="step-label">People & payment</span>
+            <h3>Who is involved and what is the payment status?</h3>
             <div class="branch-grid">
               <div class="branch"><strong>Requester / payer</strong><span>The person communicating may be different from the payer and from the subject of care.</span></div>
               <div class="branch"><strong>Guardian / recipient</strong><span>Guardian and result-recipient relationships are recorded separately where applicable.</span></div>
             </div>
           </div>
-          <div class="flow-step step-warning">
-            <span class="step-label">Exception</span>
-            <h3>Suspended account</h3>
-            <p>Stop access and direct the member to support or an administrator.</p>
+          <div class="flow-step step-action">
+            <span class="step-label">Payment</span>
+            <h3>Review price/fee awareness, payment, and payment status</h3>
+            <p>Continue when payment succeeds; follow the approved failure or expiry path when it does not. No persistent Member account is created.</p>
           </div>
         </div>
       </article>
@@ -124,6 +126,11 @@
             <span class="step-label">Handoff</span>
             <h3>Attend the examination</h3>
             <p>Walk-ins and additional bookings are registered and paid or authorized before visit confirmation.</p>
+          </div>
+          <div class="flow-step step-action">
+            <span class="step-label">Booking change</span>
+            <h3>Request cancellation or reschedule when allowed</h3>
+            <p>Receive the applicable refund or payment outcome without assuming an open commercial policy.</p>
           </div>
         </div>
       </article>

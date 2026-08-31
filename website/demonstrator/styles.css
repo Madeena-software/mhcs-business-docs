@@ -74,6 +74,17 @@ h3 { margin: 0; font-size: 15px; line-height: 1.3; }
 .topbar-reset:hover { border-color: var(--cyan); color: #fff; }
 
 .actor-switcher { max-width: 1380px; margin: 0 auto; padding: 16px 26px 10px; }
+.surface-map { max-width: 1380px; margin: 0 auto 15px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.surface-map h2 { margin-top: 4px; font-size: 16px; }
+.surface-map-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.surface-map-grid p { margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 5px; background: #f7fafb; font-size: 10px; }
+.surface-map-grid strong, .surface-map-grid span { display: block; }
+.surface-map-grid strong { color: var(--blue-deep); font-size: 11px; }
+.surface-map-grid span { margin-top: 5px; color: var(--ink-soft); line-height: 1.45; }
+.surface-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+.surface-action-label { font: 700 8px var(--mono); letter-spacing: .04em; }
+@media (max-width: 900px) { .surface-map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .surface-map-grid { grid-template-columns: 1fr; } }
 .switcher-label { margin-bottom: 8px; color: var(--muted); font: 700 9px var(--mono); letter-spacing: .13em; }
 .actor-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
 .actor-tab { display: grid; grid-template-columns: 29px minmax(0, 1fr); align-items: center; gap: 9px; min-width: 0; padding: 10px 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink-soft); background: rgba(255, 255, 255, .8); text-align: left; transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease; }

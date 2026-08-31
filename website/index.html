@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="only light">
-  <meta name="description" content="MHCS actor journey maps and technical BPMN diagram.">
-  <title>MHCS Journey Diagrams</title>
+  <meta name="description" content="MHCS healthcare orchestration concept and current examination service journey maps.">
+  <title>MHCS Healthcare Orchestration Journeys</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/journey.css">
 </head>
@@ -14,9 +14,11 @@
     <nav class="nav" aria-label="Diagram navigation">
       <a class="brand" href="./" aria-current="page"><span class="brand-mark">M</span>MHCS Journeys</a>
       <div class="nav-links">
-        <a href="./member/">Member</a>
-        <a href="./operator/">Site Staff</a>
-        <a href="./doctor/">Doctor</a>
+        <a href="./journeys/member/">Member</a>
+        <a href="./journeys/operator/">Site Staff</a>
+        <a href="./journeys/doctor/">Doctor</a>
+        <a href="./journeys/b2b/">B2B Representative</a>
+        <a href="./journeys/admin/">Global Admin</a>
         <a href="./bpmn/">Technical BPMN</a>
       </div>
     </nav>
@@ -25,34 +27,71 @@
   <main class="page">
     <section class="hero">
       <div>
-        <p class="page-context">MHCS process handbook</p>
-        <h1>Read the care process by role.</h1>
+        <p class="page-context">MHCS healthcare orchestration concept</p>
+        <h1>Indonesia-led healthcare orchestration, shown by journey.</h1>
         <p class="intro">
-          Follow each actor’s actions and decisions in plain language, or open the BPMN
-          when formal process notation is needed.
+          MHCS coordinates continuous-care services across people, sites, messaging, and
+          connected capabilities. This site shows the current examination / radiography /
+          AI / optional Doctor Review service slice within that broader product.
         </p>
       </div>
-      <p class="screenshot-note">Four diagrams · offline and screenshot ready</p>
+      <p class="screenshot-note">Concept and candidate presentation · not production systems</p>
     </section>
 
-    <section class="cards" aria-label="Available diagrams">
-      <a class="card" href="./member/">
+    <section class="cards" aria-label="Available MHCS artifacts">
+      <a class="card" href="./infographics/">
+        <span class="card-icon">INFO</span>
+        <h2>Infographics</h2>
+        <p>Quick visual understanding of MHCS, its actors, roles, outcomes, and Interaction Surfaces.</p>
+        <span class="card-cta">View infographics →</span>
+      </a>
+      <a class="card" href="./concept/">
+        <span class="card-icon">CON</span>
+        <h2>Strategic concept mock-up</h2>
+        <p>Continuous-care orchestration, integration, localisation, and future validation framing.</p>
+        <span class="card-cta">Explore concept →</span>
+      </a>
+      <a class="card" href="./journeys/member/">
         <span class="card-icon">MEM</span>
         <h2>Member Journey</h2>
-        <p>WhatsApp booking and notifications, on-site attendance, images, member-safe results, and doctor review.</p>
+        <p>WhatsApp booking, payment status, attendance, temporary result delivery, and allowed booking changes.</p>
         <span class="card-cta">View journey →</span>
       </a>
-      <a class="card" href="./operator/">
+      <a class="card" href="./journeys/">
+        <span class="card-icon">ACT</span>
+        <h2>Actor Journeys</h2>
+        <p>Detailed human actions, decisions, handoffs, and Interaction Surfaces for every material actor and role.</p>
+        <span class="card-cta">Browse journeys →</span>
+      </a>
+      <a class="card" href="./journeys/operator/">
         <span class="card-icon">OPR</span>
         <h2>Site Staff Journey</h2>
-        <p>WhatsApp dispatch, permissioned temporary site workspaces, one-ticket queues, image capture, background AI, and LCD calling.</p>
+        <p>Role-eligible dispatch, temporary Site Workspace, one-ticket queues, capture, readiness status, and payout touchpoints.</p>
         <span class="card-cta">View journey →</span>
       </a>
-      <a class="card" href="./doctor/">
+      <a class="card" href="./journeys/doctor/">
         <span class="card-icon">DOC</span>
         <h2>Doctor Journey</h2>
-        <p>WhatsApp case offers, temporary clinical workspaces, study review, report submission, and amendments.</p>
+        <p>Radiologist and Authorized Specialist paths, scoped offers, temporary clinical work, and earnings.</p>
         <span class="card-cta">View target →</span>
+      </a>
+      <a class="card" href="./journeys/b2b/">
+        <span class="card-icon">B2B</span>
+        <h2>Authorized B2B Representative</h2>
+        <p>Messaging-based entitlement, member scope, booking coordination, changes, quota awareness, and reconciliation.</p>
+        <span class="card-cta">View journey →</span>
+      </a>
+      <a class="card" href="./journeys/admin/">
+        <span class="card-icon">ADM</span>
+        <h2>Global Admin / Super Admin</h2>
+        <p>Persistent Admin Web over domain-owned operations, audit, exceptions, configuration, and access administration.</p>
+        <span class="card-cta">View journey →</span>
+      </a>
+      <a class="card" href="./demonstrator/">
+        <span class="card-icon">DEM</span>
+        <h2>Operational demonstrator</h2>
+        <p>Fictional, non-clinical-use demonstration of Member, Radiography Site Staff, Radiologist, and broader follow-up stages.</p>
+        <span class="card-cta">Open demonstrator →</span>
       </a>
       <a class="card" href="./bpmn/">
         <span class="card-icon">BPMN</span>
