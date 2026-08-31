@@ -447,7 +447,7 @@ Operator Core satisfies this specification when:
 - [ ] Existing MVP/beta accounts may temporarily map to all three operational areas under transitional compatibility.
 - [ ] New staff accounts require explicit Global Admin / Super Admin selection of operational roles.
 - [ ] Station selection routes work and calls but cannot grant or elevate a role.
-- [ ] Front-desk TU check-in verifies approved identity evidence and required comparison against stored Member Core records before check-in.
+- [ ] Reception / Registration Site Staff verify approved identity evidence and required comparison against stored Member Core records before check-in.
 - [ ] Booking code functions as a reservation locator and does not bypass official identity verification.
 - [ ] Paper informed consent is confirmed once for the visit before ticket issuance.
 - [ ] Queue ticket thermal slip prints without displaying patient name or MRN.
@@ -467,6 +467,6 @@ The following decisions are intentionally unresolved by current human authority:
 2. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
 3. **Grabber NPZ Schema:** Representative NPZ schema, dimensions, and safe parsing limits.
 4. **Payment Gateway Integration:** Payment provider adapter, account verification, transfer schemas, and fee contracts for operator payouts.
-5. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, and radiographers.
+5. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, and Radiography Site Staff.
 6. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
 7. **FHIR R5 Conformance Artifacts:** Canonical URLs, package IDs, profiles, and validator fixtures.

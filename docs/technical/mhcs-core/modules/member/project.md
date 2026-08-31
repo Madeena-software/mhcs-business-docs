@@ -126,6 +126,11 @@ developer or Global Admin / Super Admin provisions the agreed members, entitleme
 locations, dates, and shifts. Plaintext passwords are not generated or distributed
 because members interact via WhatsApp without web credentials.
 
+The Business Customer is the organization that funds the entitlements and defines
+the agreed B2B scope. An Authorized B2B Representative is the human actor who may
+provide or confirm that scope and request an authorized booking change for the
+Business Customer; the representative does not gain authority beyond the agreement.
+
 ### Booking and payment rules
 
 - The business centrally funds B2B bookings for covered members.

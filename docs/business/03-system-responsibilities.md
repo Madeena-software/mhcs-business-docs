@@ -6,15 +6,21 @@ Doctor, and Image Gateway modules, plus the separate `mpips` black-box
 conversion repository, served by temporary task-specific staff web workspaces, a
 persistent unified administration panel, and a WhatsApp-led member channel.
 
+In the B2B model, the **Business Customer** is the organization that funds and
+defines the agreed service scope. The **Authorized B2B Representative** is the
+human actor authorized to provide, confirm, monitor, reconcile, or request a
+change to that scope; the representative does not gain authority beyond the
+Business Customer's agreement.
+
 ## Responsibility map
 
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
 | Member module in `mhcs-core` | Member healthcare identity (MRN), demographics, requester/payer/subject-of-care/guardian/recipient relations, catalogue, B2B/B2C booking coordination, repeat entitlements, financial tracking, notifications, and WhatsApp result orchestration | Member WhatsApp activity, clinical repeat commands, and member-safe result references | Attendance, booking locator, examination snapshot, repeat status, and WhatsApp-delivered member information |
-| Operator Core module in `mhcs-core` | Physical sites, Site Staff roles and assignments, consent confirmation, completed paper-questionnaire evidence, staged FIFO queues, basic examination & vital signs capture, multi-capture Submit, LCD calling, staff earnings, and payouts | Attendance query results, physical identity documents on-site, durable image acceptance, image and AI status | Site data, queue state, complete radiograph/gain NPZ submission, and staff status |
-| Grabber | Offline-capable X-ray capture | X-ray equipment | Patient-free radiograph NPZ captures and matching gain NPZ input |
-| Image Gateway module in `mhcs-core` | Private durable source and NPZ/DICOM storage, atomic source acceptance, queued MPIPS orchestration, routing, access, publication, and audit | Local complete-submission commands and external processing results | MPIPS conversion jobs, authorized references, completion, and publication events |
-| `mpips` repository | Public GitHub repository containing the black-box radiograph NPZ plus gain NPZ conversion through a private MHCS processing service/API boundary | Patient-free NPZ inputs and a signed DICOM metadata manifest | DICOM and correlated technical status |
+| Operator Core module in `mhcs-core` | Physical sites, Site Staff roles and assignments, consent confirmation, completed paper-questionnaire evidence, staged queues, examination capture, LCD calling, staff earnings, and payouts | Attendance query results, physical identity evidence on-site, image acceptance, and processing status | Site data, queue state, complete image submission, and staff status |
+| Grabber | Offline-capable radiography capture | Radiography equipment | Image-capture input |
+| Image Gateway module in `mhcs-core` | Private image storage, processing coordination, routing, access, publication, and audit | Complete-submission commands and processing results | Processing jobs, authorized references, completion, and publication status |
+| `mpips` repository | Public GitHub repository providing the separate private image-processing boundary | Image-processing input | Processed imaging result and technical status |
 | Doctor module in `mhcs-core` | Shared doctor queues across specialties, specialty/modality eligibility, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts | Eligible and replacement studies, supporting output, and repeat status | Quality events, repeat commands, reports, revisions, earnings, and payout status |
 | Unified Administration Panel | Presentation and administrative routing surface over domain-owned capabilities | Global Admin / Super Admin interactions across domains | Domain-owned configuration, provisioning, and monitoring actions |
 
@@ -55,12 +61,29 @@ defines its implementation boundary.
 | [US-STAFF-SHARED-004](02-user-stories.md#site-staff--shared) and [US-STAFF-SHARED-005](02-user-stories.md#site-staff--shared) staff payout handling | Track Site Staff earnings, payout status/history, destinations, failures, and suspension/resumption | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
 | [US-STAFF-REG-003](02-user-stories.md#site-staff--reception--registration), [US-STAFF-REG-004](02-user-stories.md#site-staff--reception--registration), and [US-STAFF-REG-005](02-user-stories.md#site-staff--reception--registration) identity exceptions, walk-in, payment, and cash closing | Resolve authorized front-desk exceptions, assisted walk-ins, on-site payment tracking, and cash reconciliation | Member Core + Operator Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability); [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
 | [US-STAFF-EXAM-003](02-user-stories.md#site-staff--basic-examination) required-item exceptions | Record allowed unavailable, refused, or not-applicable reasons for required basic examination evidence | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
-| [US-STAFF-RAD-004](02-user-stories.md#site-staff--radiography) and [US-STAFF-RAD-005](02-user-stories.md#site-staff--radiography) durable handoff and role-scoped DICOM | Confirm Image Gateway durable acceptance and enforce Radiography-only operational raw-DICOM access | Operator Core + Image Gateway | [Image Gateway specification](../technical/mhcs-core/modules/image-gateway/project.md#business-traceability); [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-RAD-004](02-user-stories.md#site-staff--radiography) and [US-STAFF-RAD-005](02-user-stories.md#site-staff--radiography) submission outcome and role-scoped DICOM | Report the Image Gateway submission outcome and enforce Radiography-only operational raw-DICOM access | Operator Core + Image Gateway | [Image Gateway specification](../technical/mhcs-core/modules/image-gateway/project.md#business-traceability); [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
 | [US-DOCTOR-SHARED-003](02-user-stories.md#doctor--shared) doctor payout handling | Track Doctor earnings, payout status/history, destination, and authorized exceptions | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
 | [US-DOCTOR-RAD-004](02-user-stories.md#doctor--radiologist) and [US-DOCTOR-RAD-005](02-user-stories.md#doctor--radiologist) replacement review and earning events | Return replacement studies to the Radiologist workflow and expose controlled repeat/final-report earning triggers | Doctor Core + Member Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability); [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
 | [US-DOCTOR-SPECIALIST-003](02-user-stories.md#doctor--authorized-specialist) specialist output lifecycle | Support authorized specialty output finalization and amendment while preserving authorship | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
 | [US-ADMIN-005](02-user-stories.md#global-admin--super-admin), [US-ADMIN-006](02-user-stories.md#global-admin--super-admin), [US-ADMIN-007](02-user-stories.md#global-admin--super-admin), [US-ADMIN-008](02-user-stories.md#global-admin--super-admin), and [US-ADMIN-009](02-user-stories.md#global-admin--super-admin) administrative change, rate, financial, payout, identity, and access actions | Provide one audited administration surface over domain-owned configuration, exceptions, and authorization | Unified Administration | [MHCS Core architecture](../technical/mhcs-core/project.md#business-traceability) |
 | [US-ADMIN-001](02-user-stories.md#global-admin--super-admin) and [US-ADMIN-004](02-user-stories.md#global-admin--super-admin) administration | Provide one presentation surface over domain-owned provisioning, configuration, audit, and exceptions | Unified Administration | [MHCS Core architecture](../technical/mhcs-core/project.md#business-traceability) |
+| [US-MEMBER-012](02-user-stories.md#member), [US-MEMBER-013](02-user-stories.md#member), [US-MEMBER-014](02-user-stories.md#member), [US-MEMBER-015](02-user-stories.md#member), and [US-MEMBER-020](02-user-stories.md#member) confirmation, Doctor Review payment, booking changes, refunds, and payment status | Coordinate member-facing confirmation, payment, booking-change outcomes, and status through Member Core | Member Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-MEMBER-016](02-user-stories.md#member), [US-MEMBER-017](02-user-stories.md#member), [US-MEMBER-018](02-user-stories.md#member), and [US-MEMBER-019](02-user-stories.md#member) relationship roles and secure result access | Preserve relationship authority and deliver authorized member-safe results | Member Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-STAFF-SHARED-006](02-user-stories.md#site-staff--shared) and [US-STAFF-SHARED-007](02-user-stories.md#site-staff--shared) earnings and payout exceptions | Expose Site Staff earning status and payout resolution outcomes | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-REG-006](02-user-stories.md#site-staff--reception--registration), [US-STAFF-REG-007](02-user-stories.md#site-staff--reception--registration), [US-STAFF-REG-008](02-user-stories.md#site-staff--reception--registration), and [US-STAFF-REG-009](02-user-stories.md#site-staff--reception--registration) identity, ticket, walk-in, and payment actions | Own authorized Reception / Registration workflows and their Member Core handoffs | Operator Core + Member Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability); [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-STAFF-RAD-006](02-user-stories.md#site-staff--radiography) capture review and [US-STAFF-RAD-004](02-user-stories.md#site-staff--radiography) submission outcome | Support Radiography capture decisions and report accepted or action-needed submission outcomes | Operator Core + Image Gateway | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability); [Image Gateway specification](../technical/mhcs-core/modules/image-gateway/project.md#business-traceability) |
+| [US-DOCTOR-SHARED-004](02-user-stories.md#doctor--shared), [US-DOCTOR-SHARED-005](02-user-stories.md#doctor--shared), [US-DOCTOR-SHARED-006](02-user-stories.md#doctor--shared), and [US-DOCTOR-SHARED-007](02-user-stories.md#doctor--shared) claim, workspace history, earnings, and payout actions | Manage eligible Doctor case ownership, professional history, earnings, and payout status | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-RAD-006](02-user-stories.md#doctor--radiologist), [US-DOCTOR-RAD-007](02-user-stories.md#doctor--radiologist), and [US-DOCTOR-RAD-008](02-user-stories.md#doctor--radiologist) quality decision, drafting, finalization, and amendment | Own radiology quality decisions and report lifecycle under Doctor Core | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-SPECIALIST-004](02-user-stories.md#doctor--authorized-specialist) specialist amendment | Preserve authorized specialist output history and authorship | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-ADMIN-010](02-user-stories.md#global-admin--super-admin), [US-ADMIN-011](02-user-stories.md#global-admin--super-admin), [US-ADMIN-012](02-user-stories.md#global-admin--super-admin), [US-ADMIN-014](02-user-stories.md#global-admin--super-admin), [US-ADMIN-015](02-user-stories.md#global-admin--super-admin), and [US-ADMIN-016](02-user-stories.md#global-admin--super-admin) assignment, configuration, audit, and financial-exception actions | Route domain-owned administration, authorization, audit, and exception handling through one unified surface | Unified Administration | [MHCS Core architecture](../technical/mhcs-core/project.md#business-traceability) |
+| [US-MEMBER-012](02-user-stories.md#member), [US-MEMBER-013](02-user-stories.md#member), [US-MEMBER-014](02-user-stories.md#member), [US-MEMBER-015](02-user-stories.md#member), [US-MEMBER-016](02-user-stories.md#member), [US-MEMBER-017](02-user-stories.md#member), [US-MEMBER-018](02-user-stories.md#member), [US-MEMBER-019](02-user-stories.md#member), and [US-MEMBER-020](02-user-stories.md#member) decomposed Member actions | Coordinate Member confirmation, optional Doctor Review payment, booking changes, refunds/status, relationship authority, and secure result delivery | Member Core | [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-STAFF-SHARED-006](02-user-stories.md#site-staff--shared) and [US-STAFF-SHARED-007](02-user-stories.md#site-staff--shared) decomposed Site Staff financial actions | Expose Site Staff earnings and payout status, destination, and exception outcomes | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-STAFF-REG-006](02-user-stories.md#site-staff--reception--registration), [US-STAFF-REG-007](02-user-stories.md#site-staff--reception--registration), [US-STAFF-REG-008](02-user-stories.md#site-staff--reception--registration), and [US-STAFF-REG-009](02-user-stories.md#site-staff--reception--registration) decomposed Reception / Registration actions | Coordinate identity verification, consent, ticket issuance, check-in, walk-in, and on-site payment | Operator Core + Member Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability); [Member specification](../technical/mhcs-core/modules/member/project.md#business-traceability) |
+| [US-STAFF-RAD-006](02-user-stories.md#site-staff--radiography) decomposed Radiography actions | Support capture review, retake, omission, and complete-set submission | Operator Core | [Operator specification](../technical/mhcs-core/modules/operator/project.md#business-traceability) |
+| [US-DOCTOR-SHARED-004](02-user-stories.md#doctor--shared), [US-DOCTOR-SHARED-005](02-user-stories.md#doctor--shared), [US-DOCTOR-SHARED-006](02-user-stories.md#doctor--shared), and [US-DOCTOR-SHARED-007](02-user-stories.md#doctor--shared) decomposed Doctor shared actions | Manage eligible case claim, workspace history, earnings, and payout actions | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-RAD-006](02-user-stories.md#doctor--radiologist), [US-DOCTOR-RAD-007](02-user-stories.md#doctor--radiologist), and [US-DOCTOR-RAD-008](02-user-stories.md#doctor--radiologist) decomposed Radiologist actions | Own DICOM review, diagnostic-quality decision, report drafting, finalization, and amendment | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-DOCTOR-SPECIALIST-004](02-user-stories.md#doctor--authorized-specialist) decomposed specialist action | Preserve authorized specialist amendment history and authorship | Doctor Core | [Doctor specification](../technical/mhcs-core/modules/doctor/project.md#business-traceability) |
+| [US-ADMIN-010](02-user-stories.md#global-admin--super-admin), [US-ADMIN-011](02-user-stories.md#global-admin--super-admin), [US-ADMIN-012](02-user-stories.md#global-admin--super-admin), [US-ADMIN-014](02-user-stories.md#global-admin--super-admin), [US-ADMIN-015](02-user-stories.md#global-admin--super-admin), and [US-ADMIN-016](02-user-stories.md#global-admin--super-admin) decomposed administration actions | Route Site Staff assignment, service/business configuration, audit, and distinct financial exceptions through the unified surface | Unified Administration | [MHCS Core architecture](../technical/mhcs-core/project.md#business-traceability) |
 
 This bridge prevents technical module specifications from becoming an
 independent source of human requirements. Detailed mechanics remain in those
@@ -140,27 +163,26 @@ via WhatsApp:
 ### Owns
 
 - physical-site master data and staff shift assignment;
-- role-based Site Staff authorization:
+- Site Staff role eligibility and assignment:
   1. Reception / Registration: front-desk check-in, approved physical identity verification, booking lookup, paper consent confirmation, ticket issuance, and thermal slip printing;
   2. Basic Examination: claiming basic examination tickets, recording vital signs, point-of-care blood screening, structured interview, and paper questionnaire confirmation;
-  3. Radiography: claiming X-ray tickets, Grabber NPZ capture review, retake/omission handling, and complete-set submission;
-- multi-role support: a person may hold multiple roles when eligible; implementation permissions/RBAC may enforce these roles;
+  3. Radiography: claiming X-ray tickets, image capture review, retake/omission handling, and complete-set submission;
+- multi-role support: a person may hold multiple roles when eligible; technical enforcement remains in the application layer;
 - station selection rules: station selection (`TU`, `PEMERIKSAAN DASAR`, `SESI FOTO RADIOGRAFI`) routes work and LCD calls but cannot grant or elevate a role;
 - MVP/beta transitional compatibility: existing beta accounts may temporarily map to all three operational roles;
 - new staff provisioning: Global Admin / Super Admin explicitly selects applicable operational roles;
 - one site-and-shift ticket across ready-time FIFO basic examination and X-ray queues;
 - atomic stage claims, public number-to-station calls for `PEMERIKSAAN DASAR` and `SESI FOTO RADIOGRAFI`, and paired LCD displays;
 - basic examination & vital signs measurements, point-of-care screening, and structured interview capture;
-- multi-capture NPZ draft set and review;
+- image-set draft and review;
 - one Submit action for the complete capture set;
 - processing status, role-scoped image viewing, and read-only AI readiness/status monitoring; and
 - configured basic examination and X-ray earnings and automated rupiah payouts.
 
 ### Target handoffs
 
-The Operator module hands patient-free radiograph NPZ captures, their matching
-gain NPZ input, and a frozen member/examination snapshot to the Image Gateway
-module.
+The Operator module hands the completed radiography submission and its active
+examination context to the Image Gateway module.
 
 Basic examination completion releases the same ticket to X-ray and makes the completing
 worker's stage earning eligible. Gateway acceptance completes X-ray, releases
@@ -169,53 +191,35 @@ eligible. Asynchronous AI completion automatically marks the ticket as completed
 
 ## Grabber
 
-Grabber captures images and calibration input only. It may remain offline and
-produces patient-free radiograph NPZ captures plus the required gain NPZ. The
-Radiography Site Staff opens MHCS Core on the Grabber computer and uploads the inputs into the
-active examination.
-
-The Grabber computer is dedicated to authorized staff. Gain and calibration
-details remain inside the Grabber/MPIPS boundary. Grabber does not fetch member
-data, create DICOM, or publish results.
+Grabber supports Radiography Site Staff in capturing the image set, including
+offline operation where applicable. It does not fetch member data or publish
+clinical results. Capture-file and processing details remain in the technical
+specifications.
 
 ## Image Gateway
 
 ### Owns
 
-- durable private persistence and atomic acceptance of a complete submission;
-- indefinite NPZ and DICOM storage;
-- non-public plain original bytes with opaque keys, integrity metadata,
-  grant-controlled access, and TLS/private infrastructure; application-side
-  object encryption is not part of the current policy;
-- organization-isolated storage;
-- MPIPS coordination;
-- three total attempts for a failed capture;
-- email notification after final failure;
-- AI and doctor routing, including the AI-readiness event used for member WhatsApp notification, temporary result-link delivery, and automatic ticket completion;
-- temporary authorized links;
-- complete-image publication;
-- report-version distribution; and
-- the operator-payment eligibility event.
+- controlled acceptance and private storage of submitted image studies;
+- MPIPS and AI processing coordination;
+- authorized image/result access and publication;
+- processing and completion status; and
+- the image-submission payment eligibility handoff.
 
 ### Completion boundary
 
-Each successful DICOM becomes available to an authenticated Radiography Site Staff member whose
-active site and current shift authorize the examination. The complete image
-set is published to Member Core (for WhatsApp notification and temporary result-link delivery where appropriate) and Doctor Core only after
-every submitted radiograph NPZ has produced DICOM. Successful source components
-and sibling files are preserved during a partial failure, but the incomplete set
-remains hidden from the Member and Doctor.
+Processed images become available only to the authorized Radiography Site Staff
+assignment and are published to Member Core and Doctor Core when the complete
+study is ready. Incomplete or failed processing remains outside Member and
+Doctor publication until the applicable recovery or exception outcome is reached.
 
 ## MPIPS
 
 ### MHCS responsibility
 
-MPIPS receives one patient-free radiograph NPZ, its matching patient-free gain
-NPZ, and a separately signed DICOM metadata manifest from Image Gateway, then
-returns one DICOM result.
-
-Image Gateway owns retries, permanent storage policy, whole-examination
-completion, publication, and payment meaning.
+MPIPS provides the separate image-processing capability used by Image Gateway.
+Image Gateway owns processing coordination, storage, completion, publication,
+and payment meaning.
 
 The [MPIPS document](../technical/mpips/project.md) is the authoritative
 transport and security contract for this boundary.
@@ -277,7 +281,7 @@ modules.
 | Payment area | Owning module | Eligibility trigger |
 |---|---|---|
 | B2B member entitlement | Member Core | Central annual agreement provisions member entitlements; tracked in Member Core financial records |
-| B2C member charge | Member Core | Member booking coordination completed via WhatsApp; payment tracked before operator confirmation |
+| B2C member charge | Member Core | Member booking coordination completed via WhatsApp; payment tracked before visit confirmation |
 | Operator basic exam earning | Operator Core | Basic examination completion triggers configured stage rate for performing worker |
 | Operator X-ray earning | Operator Core | Durable X-ray submission acceptance triggers configured stage rate for submitting worker |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms one doctor-requested repeat entitlement: 25% of snapshotted final-report rate |
@@ -316,10 +320,11 @@ new commercial, clinical, identity, or authorization policy without authority.
 | Doctor (Radiologist / Specialist) | No | Yes, for authorized study | Explicit, audited clinical need | If available | Own workflow |
 | Global Admin / Super Admin | Controlled backend access | As required for administration | Controlled backend access | Routing context | Version/audit context |
 
-Operator raw-DICOM downloads are authenticated, non-public attachments with no
-permanent public URL. Members receive member-safe result notifications via WhatsApp
-and may open a secure temporary result surface; they do not receive raw DICOM.
-Operators never receive raw NPZ.
+Radiography Site Staff raw-DICOM downloads are authenticated, non-public attachments
+with no permanent public URL and are limited to an active authorized examination.
+Members receive member-safe result notifications via WhatsApp and may open a secure
+temporary result surface; they do not receive raw DICOM. Site Staff never receive
+raw NPZ.
 
 ## FHIR R5 boundary
 
@@ -351,7 +356,7 @@ remain open design decisions:
 6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link, session/authentication, disclosure, retention, and fallback mechanics; the result surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the TU station.
-9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for TU staff, basic examination nakes, radiographers, radiologists, and non-radiologist specialists.
+9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, Radiography Site Staff, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
 11. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
 12. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
