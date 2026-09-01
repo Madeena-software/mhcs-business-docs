@@ -1,7 +1,7 @@
 ---
 title: MHCS Core Context Package Simplification
 document_id: AGENT-TASK-MHCS-CONTEXT-001
-version: 1.0
+version: 1.1
 status: validated-published
 language: en-US
 last_updated: 2026-09-01
@@ -48,7 +48,7 @@ business/product authority.
 
 ## Baseline and task revision
 
-**Implementation baseline:** `27ef73bcf900ec32d79c5fb640f6f02031f58fb4`
+**Implementation baseline:** `8d7628be78c597039f2cf44d111807e7ec2279b1`
 
 **Task revision:** the exact immutable Git revision containing this published
 file; resolve it from the publication commit before execution.
@@ -58,17 +58,17 @@ silently during execution; stop if it is no longer safely applicable.
 
 ## Objective
 
-**Objective:** Refactor the existing MHCS Core technical material into a lean,
-authority-mapped, copy-ready context package under
-`docs/technical/mhcs-core/context/`, suitable for later direct overlay into
-`mhcs-core/.agents/context/`, while preserving only information that materially
-helps an AI/software agent orient itself before inspecting implementation
-evidence.
+**Objective:** Promote the accepted MHCS Core context material into one lean,
+authority-mapped, copy-ready package under
+`docs/technical/mhcs-core-context/`, retire the duplicate active
+`docs/technical/mhcs-core/` technical tree after classifying its material, and
+preserve only information that materially helps an AI/software agent orient
+itself before inspecting implementation evidence.
 
 The conceptual package is:
 
 ```text
-docs/technical/mhcs-core/context/
+docs/technical/mhcs-core-context/
 ├── project.md
 ├── ui-language.md
 ├── modules/
@@ -105,8 +105,8 @@ renaming, post-copy moves, governance/task artifacts, or broken assumptions.
 
 - Context package objective → this validated task and the three accepted business sources above
 - Module ownership and boundaries → `docs/business/03-system-responsibilities.md` and the current MHCS Core technical documents as observed evidence
-- Actor, role, interaction, and result-delivery terminology → `docs/business/01-business-overview.md`, `docs/business/02-user-stories.md`, and `docs/technical/mhcs-core/ui-language.md`
-- MPIPS boundary → `docs/business/03-system-responsibilities.md`, `docs/technical/mhcs-core/project.md`, and `docs/technical/mhcs-core/modules/image-gateway/project.md`; detailed MPIPS authority remains under `docs/technical/mpips/`
+- Actor, role, interaction, and result-delivery terminology → `docs/business/01-business-overview.md`, `docs/business/02-user-stories.md`, and the observed prior MHCS Core UI-language material
+- MPIPS boundary → `docs/business/03-system-responsibilities.md` and the observed prior MHCS Core project/Image Gateway material; detailed MPIPS authority remains under `docs/technical/mpips/`
 
 Business documents are authority to reference, not text to duplicate. Existing
 technical documents and implementation-facing material are evidence to assess;
@@ -116,9 +116,9 @@ they do not retroactively define intended behavior.
 
 ### In scope
 
-- Inventory and classify all material in `docs/technical/mhcs-core/`, including `project.md`, `ui-language.md`, module documents, `design/`, `root/`, and `tasks/`.
-- Create and populate the designated copy-ready `context/` folder with a concise root entrypoint, UI-language context, four module contexts, an mhcs-core-side MPIPS integration context, and only justified design context/assets.
-- Make `context/project.md` a concise orientation map containing repository identity/purpose, delivery state, intended-authority map, observed-implementation-evidence map, high-level boundaries, integrations, scoped routing, material constraints, and relevant open decisions.
+- Inventory and classify all material in the existing `docs/technical/mhcs-core/` tree, including `project.md`, `ui-language.md`, module documents, `design/`, `root/`, and `tasks/`, before retiring that duplicate active structure.
+- Create and populate the designated copy-ready `docs/technical/mhcs-core-context/` folder with a concise root entrypoint, UI-language context, four module contexts, an mhcs-core-side MPIPS integration context, and only justified design context/assets.
+- Make `docs/technical/mhcs-core-context/project.md` a concise orientation map containing repository identity/purpose, delivery state, intended-authority map, observed-implementation-evidence map, high-level boundaries, integrations, scoped routing, material constraints, and relevant open decisions.
 - Represent system context and high-level internal boundaries: Member, Authorized B2B Representative/Business Customer where relevant, Site Staff, Doctor, Global Admin, MHCS, Messaging, payment/external capabilities, government/interoperability systems where relevant, MPIPS, and other material external systems; and `mhcs-core` boundaries for Member Core, Operator Core, Doctor Core, and Image Gateway.
 - Keep each module context short and responsibility-focused, using a common grammar such as Purpose, Owns, Does Not Own, important business/authorization boundaries, interaction surfaces, dependencies, authority references, observed implementation evidence, and open decisions.
 - Preserve the material orientation that Member Core coordinates members and Messaging, uses a temporary result surface where needed, has no permanent conventional Member Portal requirement, does not make Guardian automatically the Result Recipient, and respects identity/result authority.
@@ -126,16 +126,17 @@ they do not retroactively define intended behavior.
 - Preserve Doctor as an umbrella actor; distinguish Radiologist and Authorized Specialist; retain Temporary Clinical / DICOM Workspace, professional/specialty/service authorization, assignment/case scope, radiologist quality and controlled-repeat responsibility, report lifecycle ownership, and handoffs.
 - Preserve Image Gateway as the durable clinical-binary boundary, controlled image-access and processing coordinator, manifest/integrity boundary where material, storage/trust/security boundary, and sole `mhcs-core` caller of MPIPS; remove low-level algorithm, controller, attempt-counter, and exact retry mechanics from default context unless a responsibility/contract requires them.
 - Create an mhcs-core-side `integrations/mpips/project.md` describing only the Image Gateway → MPIPS boundary, high-level input/output, patient/business-authority separation, trust boundary, responsibility split, and where detailed MPIPS authority lives. Do not duplicate MPIPS architecture.
-- Perform a semantic simplification audit of `ui-language.md`, retaining canonical actors/roles, Bahasa Indonesia conventions, clinical/safety wording, Interaction Surface terminology, and important prohibited/stale terms while reducing duplicated explanations, obsolete screens, redundant examples, and UI recipes.
-- Classify `design/DESIGN.md`, `mhcs-core-design.html`, and `mhcs-logo.svg`; retain only concise valid visual-system context and a required visual asset, move useful historical evidence outside `context/`, and prevent illustrative/stale screens from becoming behavioral authority.
+- Perform a semantic simplification audit of `ui-language.md`, retaining canonical actors/roles, Bahasa Indonesia conventions, clinical/safety wording, Interaction Surface terminology, and important prohibited/stale terms while reducing duplicated explanations, obsolete screens, redundant examples, and UI recipes; remove dependencies on retired source paths.
+- Classify `design/DESIGN.md`, `mhcs-core-design.html`, and `mhcs-logo.svg`; retain only concise valid visual-system context and a required visual asset, move useful historical evidence outside `docs/technical/mhcs-core-context/`, and prevent illustrative/stale screens from becoming behavioral authority.
 - Preserve copy portability: use repository identity plus stable paths for cross-repository references, avoid source-repository-relative links that break after copy, avoid hard-coded evergreen commit assumptions, and do not create a source `README.md` that overwrites the target-managed `.agents/context/README.md`.
-- Deliberately classify every removed, moved, or retained material as `KEEP IN CONTEXT`, `REFERENCE`, `MOVE OUT OF CONTEXT`, `IMPLEMENTATION EVIDENCE`, `ARCHITECTURE DECISION`, `OPEN DECISION`, or `RETIRE`; retain the classification as a reviewable record in the implementation change or an appropriate non-context location.
+- Move the existing classification record to `docs/technical/mhcs-core-context-classification.md`, outside the payload, and deliberately classify every removed, moved, or retained material as `KEEP / PROMOTE`, `REFERENCE`, `IMPLEMENTATION EVIDENCE`, `ARCHITECTURE DECISION`, `OPEN DECISION`, or `RETIRE`; no unique material may be silently lost.
+- Reconcile repository-wide references affected by the path change, including README links, repository-context routing, Markdown links, task/reference material, and `website/test_site.py`, with only minimal necessary updates to the new canonical package path.
 
 ### Out of scope
 
 - Any modification to `Madeena-software/mhcs-core`, its `.agents/context/`, or any other repository.
 - Copying or overlaying the package into `mhcs-core`; the overlay check may use only a temporary directory.
-- Modification of `docs/business/`, website files, MPIPS implementation, application code, schema/database files, or the `.agents` governance framework outside this task file.
+- Modification of `docs/business/`, website product content/semantics, MPIPS implementation, application code, schema/database files, `main`, deployment/release, or the `.agents` governance framework outside this task file.
 - Creating a full software specification, duplicating complete user stories/system responsibilities, full C4 component/code diagrams, low-level implementation manuals, or detailed payment, booking, report-state, retry, queue, NPZ, DICOM, controller, or route mechanics.
 - Turning unresolved business, clinical, payment, identity, security, FHIR, or implementation choices into implied policy.
 - Deployment, release, merge, PR creation, or external-system mutation.
@@ -160,7 +161,8 @@ they do not retroactively define intended behavior.
 ### Approved assumptions
 
 - The package source is `mhcs-business-docs`; this task does not create or modify the target application repository.
-- `context/` is the single designated copy-ready folder; no task/root-governance material belongs inside it.
+- `docs/technical/mhcs-core-context/` is the single designated copy-ready folder; no classification, task, root-governance, source README, or other provenance material belongs inside it.
+- `docs/technical/mpips/` remains separate and is not moved into the MHCS Core package.
 - Current source documents may contain stale, illustrative, duplicated, or low-level material and must be assessed rather than trusted merely because they exist.
 
 ### Remaining approval requirements
@@ -182,38 +184,46 @@ they do not retroactively define intended behavior.
 - Keep context concise and refreshable. If a detail can change during an internal refactor without changing responsibility, boundary, contract, quality attribute, security/trust boundary, or authorized behavior, it normally does not belong in context.
 - Use references over duplicated authority. Label intended authority and observed implementation evidence separately in every context where both appear.
 - Do not use current implementation to claim intended conformance, or approved requirements to claim implementation conformance.
-- Do not retain `docs/technical/mhcs-core/root/AGENTS.md` or `docs/technical/mhcs-core/tasks/` artifacts inside `context/`; classify them as governance/task material outside the payload and assess whether they should be preserved, moved, or retired.
-- Do not make the package's complete copy operation depend on files outside the designated folder, except for clearly labeled cross-repository authority references that remain valid after copy.
+- Retire the duplicate active `docs/technical/mhcs-core/` structure after accepted material has been promoted; do not preserve a full duplicate archive merely for convenience because Git history preserves historical versions.
+- Do not retain `docs/technical/mhcs-core/root/AGENTS.md` or `docs/technical/mhcs-core/tasks/` artifacts inside the payload; classify them outside the payload and assess whether they should be preserved, moved, or retired.
+- Do not make the package's complete copy operation depend on files outside `docs/technical/mhcs-core-context/`, except for clearly labeled cross-repository authority references that remain valid after copy.
+- Update only references broken by the move; do not use the migration to rewrite unrelated README, website, or `.agents` content.
 
 ## Acceptance criteria
 
-- [ ] One explicitly designated folder, `docs/technical/mhcs-core/context/`, is copy-ready for `mhcs-core/.agents/context/`; its complete contents can be overlaid without renaming, selecting, moving, or copying task/root-governance files.
+- [ ] Exactly one explicitly designated folder, `docs/technical/mhcs-core-context/`, is copy-ready for `mhcs-core/.agents/context/`; its complete contents can be overlaid without selecting, renaming, moving, nested `context/context` or `context/mhcs-core-context`, or copying task/root-governance files.
 - [ ] The package contains the required root, UI-language, module, MPIPS integration, and justified design context artifacts, with no unrequested source `README.md` replacement for the target-managed README.
-- [ ] `context/project.md` is concise repository orientation and routing, not a detailed technical book or substitute for business authority, source code, architecture decisions, migrations, configuration, tests, or runtime evidence.
+- [ ] `docs/technical/mhcs-core-context/project.md` is concise repository orientation and routing, not a detailed technical book or substitute for business authority, source code, architecture decisions, migrations, configuration, tests, or runtime evidence.
 - [ ] The root and scoped contexts clearly separate intended authority from observed implementation evidence and point to the accepted business sources rather than duplicating them.
 - [ ] Module contexts are concise, responsibility/boundary-focused, and preserve the required Member, Operator, Doctor, and Image Gateway distinctions and authorization/trust boundaries.
 - [ ] `integrations/mpips/project.md` describes only the mhcs-core-side Image Gateway → MPIPS contract and routes detailed MPIPS authority elsewhere.
 - [ ] UI language is materially simplified without losing canonical actor/role terminology, Bahasa Indonesia conventions, clinical/safety language, Interaction Surface terminology, or important prohibited/stale terminology.
 - [ ] Design artifacts are classified so stale or illustrative HTML cannot become behavioral authority; valid `DESIGN.md` and `mhcs-logo.svg` are retained only when justified.
-- [ ] All current technical material removed from the context payload is deliberately classified as keep, reference, move, implementation evidence, architecture decision, open decision, or retire; no material is silently lost.
+- [ ] The duplicate active `docs/technical/mhcs-core/` technical tree is retired, while all removed, moved, or retained material is deliberately classified in `docs/technical/mhcs-core-context-classification.md`; no material is silently lost.
+- [ ] The classification record is outside the payload, `docs/technical/mpips/` remains separate, and the payload contains no source README that would overwrite the target-managed context README.
+- [ ] Repository-wide references to retired paths are reconciled, including README, routing, Markdown, and website technical-path checks where applicable.
+- [ ] README terminology presents `docs/technical/mhcs-core-context/` as the prepared/copy-ready repository-context package and no longer directs readers to retired `docs/technical/mhcs-core/project.md` or `docs/technical/mhcs-core/modules/...` paths.
 - [ ] Copy portability has been verified, including no broken package-internal links or repository-relative assumptions after overlay.
-- [ ] No changes are made to `docs/business/`, `website/`, `mhcs-core`, MPIPS implementation, application code, or governance outside this task.
+- [ ] No changes are made to `docs/business/`, website product content/semantics, `mhcs-core`, MPIPS implementation, application code, `main`, deployment/release, or governance outside this task.
 
 ## Verification requirements
 
 ### Required checks
 
 - `git diff --check`
-- Markdown relative-link target audit before and after any move
+- Repository-wide stale-path search for `docs/technical/mhcs-core/` and `docs/technical/mhcs-core/context/`
+- Markdown relative-link target audit before and after moves
 - Markdown heading/anchor audit for package links
 - Copy-ready package file-tree audit against the designated structure and exclusions
-- Copy-portability audit after simulating `context/.` overlay into a temporary `.agents/context/` directory; do not mutate the actual `mhcs-core` repository
+- Copy-overlay dry run of `docs/technical/mhcs-core-context/.` into a temporary `.agents/context/` directory; confirm no extra nested directory, source README, classification file, or governance artifact; do not mutate the actual `mhcs-core` repository
 - Authority-reference audit confirming business sources are referenced, not duplicated, and cross-repository references use stable repository identity/path wording
 - Stale terminology audit, including Member Portal, Madeena Points, obsolete product/application names, and stale design behavior
 - Duplicated-business-rule and technical-overdetail audits
 - Context-versus-observed-evidence separation audit
 - Stale-design-behavior audit covering `mhcs-core-design.html`
-- Existing website/BPMN regression checks (`python3 website/test_site.py` and `python3 website/bpmn/test_bpmn.py`) if repository policy expects them; report actual execution and result
+- README link audit and repository-context routing audit
+- Classification/no-information-loss audit and context semantic regression audit
+- Existing website/BPMN regression checks: `python3 website/test_site.py` and `python3 website/bpmn/test_bpmn.py`; report actual execution and result
 
 ### Required evidence
 
