@@ -1,7 +1,7 @@
 ---
 title: MHCS Core Context Package Simplification
 document_id: AGENT-TASK-MHCS-CONTEXT-001
-version: 1.1
+version: 1.2
 status: validated-published
 language: en-US
 last_updated: 2026-09-01
@@ -131,12 +131,13 @@ they do not retroactively define intended behavior.
 - Preserve copy portability: use repository identity plus stable paths for cross-repository references, avoid source-repository-relative links that break after copy, avoid hard-coded evergreen commit assumptions, and do not create a source `README.md` that overwrites the target-managed `.agents/context/README.md`.
 - Move the existing classification record to `docs/technical/mhcs-core-context-classification.md`, outside the payload, and deliberately classify every removed, moved, or retained material as `KEEP / PROMOTE`, `REFERENCE`, `IMPLEMENTATION EVIDENCE`, `ARCHITECTURE DECISION`, `OPEN DECISION`, or `RETIRE`; no unique material may be silently lost.
 - Reconcile repository-wide references affected by the path change, including README links, repository-context routing, Markdown links, task/reference material, and `website/test_site.py`, with only minimal necessary updates to the new canonical package path.
+- Reconcile only the technical references and traceability terminology in `docs/business/03-system-responsibilities.md` that became stale through this migration; preserve its User Story IDs, System Responsibility meaning, Owner assignments, business rules, actor ontology, Interaction Surface semantics, B2B/B2C policy, clinical authority, and User Story coverage.
 
 ### Out of scope
 
 - Any modification to `Madeena-software/mhcs-core`, its `.agents/context/`, or any other repository.
 - Copying or overlaying the package into `mhcs-core`; the overlay check may use only a temporary directory.
-- Modification of `docs/business/`, website product content/semantics, MPIPS implementation, application code, schema/database files, `main`, deployment/release, or the `.agents` governance framework outside this task file.
+- Modification of `docs/business/01-business-overview.md` or `docs/business/02-user-stories.md`; any modification to `docs/business/03-system-responsibilities.md` beyond technical-reference reconciliation and traceability terminology; website product content/semantics, MPIPS implementation, application code, schema/database files, `main`, deployment/release, or the `.agents` governance framework outside this task file.
 - Creating a full software specification, duplicating complete user stories/system responsibilities, full C4 component/code diagrams, low-level implementation manuals, or detailed payment, booking, report-state, retry, queue, NPZ, DICOM, controller, or route mechanics.
 - Turning unresolved business, clinical, payment, identity, security, FHIR, or implementation choices into implied policy.
 - Deployment, release, merge, PR creation, or external-system mutation.
@@ -164,6 +165,7 @@ they do not retroactively define intended behavior.
 - `docs/technical/mhcs-core-context/` is the single designated copy-ready folder; no classification, task, root-governance, source README, or other provenance material belongs inside it.
 - `docs/technical/mpips/` remains separate and is not moved into the MHCS Core package.
 - Current source documents may contain stale, illustrative, duplicated, or low-level material and must be assessed rather than trusted merely because they exist.
+- `docs/business/03-system-responsibilities.md` may be updated only to replace retired technical references, remove obsolete anchor assumptions, and accurately describe the lean context package as orientation/boundary routing rather than a full implementation specification or independent authority.
 
 ### Remaining approval requirements
 
@@ -187,7 +189,8 @@ they do not retroactively define intended behavior.
 - Retire the duplicate active `docs/technical/mhcs-core/` structure after accepted material has been promoted; do not preserve a full duplicate archive merely for convenience because Git history preserves historical versions.
 - Do not retain `docs/technical/mhcs-core/root/AGENTS.md` or `docs/technical/mhcs-core/tasks/` artifacts inside the payload; classify them outside the payload and assess whether they should be preserved, moved, or retired.
 - Do not make the package's complete copy operation depend on files outside `docs/technical/mhcs-core-context/`, except for clearly labeled cross-repository authority references that remain valid after copy.
-- Update only references broken by the move; do not use the migration to rewrite unrelated README, website, or `.agents` content.
+- Update only references broken by the move; do not use the migration to rewrite unrelated README, website, `.agents`, or business content.
+- Do not re-expand the context package with duplicated business traceability tables merely to preserve obsolete `#business-traceability` links.
 
 ## Acceptance criteria
 
@@ -201,10 +204,12 @@ they do not retroactively define intended behavior.
 - [ ] Design artifacts are classified so stale or illustrative HTML cannot become behavioral authority; valid `DESIGN.md` and `mhcs-logo.svg` are retained only when justified.
 - [ ] The duplicate active `docs/technical/mhcs-core/` technical tree is retired, while all removed, moved, or retained material is deliberately classified in `docs/technical/mhcs-core-context-classification.md`; no material is silently lost.
 - [ ] The classification record is outside the payload, `docs/technical/mpips/` remains separate, and the payload contains no source README that would overwrite the target-managed context README.
-- [ ] Repository-wide references to retired paths are reconciled, including README, routing, Markdown, and website technical-path checks where applicable.
+- [ ] Repository-wide current references to retired paths are reconciled, including README, routing, Markdown, website technical-path checks, and `docs/business/03-system-responsibilities.md` where applicable.
 - [ ] README terminology presents `docs/technical/mhcs-core-context/` as the prepared/copy-ready repository-context package and no longer directs readers to retired `docs/technical/mhcs-core/project.md` or `docs/technical/mhcs-core/modules/...` paths.
+- [ ] `docs/business/03-system-responsibilities.md` points detailed foundations to surviving canonical context/package paths, no longer relies on nonexistent `#business-traceability` anchors, and does not mislabel the lean context package as a full implementation specification or independent authority.
+- [ ] User Story IDs, System Responsibility intent, Owner semantics, and business rules remain unchanged; no business file other than `docs/business/03-system-responsibilities.md` is modified.
 - [ ] Copy portability has been verified, including no broken package-internal links or repository-relative assumptions after overlay.
-- [ ] No changes are made to `docs/business/`, website product content/semantics, `mhcs-core`, MPIPS implementation, application code, `main`, deployment/release, or governance outside this task.
+- [ ] No changes are made to `docs/business/01-business-overview.md` or `docs/business/02-user-stories.md`; changes to `docs/business/03-system-responsibilities.md` are limited to the authorized technical-reference reconciliation; website product content/semantics, `mhcs-core`, MPIPS implementation, application code, `main`, deployment/release, and governance outside this task remain unchanged.
 
 ## Verification requirements
 
@@ -212,6 +217,10 @@ they do not retroactively define intended behavior.
 
 - `git diff --check`
 - Repository-wide stale-path search for `docs/technical/mhcs-core/` and `docs/technical/mhcs-core/context/`
+- Repository-wide Markdown-link audit, including `docs/business/03-system-responsibilities.md`
+- Obsolete-anchor search for `#business-traceability`
+- Verify `docs/business/01-business-overview.md` and `docs/business/02-user-stories.md` are unchanged
+- Verify `03-system-responsibilities.md` retains its User Story ID set, System Responsibility intent, Owner assignments, and business rules
 - Markdown relative-link target audit before and after moves
 - Markdown heading/anchor audit for package links
 - Copy-ready package file-tree audit against the designated structure and exclusions
