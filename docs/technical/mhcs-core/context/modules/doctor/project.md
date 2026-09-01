@@ -2,8 +2,8 @@
 
 ## Purpose and ownership
 
-Doctor Core provides scoped clinical review and reporting in the temporary
-Clinical / DICOM Workspace. It owns professional/specialty/service authority,
+Doctor Core provides scoped clinical review and reporting in the **Temporary
+Clinical / DICOM Workspace**. It owns professional/specialty/service authority,
 assignment and case scope, radiology quality decisions, controlled repeat
 decisions, report lifecycle, amendments, and publication handoffs.
 
@@ -24,8 +24,9 @@ boundary and supplies authorized study access.
 ## Dependencies and evidence
 
 Doctor receives work through Image Gateway and coordinates result delivery with
-Member Core. The approved business sources in `context/project.md` define
-intended authority. Inspect the target Doctor module, authorization policies,
+Member Core. The Business authority sources in `context/project.md`, honoring
+their recorded lifecycle/status and applicable adopted revision, define intended
+authority. Inspect the target Doctor module, authorization policies,
 report persistence, image-access code, and tests for observed reality; this
 context is not evidence of implementation.
 
@@ -33,4 +34,4 @@ context is not evidence of implementation.
 
 Specialty-specific workflows, qualification rules, report/publication details,
 temporary workspace authentication, and FHIR conformance artifacts remain open
-where current technical material does not have approved authority.
+where current technical material does not have authority-source resolution.

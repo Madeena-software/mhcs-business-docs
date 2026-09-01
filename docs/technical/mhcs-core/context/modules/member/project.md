@@ -36,8 +36,9 @@ the package [UI language context](../../ui-language.md).
 
 ## Authority and observed evidence
 
-Intended authority: the three accepted business sources listed in
-`context/project.md`. Observed implementation evidence: inspect the target
+Intended authority: the Business authority sources listed in `context/project.md`.
+Honor their recorded lifecycle/status and applicable adopted revision. Observed
+implementation evidence: inspect the target
 `mhcs-core` Member module, auth/policy code, schema, adapters, and tests. Neither
 source proves the other.
 
@@ -45,4 +46,5 @@ source proves the other.
 
 Temporary-result authentication/disclosure/retention, on-site verification
 mechanics, payment and refund policy, Madeena Points commercial treatment, and
-FHIR conformance artifacts remain open where not approved upstream.
+FHIR conformance artifacts remain open where not resolved by the applicable
+authority sources.

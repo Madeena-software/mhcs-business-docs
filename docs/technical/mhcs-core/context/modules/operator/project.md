@@ -32,8 +32,9 @@ publication.
 
 ## Dependencies and evidence
 
-Site Staff interaction surfaces are WhatsApp dispatch, Temporary Site Workspace,
-and applicable physical or operational surfaces. Operator Core capabilities may
+Site Staff interaction surfaces are Messaging dispatch, **Temporary Site
+Workspace**, and **On-site / Physical** operational surfaces. WhatsApp may be
+used as the current/reference Messaging channel. Operator Core capabilities may
 be administered by Global Admin through the Persistent Admin Web; that is not a
 Site Staff surface. Dependencies include Member Core,
 Image Gateway, Messaging, payment adapters, and FHIR mapping. Intended
@@ -45,4 +46,4 @@ schema, and tests.
 
 Staff authorization implementation, regulatory credentials, payout integration,
 beta-account migration, and FHIR conformance artifacts remain open unless
-approved elsewhere.
+resolved by the applicable authority sources.

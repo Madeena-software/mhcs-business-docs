@@ -22,5 +22,6 @@ product authority. In particular, do not infer a persistent Member Portal,
 Madeena Points policy, obsolete Operator terminology, or unrestricted clinical
 and result access from its screens.
 
-For approved behavior, use the business authority and module contexts. For
-current implementation, inspect the target repository.
+For intended behavior, use the applicable business authority sources and honor
+their recorded lifecycle/status. For current implementation, inspect the target
+repository.

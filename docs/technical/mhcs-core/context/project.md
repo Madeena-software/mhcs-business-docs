@@ -38,8 +38,10 @@ that inspection but do not claim conformance.
 
 MHCS coordinates Members, Authorized B2B Representatives/Business Customers,
 Site Staff, Doctors, and Global Admin/Super Admin. Member interaction is led by
-Messaging (WhatsApp); assigned operational work uses temporary Site and
-Clinical / DICOM Workspaces; Global Admin uses the **Persistent Admin Web**.
+Messaging; WhatsApp is the initial/reference channel. Assigned operational work
+uses **Temporary Site Workspace** and **Temporary Clinical / DICOM Workspace**;
+Global Admin uses the **Persistent Admin Web**. On-site / Physical interaction
+may complement these surfaces where applicable.
 External boundaries include payment and messaging providers, AI, email/SMS,
 object storage, interoperability systems, and the separate private `mpips`
 repository.
@@ -88,10 +90,12 @@ relevant module context before implementation. Use `design/DESIGN.md` and the
 repository-owned logo for visual guidance; the historical HTML prototype is
 reference material, not behavioral authority.
 
-Retain the approved separation between identity and result-recipient authority,
+Retain the separation between identity and result-recipient authority defined by
+the applicable business authority sources,
 Site Staff eligibility/assignment/workspace scope, doctor specialty and case
 scope, clinical-binary ownership, and HL7 FHIR R5 `5.0.0` interoperability.
 Do not infer unresolved commercial, clinical, credential, retention, NPZ, FHIR,
 or integration details from this package. Exact payment terms, temporary-result
 authentication, specialty workflows, staff qualification, safe NPZ schema, and
-FHIR conformance artifacts remain open where not approved upstream.
+FHIR conformance artifacts remain open where not resolved by the applicable
+authority sources.

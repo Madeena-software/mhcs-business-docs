@@ -34,8 +34,10 @@ private object storage, MPIPS, AI, and messaging/result adapters.
 
 ## Authority and observed evidence
 
-Intended authority is the accepted business sources in `context/project.md` plus
-the approved boundary they reference. Observed evidence must be checked in the
+Intended authority is the Business authority sources in `context/project.md`,
+honoring their recorded lifecycle/status and applicable adopted revision, plus
+the boundary defined by the applicable authority sources. Observed evidence must
+be checked in the
 target Image Gateway code, workers/jobs, storage policies, manifests, and tests.
 Low-level algorithm, controller, retry-count, and queue details belong in
 implementation evidence or dedicated authority, not this orientation file.
@@ -44,4 +46,4 @@ implementation evidence or dedicated authority, not this orientation file.
 
 Safe NPZ schema, DICOM mapping/validation, manifest signature/key policy,
 resource limits, error mapping, retention, and interoperability fixtures remain
-open where unapproved.
+open where unresolved by the applicable authority sources.
