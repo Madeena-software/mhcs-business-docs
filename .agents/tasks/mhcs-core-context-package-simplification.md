@@ -1,7 +1,7 @@
 ---
 title: MHCS Core Context Package Simplification
 document_id: AGENT-TASK-MHCS-CONTEXT-001
-version: 1.2
+version: 1.3
 status: validated-published
 language: en-US
 last_updated: 2026-09-01
@@ -48,13 +48,18 @@ business/product authority.
 
 ## Baseline and task revision
 
-**Implementation baseline:** `8d7628be78c597039f2cf44d111807e7ec2279b1`
+**Implementation baseline:** `b9bd023082a6d40f52e3669091af37486955bc30`
 
 **Task revision:** the exact immutable Git revision containing this published
 file; resolve it from the publication commit before execution.
 
-The baseline is the `mhcs-business-docs` revision only. Do not change it
-silently during execution; stop if it is no longer safely applicable.
+The accepted implementation baseline is the reviewed `mhcs-business-docs`
+revision `b9bd023082a6d40f52e3669091af37486955bc30`, which contains the
+promoted package and legacy-tree retirement. The governing task revision is
+the new publication commit containing this file. Execution MUST start from
+that publication commit, preserving the publication history. Do not change
+the baseline silently during execution; stop if it is no longer safely
+applicable.
 
 ## Objective
 
