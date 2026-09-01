@@ -3,7 +3,7 @@
 Use the repository-owned `mhcs-logo.svg` as the visual identity asset when the
 target application needs the MHCS mark. The stable visual-system reference is
 `Madeena-software/mhcs-business-docs` at
-`docs/technical/mhcs-core/design/DESIGN.md`.
+`Madeena-software/mhcs-business-docs/docs/technical/mhcs-core-context/design/DESIGN.md`.
 
 Durable orientation from that reference:
 

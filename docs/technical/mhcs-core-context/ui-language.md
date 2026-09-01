@@ -1,8 +1,9 @@
 # MHCS UI language context
 
 This is implementation orientation for MHCS-authored browser UI and member
-communications. The full language policy remains in
-`Madeena-software/mhcs-business-docs/docs/technical/mhcs-core/ui-language.md`.
+communications. The full language policy remains in the approved business and
+technical authority sources under
+`Madeena-software/mhcs-business-docs/docs/`.
 
 ## Canonical terms
 

@@ -22,13 +22,13 @@ agent orientation and must not duplicate them.
   responsibilities, and rules
 - `docs/business/02-system-responsibilities.md`: ownership, collaboration,
   access, payment triggers, and the FHIR R5 boundary
-- `docs/technical/mhcs-core/project.md`: authoritative target architecture for
-  the application repository and router to its module contexts
-- `docs/technical/mhcs-core/modules/<module>/project.md`: Member, Operator,
+- `docs/technical/mhcs-core-context/project.md`: prepared/copy-ready target
+  repository context and router to its module contexts
+- `docs/technical/mhcs-core-context/modules/<module>/project.md`: Member, Operator,
   Doctor, and Image Gateway module contexts, partitioned for selective loading
 - `docs/technical/mpips/project.md`: black-box integration contract for the
   private processing service/API boundary
-- `docs/technical/mhcs-core/ui-language.md`: approved UI terminology, Indonesian
+- `docs/technical/mhcs-core-context/ui-language.md`: approved UI terminology, Indonesian
   language policy, and staff interface copy rules
 
 ## Repository facts
@@ -68,8 +68,9 @@ applications or repositories.
   **Open design decisions**.
 - Put cross-system business ownership in `docs/business/` and detailed data,
   module operations, security, and FHIR R5 mappings in `docs/technical/`.
-- Treat `docs/technical/mhcs-core/project.md` as the authority for target
-  topology and cross-module interaction rules.
+- Treat `docs/technical/mhcs-core-context/project.md` as the context router; use
+  approved business and technical authority sources for target topology and
+  cross-module interaction rules.
 - Use local commands, queries, transactions, and durable domain events between
   `mhcs-core` modules. Define the exact transport contract only for MPIPS.
 - Keep detailed decisions in `docs/`, not `.agents/context/`.

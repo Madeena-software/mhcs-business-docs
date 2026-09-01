@@ -19,13 +19,13 @@ teleradiology service.
 
 | Repository | Foundation |
 |---|---|
-| `mhcs-core` | [Shared architecture](docs/technical/mhcs-core/project.md), with [Member](docs/technical/mhcs-core/modules/member/project.md), [Operator](docs/technical/mhcs-core/modules/operator/project.md), [Doctor](docs/technical/mhcs-core/modules/doctor/project.md), and [Image Gateway](docs/technical/mhcs-core/modules/image-gateway/project.md) module contexts |
+| `mhcs-core` | [Prepared/copy-ready repository context](docs/technical/mhcs-core-context/project.md), with [Member](docs/technical/mhcs-core-context/modules/member/project.md), [Operator](docs/technical/mhcs-core-context/modules/operator/project.md), [Doctor](docs/technical/mhcs-core-context/modules/doctor/project.md), and [Image Gateway](docs/technical/mhcs-core-context/modules/image-gateway/project.md) module contexts |
 | `mpips` | [Black-box contract for the private processing service/API boundary](docs/technical/mpips/project.md) |
 
 The nested module contexts mirror the `mhcs-core/.agents/context` layout. They
-partition one application specification so an agent can load only the module
-relevant to its task. `mhcs-core` is the application implementation repository
-that consumes these specifications; this repository remains the business and
+partition repository orientation so an agent can load only the module relevant
+to its task. `mhcs-core` is the application implementation repository that
+consumes this prepared context; this repository remains the business and
 candidate target technical authority pending human approval. `mpips` is a separate public GitHub
 repository whose MHCS processing service/API boundary is private.
 
