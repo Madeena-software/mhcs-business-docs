@@ -211,6 +211,24 @@ def main():
     ):
         assert marker in overall, marker
     assert "01 · OFFER" not in overall
+    # Regression guards: active Overall poster isolation and dedicated navigation
+    assert 'class="poster visual-infographic"' not in overall
+    assert 'visual-infographic' not in overall.split('id="overall-title"', 1)[0]
+    assert 'class="cards"' not in overall
+    assert 'class="card"' not in overall
+    assert "infographic-poster" in overall
+    assert "infographic-overall-map" in overall
+    assert "infographic-actor-streams" in overall
+    assert "infographic-nav-grid" in overall
+    assert "infographic-nav-card" in overall
+
+    journey_css = (ROOT / "assets/journey.css").read_text(encoding="utf-8")
+    assert ".infographic-poster" in journey_css
+    assert ".infographic-nav-grid" in journey_css
+    assert ".infographic-nav-card" in journey_css
+    assert ".infographic-actor-streams" in journey_css
+    assert ".infographic-page .visual-infographic" in journey_css
+    assert ":not(.infographic-page)" in journey_css
 
     member_source = (ROOT / "infographics/actors/member/index.html").read_text(encoding="utf-8")
     assert all(stage in member_source for stage in ("COORDINATE", "ATTEND", "RESULT", "NEXT ACTION"))

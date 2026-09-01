@@ -1,1 +1,235 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MHCS Infographics</title><link rel="stylesheet" href="../assets/journey.css"></head><body class="infographic-page"><header class="site-header"><nav class="nav" aria-label="Infographic navigation"><a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a><div class="nav-links"><a href="../journeys/">Actor Journeys</a><a href="./" aria-current="page">Infographics</a><a href="../bpmn/">Technical BPMN</a><a href="../concept/">Strategic Concept</a><a href="../demonstrator/">Demonstrator</a></div></nav></header><main class="page"><section class="hero"><div><p class="page-context">MHCS visual map</p><h1>People, messages, and care in motion.</h1><p class="intro">MHCS Healthcare Orchestration &amp; Coordination connects people to the right service surface at the right moment.</p></div><p class="screenshot-note">Concept/candidate material · not production systems</p></section><section class="poster visual-infographic" aria-labelledby="overall-title"><p class="poster-kicker">Overall MHCS / All Actors</p><h2 id="overall-title">The human interaction model</h2><div class="ecosystem-strip"><span>EXTERNAL ECOSYSTEM</span><strong>Government · Providers · Partners · Technology</strong><em>authoritative capabilities</em></div><div class="orchestration-core"><span class="actor-illustration" data-role="mhcs" aria-hidden="true"></span><div><p class="poster-kicker">MHCS</p><h2>Healthcare Orchestration &amp; Coordination</h2><p>Current slice: examination · radiography · AI · optional Doctor Review</p></div></div><div class="messaging-hub"><span class="surface-chip">MESSAGING</span><strong>Persistent interaction</strong></div><div class="actor-streams"><a class="actor-stream" href="actors/member/"><span class="actor-illustration" data-role="member" aria-hidden="true"></span><strong>MEMBER</strong><span>Messaging → On-site / Physical → Temporary Result Surface</span></a><a class="actor-stream" href="actors/b2b-representative/"><span class="actor-illustration" data-role="b2b" aria-hidden="true"></span><strong>AUTHORIZED B2B REPRESENTATIVE</strong><span>Messaging → scope → allocate → reconcile</span></a><a class="actor-stream" href="actors/site-staff/"><span class="actor-illustration" data-role="site-staff" aria-hidden="true"></span><strong>SITE STAFF</strong><span>Messaging → Temporary Site Workspace</span><small>Reception / Registration · Basic Examination · Radiography</small></a><a class="actor-stream" href="actors/doctor/"><span class="actor-illustration" data-role="doctor" aria-hidden="true"></span><strong>DOCTOR</strong><span>Messaging → Temporary Clinical / DICOM Workspace</span><small>Radiologist · Authorized Specialist</small></a></div><div class="admin-stream"><a class="actor-stream" href="actors/global-admin/"><span class="actor-illustration" data-role="admin" aria-hidden="true"></span><strong>GLOBAL ADMIN / SUPER ADMIN</strong><span>Persistent Admin Web → domain-owned actions</span></a></div><div class="callout-row"><aside class="authority-callout"><h3>Orchestrates, does not own all</h3><p>MHCS coordinates the healthcare ecosystem while external systems and providers retain their authority.</p></aside><aside class="outcome-node"><h3>Important boundary</h3><p>Members have no permanent portal. Specialized temporary surfaces appear only when richer work is needed.</p></aside></div></section><section class="poster" aria-labelledby="actors-title"><p class="poster-kicker">Detailed actor journeys</p><h2 id="actors-title">Follow the work</h2><div class="cards"><a class="card" href="actors/member/"><h2>Member</h2><p>Booking, attendance, result, next care.</p></a><a class="card" href="actors/b2b-representative/"><h2>Authorized B2B Representative</h2><p>Scope, allocate, change/monitor, reconcile.</p></a><a class="card" href="actors/site-staff/"><h2>Site Staff overview</h2><p>Offer, assignment, workspace, completion.</p></a><a class="card" href="actors/reception-registration/"><h2>Reception / Registration</h2><p>Look up, verify, check-in, handoff.</p></a><a class="card" href="actors/basic-examination/"><h2>Basic Examination</h2><p>Claim, assess, complete, handoff.</p></a><a class="card" href="actors/radiography/"><h2>Radiography</h2><p>Claim, capture, quality review, submit.</p></a><a class="card" href="actors/doctor/"><h2>Doctor overview</h2><p>Case offer, claim, clinical work, handoff.</p></a><a class="card" href="actors/radiologist/"><h2>Radiologist</h2><p>Review, quality decision, report/repeat, finalize.</p></a><a class="card" href="actors/authorized-specialist/"><h2>Authorized Specialist</h2><p>Case offer, specialty review, output, finalize.</p></a><a class="card" href="actors/global-admin/"><h2>Global Admin / Super Admin</h2><p>One Persistent Admin Web with grouped actions.</p></a></div></section><section class="poster" aria-labelledby="legend-title"><p class="poster-kicker">Interaction Surface legend</p><h2 id="legend-title">Where the work happens</h2><div class="surface-route" style="margin-top:1.5rem"><strong>CANONICAL SURFACES</strong><span class="surface-chip">Messaging</span><span class="surface-chip">On-site / Physical</span><span class="surface-chip">Temporary Site Workspace</span><span class="surface-chip">Temporary Clinical / DICOM Workspace</span><span class="surface-chip">Temporary Result Surface</span><span class="surface-chip">Persistent Admin Web</span></div></section><section class="infographic-text-equivalent"><details><summary>Text equivalent and semantic notes</summary><p>MHCS coordinates external capabilities around the current examination / radiography / AI / optional Doctor Review slice. Messaging is the persistent interaction layer. Member, Authorized B2B Representative, Site Staff, and Doctor use the appropriate interaction surface; Global Admin uses one Persistent Admin Web. Examination-service completion does not automatically complete the broader healthcare journey.</p></details></section><p class="site-note">Operational demonstrator and detailed journey pages remain available as companion views.</p></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MHCS Infographics</title>
+  <link rel="stylesheet" href="../assets/journey.css">
+</head>
+<body class="infographic-page">
+  <header class="site-header">
+    <nav class="nav" aria-label="Infographic navigation">
+      <a class="brand" href="../"><span class="brand-mark">M</span>MHCS Journeys</a>
+      <div class="nav-links">
+        <a href="../journeys/">Actor Journeys</a>
+        <a href="./" aria-current="page">Infographics</a>
+        <a href="../bpmn/">Technical BPMN</a>
+        <a href="../concept/">Strategic Concept</a>
+        <a href="../demonstrator/">Demonstrator</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="page-context">MHCS visual map</p>
+        <h1>People, messages, and care in motion.</h1>
+        <p class="intro">MHCS Healthcare Orchestration &amp; Coordination connects people to the right service surface at the right moment.</p>
+      </div>
+      <p class="screenshot-note">Concept/candidate material · not production systems</p>
+    </section>
+
+    <section class="poster infographic-poster infographic-overall-map" aria-labelledby="overall-title">
+      <p class="poster-kicker">Overall MHCS / All Actors</p>
+      <h2 id="overall-title">The human interaction model</h2>
+
+      <div class="ecosystem-strip">
+        <span>EXTERNAL ECOSYSTEM</span>
+        <strong>Government · Providers · Partners · Technology</strong>
+        <em>authoritative capabilities</em>
+      </div>
+
+      <div class="orchestration-core">
+        <span class="actor-illustration" data-role="mhcs" aria-hidden="true"></span>
+        <div>
+          <p class="poster-kicker">MHCS</p>
+          <h2>Healthcare Orchestration &amp; Coordination</h2>
+          <p>Current slice: examination · radiography · AI · optional Doctor Review</p>
+        </div>
+      </div>
+
+      <div class="messaging-hub">
+        <span class="surface-chip">MESSAGING</span>
+        <strong>Persistent interaction</strong>
+      </div>
+
+      <div class="actor-streams infographic-actor-streams">
+        <a class="actor-stream" href="actors/member/">
+          <span class="actor-illustration" data-role="member" aria-hidden="true"></span>
+          <strong>MEMBER</strong>
+          <span>Messaging → On-site / Physical → Temporary Result Surface</span>
+        </a>
+        <a class="actor-stream" href="actors/b2b-representative/">
+          <span class="actor-illustration" data-role="b2b" aria-hidden="true"></span>
+          <strong>AUTHORIZED B2B REPRESENTATIVE</strong>
+          <span>Messaging → scope → allocate → reconcile</span>
+        </a>
+        <a class="actor-stream" href="actors/site-staff/">
+          <span class="actor-illustration" data-role="site-staff" aria-hidden="true"></span>
+          <strong>SITE STAFF</strong>
+          <span>Messaging → Temporary Site Workspace</span>
+          <small>Reception / Registration · Basic Examination · Radiography</small>
+        </a>
+        <a class="actor-stream" href="actors/doctor/">
+          <span class="actor-illustration" data-role="doctor" aria-hidden="true"></span>
+          <strong>DOCTOR</strong>
+          <span>Messaging → Temporary Clinical / DICOM Workspace</span>
+          <small>Radiologist · Authorized Specialist</small>
+        </a>
+      </div>
+
+      <div class="admin-stream">
+        <a class="actor-stream" href="actors/global-admin/">
+          <span class="actor-illustration" data-role="admin" aria-hidden="true"></span>
+          <strong>GLOBAL ADMIN / SUPER ADMIN</strong>
+          <span>Persistent Admin Web → domain-owned actions</span>
+        </a>
+      </div>
+
+      <div class="callout-row">
+        <aside class="authority-callout">
+          <h3>Orchestrates, does not own all</h3>
+          <p>MHCS coordinates the healthcare ecosystem while external systems and providers retain their authority.</p>
+        </aside>
+        <aside class="outcome-node">
+          <h3>Important boundary</h3>
+          <p>Members have no permanent portal. Specialized temporary surfaces appear only when richer work is needed.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="poster infographic-poster infographic-actor-nav" aria-labelledby="actors-title">
+      <p class="poster-kicker">Detailed actor journeys</p>
+      <h2 id="actors-title">Follow the work</h2>
+
+      <div class="infographic-nav-section">
+        <h3 class="infographic-nav-group-title">Member &amp; Business</h3>
+        <div class="infographic-nav-grid">
+          <a class="infographic-nav-card" href="actors/member/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Member</span>
+              <h4>Member</h4>
+              <p>Booking, attendance, result, next care.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/b2b-representative/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">B2B Representative</span>
+              <h4>Authorized B2B Representative</h4>
+              <p>Scope, allocate, change/monitor, reconcile.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="infographic-nav-section">
+        <h3 class="infographic-nav-group-title">Site Operations</h3>
+        <div class="infographic-nav-grid">
+          <a class="infographic-nav-card" href="actors/site-staff/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Site Overview</span>
+              <h4>Site Staff overview</h4>
+              <p>Offer, assignment, workspace, completion.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/reception-registration/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Site Role</span>
+              <h4>Reception / Registration</h4>
+              <p>Look up, verify, check-in, handoff.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/basic-examination/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Site Role</span>
+              <h4>Basic Examination</h4>
+              <p>Claim, assess, complete, handoff.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/radiography/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Site Role</span>
+              <h4>Radiography</h4>
+              <p>Claim, capture, quality review, submit.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="infographic-nav-section">
+        <h3 class="infographic-nav-group-title">Doctor &amp; Clinical</h3>
+        <div class="infographic-nav-grid">
+          <a class="infographic-nav-card" href="actors/doctor/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Doctor Overview</span>
+              <h4>Doctor overview</h4>
+              <p>Case offer, claim, clinical work, handoff.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/radiologist/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Clinical Role</span>
+              <h4>Radiologist</h4>
+              <p>Review, quality decision, report/repeat, finalize.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="infographic-nav-card" href="actors/authorized-specialist/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Clinical Role</span>
+              <h4>Authorized Specialist</h4>
+              <p>Case offer, specialty review, output, finalize.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="infographic-nav-section">
+        <h3 class="infographic-nav-group-title">Global Administration</h3>
+        <div class="infographic-nav-grid">
+          <a class="infographic-nav-card" href="actors/global-admin/">
+            <div class="infographic-nav-content">
+              <span class="infographic-nav-tag">Administration</span>
+              <h4>Global Admin / Super Admin</h4>
+              <p>One Persistent Admin Web with grouped actions.</p>
+            </div>
+            <span class="infographic-nav-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="poster infographic-poster" aria-labelledby="legend-title">
+      <p class="poster-kicker">Interaction Surface legend</p>
+      <h2 id="legend-title">Where the work happens</h2>
+      <div class="surface-route" style="margin-top:1.5rem">
+        <strong>CANONICAL SURFACES</strong>
+        <span class="surface-chip">Messaging</span>
+        <span class="surface-chip">On-site / Physical</span>
+        <span class="surface-chip">Temporary Site Workspace</span>
+        <span class="surface-chip">Temporary Clinical / DICOM Workspace</span>
+        <span class="surface-chip">Temporary Result Surface</span>
+        <span class="surface-chip">Persistent Admin Web</span>
+      </div>
+    </section>
+
+    <section class="infographic-text-equivalent">
+      <details>
+        <summary>Text equivalent and semantic notes</summary>
+        <p>MHCS coordinates external capabilities around the current examination / radiography / AI / optional Doctor Review slice. Messaging is the persistent interaction layer. Member, Authorized B2B Representative, Site Staff, and Doctor use the appropriate interaction surface; Global Admin uses one Persistent Admin Web. Examination-service completion does not automatically complete the broader healthcare journey.</p>
+      </details>
+    </section>
+
+    <p class="site-note">Operational demonstrator and detailed journey pages remain available as companion views.</p>
+  </main>
+</body>
+</html>
