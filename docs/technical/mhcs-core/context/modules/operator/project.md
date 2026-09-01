@@ -32,10 +32,12 @@ publication.
 
 ## Dependencies and evidence
 
-Interaction surfaces are WhatsApp dispatch, Temporary Site Workspace, public
-queue displays, and Unified Admin Web. Dependencies include Member Core,
+Site Staff interaction surfaces are WhatsApp dispatch, Temporary Site Workspace,
+and applicable physical or operational surfaces. Operator Core capabilities may
+be administered by Global Admin through the Persistent Admin Web; that is not a
+Site Staff surface. Dependencies include Member Core,
 Image Gateway, Messaging, payment adapters, and FHIR mapping. Intended
-authority is the accepted business sources in `context/project.md`; observed
+authority is the Business authority sources in `context/project.md`; observed
 evidence must be checked in the target Operator module, policies, queue code,
 schema, and tests.
 

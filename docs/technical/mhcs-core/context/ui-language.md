@@ -25,7 +25,7 @@ communications. The full language policy remains in
 
 Interaction Surface names are **WhatsApp**, **Temporary Site Workspace**,
 **Temporary Clinical / DICOM Workspace**, **Temporary Result Surface**, and
-**Unified Admin Web**. A result surface is not a permanent Member Portal.
+**Persistent Admin Web**. A result surface is not a permanent Member Portal.
 
 Use plain, respectful, non-alarming Bahasa Indonesia. Explain technical terms
 when they affect understanding, consent, safety, or required action. Never imply

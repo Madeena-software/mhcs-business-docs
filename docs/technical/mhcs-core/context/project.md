@@ -2,7 +2,7 @@
 
 ## Purpose and delivery state
 
-`Madeena-software/mhcs-business-docs` is the documentation authority for the
+`Madeena-software/mhcs-business-docs` is the documentation repository for the
 MHCS product. `mhcs-core` is intended to be one modular application for Member,
 Operator, Doctor, and Image Gateway responsibilities. This folder is a
 copy-ready orientation package for `mhcs-core/.agents/context/`; it is not a
@@ -10,15 +10,26 @@ business specification, source-code substitute, or proof of implementation.
 The current technical architecture is candidate/target material unless an
 authority source says otherwise.
 
+### Prepared package state
+
+Ready/candidate for adoption subject to review.
+
+### Observed target implementation state
+
+Must be refreshed and verified from `mhcs-core` source, configuration,
+migrations, tests, and runtime evidence at adoption. This package does not
+claim the target implementation currently conforms.
+
 ## Authority and evidence map
 
-Intended authority is in the accepted business sources:
+Business authority sources are:
 
 - `Madeena-software/mhcs-business-docs/docs/business/01-business-overview.md`
 - `Madeena-software/mhcs-business-docs/docs/business/02-user-stories.md`
 - `Madeena-software/mhcs-business-docs/docs/business/03-system-responsibilities.md`
 
-Read those sources for approved product intent; do not reproduce them here.
+Honor each source's recorded lifecycle/status and applicable adopted revision;
+do not reproduce those sources here or upgrade their status in this context.
 The current implementation must be checked in the target `mhcs-core` source,
 configuration, schema, tests, and runtime evidence. The contexts below route
 that inspection but do not claim conformance.
@@ -28,8 +39,8 @@ that inspection but do not claim conformance.
 MHCS coordinates Members, Authorized B2B Representatives/Business Customers,
 Site Staff, Doctors, and Global Admin/Super Admin. Member interaction is led by
 Messaging (WhatsApp); assigned operational work uses temporary Site and
-Clinical / DICOM Workspaces; administration uses one persistent unified Admin
-Web. External boundaries include payment and messaging providers, AI, email/SMS,
+Clinical / DICOM Workspaces; Global Admin uses the **Persistent Admin Web**.
+External boundaries include payment and messaging providers, AI, email/SMS,
 object storage, interoperability systems, and the separate private `mpips`
 repository.
 
@@ -57,6 +68,18 @@ MPIPS receives patient-free NPZ inputs plus a signed DICOM metadata manifest and
 returns DICOM. It has no MHCS database, user-session, payment, or permanent
 storage authority. Browser, Member, Operator, and Doctor clients never call it.
 See [the MPIPS boundary](integrations/mpips/project.md).
+
+## Scoped-context routing
+
+Load the relevant package context before implementation:
+
+- [Member](modules/member/project.md)
+- [Operator](modules/operator/project.md)
+- [Doctor](modules/doctor/project.md)
+- [Image Gateway](modules/image-gateway/project.md)
+- [MPIPS integration](integrations/mpips/project.md)
+- [UI language](ui-language.md)
+- [Design](design/DESIGN.md)
 
 ## Routing and constraints
 
