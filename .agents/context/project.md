@@ -20,7 +20,7 @@ agent orientation and must not duplicate them.
 - `.agents/context/README.md`: human reading guide
 - `docs/business/01-business-overview.md`: end-to-end business flow, actor journeys,
   responsibilities, and rules
-- `docs/business/02-system-responsibilities.md`: ownership, collaboration,
+- `docs/business/03-system-responsibilities.md`: ownership, collaboration,
   access, payment triggers, and the FHIR R5 boundary
 - `docs/technical/mhcs-core-context/project.md`: prepared/copy-ready target
   repository context and router to its module contexts
