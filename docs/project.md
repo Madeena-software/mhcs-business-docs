@@ -8,7 +8,6 @@ last_updated: 2026-09-02
 scope:
   - repository-level AI orientation
   - product authority mapping
-  - delivery-state orientation
   - product intent and boundaries
 authority_note: This file is supporting, refreshable repository context. Approved repository authority in Madeena-software/mhcs-business-docs governs intended behavior. Observed repository evidence in Madeena-software/mhcs-core governs claims about current implementation reality. Neither silently overrides the other, and this context replaces neither.
 ---
@@ -25,23 +24,35 @@ This document provides **MHCS Core product context**.
 
 It is intended for:
 - AI coding agents;
-- software developers;
-- technical planners and architects.
+- software engineers;
+- technical planners.
 
 It explains:
 - product purpose and clinical problem domain;
-- business intent;
-- human workflows and actor responsibilities;
-- operational and ownership boundaries.
+- human workflows;
+- actor responsibilities;
+- authority boundaries;
+- product intent.
 
 It explicitly does **NOT** define or mandate:
 - programming language or runtime;
 - web or application framework;
 - database engine or schema;
-- API transport implementation;
-- deployment architecture.
+- API implementation;
+- deployment details;
+- source-code structure.
 
 Technical implementation details remain owned by the implementation repository (`Madeena-software/mhcs-core`). This document guides implementation by defining what problem MHCS Core solves, whom it serves, and what boundaries must be preserved.
+
+## Adoption Model
+
+This document is designed to be adopted into:
+
+`Madeena-software/mhcs-core/.agents/context/project.md`
+
+It provides product intent and business orientation for MHCS Core. It does not
+replace source code, tests, migrations, runtime evidence, or implementation
+documentation in that repository.
 
 ---
 
@@ -82,13 +93,16 @@ Future pathways will expand this orchestration to additional modalities, multi-s
 
 ---
 
-## Current repository state
+## Current Context State
 
 **Current state:**  
-Active development / implementation preparation
+`mhcs-business-docs` is the Product Authority Repository for MHCS Core.
 
 **Relevant summary:**  
-`Madeena-software/mhcs-core` is the application implementation repository. Its product authority and business rules are maintained in `Madeena-software/mhcs-business-docs`. Implementation work in `mhcs-core` must conform to the approved business and product definitions without redefining product intent or safety boundaries for technical convenience.
+`Madeena-software/mhcs-core` is the application implementation repository. Its
+implementation must conform to the approved business and product definitions
+without redefining product intent or safety boundaries for technical
+convenience.
 
 ---
 
@@ -240,59 +254,7 @@ Additional scoped context may exist under `.agents/context/` in `mhcs-core` when
 
 ---
 
-## Delivery state
-
-### Current delivery objective
-
-Establish `mhcs-business-docs` as the canonical Product Authority Repository and provide copy-ready product context for `Madeena-software/mhcs-core`.
-
-### Current Work Package / MVP / delivery slice
-
-`WP-MHCS-PRODUCT-CONTEXT-001` (MHCS Core Product Context Preparation)
-
-### Quality-gate state
-
-| Gate | Status | Evidence / authority |
-|---|---|---|
-| B0 — Business Framing | `passed` | Validated in `docs/business/01-business-overview.md` |
-| P1 — Product Definition | `passed` | Defined in `docs/business/02-user-stories.md` (86 user stories) |
-| R2 — Requirements Traceability | `passed` | Traceability matrix in `docs/business/03-system-responsibilities.md` |
-| A3 — Architecture Clarity | `in_review` | Boundary clarity established; technical architecture owned in `mhcs-core` |
-| D4 — Delivery Readiness | `passed` | Product context entry point established in `docs/project.md` |
-| T5 — Task Readiness | `passed` | Bounded documentation task active and verified |
-| E6 — Execution Verification | `passed` | Markdown links, headings, actors, and regression tests verified |
-| V7 — Implementation Review | `in_review` | Pending user review of updated context package |
-| R8 — Remediation Closure | `not_applicable` | No open remediation items |
-| A9 — Baseline Acceptance | `pending` | Pending formal baseline promotion |
-| G10 — Release Approval | `not_applicable` | Documentation context; release gate belongs to application releases |
-
-**Earliest unmet or materially unreliable gate:**  
-`V7 — Implementation Review` (review of product context alignment)
-
-### Active task(s)
-
-- `TASK: Prepare MHCS Core Product Context` @ active working tree in `docs/mhcs-core-context-package-simplification`
-
-### Blocking items
-
-- None.
-
----
-
-## Accepted baseline
-
-**Accepted baseline:**  
-`8a24df5be999f250c4aee1eca856eadfd09c00ac`
-
-**Accepted scope:**  
-Verified business documentation and actor journeys in `Madeena-software/mhcs-business-docs`.
-
-**Evidence reference:**  
-Git commit history on `docs/mhcs-core-context-package-simplification` and passing website/BPMN regression suites.
-
----
-
-## Known gaps and open decisions
+## Known Gaps and Open Decisions
 
 ### Blocking
 
@@ -300,7 +262,13 @@ Git commit history on `docs/mhcs-core-context-package-simplification` and passin
 
 ### Non-blocking
 
-The following items are business/commercial choices that remain open design decisions in `docs/business/03-system-responsibilities.md`:
+The following unresolved choices remain in the business authority. They affect
+provider selection, payment and refund policy, identity and credential rules,
+clinical specialization, implementation boundaries, and interoperability
+conformance; none changes the product direction stated above.
+
+The detailed decision register is maintained in
+`docs/business/03-system-responsibilities.md`:
 1. **WhatsApp Business Platform Provider:** Provider, API gateway, and hosting model.
 2. **WhatsApp Bot / Conversational Architecture:** LLM architecture and conversational triage design.
 3. **Payment Gateway Provider & Webhook Contracts:** Supported methods (QRIS, VA, e-wallet) and webhook contracts.
@@ -341,7 +309,7 @@ This context is supporting, refreshable repository knowledge.
 2026-09-02
 
 **Verified against repository revision:**  
-Active working tree on `docs/mhcs-core-context-package-simplification`
+`25a4af4590cd423b1cc91708c3b2f16200c06d6d` (context creation snapshot)
 
 **Verified sources:**  
 - `docs/business/01-business-overview.md`
