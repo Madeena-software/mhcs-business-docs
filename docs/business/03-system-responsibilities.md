@@ -11,7 +11,8 @@ Within that slice, ownership and collaboration are defined for one `mhcs-core`
 application repository containing Member, Operator Core, Doctor, and Image
 Gateway modules, plus the separate `mpips` black-box conversion repository,
 temporary task-specific staff web workspaces, a persistent unified
-administration panel, and a WhatsApp-led member channel.
+administration panel, and a Messaging Interaction Surface delivered through
+available Communication Channels.
 
 The current ownership map describes the present specified service architecture;
 it does not assert that every future MHCS healthcare capability must be
@@ -31,13 +32,24 @@ Business Customer's agreement.
 
 | Module or component | Owns | Receives | Produces |
 |---|---|---|---|
-| Member module in `mhcs-core` | Member healthcare identity (MRN), demographics, requester/payer/subject-of-care/guardian/recipient relations, catalogue, B2B/B2C booking coordination, repeat entitlements, financial tracking, notifications, and WhatsApp result orchestration | Member WhatsApp activity, clinical repeat commands, and member-safe result references | Attendance, booking locator, examination snapshot, repeat status, and WhatsApp-delivered member information |
+| Member module in `mhcs-core` | Member healthcare identity (MRN), demographics, requester/payer/subject-of-care/guardian/recipient relations, catalogue, B2B/B2C booking coordination, repeat entitlements, financial tracking, notifications, and Messaging Interaction Surface orchestration | Member interaction through available Communication Channels, clinical repeat commands, and member-safe result references | Attendance, booking locator, examination snapshot, repeat status, and member-safe information delivered through the Messaging Interaction Surface |
 | Operator Core module in `mhcs-core` | Physical sites, Site Staff roles and assignments, consent confirmation, completed paper-questionnaire evidence, staged queues, examination capture, LCD calling, staff earnings, and payouts | Attendance query results, physical identity evidence on-site, image acceptance, and processing status | Site data, queue state, complete image submission, and staff status |
 | Grabber | Offline-capable radiography capture | Radiography equipment | Image-capture input |
 | Image Gateway module in `mhcs-core` | Private image storage, processing coordination, routing, access, publication, and audit | Complete-submission commands and processing results | Processing jobs, authorized references, completion, and publication status |
 | `mpips` repository | Public GitHub repository providing the separate private image-processing boundary | Image-processing input | Processed imaging result and technical status |
 | Doctor module in `mhcs-core` | Shared doctor queues across specialties, specialty/modality eligibility, study-level quality decisions (for radiology services), repeat requests, reports, amendments, doctor earnings, and payouts | Eligible and replacement studies, supporting output, and repeat status | Quality events, repeat commands, reports, revisions, earnings, and payout status |
 | Unified Administration Panel | Presentation and administrative routing surface over domain-owned capabilities | Global Admin / Super Admin interactions across domains | Domain-owned configuration, provisioning, and monitoring actions |
+
+### Messaging ownership boundary
+
+- **MHCS Core owns:** the communication workflow, notification intent, and
+  booking/result coordination represented through the Messaging Interaction
+  Surface.
+- **External Communication Providers own:** the message delivery mechanism and
+  channel-specific capabilities of the selected Communication Channel.
+
+WhatsApp, SMS, voice communication, and other approved channels are examples of
+available delivery channels, not separate MHCS product capabilities.
 
 Core product context:
 
@@ -141,9 +153,9 @@ workspace-mechanism decisions remain open below.
 - B2B and B2C booking coordination, cancellation rules, pricing snapshots, and payment tracking;
 - walk-in registration and on-site payment tracking;
 - service choices per examination type or body part;
-- zero-cost, doctor-requested repeat entitlements and member-controlled repeat scheduling via WhatsApp;
-- WhatsApp-based member notifications; and
-- WhatsApp notification followed, where appropriate, by secure temporary result-link delivery to a task-specific web surface; this is not a persistent Member Portal.
+- zero-cost, doctor-requested repeat entitlements and member-controlled repeat scheduling through the Messaging Interaction Surface;
+- member notifications through the Messaging Interaction Surface; and
+- Messaging notification followed, where appropriate, by secure temporary result-link delivery to a task-specific web surface; this is not a persistent Member Portal.
 
 Member Core does **not** own front-desk queues, image capture, raw NPZ, permanent
 DICOM storage, AI execution, doctor work queues, or Site Staff/Doctor earnings.
@@ -154,10 +166,10 @@ desktop apps, or member login credentials.
 
 Member Core supplies authorized attendance, booking locator, and examination
 information to Operator Core. It receives temporary image references, AI results,
-doctor reports, and amendments through Image Gateway for WhatsApp notification and
+doctor reports, and amendments through Image Gateway for Messaging notification and
 secure temporary result-link delivery where appropriate.
 
-A booking code received via WhatsApp serves as a reservation locator and is not
+A booking code received through the available Messaging Channel serves as a reservation locator and is not
 sufficient proof of patient identity. At front-desk check-in, Reception /
 Registration Site Staff
 holding the Reception / Registration role verify official physical identity documents
@@ -166,22 +178,22 @@ paper consent and its required private scan once for the visit. Downstream stati
 reuse this consent confirmation and do not re-request consent.
 
 Sensitive identity documents are never requested or collected via
-ordinary WhatsApp chat to preserve privacy.
+ordinary Messaging interaction to preserve privacy.
 
 Member Core accepts authenticated, idempotent repeat requests only from Doctor
 Core. It creates one active zero-cost, doctor-only entitlement, notifies the
-member via WhatsApp, lets the member choose any compatible site and shift, and
+member through the Messaging Interaction Surface, lets the member choose any compatible site and shift, and
 returns entitlement or decline status to Doctor Core. A scheduled repeat consumes
 ordinary booking capacity and does not request AI.
 
-Members receive a WhatsApp notification and, where appropriate, a secure temporary
+Members receive a notification through the Messaging Interaction Surface and, where appropriate, a secure temporary
 result surface for viewing or download; on-site print remains an available operational
 fallback. Member Core does not store raw NPZ or permanent DICOM copies.
 
 ### B2B and B2C target rules
 
 B2B is the initial commercial priority, while direct B2C bookings are coordinated
-via WhatsApp:
+via the Messaging Interaction Surface:
 
 - B2B enterprise agreements provision members, entitlements, locations, dates,
   and shifts.
@@ -189,7 +201,7 @@ via WhatsApp:
   a B2B booking; only Global Admin / Super Admin acting on an official business request
   may do so. A B2B no-show remains paid and consumes the business quota.
 - For B2C services, members initiate booking and payment coordination through
-  the WhatsApp channel.
+  the available Messaging Channel.
 - Financial transactions, pricing snapshots, and payment statuses are tracked
   with domain integrity in Member Core.
 
@@ -292,7 +304,7 @@ Core confirms creation of the repeat entitlement. Each separately accepted
 sequential repeat creates another 25% earning.
 
 Submit finalizes a report, creates a 100% final-report earning for the signing
-doctor, and starts automatic member publication via WhatsApp. An unfinished draft
+doctor, and starts automatic member publication through the Messaging Interaction Surface. An unfinished draft
 creates no earning. Reassignment preserves earnings already triggered by completed work.
 
 A submitted report is immutable. A necessary correction may be issued at any
@@ -322,7 +334,7 @@ modules.
 | Payment area | Owning module | Eligibility trigger |
 |---|---|---|
 | B2B member entitlement | Member Core | Central annual agreement provisions member entitlements; tracked in Member Core financial records |
-| B2C member charge | Member Core | Member booking coordination completed via WhatsApp; payment tracked before visit confirmation |
+| B2C member charge | Member Core | Member booking coordination completed through the Messaging Interaction Surface; payment tracked before visit confirmation |
 | Site Staff basic-examination earning | Operator Core | Basic examination completion triggers configured stage rate for performing Site Staff member |
 | Site Staff radiography earning | Operator Core | Image Gateway acceptance triggers configured stage rate for submitting Site Staff member |
 | Doctor repeat-assessment earning | Doctor Core | Member Core confirms one doctor-requested repeat entitlement: 25% of snapshotted final-report rate |
@@ -354,7 +366,7 @@ new commercial, clinical, identity, or authorization policy without authority.
 
 | User | Raw NPZ | View image | Raw DICOM download | AI result | Doctor report |
 |---|---:|---:|---:|---:|---:|
-| Member (WhatsApp channel) | No | Member-safe delivery | No | WhatsApp notification plus secure temporary result surface where appropriate | WhatsApp notification plus secure temporary result surface where appropriate |
+| Member (available Messaging Channel) | No | Member-safe delivery | No | Messaging notification plus secure temporary result surface where appropriate | Messaging notification plus secure temporary result surface where appropriate |
 | Reception / Registration Site Staff | No | Only the minimum member/booking information needed for check-in | No raw DICOM | No | No doctor report |
 | Basic Examination Site Staff | No | Only information needed for the assigned basic examination | No raw DICOM | No | No doctor report |
 | Radiography Site Staff | No | Authorized image view for the active assigned examination | Only where operationally required for the active assigned examination; authenticated attachment | No | No doctor report |
@@ -363,7 +375,7 @@ new commercial, clinical, identity, or authorization policy without authority.
 
 Radiography Site Staff raw-DICOM downloads are authenticated, non-public attachments
 with no permanent public URL and are limited to an active authorized examination.
-Members receive member-safe result notifications via WhatsApp and may open a secure
+Members receive member-safe result notifications through the Messaging Interaction Surface and may open a secure
 temporary result surface; they do not receive raw DICOM. Site Staff never receive
 raw NPZ.
 
@@ -389,12 +401,12 @@ preserving the original chain.
 The following are intentionally unresolved by current human authority and
 remain open design decisions:
 
-1. **WhatsApp Business Platform Provider:** Exact WhatsApp Business Platform provider, API gateway, integration contract, and hosting model.
-2. **WhatsApp Bot / LLM Architecture:** Exact conversation flow design, NLP/LLM orchestration layer, automated triage logic, and human-handoff escalation boundaries.
+1. **Communication Channel Provider:** Approved provider and channel-specific capability for the available Messaging Channel.
+2. **Messaging Conversational Architecture:** Exact conversation flow design, NLP/LLM orchestration layer, automated triage logic, and human-handoff escalation boundaries.
 3. **Payment Provider Integration:** Exact payment gateway adapter, payment methods (QRIS, VA, e-wallet), webhook schemas, and timeout/settlement contracts.
 4. **Madeena Points Commercial Policy:** Final commercial determination whether Madeena Points are retired, converted to internal loyalty/subsidy credits, or replaced by direct rupiah pricing.
-5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether WhatsApp bookings require full advance payment, a deposit, or pay-at-site options.
-6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for WhatsApp-originated bookings.
+5. **Deposit vs. Full-Payment Policy:** Commercial rules regarding whether Messaging-coordinated bookings require full advance payment, a deposit, or pay-at-site options.
+6. **Cancellation & Refund Commercial Terms:** Specific cancellation cutoffs, refund fee policies, and automated refund settlement workflows for Messaging-coordinated bookings.
 7. **Clinical Result Delivery Channel Mechanics:** Exact secure temporary result-link, session/authentication, disclosure, retention, and fallback mechanics; the result surface must remain task-specific and must not become a persistent Member Portal.
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the Reception / Registration station (`TU` compatibility label).
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, Radiography Site Staff, radiologists, and non-radiologist specialists.
@@ -424,6 +436,6 @@ the complete clinical workflow:
 
 | External observation | Implication / trade-off | MHCS working decision |
 |---|---|---|
-| [Telegram Mini Apps](https://core.telegram.org/bots/webapps) and [LINE MINI Apps](https://developers.line.biz/en/docs/line-mini-app/quickstart/) embed web applications inside messaging products and can support richer task interactions. | A message can be a durable entry point into a richer task surface without requiring a permanent standalone consumer portal; platform policy, authentication, and lifecycle constraints still apply. | Keep WhatsApp as the persistent interaction/orchestration layer and use secure temporary web surfaces for tasks requiring richer UI. Telegram/LINE behavior is a benchmark, not an MHCS platform decision. |
-| The [Henan province-wide telepathology evaluation](https://pmc.ncbi.nlm.nih.gov/articles/PMC13010077/) used mobile access alongside a secured platform; clinical records/images remained in protected infrastructure, while case review and reporting remained in the controlled clinical platform. | Mobile messaging/access can improve reach, but diagnostic review and reporting require controlled clinical storage, authorization, audit, and appropriate viewing conditions. | Operators and Doctors receive WhatsApp dispatch, then work in assignment-scoped temporary workspaces; MHCS remains the system of record and Image Gateway retains clinical binary ownership. |
+| [Telegram Mini Apps](https://core.telegram.org/bots/webapps) and [LINE MINI Apps](https://developers.line.biz/en/docs/line-mini-app/quickstart/) embed web applications inside messaging products and can support richer task interactions. | A message can be a durable entry point into a richer task surface without requiring a permanent standalone consumer portal; platform policy, authentication, and lifecycle constraints still apply. | Keep the Messaging Interaction Surface as the persistent interaction/orchestration layer and use secure temporary web surfaces for tasks requiring richer UI. Telegram/LINE behavior is a benchmark, not an MHCS platform decision. |
+| The [Henan province-wide telepathology evaluation](https://pmc.ncbi.nlm.nih.gov/articles/PMC13010077/) used mobile access alongside a secured platform; clinical records/images remained in protected infrastructure, while case review and reporting remained in the controlled clinical platform. | Mobile messaging/access can improve reach, but diagnostic review and reporting require controlled clinical storage, authorization, audit, and appropriate viewing conditions. | Operators and Doctors receive Messaging dispatch, then work in assignment-scoped temporary workspaces; MHCS remains the system of record and Image Gateway retains clinical binary ownership. |
 | [WhatsApp Business Policy](https://whatsappbusiness.com/policy/) requires consent and restricts sharing sensitive identifiers; health-information use may require heightened safeguards depending on applicable regulation. | WhatsApp is suitable for notification, coordination, and minimal-information offers only when policy and applicable safeguards permit; it should not be assumed to be the DICOM viewer or clinical record. | Do not send identity documents or unnecessary clinical detail through ordinary WhatsApp. Notify members and provide a secure temporary result link when a richer result surface is required. |

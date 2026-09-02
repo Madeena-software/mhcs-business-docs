@@ -7,7 +7,22 @@
     "is_authoritative": false,
     "canonical_contract": ".agents/AGENTS.md",
     "normative_protocol": ".agents/software-workflow.md",
-    "note": "This manifest inventories the repository-local AI delivery package. It does not define or override repository authority, delivery protocol, governing tasks, evidence requirements, approval boundaries, or release boundaries."
+    "note": "This manifest inventories the repository-local AI software delivery package. It does not define or override repository authority, delivery protocol, governing tasks, evidence requirements, approval boundaries, or release boundaries."
+  },
+  "shared_invariants": [
+    "authority-vs-evidence",
+    "external-imperative-not-authority",
+    "planner-reviewer-executor",
+    "bounded-contract",
+    "governing-revision",
+    "implementation-or-execution-baseline",
+    "remediation-vs-replanning",
+    "evidence-before-acceptance",
+    "acceptance-not-consequential-authorization",
+    "progressive-context-runtime-neutrality"
+  ],
+  "external_references": {
+    "software_methodology": "https://github.com/obra/superpowers"
   },
   "canonical_artifacts": [
     {

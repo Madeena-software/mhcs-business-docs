@@ -3,7 +3,7 @@
 **Status:** Candidate business authority — pending human approval
 
 These stories define human intent, desired value, and observable outcomes for
-the Messaging-led MHCS model. They do not prescribe UI, schemas, APIs,
+the MHCS Messaging Interaction Surface model. They do not prescribe UI, schemas, APIs,
 vendors, credentials, or authentication mechanics.
 
 This catalogue covers the currently specified MHCS examination / radiography /
@@ -20,15 +20,15 @@ Result Surface`, `Temporary Site Workspace`, `Temporary Clinical / DICOM
 Workspace`, `Temporary Result Surface`, `Persistent Admin Web`, `On-site /
 Physical`, and `On-site / Physical → Temporary Web`. The surface is metadata,
 not the story or an authorization grant: access still depends on identity,
-role, eligibility, assignment, and scope, and WhatsApp is not permanently the
-only Messaging provider.
+role, eligibility, assignment, and scope. The underlying Communication Channel
+may be WhatsApp, SMS, voice communication, or another approved channel.
 
 ## Member
 
 | ID | User Story (English) | User Story (Bahasa Indonesia) | Interaction Surface | Acceptance Criteria | Traceability |
 |---|---|---|---|---|---|
 | US-MEMBER-001 | As a Member, I want to initiate an examination booking through Messaging, so that I can arrange care without a permanent portal account. | Sebagai Member, saya ingin memulai pemesanan pemeriksaan melalui Messaging, sehingga saya dapat mengatur layanan tanpa akun portal permanen. | Messaging | The Member can initiate a B2C booking conversation through Messaging, while a B2B booking can be received for a provisioned entitlement; no permanent member portal account is required. | [Business Overview — Member journey](01-business-overview.md#member-journey); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |
-| US-MEMBER-012 | As a Member, I want to confirm my booking and receive preparation, reminder, and status information, so that I know when and how to attend. | Sebagai Member, saya ingin mengonfirmasi pemesanan dan menerima informasi persiapan, pengingat, serta status, sehingga saya mengetahui kapan dan bagaimana harus hadir. | Messaging | Booking confirmation, preparation instructions, reminders, and status updates are coordinated through Messaging, with WhatsApp as the initial channel. | [Business Overview — Member journey](01-business-overview.md#member-journey); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |
+| US-MEMBER-012 | As a Member, I want to confirm my booking and receive preparation, reminder, and status information, so that I know when and how to attend. | Sebagai Member, saya ingin mengonfirmasi pemesanan dan menerima informasi persiapan, pengingat, serta status, sehingga saya mengetahui kapan dan bagaimana harus hadir. | Messaging | Booking confirmation, preparation instructions, reminders, and status updates are coordinated through the Messaging Interaction Surface using an available Communication Channel, which may include WhatsApp, SMS, or voice communication. | [Business Overview — Member journey](01-business-overview.md#member-journey); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |
 | US-MEMBER-002 | As a Member, I want to participate in attendance and approved identity verification, so that my examination is associated with the correct person. | Sebagai Member, saya ingin hadir dan mengikuti verifikasi identitas yang disetujui, sehingga pemeriksaan saya dikaitkan dengan orang yang tepat. | On-site / Physical | The booking code locates a reservation but does not prove clinical identity. Approved on-site verification precedes check-in and consent confirmation. | [Business Overview — Member Core boundary](01-business-overview.md#member-core-boundary); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |
 | US-MEMBER-003 | As a Member, I want to be notified when a result is finalized, so that I know my result is ready. | Sebagai Member, saya ingin menerima pemberitahuan saat hasil difinalisasi, sehingga saya mengetahui bahwa hasil saya sudah tersedia. | Messaging | Messaging carries the result notification and coordination; the notification does not turn ordinary chat into the clinical report store. | [Business Overview — Member journey](01-business-overview.md#member-journey); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |
 | US-MEMBER-019 | As a Member, I want to open a temporary secure result surface when richer viewing or downloading is needed, so that I can access my result without a permanent member portal. | Sebagai Member, saya ingin membuka halaman hasil sementara yang aman ketika membutuhkan tampilan atau unduhan yang lebih lengkap, sehingga saya dapat mengakses hasil tanpa portal Member permanen. | Messaging → Temporary Result Surface | A task-specific secure result surface supports authorized member-safe viewing or downloading and returns the interaction to Messaging; raw NPZ and raw DICOM are not ordinary Member downloads. | [Business Overview — Member journey](01-business-overview.md#member-journey); [System Responsibilities — Member Core](03-system-responsibilities.md#member-core) |

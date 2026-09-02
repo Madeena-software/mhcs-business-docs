@@ -182,13 +182,13 @@ When designing and building MHCS Core, distinguish between what is stable produc
 | **Actors & Roles** | Clear role boundaries (Member, B2B Representative, Site Staff, Doctor, Global Admin); independent Site Staff operational roles; distinction between Radiologist and Specialist. | Role and permission implementation mechanisms (e.g. database tables, permission libraries, token claims). |
 | **Human Workflows** | Physical identity verification on-site, signed paper consent scan, sequential stage releases, controlled clinical review handoffs. | UI libraries, form validation engines, component libraries, state management. |
 | **Authority Boundaries** | Separation of Requester, Payer, Subject of Care, Guardian, and Result Recipient; clinical binary ownership; least-privilege image access. | File storage drivers, object store configurations, database foreign keys. |
-| **Interaction Surfaces** | Messaging as persistent citizen touchpoint; temporary task-specific workspaces for staff and doctors; no permanent citizen portal. | Web frameworks, HTTP routes, WebSocket transports, frontend build tools. |
+| **Interaction Surfaces** | Messaging Interaction Surface as a persistent citizen touchpoint; temporary task-specific workspaces for staff and doctors; no permanent citizen portal. | Web frameworks, HTTP routes, WebSocket transports, frontend build tools. |
 
 The software implementation must faithfully follow product intent. Implementation mechanisms may evolve as technology advances, but product intent, actor authority, and safety boundaries must remain intact.
 
 ### Core Actors
 
-1. **Member:** The citizen or patient receiving care. Interacts primarily through persistent Messaging (WhatsApp as Indonesian reference channel) for booking coordination, reminders, and result notifications. Opens a secure temporary result surface when richer viewing or download is needed.
+1. **Member:** The citizen or patient receiving care. Interacts primarily through the persistent Messaging Interaction Surface for booking coordination, reminders, and result notifications. The underlying Communication Channel may be WhatsApp, SMS, voice communication, or another approved channel. Opens a secure temporary result surface when richer viewing or download is needed.
    - **Requester / Contact:** The person coordinating the booking conversation.
    - **Payer:** The person or entity funding the service.
    - **Subject of Care:** The person physically undergoing examination.
@@ -217,7 +217,7 @@ Persistent Coordination             Scoped Operational Execution           Admin
                                     └─────────────────────────────┘
 ```
 
-1. **Messaging (Persistent Interaction Channel):** Low-barrier coordination channel (WhatsApp in the Indonesian operating environment). Used for B2C booking initiation, appointment confirmations, visit reminders, dispatch offers to staff, case availability notifications to doctors, and result readiness alerts. Ordinary chat is never used to collect sensitive physical identity documents or to store permanent clinical diagnostic records.
+1. **Messaging Interaction Surface:** Persistent human coordination capability between MHCS and participants. It supports B2C booking initiation, appointment confirmations, visit reminders, dispatch offers to staff, case availability notifications to doctors, and result readiness alerts. Delivery may use an available Communication Channel such as WhatsApp, SMS, voice communication, or another approved channel, depending on availability, user accessibility, and approved integrations. Ordinary chat is never used to collect sensitive physical identity documents or to store permanent clinical diagnostic records.
 2. **Temporary Web Workspace (Temporary Result Surface):** Secure, time-bounded result viewing and report downloading for Members via time-limited signed links. Does not require a permanent username/password portal account.
 3. **Temporary Site Workspace:** Task-focused operational interface for Site Staff during an active shift (registration, queue status, vital-sign recording, radiography capture submission). Scoped strictly to the active site, shift, and assigned role.
 4. **Temporary Clinical / DICOM Workspace:** Diagnostic study review and clinical reporting environment for Doctors (DICOM viewing, image manipulation, quality evaluation, repeat requests, report drafting, finalization). Scoped per claimed case; closes upon case completion or release.
@@ -269,11 +269,11 @@ conformance; none changes the product direction stated above.
 
 The detailed decision register is maintained in
 `docs/business/03-system-responsibilities.md`:
-1. **WhatsApp Business Platform Provider:** Provider, API gateway, and hosting model.
-2. **WhatsApp Bot / Conversational Architecture:** LLM architecture and conversational triage design.
+1. **Communication Channel Provider:** Approved provider, gateway, and hosting model for the available Messaging Channel.
+2. **Messaging Conversational Architecture:** LLM architecture and conversational triage design.
 3. **Payment Gateway Provider & Webhook Contracts:** Supported methods (QRIS, VA, e-wallet) and webhook contracts.
 4. **Madeena Points Commercial Policy:** Retirement, conversion to loyalty credits, or direct rupiah pricing.
-5. **Deposit vs. Full-Payment Policy:** Advance payment vs deposit vs pay-at-site options for WhatsApp bookings.
+5. **Deposit vs. Full-Payment Policy:** Advance payment vs deposit vs pay-at-site options for Messaging-coordinated bookings.
 6. **Cancellation & Refund Terms:** Cancellation cutoffs and automated settlement workflows.
 7. **Clinical Result Delivery Channel Mechanics:** Session, authentication, retention, and fallback mechanics for the temporary result surface.
 8. **On-Site Identity Verification Procedure:** Minimum data capture and comparison mechanics at Reception / Registration.
