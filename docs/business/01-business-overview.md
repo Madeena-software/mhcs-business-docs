@@ -192,12 +192,12 @@ where operationally required; Reception / Registration and Basic Examination
 Site Staff have no raw-DICOM access. Site Staff cannot browse unassigned records,
 see doctor reports, or access raw NPZ.
 
+<a id="image-gateway-boundary"></a>
 ### Image processing boundary
 
 Radiography Site Staff submit the completed image set through Operator Core. Image
 Gateway controls processing, authorized access, publication, and the separate MPIPS
-processing boundary. Detailed implementation rules remain in the System
-Responsibilities and technical specifications.
+processing boundary. Detailed responsibilities remain in System Responsibilities.
 
 ### Doctor Core boundary
 
@@ -281,7 +281,7 @@ domains without introducing an artificial "Admin" business domain.
 Processing exceptions remain within the controlled image-processing boundary.
 Members and Doctors do not receive incomplete studies, and Radiography Site Staff
 receive the applicable action-needed status. Recovery and retry mechanics belong
-to the technical specifications.
+to implementation evidence in the core application.
 
 ### Publication rules
 
@@ -378,5 +378,5 @@ remain open design decisions:
 8. **On-Site Identity Verification Procedure:** Exact permitted evidence, comparison method, data minimization, retention, and storage mechanics at the Reception / Registration station (`TU` compatibility label).
 9. **Staff Credential & Regulatory Qualification Rules:** Formal regulatory qualification, certification evidence, and credential verification criteria for Reception / Registration Site Staff, Basic Examination Site Staff, Radiography Site Staff, radiologists, and non-radiologist specialists.
 10. **Specialty-Specific Doctor Workflows:** Specific clinical sub-specialty workflows, modality eligibility matrices, and reporting templates for non-radiologist specialists.
-11. **Staff Authorization Implementation Mechanism:** Technical implementation details in Laravel/Filament (e.g. Spatie Permission vs custom bitmask/boolean flags) for enforcing the three Site Staff roles.
-12. **Beta Account Migration Mechanism:** Exact database migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
+11. **Staff Authorization Implementation Mechanism:** Application implementation details for enforcing the three Site Staff roles.
+12. **Beta Account Migration Mechanism:** Migration and transition schedule for upgrading existing MVP/beta operator accounts to the granular permission model.
