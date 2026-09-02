@@ -17,19 +17,12 @@ agent orientation and must not duplicate them.
 
 ## Entry points
 
-- `.agents/context/README.md`: human reading guide
+- `docs/project.md`: canonical product context entry point for MHCS Core
 - `docs/business/01-business-overview.md`: end-to-end business flow, actor journeys,
   responsibilities, and rules
+- `docs/business/02-user-stories.md`: human-centric user stories and acceptance criteria
 - `docs/business/03-system-responsibilities.md`: ownership, collaboration,
   access, payment triggers, and the FHIR R5 boundary
-- `docs/technical/mhcs-core-context/project.md`: prepared/copy-ready target
-  repository context and router to its module contexts
-- `docs/technical/mhcs-core-context/modules/<module>/project.md`: Member, Operator,
-  Doctor, and Image Gateway module contexts, partitioned for selective loading
-- `docs/technical/mpips/project.md`: black-box integration contract for the
-  private processing service/API boundary
-- `docs/technical/mhcs-core-context/ui-language.md`: approved UI terminology, Indonesian
-  language policy, and staff interface copy rules
 
 ## Repository facts
 
@@ -45,32 +38,22 @@ agent orientation and must not duplicate them.
 
 ## Documentation structure
 
-The repository contains cross-system business documents and technical
-specifications for exactly two target repositories:
+The repository serves as the MHCS Product Authority:
 
-- `mhcs-core`: the modular Laravel application repository containing Member,
-  Operator, Doctor, and Image Gateway modules, accessed via WhatsApp (Member),
-  temporary Site Workspace (Operator), temporary Clinical / DICOM Workspace
-  (Doctor), and persistent unified administration web panel (Global Admin / Super
-  Admin); and
-- `mpips`: a separate public GitHub repository whose MHCS processing
-  service/API boundary is private.
+- `docs/project.md`: MHCS Core product context entry point (purpose, actors, workflows, and authority boundaries), copied into `mhcs-core/.agents/context/project.md`.
+- `docs/business/`: detailed business definitions, actor journeys, user stories, and system responsibilities.
+- `docs/research/`: background and market research.
+- `website/`: static actor-journey and BPMN demonstrator.
 
-The `mhcs-core` context mirrors the application's `.agents/context` layout: one root
-`project.md` routes agents to nested Member, Operator, Doctor, or Image Gateway
-`project.md` files. These nested files are context partitions, not separate
-applications or repositories.
+Technical implementation details remain owned by `Madeena-software/mhcs-core`.
 
 ## Conventions
 
 - Use plain English.
 - State approved architecture directly and isolate unresolved choices under
   **Open design decisions**.
-- Put cross-system business ownership in `docs/business/` and detailed data,
-  module operations, security, and FHIR R5 mappings in `docs/technical/`.
-- Treat `docs/technical/mhcs-core-context/project.md` as the context router; use
-  approved business and technical authority sources for target topology and
-  cross-module interaction rules.
+- Put cross-system business ownership in `docs/business/`.
+- Treat `docs/project.md` as the MHCS Core product context entry point.
 - Use local commands, queries, transactions, and durable domain events between
   `mhcs-core` modules. Define the exact transport contract only for MPIPS.
 - Keep detailed decisions in `docs/`, not `.agents/context/`.
