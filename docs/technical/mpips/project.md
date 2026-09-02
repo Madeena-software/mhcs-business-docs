@@ -7,8 +7,8 @@ This document defines only the MHCS integration boundary for the separate
 `mpips` repository. MPIPS internal architecture, processors, commands, and
 non-MHCS use cases remain outside this contract.
 
-The overall two-repository decision is defined by the
-[MHCS Core architecture](../mhcs-core/project.md).
+The overall two-repository decision and MHCS Core boundary orientation are
+described by the [MHCS Core context](../mhcs-core-context/project.md).
 
 ## Business Traceability
 
