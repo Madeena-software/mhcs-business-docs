@@ -311,22 +311,52 @@ def main():
         "Proposisi Nilai Pemangku Kepentingan",
         "Demonstrator Operasional yang Aman",
         "Maturitas Kapabilitas & Batasan Klaim",
-        "Kerangka Kolaborasi Indonesia–Oneness",
-        "Langkah Selanjutnya & Diskusi Penutup",
+        "Peluang Kolaborasi",
+        "Diskusi dan Langkah Berikutnya",
     ):
         assert f'data-id="{id_marker}"' in landing, id_marker
 
-    # Closing ask specific to Pak Wong and Stanley Wei
-    assert "Pak Wong" in landing
-    assert "Stanley Wei" in landing
-    assert "Indonesia–Oneness" in landing
+    pres_doc = (ROOT / "PRESENTATION.md").read_text(encoding="utf-8")
+
+    # Prohibited recipient/organization names must NOT appear in active presentation content
+    for prohibited in (
+        "Pak Wong",
+        "Stanley Wei",
+        "Oneness",
+        "Indonesia–Oneness",
+        "Indonesia-Oneness",
+    ):
+        assert prohibited.lower() not in landing.lower(), f"Prohibited term '{prohibited}' found in landing page"
+        assert prohibited.lower() not in pres_doc.lower(), f"Prohibited term '{prohibited}' found in PRESENTATION.md"
+
+    # Reusable general-audience presentation headings and collaboration content
+    assert "Collaboration Opportunities" in landing
+    assert "Peluang Kolaborasi" in landing
+    assert "Discussion and Next Steps" in landing
+    assert "Diskusi dan Langkah Berikutnya" in landing
+
+    # Explicit health-system positioning and non-replacement
+    for non_replacement in (
+        "healthcare professionals",
+        "clinical judgment",
+        "healthcare facilities",
+        "PACS",
+        "HIS/SIMRS",
+        "EMR/RME",
+        "SATUSEHAT",
+    ):
+        assert non_replacement in landing, non_replacement
+
+    # Evidence-calibrated language assertions on affirmative claims
+    assert "fully integrated" not in landing.lower()
+    assert "officially partnered" not in landing.lower()
+    assert "has proven" not in landing.lower()
+    assert "eliminates" not in landing.lower()
 
     # Rehearsal documentation check
-    pres_doc = (ROOT / "PRESENTATION.md").read_text(encoding="utf-8")
-    assert "Pak Wong" in pres_doc
-    assert "Stanley Wei" in pres_doc
     assert "10–15 minute" in pres_doc or "10-15 minute" in pres_doc.lower()
-    assert "Indonesia–Oneness" in pres_doc
+    assert "Collaboration Opportunities" in pres_doc
+    assert "Discussion and Next Steps" in pres_doc
     for sec_anchor in (
         "#problem",
         "#overview",

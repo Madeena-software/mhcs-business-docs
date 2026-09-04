@@ -1,6 +1,6 @@
 # MHCS Executive Business Presentation & Rehearsal Guide
 
-This document provides the structured 10–15 minute presentation and rehearsal outline for introducing **MHCS (Madeena Health Care System)** to **Pak Wong**, with **Stanley Wei**.
+This document provides the structured 10–15 minute presentation and rehearsal outline for introducing **MHCS (Madeena Health Care System)** to general business, healthcare, institutional, governmental, academic, and prospective collaboration stakeholders.
 
 ---
 
@@ -8,13 +8,13 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 | Attribute | Details |
 |---|---|
-| **Target Audience** | Pak Wong (business contact and relative of Stanley Wei) |
-| **Purpose** | Business introduction and strategic alignment regarding MHCS's position in Indonesia–Oneness collaboration |
+| **Target Audience** | General business, healthcare, institutional, governmental, academic, and prospective collaboration stakeholders |
+| **Purpose** | Business introduction, strategic alignment, and evaluation of collaboration opportunities for MHCS |
 | **Tone** | Confident, strategic, practical, transparent about maturity and boundaries |
 | **Duration** | 10–15 minutes presentation + interactive discussion |
 | **Default Language** | English (with on-the-fly Bahasa Indonesia toggle available) |
 | **Primary Route** | `website/index.html` (interactive presentation flow with live demonstrator link) |
-| **Closing Ask** | Obtain Pak Wong's strategic feedback on MHCS's positioning in Indonesia–Oneness collaboration and agree on an aligned follow-up session with Stanley Wei |
+| **Closing Ask** | Invite feedback on the MHCS proposition, identify capabilities requiring further evaluation, explore relevant collaboration areas, and agree on an appropriate next demonstration, evidence review, workflow validation, technical assessment, or follow-up discussion |
 
 ---
 
@@ -28,8 +28,8 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 [07:00 - 09:00] Part 5: Stakeholder Value Proposition (2 min)
 [09:00 - 12:00] Part 6: Live Operational Demonstrator Walkthrough (3 min)
 [12:00 - 13:30] Part 7: Capability Maturity & Claim Boundaries (1.5 min)
-[13:30 - 14:30] Part 8: Indonesia–Oneness Collaboration Framing (1 min)
-[14:30 - 15:30] Part 9: Closing Ask & Agreed Follow-up (1 min)
+[13:30 - 14:30] Part 8: Collaboration Opportunities (1 min)
+[14:30 - 15:30] Part 9: Discussion and Next Steps (1 min)
 ```
 
 ---
@@ -41,7 +41,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 **Key Visual:** 4 Problem Cards (Fragmented Handoffs, Specialist Shortages, Citizen Engagement Friction, Safety & Consent Gaps).
 
 #### Executive Talking Points (English):
-- *"Good morning Pak Wong. Today we want to share the practical vision behind MHCS—the Madeena Health Care System."*
+- *"Good morning / good afternoon. Today we want to share the practical vision behind MHCS—the Madeena Health Care System."*
 - *"Indonesia faces massive structural challenges across its healthcare geography. Millions of citizens undergo preventive screening or medical exams at local Puskesmas and clinics where certified radiologists and diagnostic specialists are simply not physically present."*
 - *"Today, this creates four major bottlenecks:*
   1. *Fragmented service handoffs between check-in, vital signs, X-ray capture, and clinical reporting;*
@@ -62,8 +62,8 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 #### Executive Talking Points (English):
 - *"So what is MHCS? MHCS is an Indonesia-led healthcare orchestration and coordination platform."*
 - *"Our guiding design philosophy is simple: **Use existing capability; integrate where necessary; localise for the operating context; partner where appropriate; build only where capability is genuinely missing.**"*
-- *"Crucially: MHCS does **not** try to be another monolithic hospital information system (HIS), nor a replacement for hospital PACS, and certainly not an 'AI doctor' that makes autonomous clinical decisions."*
-- *"Instead, MHCS connects existing facilities (hospitals, Puskesmas), equipment operators, remote specialists, AI analysis tools, and communication channels into continuous, reliable healthcare pathways."*
+- *"Crucially: MHCS does **not** try to be another monolithic hospital information system (HIS). MHCS coordinates care journeys and workflow handoffs; it does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT / national health infrastructure."*
+- *"Instead, MHCS connects existing facilities (hospitals, Puskesmas, clinics), equipment operators, remote specialists, AI analysis tools, and communication channels into continuous, reliable healthcare pathways."*
 
 ---
 
@@ -103,7 +103,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
   - **Healthcare Facilities (Puskesmas & Clinics):** *Optimized staff utilization, clear queue dispatch, and digitized handoffs without expensive infrastructure overhaul.*
   - **Doctors & Radiologists:** *Flexible case claiming, high-fidelity browser-based DICOM workspace, clear compensation per completed review, and retained diagnostic authority.*
   - **B2B Enterprise Customers:** *Centrally provisioned employee screening quotas, location/shift management, and transparent reconciliation.*
-  - **Collaboration Partners (e.g., Oneness):** *Direct integration with an Indonesia-adapted clinical workflow with strong local governance.*
+  - **Collaboration Partners:** *Direct integration with an Indonesia-adapted clinical workflow with strong local governance, connecting complementary technologies, facility networks, or specialized services into continuous care pathways.*
 
 ---
 
@@ -149,29 +149,40 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 ---
 
-### Part 8: Indonesia–Oneness Collaboration Framing (13:30 – 14:30)
+### Part 8: Collaboration Opportunities (13:30 – 14:30)
 **Anchor:** `#collaboration`  
-**Key Visual:** Indonesia–Oneness Strategic Synergy Box.
+**Key Visual:** Collaboration Models & Synergy Matrix.
 
 #### Executive Talking Points (English):
-- *"MHCS represents an ideal model of Indonesia–Oneness collaboration."*
-- *"It is designed in Indonesia, for Indonesia—respecting national health regulations, local data sovereignty, and frontline operational realities at Puskesmas and clinics."*
-- *"By combining this grounded Indonesian clinical workflow with Oneness’s technological depth, we create a scalable, high-impact healthcare coordination system that creates lasting bilateral value."*
+- *"MHCS is designed to help coordinate care across organizations by connecting local operational readiness with complementary technology and healthcare service partners."*
+- *"It is engineered for Indonesian realities—respecting national health regulations, local data sovereignty, and frontline operational realities at Puskesmas, clinics, and hospitals."*
+- *"By combining this grounded Indonesian clinical workflow with partner technological depth, analytical tools, or specialized services, we aim to build scalable, high-impact healthcare coordination that creates lasting mutual value."*
+- *"Potential collaboration models include technology and AI processing integration, healthcare facility network participation, diagnostic specialist networks, and enterprise health screening programs."*
+
+#### Catatan Bahasa Indonesia (ID):
+- *MHCS dirancang untuk membantu mengorkestrasi layanan lintas organisasi dengan memadukan kesiapan operasional lokal serta mitra teknologi dan layanan kesehatan pelengkap.*
+- *Peluang kemitraan mencakup integrasi teknologi pemrosesan citra/AI, partisipasi jejaring fasilitas dan spesialis radiologi, serta program skrining kesehatan korporasi.*
 
 ---
 
-### Part 9: Closing Discussion & Next Steps (14:30 – 15:30)
+### Part 9: Discussion and Next Steps (14:30 – 15:30)
 **Anchor:** `#next-steps`  
-**Key Visual:** 2-Step Closing Ask Card.
+**Key Visual:** 4-Part Discussion & Next Steps Framework.
 
 #### Executive Closing Ask (English):
-- *"Pak Wong, we would be deeply grateful to hear your perspectives on two specific areas:*
-  1. *Your strategic feedback on MHCS's positioning within the broader Indonesia–Oneness collaboration landscape;*
-  2. *Your guidance on structuring an aligned follow-up working session together with Stanley Wei to define our near-term collaborative milestones."*
+- *"To conclude our presentation, we welcome your feedback and propose four collaborative areas for our discussion and next steps:*
+  1. *Your feedback and strategic perspectives on the MHCS proposition and care coordination model;*
+  2. *Identifying specific capabilities, workflow handoffs, or interaction surfaces requiring further technical or operational evaluation;*
+  3. *Exploring relevant potential collaboration areas and mutual fit across your organization or network;*
+  4. *Agreeing on the next appropriate step—whether a deeper technical demonstration, an evidence and documentation review, workflow validation, or a focused follow-up discussion."*
 - *"Thank you very much. We welcome your thoughts and questions."*
 
 #### Penutup (Bahasa Indonesia):
-- *"Pak Wong, kami sangat menghargai masukan strategis Bapak mengenai posisi MHCS dalam kolaborasi Indonesia–Oneness, serta arahan untuk sesi diskusi lanjutan bersama Stanley Wei."*
+- *"Kami menyambut baik masukan para pemangku kepentingan mengenai proposisi MHCS dan siap menyepakati langkah tindak lanjut bersama:*
+  1. *Masukan dan pandangan strategis atas proposisi MHCS dan model koordinasi layanan;*
+  2. *Identifikasi kapabilitas, alur kerja, atau permukaan interaksi yang memerlukan evaluasi teknis/operasional lebih mendalam;*
+  3. *Penjajakan area kolaborasi potensial yang relevan dan keselarasan bersama;*
+  4. *Kesepakatan mengenai langkah lanjutan yang sesuai—baik demonstrasi lanjutan, tinjauan bukti/dokumen, validasi alur kerja, maupun diskusi terfokus berikutnya."*
 
 ---
 
@@ -179,7 +190,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 | Question | Recommended Answer |
 |---|---|
-| **"Are you trying to compete with hospital PACS or hospital information systems?"** | *No. MHCS is an orchestration layer, not a replacement. We coordinate workflows across facilities and integrate with existing systems rather than replacing their clinical repositories.* |
+| **"Are you trying to compete with hospital PACS or hospital information systems?"** | *No. MHCS coordinates care journeys and workflow handoffs. It does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT national infrastructure. We coordinate workflows across facilities and integrate with existing systems rather than replacing their clinical repositories.* |
 | **"Why not build a native mobile app for patients?"** | *In preventive screening across distributed communities, downloading an app creates steep drop-offs. Leveraging familiar messaging channels like WhatsApp with temporary zero-login web links delivers dramatically higher attendance and engagement.* |
 | **"What happens if the external AI server is disconnected?"** | *MHCS fails closed safely. The external AI is an optional assistive tool, not a blocker. The imaging study proceeds directly to the qualified radiologist for clinical evaluation without interruption.* |
 | **"How do you handle patient data privacy and consent?"** | *We enforce rigorous on-site physical identity verification and signed paper consent. Clinical DICOM binaries are never transmitted over public messaging chats; they are accessed through temporary, authenticated clinical workspaces.* |
