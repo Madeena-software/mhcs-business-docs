@@ -42,7 +42,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 #### Executive Talking Points (English):
 - *"Good morning / good afternoon. Today we want to share the practical vision behind MHCS—the Madeena Health Care System."*
-- *"Indonesia faces massive structural challenges across its healthcare geography. Millions of citizens undergo preventive screening or medical exams at local Puskesmas and clinics where certified radiologists and diagnostic specialists are simply not physically present."*
+- *"Indonesia faces structural geographical and specialist distribution bottlenecks across its healthcare landscape. Preventive screening and medical examinations across distributed Indonesian communities can involve fragmented handoffs and limited local specialist availability at examination sites."*
 - *"Today, this creates four major bottlenecks:*
   1. *Fragmented service handoffs between check-in, vital signs, X-ray capture, and clinical reporting;*
   2. *Specialist shortages at physical sites, leaving operators with unreviewed exams;*
@@ -51,7 +51,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 #### Catatan Bahasa Indonesia (ID):
 - *Tantangan utama layanan kesehatan di Indonesia adalah kesenjangan distribusi geografis dan tenaga spesialis radiologi di Puskesmas dan fasilitas tingkat pertama.*
-- *MHCS mengatasi fragmentasi layanan, hambatan adopsi aplikasi oleh masyarakat, dan memastikan verifikasi identitas serta persetujuan pasien tetap aman dan tertib.*
+- *MHCS dirancang untuk membantu mengatasi fragmentasi layanan, mengurangi hambatan adopsi aplikasi, serta mendukung proses verifikasi identitas dan persetujuan pasien yang tertib.*
 
 ---
 
@@ -74,7 +74,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 #### Executive Talking Points (English):
 - *"How do people actually interact with MHCS? We deliberately avoid forcing citizens or doctors into permanent mobile apps."*
 - *"We use a durable product abstraction: the **Messaging Interaction Surface** as the persistent human coordination layer, backed by **Temporary Secure Web Workspaces** when richer interaction is needed."*
-- *"In Indonesia, **WhatsApp** serves as our reference messaging channel for appointments, status updates, and links. But WhatsApp is never used to store permanent clinical diagnostic records or transmit raw patient DICOM images."*
+- *"In Indonesia, **WhatsApp** serves as our reference messaging channel for appointments, status updates, and links. In the designed architecture, WhatsApp is not used to store permanent clinical diagnostic records or transmit raw patient DICOM images."*
 - *"When a member needs to view or download their report, they open a time-limited **Temporary Result Surface** via a secure signed link. No password to remember, no app store friction."*
 - *"Similarly, Site Staff and Doctors operate in task-specific temporary web workspaces scoped strictly to their active shift or claimed clinical study."*
 
@@ -98,12 +98,12 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 **Key Visual:** 5 Stakeholder Value Cards (Members, Facilities, Doctors, B2B Enterprise, Collaboration Partners).
 
 #### Executive Talking Points (English):
-- *"Why do stakeholders want to adopt MHCS?"*
-  - **Members:** *Frictionless WhatsApp coordination, fast delivery of results, verified safety, and zero-cost repeat exams if requested by a radiologist.*
-  - **Healthcare Facilities (Puskesmas & Clinics):** *Optimized staff utilization, clear queue dispatch, and digitized handoffs without expensive infrastructure overhaul.*
-  - **Doctors & Radiologists:** *Flexible case claiming, high-fidelity browser-based DICOM workspace, clear compensation per completed review, and retained diagnostic authority.*
-  - **B2B Enterprise Customers:** *Centrally provisioned employee screening quotas, location/shift management, and transparent reconciliation.*
-  - **Collaboration Partners:** *Direct integration with an Indonesia-adapted clinical workflow with strong local governance, connecting complementary technologies, facility networks, or specialized services into continuous care pathways.*
+- *"What potential value is MHCS designed to offer across participating stakeholder groups?"*
+  - **Members:** *Designed for frictionless WhatsApp coordination, expedited result access, and verified protocol safety.*
+  - **Healthcare Facilities (Puskesmas & Clinics):** *Aims to help optimize staff utilization, streamline queue dispatch, and digitize handoffs without expensive infrastructure overhaul.*
+  - **Doctors & Radiologists:** *Designed for flexible case claiming, browser-based DICOM review, structured case compensation, and retained clinical diagnostic authority.*
+  - **B2B Enterprise Customers:** *Tools designed for centrally provisioned employee screening quotas, shift coordination, and transparent reconciliation.*
+  - **Collaboration Partners:** *Structured integration with an Indonesia-adapted clinical workflow, connecting complementary technologies, facility networks, or specialized services into continuous care pathways.*
 
 ---
 
@@ -191,7 +191,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 | Question | Recommended Answer |
 |---|---|
 | **"Are you trying to compete with hospital PACS or hospital information systems?"** | *No. MHCS coordinates care journeys and workflow handoffs. It does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT national infrastructure. We coordinate workflows across facilities and integrate with existing systems rather than replacing their clinical repositories.* |
-| **"Why not build a native mobile app for patients?"** | *In preventive screening across distributed communities, downloading an app creates steep drop-offs. Leveraging familiar messaging channels like WhatsApp with temporary zero-login web links delivers dramatically higher attendance and engagement.* |
+| **"Why not build a native mobile app for patients?"** | *In preventive screening across distributed communities, requiring a dedicated mobile app often creates significant onboarding friction. Using familiar messaging channels with temporary web links is intended to reduce access friction and may support attendance and engagement. Its effect requires field validation.* |
 | **"What happens if the external AI server is disconnected?"** | *MHCS fails closed safely. The external AI is an optional assistive tool, not a blocker. The imaging study proceeds directly to the qualified radiologist for clinical evaluation without interruption.* |
-| **"How do you handle patient data privacy and consent?"** | *We enforce rigorous on-site physical identity verification and signed paper consent. Clinical DICOM binaries are never transmitted over public messaging chats; they are accessed through temporary, authenticated clinical workspaces.* |
+| **"How do you handle patient data privacy and consent?"** | *The designed workflow includes on-site identity verification and documented consent. Production implementation and control effectiveness require validation in each operating context. The intended architecture keeps clinical DICOM binaries outside ordinary messaging chats and provides access through controlled clinical workspaces. Production enforcement remains subject to implementation and security validation.* |
 | **"What are the commercial or investment terms?"** | *Today's presentation focuses purely on business and strategic alignment. Commercial terms, fee models, and investment structures are handled through separate, formal discussions.* |

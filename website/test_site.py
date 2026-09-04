@@ -352,6 +352,8 @@ def main():
     assert "officially partnered" not in landing.lower()
     assert "has proven" not in landing.lower()
     assert "eliminates" not in landing.lower()
+    assert "delivers clear, tangible benefits" not in landing.lower()
+    assert "designed to offer potential value" in landing.lower()
 
     # Rehearsal documentation check
     assert "10–15 minute" in pres_doc or "10-15 minute" in pres_doc.lower()
@@ -369,6 +371,31 @@ def main():
         "#next-steps",
     ):
         assert sec_anchor in pres_doc, sec_anchor
+
+    # Rehearsal guide must not contain unsupported formulations
+    for unsupported in (
+        "millions of citizens",
+        "delivers dramatically higher attendance",
+        "we enforce rigorous",
+        "are never transmitted",
+    ):
+        assert unsupported not in pres_doc.lower(), f"Unsupported formulation '{unsupported}' found in PRESENTATION.md"
+
+    # Positive calibrated markers across landing page and rehearsal guide
+    for marker in (
+        "designed to",
+        "aims to",
+        "potential value",
+    ):
+        assert marker in landing.lower(), f"Calibrated marker '{marker}' missing from landing page"
+        assert marker in pres_doc.lower(), f"Calibrated marker '{marker}' missing from PRESENTATION.md"
+
+    for guide_marker in (
+        "may support",
+        "requires field validation",
+        "require validation",
+    ):
+        assert guide_marker in pres_doc.lower(), f"Calibrated marker '{guide_marker}' missing from PRESENTATION.md"
 
     member = (ROOT / "journeys/member/index.html").read_text(encoding="utf-8")
     assert "Suspended account" not in member
