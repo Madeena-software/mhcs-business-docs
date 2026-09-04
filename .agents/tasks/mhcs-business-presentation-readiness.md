@@ -1,7 +1,7 @@
 ---
 title: MHCS Business Presentation Readiness
 document_id: AGENT-TASK-MHCS-PRESENTATION-001
-version: 1.0
+version: 1.1
 status: candidate-task
 language: en-US
 last_updated: 2026-09-04
@@ -55,8 +55,12 @@ viewer rather than an executive presentation:
    and `.github/workflows/deploy-pages.yml` requires an `AI_DEMO_URL` secret,
    creating a fragile external dependency that risks presentation failure if the
    external server is unreachable, unconfigured, or offline.
-4. The site is currently English-only, lacking Bahasa Indonesia support for key
-   executive messaging and local Indonesian collaboration discussions.
+4. The operational demonstrator and strategic concept already contain bilingual
+   English/Bahasa Indonesia support, but the main landing page, supporting journey
+   surfaces, and overall executive presentation route do not yet provide coherent
+   bilingual coverage. The required outcome is complete bilingual parity for all
+   material content in the primary business-presentation route, without unnecessary
+   translation of every historical or deeply technical supporting artifact.
 
 This task exists to transform `website/` into a curated, confident, 10–15 minute
 business-first presentation for Pak Wong, while preserving all existing detailed
@@ -249,8 +253,10 @@ The Executor must discover and touch the smallest sufficient affected file set.
 - Candidate task review and formal validation by designated Planner/Reviewer.
 - Review of executive presentation copy and Indonesian translation prior to
   presenting to Pak Wong.
-- Designated human approval required before merging task branch to `main` or
-  deploying to public GitHub Pages.
+- Designated human approval required before merging task branch to `main`,
+  creating pull requests unless separately authorized, or deploying to public GitHub Pages
+  (automatic fast-forward push to `origin/docs/mhcs-business-presentation-readiness`
+  is explicitly authorized for bounded implementation execution).
 
 ## Required capabilities
 
@@ -261,7 +267,7 @@ The Executor must discover and touch the smallest sufficient affected file set.
 
 ## Execution constraints
 
-- **Ponytail reuse discipline:** Reuse existing CSS patterns, structure, and design
+- **Repository reuse discipline:** Reuse existing CSS patterns, structure, and design
   tokens where feasible. Do not introduce bloated external CSS/JS frameworks or
   unnecessary third-party dependencies.
 - **Pure static delivery:** Vanilla HTML, CSS, and lightweight JavaScript. No
@@ -328,12 +334,18 @@ The Executor must discover and touch the smallest sufficient affected file set.
 
 ### Required evidence
 
-The Executor MUST report:
-- Implementation revision or exact working-tree state;
-- Commands and checks actually executed and observed outputs;
-- Rendered visual layout observations across target viewports;
+The future Executor MUST report:
+- Actual execution-start SHA;
+- Implementation commit SHA;
+- Remote branch SHA;
+- Push result;
+- Confirmation that local and remote SHAs match;
+- Exact changed-file list and diff summary;
+- Observed verification evidence (commands and checks actually executed, observed outputs,
+  and rendered visual layout observations across target viewports);
 - Tests added, updated, or verified;
 - Known verification gaps, deviations, or non-blocking observations;
+- Confirmation that `main` was not modified;
 - Explicit distinction between local verification and CI or deployed-site evidence.
 
 Do not claim deployment, browser rendering, CI, or live-demo readiness unless that
@@ -362,18 +374,30 @@ The Executor MUST stop implementation and return the issue to planning when:
   and presentation/rehearsal documentation.
 - Local command execution for testing (`python3 website/test_site.py`, etc.) and
   local HTTP serving.
-- Bounded local commits on the `docs/mhcs-business-presentation-readiness` task
-  branch.
+- Automatically commit bounded implementation work on the
+  `docs/mhcs-business-presentation-readiness` task branch.
+- Automatically push implementation commits to
+  `origin/docs/mhcs-business-presentation-readiness` using normal fast-forward push
+  only (Git push to this specifically authorized implementation branch is
+  explicitly authorized and not prohibited by general external/network-mutation
+  restrictions).
+- Verify that `origin/docs/mhcs-business-presentation-readiness` resolves to the
+  reported implementation commit SHA.
+- Return the exact local and remote implementation SHAs for Planner/Reviewer
+  inspection.
 
 ### Strictly prohibited side effects
 
-- Direct commits to `main`;
-- Force-pushes or history rewriting;
+- Direct commits or pushes to `main`;
+- Force-push or history rewriting on any branch;
 - Merging to `main` or triggering production releases;
+- Pull-request creation unless separately authorized;
 - Deploying live GitHub Pages without explicit human approval;
 - Modifying the stale `docs/mhcs-product-model-reset` branch;
-- Changes to other repositories (`mhcs-core`, `mpips`, etc.);
-- External infrastructure or network mutations.
+- Changes to unrelated branches or other repositories (`Madeena-software/mhcs-core`,
+  `mpips`, etc.);
+- Production or external-infrastructure mutations (excluding the specifically authorized
+  fast-forward Git push to `origin/docs/mhcs-business-presentation-readiness`).
 
 ## Expected terminal outcome
 
@@ -381,7 +405,10 @@ The Executor MUST stop implementation and return the issue to planning when:
 
 Use when the presentation route is fully implemented, bilingual support is active,
 the demonstrator is decoupled and fails closed, all 14 acceptance criteria are met,
-and observed verification evidence is documented for Reviewer inspection.
+the implementation is committed and fast-forward pushed to
+`origin/docs/mhcs-business-presentation-readiness`, and all required execution evidence
+(including verified matching local and remote SHAs) is reported for Planner/Reviewer
+inspection.
 
 ### Planning Required
 
