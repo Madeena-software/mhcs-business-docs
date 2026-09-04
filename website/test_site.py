@@ -268,6 +268,148 @@ def main():
     assert "Strategic concept mock-up" not in landing
     assert "infographics/" in landing and "journeys/" in landing and "bpmn/" in landing
 
+    # Primary presentation route integrity checks
+    for section_id in (
+        "problem",
+        "overview",
+        "interaction-model",
+        "service-slice",
+        "value",
+        "demonstrator",
+        "boundaries",
+        "collaboration",
+        "next-steps",
+        "supporting-evidence",
+    ):
+        assert f'id="{section_id}"' in landing, section_id
+
+    # Core product abstraction & reference channel
+    assert "Messaging Interaction Surface" in landing
+    assert "Temporary Secure Web" in landing
+    assert "WhatsApp" in landing
+    assert "Temporary Result Surface" in landing
+    assert "Temporary Site Workspace" in landing
+    assert "Temporary Clinical Workspace" in landing
+    assert "Persistent Admin Web" in landing
+
+    # Visual claim boundary chips
+    for chip_class in (
+        "maturity-chip verified",
+        "maturity-chip prototype",
+        "maturity-chip validation",
+        "maturity-chip concept",
+    ):
+        assert chip_class in landing, chip_class
+
+    # Calibrated maturity chip text labels
+    for chip_label in (
+        "Documented / Demonstrated",
+        "Terdokumentasi / Terdemonstrasi",
+        "Prototype / Demonstrator",
+        "Prototipe / Demonstrator",
+        "Validation Stage",
+        "Tahap Validasi",
+        "Future Concept",
+        "Konsep Masa Depan",
+    ):
+        assert chip_label in landing, chip_label
+
+    # Bilingual support markers and Indonesian parity across primary route
+    assert 'data-lang-btn="en"' in landing and 'data-lang-btn="id"' in landing
+    for id_marker in (
+        "Tantangan Layanan Kesehatan di Indonesia",
+        "Apa itu MHCS: Orkestrasi, Bukan Penggantian Monolitik",
+        "Model Interaksi: Dari Perpesanan Menuju Web Sementara",
+        "Irisan Layanan Saat Ini: Dari Pemeriksaan ke Hasil",
+        "Proposisi Nilai Pemangku Kepentingan",
+        "Demonstrator Operasional yang Aman",
+        "Maturitas Kapabilitas & Batasan Klaim",
+        "Peluang Kolaborasi",
+        "Diskusi dan Langkah Berikutnya",
+    ):
+        assert f'data-id="{id_marker}"' in landing, id_marker
+
+    pres_doc = (ROOT / "PRESENTATION.md").read_text(encoding="utf-8")
+
+    # Prohibited recipient/organization names must NOT appear in active presentation content
+    for prohibited in (
+        "Pak Wong",
+        "Stanley Wei",
+        "Oneness",
+        "Indonesia–Oneness",
+        "Indonesia-Oneness",
+    ):
+        assert prohibited.lower() not in landing.lower(), f"Prohibited term '{prohibited}' found in landing page"
+        assert prohibited.lower() not in pres_doc.lower(), f"Prohibited term '{prohibited}' found in PRESENTATION.md"
+
+    # Reusable general-audience presentation headings and collaboration content
+    assert "Collaboration Opportunities" in landing
+    assert "Peluang Kolaborasi" in landing
+    assert "Discussion and Next Steps" in landing
+    assert "Diskusi dan Langkah Berikutnya" in landing
+
+    # Explicit health-system positioning and non-replacement
+    for non_replacement in (
+        "healthcare professionals",
+        "clinical judgment",
+        "healthcare facilities",
+        "PACS",
+        "HIS/SIMRS",
+        "EMR/RME",
+        "SATUSEHAT",
+    ):
+        assert non_replacement in landing, non_replacement
+
+    # Evidence-calibrated language assertions on affirmative claims
+    assert "fully integrated" not in landing.lower()
+    assert "officially partnered" not in landing.lower()
+    assert "has proven" not in landing.lower()
+    assert "eliminates" not in landing.lower()
+    assert "delivers clear, tangible benefits" not in landing.lower()
+    assert "designed to offer potential value" in landing.lower()
+
+    # Rehearsal documentation check
+    assert "10–15 minute" in pres_doc or "10-15 minute" in pres_doc.lower()
+    assert "Collaboration Opportunities" in pres_doc
+    assert "Discussion and Next Steps" in pres_doc
+    for sec_anchor in (
+        "#problem",
+        "#overview",
+        "#interaction-model",
+        "#service-slice",
+        "#value",
+        "#demonstrator",
+        "#boundaries",
+        "#collaboration",
+        "#next-steps",
+    ):
+        assert sec_anchor in pres_doc, sec_anchor
+
+    # Rehearsal guide must not contain unsupported formulations
+    for unsupported in (
+        "millions of citizens",
+        "delivers dramatically higher attendance",
+        "we enforce rigorous",
+        "are never transmitted",
+    ):
+        assert unsupported not in pres_doc.lower(), f"Unsupported formulation '{unsupported}' found in PRESENTATION.md"
+
+    # Positive calibrated markers across landing page and rehearsal guide
+    for marker in (
+        "designed to",
+        "aims to",
+        "potential value",
+    ):
+        assert marker in landing.lower(), f"Calibrated marker '{marker}' missing from landing page"
+        assert marker in pres_doc.lower(), f"Calibrated marker '{marker}' missing from PRESENTATION.md"
+
+    for guide_marker in (
+        "may support",
+        "requires field validation",
+        "require validation",
+    ):
+        assert guide_marker in pres_doc.lower(), f"Calibrated marker '{guide_marker}' missing from PRESENTATION.md"
+
     member = (ROOT / "journeys/member/index.html").read_text(encoding="utf-8")
     assert "Suspended account" not in member
     assert "Wallet rule" not in member
@@ -497,7 +639,11 @@ def main():
     assert 'data-view="operator"' in demonstrator_source
     assert 'data-view="doctor"' in demonstrator_source
     assert 'data-view="journey"' in demonstrator_source
-    assert 'aiDemoUrl: "http://124.225.183.175:8361/"' in demonstrator_config
+    assert 'aiDemoUrl: ""' in demonstrator_config
+    assert "124.225.183.175" not in demonstrator_config
+    for web_file in ROOT.rglob("*"):
+        if web_file.is_file() and web_file.name != "test_site.py" and web_file.suffix in {".html", ".js", ".css", ".py"}:
+            assert "124.225.183.175" not in web_file.read_text(encoding="utf-8", errors="ignore"), web_file
     assert "window.open" not in demonstrator_app
     assert "fetch(" not in demonstrator_app
     assert "XMLHttpRequest" not in demonstrator_app

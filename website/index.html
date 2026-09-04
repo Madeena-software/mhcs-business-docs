@@ -4,107 +4,684 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="only light">
-  <meta name="description" content="MHCS healthcare orchestration concept and current examination service journey maps.">
-  <title>MHCS Healthcare Orchestration Journeys</title>
+  <meta name="description" content="MHCS Executive Business Presentation: Indonesia-led healthcare orchestration, interaction model, current examination service slice, and collaboration framework.">
+  <title>MHCS Executive Presentation · Healthcare Orchestration</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/journey.css">
+  <link rel="stylesheet" href="./assets/presentation.css">
 </head>
 <body>
   <header class="site-header">
-    <nav class="nav" aria-label="Diagram navigation">
-      <a class="brand" href="./" aria-current="page"><span class="brand-mark">M</span>MHCS Journeys</a>
+    <nav class="nav" aria-label="Executive presentation navigation">
+      <a class="brand" href="./" aria-current="page"><span class="brand-mark">M</span>MHCS Presentation</a>
       <div class="nav-links">
-        <a href="./journeys/member/">Member</a>
-        <a href="./journeys/operator/">Site Staff</a>
-        <a href="./journeys/doctor/">Doctor</a>
-        <a href="./journeys/b2b/">B2B Representative</a>
-        <a href="./journeys/admin/">Global Admin</a>
-        <a href="./bpmn/">Technical BPMN</a>
+        <a href="#problem" data-en="Problem" data-id="Masalah">Problem</a>
+        <a href="#overview" data-en="Overview" data-id="Ikhtisar">Overview</a>
+        <a href="#interaction-model" data-en="Interaction Model" data-id="Model Interaksi">Interaction Model</a>
+        <a href="#service-slice" data-en="Service Slice" data-id="Irisan Layanan">Service Slice</a>
+        <a href="#value" data-en="Stakeholder Value" data-id="Nilai Pemangku Kepentingan">Stakeholder Value</a>
+        <a href="#demonstrator" data-en="Demonstrator" data-id="Demonstrator">Demonstrator</a>
+        <a href="#boundaries" data-en="Maturity & Claims" data-id="Maturitas & Batasan">Maturity & Claims</a>
+        <a href="#collaboration" data-en="Collaboration" data-id="Kolaborasi">Collaboration</a>
+        <a href="#next-steps" data-en="Next Steps" data-id="Langkah Lanjut">Next Steps</a>
+        <a href="#supporting-evidence" data-en="Supporting Evidence" data-id="Bukti Pendukung">Supporting Evidence</a>
+      </div>
+      <div class="header-actions">
+        <a class="rehearsal-link" href="./PRESENTATION.md" title="Open 10–15 Minute Executive Rehearsal Guide">
+          <span>📋</span> <span data-en="Rehearsal Guide" data-id="Panduan Gladi">Rehearsal Guide</span>
+        </a>
+        <div class="lang-toggle" role="group" aria-label="Language Switcher" data-aria-en="Language Switcher" data-aria-id="Pengalih Bahasa">
+          <button type="button" class="lang-btn active" data-lang-btn="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang-btn" data-lang-btn="id" aria-pressed="false">ID</button>
+        </div>
       </div>
     </nav>
   </header>
 
-  <main class="page">
-    <section class="hero">
-      <div>
-        <p class="page-context">MHCS healthcare orchestration concept</p>
-        <h1>Indonesia-led healthcare orchestration, shown by journey.</h1>
-        <p class="intro">
-          MHCS coordinates continuous-care services across people, sites, messaging, and
-          connected capabilities. This site shows the current examination / radiography /
-          AI / optional Doctor Review service slice within that broader product.
+  <!-- Sticky Presentation Stepper Navigation -->
+  <div class="pres-stepper-wrap" aria-label="Presentation Section Progress">
+    <nav class="pres-stepper">
+      <a class="step-pill active" href="#problem"><span class="step-num">1</span> <span data-en="Problem" data-id="1. Masalah">Problem</span></a>
+      <a class="step-pill" href="#overview"><span class="step-num">2</span> <span data-en="What is MHCS" data-id="2. Apa itu MHCS">What is MHCS</span></a>
+      <a class="step-pill" href="#interaction-model"><span class="step-num">3</span> <span data-en="Interaction Model" data-id="3. Model Interaksi">Interaction Model</span></a>
+      <a class="step-pill" href="#service-slice"><span class="step-num">4</span> <span data-en="Current Service Slice" data-id="4. Irisan Layanan">Current Service Slice</span></a>
+      <a class="step-pill" href="#value"><span class="step-num">5</span> <span data-en="Stakeholder Value" data-id="5. Nilai Manfaat">Stakeholder Value</span></a>
+      <a class="step-pill" href="#demonstrator"><span class="step-num">6</span> <span data-en="Demonstrator" data-id="6. Demonstrator">Demonstrator</span></a>
+      <a class="step-pill" href="#boundaries"><span class="step-num">7</span> <span data-en="Maturity & Boundaries" data-id="7. Batasan Klaim">Maturity & Boundaries</span></a>
+      <a class="step-pill" href="#collaboration"><span class="step-num">8</span> <span data-en="Collaboration" data-id="8. Kolaborasi">Collaboration</span></a>
+      <a class="step-pill" href="#next-steps"><span class="step-num">9</span> <span data-en="Next Steps" data-id="9. Langkah Lanjut">Next Steps</span></a>
+      <a class="step-pill" href="#supporting-evidence"><span>📎</span> <span data-en="Evidence" data-id="Bukti Teknis">Evidence</span></a>
+    </nav>
+  </div>
+
+  <main class="pres-container">
+    <!-- Executive Hero Section -->
+    <section class="pres-hero" aria-labelledby="hero-heading">
+      <div class="hero-eyebrow-group">
+        <span class="hero-tag" data-en="Executive Briefing · 10–15 Minutes" data-id="Taklimat Eksekutif · 10–15 Menit">Executive Briefing · 10–15 Minutes</span>
+        <span class="maturity-chip verified" data-en="Documented Operating Model" data-id="Model Operasional Terdokumentasi">Documented Operating Model</span>
+      </div>
+      <h1 id="hero-heading" data-en="Indonesia-led healthcare orchestration, shown by journey." data-id="Orkestrasi layanan kesehatan yang dipimpin Indonesia, dipaparkan melalui alur perjalanan.">Indonesia-led healthcare orchestration, shown by journey.</h1>
+      <p class="hero-subtitle" data-en="MHCS is designed to help coordinate continuous-care services across people, sites, messaging, and connected capabilities. This presentation outlines the current examination / radiography / AI / optional Doctor Review service slice within that broader product." data-id="MHCS dirancang untuk membantu mengorkestrasi layanan perawatan berkelanjutan lintas individu, fasilitas, perpesanan, dan kapabilitas terhubung. Presentasi ini memaparkan irisan layanan pemeriksaan / radiografi / AI / tinjauan Dokter opsional saat ini dalam produk yang lebih luas tersebut.">
+        MHCS is designed to help coordinate continuous-care services across people, sites, messaging, and
+        connected capabilities. This presentation outlines the current examination / radiography /
+        AI / optional Doctor Review service slice within that broader product.
+      </p>
+      <div class="hero-meta-bar">
+        <div class="meta-item">
+          <div class="meta-label" data-en="Audience & Objective" data-id="Audiens & Tujuan">Audience & Objective</div>
+          <div class="meta-val" data-en="Business & Strategic Alignment" data-id="Penyelarasan Bisnis & Strategis">Business & Strategic Alignment</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label" data-en="Core Product Abstraction" data-id="Abstraksi Produk Inti">Core Product Abstraction</div>
+          <div class="meta-val" data-en="Messaging Interaction Surface" data-id="Messaging Interaction Surface">Messaging Interaction Surface</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label" data-en="Operating Architecture" data-id="Arsitektur Operasional">Operating Architecture</div>
+          <div class="meta-val" data-en="Zero-Login Temporary Secure Web" data-id="Temporary Secure Web Tanpa Login">Zero-Login Temporary Secure Web</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label" data-en="Collaboration Scope" data-id="Ruang Lingkup Kolaborasi">Collaboration Scope</div>
+          <div class="meta-val" data-en="Open Ecosystem Partnerships" data-id="Kemitraan Ekosistem Terbuka">Open Ecosystem Partnerships</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Maturity Chip Legend -->
+    <div class="maturity-chips-legend" aria-label="Evidence and Maturity Legend">
+      <span class="legend-title" data-en="Maturity Badges:" data-id="Tingkat Kesiapan:">Maturity Badges:</span>
+      <span class="maturity-chip verified" data-en="Documented / Demonstrated" data-id="Terdokumentasi / Terdemonstrasi">Documented / Demonstrated</span>
+      <span class="maturity-chip prototype" data-en="Prototype / Demonstrator" data-id="Prototipe / Demonstrator">Prototype / Demonstrator</span>
+      <span class="maturity-chip validation" data-en="Validation Stage" data-id="Tahap Validasi">Validation Stage</span>
+      <span class="maturity-chip concept" data-en="Future Concept" data-id="Konsep Masa Depan">Future Concept</span>
+    </div>
+
+    <!-- PART 1: The Healthcare Problem in Indonesia -->
+    <section id="problem" class="pres-section" aria-labelledby="problem-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 1 · Healthcare Landscape" data-id="Bagian 1 · Lanskap Layanan Kesehatan">Part 1 · Healthcare Landscape</span>
+        <h2 id="problem-heading" data-en="The Healthcare Challenge in Indonesia" data-id="Tantangan Layanan Kesehatan di Indonesia">The Healthcare Challenge in Indonesia</h2>
+        <p class="section-lead" data-en="Across Indonesia's archipelago, preventive screening and diagnostic interpretation face structural geographic and specialist distribution bottlenecks." data-id="Di seluruh kepulauan Indonesia, skrining preventif dan interpretasi diagnostik menghadapi hambatan struktural geografis serta distribusi tenaga spesialis.">
+          Across Indonesia's archipelago, preventive screening and diagnostic interpretation face structural geographic and specialist distribution bottlenecks.
         </p>
       </div>
-      <p class="screenshot-note">Concept and candidate presentation · not production systems</p>
+
+      <div class="pres-grid grid-4">
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <span class="card-icon-badge">01</span>
+            <span class="maturity-chip verified" data-en="Handoff Bottleneck" data-id="Hambatan Serah Terima">Handoff Bottleneck</span>
+          </div>
+          <h3 data-en="Fragmented Service Handoffs" data-id="Fragmentasi Alur Layanan">Fragmented Service Handoffs</h3>
+          <p data-en="Disconnection between patient booking, on-site check-in, vital measurements, X-ray capture, and diagnostic reporting can lead to fragmented handoffs and dropped patient follow-up." data-id="Terputusnya alur antara pendaftaran pasien, kehadiran di lokasi, pemeriksaan tanda vital, rontgen, dan pelaporan diagnostik dapat memicu fragmentasi layanan dan berkurangnya tindak lanjut.">
+            Disconnection between patient booking, on-site check-in, vital measurements, X-ray capture, and diagnostic reporting can lead to fragmented handoffs and dropped patient follow-up.
+          </p>
+        </div>
+
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <span class="card-icon-badge">02</span>
+            <span class="maturity-chip verified" data-en="Specialist Distribution Gap" data-id="Kesenjangan Distribusi Spesialis">Specialist Distribution Gap</span>
+          </div>
+          <h3 data-en="Specialist Shortage at Sites" data-id="Kelangkaan Spesialis di Lokasi">Specialist Shortage at Sites</h3>
+          <p data-en="Distributed Puskesmas and clinics have radiography equipment and operators, but lack on-site certified radiologists and specialist clinicians for timely interpretation." data-id="Puskesmas dan klinik memiliki alat rontgen dan operator, namun kekurangan dokter spesialis radiologi di lokasi untuk interpretasi medis yang tepat waktu.">
+            Distributed Puskesmas and clinics have radiography equipment and operators, but lack on-site certified radiologists and specialist clinicians for timely interpretation.
+          </p>
+        </div>
+
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <span class="card-icon-badge">03</span>
+            <span class="maturity-chip verified" data-en="Adoption Barrier" data-id="Hambatan Adopsi">Adoption Barrier</span>
+          </div>
+          <h3 data-en="Citizen Engagement Friction" data-id="Hambatan Partisipasi Warga">Citizen Engagement Friction</h3>
+          <p data-en="Requiring dedicated applications or persistent portal credentials can introduce access and onboarding friction in preventive-screening journeys. The magnitude of this effect requires field validation." data-id="Mewajibkan aplikasi khusus atau kredensial portal dapat menimbulkan hambatan akses dan adaptasi dalam perjalanan skrining preventif. Besaran dampak ini memerlukan validasi lapangan.">
+            Requiring dedicated applications or persistent portal credentials can introduce access and onboarding friction in preventive-screening journeys. The magnitude of this effect requires field validation.
+          </p>
+        </div>
+
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <span class="card-icon-badge">04</span>
+            <span class="maturity-chip verified" data-en="Governance Requirement" data-id="Kebutuhan Tata Kelola">Governance Requirement</span>
+          </div>
+          <h3 data-en="Safety & Consent Gaps" data-id="Kepatuhan Identitas & Persetujuan">Safety & Consent Gaps</h3>
+          <p data-en="Clinical identity, guardian authorization for dependents, and signed paper consent require disciplined on-site verification controls rather than unverified online assumptions." data-id="Identitas pasien, kuasa wali untuk anak/tanggungan, dan persetujuan tertulis memerlukan kendali verifikasi fisik di lokasi, bukan sekadar asumsi online.">
+            Clinical identity, guardian authorization for dependents, and signed paper consent require disciplined on-site verification controls rather than unverified online assumptions.
+          </p>
+        </div>
+      </div>
     </section>
 
-    <section class="cards" aria-label="Available MHCS artifacts">
-      <a class="card" href="./infographics/">
-        <span class="card-icon">INFO</span>
-        <h2>Infographics</h2>
-        <p>Quick visual understanding of MHCS, its actors, roles, outcomes, and Interaction Surfaces.</p>
-        <span class="card-cta">View infographics →</span>
-      </a>
-      <a class="card" href="./concept/">
-        <span class="card-icon">CON</span>
-        <h2>Strategic Concept</h2>
-        <p>Continuous-care orchestration, integration, localisation, and future validation framing.</p>
-        <span class="card-cta">Explore concept →</span>
-      </a>
-      <a class="card" href="./journeys/member/">
-        <span class="card-icon">MEM</span>
-        <h2>Member Journey</h2>
-        <p>WhatsApp booking, payment status, attendance, temporary result delivery, and allowed booking changes.</p>
-        <span class="card-cta">View journey →</span>
-      </a>
-      <a class="card" href="./journeys/">
-        <span class="card-icon">ACT</span>
-        <h2>Actor Journeys</h2>
-        <p>Detailed human actions, decisions, handoffs, and Interaction Surfaces for every material actor and role.</p>
-        <span class="card-cta">Browse journeys →</span>
-      </a>
-      <a class="card" href="./journeys/operator/">
-        <span class="card-icon">OPR</span>
-        <h2>Site Staff Journey</h2>
-        <p>Role-eligible dispatch, temporary Site Workspace, one-ticket queues, capture, readiness status, and payout touchpoints.</p>
-        <span class="card-cta">View journey →</span>
-      </a>
-      <a class="card" href="./journeys/doctor/">
-        <span class="card-icon">DOC</span>
-        <h2>Doctor Journey</h2>
-        <p>Radiologist and Authorized Specialist paths, scoped offers, temporary clinical work, and earnings.</p>
-        <span class="card-cta">View target →</span>
-      </a>
-      <a class="card" href="./journeys/b2b/">
-        <span class="card-icon">B2B</span>
-        <h2>Authorized B2B Representative</h2>
-        <p>Messaging-based entitlement, member scope, booking coordination, changes, quota awareness, and reconciliation.</p>
-        <span class="card-cta">View journey →</span>
-      </a>
-      <a class="card" href="./journeys/admin/">
-        <span class="card-icon">ADM</span>
-        <h2>Global Admin / Super Admin</h2>
-        <p>Persistent Admin Web over domain-owned operations, audit, exceptions, configuration, and access administration.</p>
-        <span class="card-cta">View journey →</span>
-      </a>
-      <a class="card" href="./demonstrator/">
-        <span class="card-icon">DEM</span>
-        <h2>Operational demonstrator</h2>
-        <p>Fictional, non-clinical-use demonstration of Member, Radiography Site Staff, Radiologist, and broader follow-up stages.</p>
-        <span class="card-cta">Open demonstrator →</span>
-      </a>
-      <a class="card" href="./bpmn/">
-        <span class="card-icon">BPMN</span>
-        <h2>Technical BPMN</h2>
-        <p>The editable cross-actor process with independent image, AI-report, and doctor-report branches.</p>
-        <span class="card-cta">View BPMN →</span>
-      </a>
+    <!-- PART 2: What is MHCS -->
+    <section id="overview" class="pres-section" aria-labelledby="overview-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 2 · Platform Identity" data-id="Bagian 2 · Identitas Platform">Part 2 · Platform Identity</span>
+        <h2 id="overview-heading" data-en="What is MHCS: Orchestration, Not Monolithic Replacement" data-id="Apa itu MHCS: Orkestrasi, Bukan Penggantian Monolitik">What is MHCS: Orchestration, Not Monolithic Replacement</h2>
+        <p class="section-lead" data-en="MHCS (Madeena Health Care System) is an Indonesia-led healthcare orchestration and coordination platform." data-id="MHCS (Madeena Health Care System) adalah sistem orkestrasi dan koordinasi kesehatan yang dipimpin Indonesia.">
+          MHCS (Madeena Health Care System) is an Indonesia-led healthcare orchestration and coordination platform.
+        </p>
+      </div>
+
+      <div class="pres-quote-box">
+        <blockquote data-en="“Use existing capability; integrate where necessary; localise for the operating context; partner where appropriate; build only where capability is genuinely missing.”" data-id="“Gunakan kapabilitas yang sudah ada; integrasikan bila perlu; lokalisasikan untuk konteks operasional; bermitra bila tepat; bangun hanya bila kapabilitas benar-benar belum ada.”">
+          “Use existing capability; integrate where necessary; localise for the operating context; partner where appropriate; build only where capability is genuinely missing.”
+        </blockquote>
+        <p data-en="— MHCS Guiding Product Principle" data-id="— Prinsip Panduan Produk MHCS">— MHCS Guiding Product Principle</p>
+      </div>
+
+      <div class="pres-grid grid-2">
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <h3 data-en="What MHCS Does" data-id="Apa yang Dilakukan MHCS">What MHCS Does</h3>
+            <span class="maturity-chip verified" data-en="Core Orchestration" data-id="Orkestrasi Inti">Core Orchestration</span>
+          </div>
+          <ul class="card-list">
+            <li data-en="Designed to coordinate care pathways across distributed Puskesmas, clinics, hospitals, staff, and doctors." data-id="Dirancang untuk mengorkestrasi alur perawatan lintas Puskesmas, klinik, rumah sakit, staf, dan dokter.">Designed to coordinate care pathways across distributed Puskesmas, clinics, hospitals, staff, and doctors.</li>
+            <li data-en="Organizes member booking, on-site physical identity verification, and documented paper consent." data-id="Mengatur alur pendaftaran pasien, verifikasi identitas fisik di lokasi, dan persetujuan tertulis.">Organizes member booking, on-site physical identity verification, and documented paper consent.</li>
+            <li data-en="Aims to connect on-site operators to remote certified radiologists for timely study interpretation." data-id="Bertujuan menghubungkan operator di lokasi dengan dokter spesialis radiologi jarak jauh.">Aims to connect on-site operators to remote certified radiologists for timely study interpretation.</li>
+            <li data-en="Provides zero-login temporary result links directly to citizens through familiar messaging channels." data-id="Menyediakan tautan hasil sementara tanpa login langsung ke warga melalui kanal perpesanan.">Provides zero-login temporary result links directly to citizens through familiar messaging channels.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <div class="card-header-flex">
+            <h3 data-en="What MHCS Does NOT Do" data-id="Apa yang TIDAK Dilakukan MHCS">What MHCS Does NOT Do</h3>
+            <span class="maturity-chip verified" data-en="Boundary Discipline" data-id="Disiplin Batasan">Boundary Discipline</span>
+          </div>
+          <ul class="card-list">
+            <li data-en="Does NOT replace healthcare professionals or clinical judgment (medical decisions remain solely with qualified clinicians)." data-id="TIDAK menggantikan tenaga kesehatan atau pertimbangan klinis (keputusan medis tetap wewenang dokter berlisensi).">Does NOT replace healthcare professionals or clinical judgment (medical decisions remain solely with qualified clinicians).</li>
+            <li data-en="Does NOT replace healthcare facilities (hospitals, Puskesmas, or clinics)." data-id="TIDAK menggantikan fasilitas pelayanan kesehatan (rumah sakit, Puskesmas, atau klinik).">Does NOT replace healthcare facilities (hospitals, Puskesmas, or clinics).</li>
+            <li data-en="Does NOT replace PACS (Picture Archiving and Communication Systems)." data-id="TIDAK menggantikan PACS (Picture Archiving and Communication Systems).">Does NOT replace PACS (Picture Archiving and Communication Systems).</li>
+            <li data-en="Does NOT replace HIS/SIMRS (Hospital Information Systems) or EMR/RME (Electronic Medical Records)." data-id="TIDAK menggantikan SIMRS/HIS atau RME/EMR (Rekam Medis Elektronik).">Does NOT replace HIS/SIMRS (Hospital Information Systems) or EMR/RME (Electronic Medical Records).</li>
+            <li data-en="Does NOT replace SATUSEHAT or other national health infrastructure." data-id="TIDAK menggantikan SATUSEHAT atau infrastruktur kesehatan nasional lainnya.">Does NOT replace SATUSEHAT or other national health infrastructure.</li>
+            <li data-en="Does NOT require citizens or staff to install heavy, proprietary mobile app stores." data-id="TIDAK mewajibkan warga atau staf mengunduh aplikasi toko aplikasi yang rumit.">Does NOT require citizens or staff to install heavy, proprietary mobile app stores.</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <p class="site-note">
-      These are <strong>MHCS Actor Journey Maps</strong>, also called user flows. A block diagram
-      normally explains system components; these pages explain a person’s actions and decisions.
-    </p>
+    <!-- PART 3: The Interaction Model -->
+    <section id="interaction-model" class="pres-section" aria-labelledby="model-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 3 · Architecture" data-id="Bagian 3 · Arsitektur">Part 3 · Architecture</span>
+        <h2 id="model-heading" data-en="The Interaction Model: Messaging to Temporary Web" data-id="Model Interaksi: Dari Perpesanan Menuju Web Sementara">The Interaction Model: Messaging to Temporary Web</h2>
+        <p class="section-lead" data-en="Durable product abstraction: Persistent human coordination through Messaging, backed by task-scoped Temporary Web Workspaces without permanent portal logins." data-id="Abstraksi produk yang kokoh: Koordinasi manusia yang berkelanjutan melalui Messaging, didukung Temporary Web Workspace khusus tugas tanpa login portal permanen.">
+          Durable product abstraction: Persistent human coordination through Messaging, backed by task-scoped Temporary Web Workspaces without permanent portal logins.
+        </p>
+      </div>
+
+      <div class="interaction-model-box">
+        <div class="model-flow-grid">
+          <div class="flow-node highlight">
+            <h4 data-en="1. Messaging Interaction Surface" data-id="1. Messaging Interaction Surface">1. Messaging Interaction Surface</h4>
+            <p data-en="Persistent human touchpoint for appointments, dispatch offers, queue status, and notification links. Reference Indonesian channel: WhatsApp." data-id="Titik sentuh utama untuk janji temu, penawaran tugas staf, status antrean, dan tautan hasil. Kanal referensi Indonesia: WhatsApp.">
+              Persistent human touchpoint for appointments, dispatch offers, queue status, and notification links. Reference Indonesian channel: WhatsApp.
+            </p>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-node highlight">
+            <h4 data-en="2. Temporary Secure Web" data-id="2. Temporary Secure Web">2. Temporary Secure Web</h4>
+            <p data-en="Time-limited, signed URLs opening task-focused workspaces: Member Temporary Result Surface, Site Workspace, Clinical / DICOM Workspace." data-id="URL bertanda tangan dengan batas waktu untuk ruang kerja khusus: Hasil Pasien, Ruang Kerja Lokasi, Ruang Kerja Klinis/DICOM.">
+              Time-limited, signed URLs opening task-focused workspaces: Member Temporary Result Surface, Site Workspace, Clinical / DICOM Workspace.
+            </p>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-node highlight">
+            <h4 data-en="3. MHCS Orchestration Core" data-id="3. Inti Orkestrasi MHCS">3. MHCS Orchestration Core</h4>
+            <p data-en="Coordinates workflow states, staged queues, image processing pipelines, access governance, and B2B/B2C financial accounting." data-id="Mengorkestrasi tahapan antrean, pemrosesan citra, tata kelola akses, serta rekonsiliasi finansial B2B dan B2C.">
+              Coordinates workflow states, staged queues, image processing pipelines, access governance, and B2B/B2C financial accounting.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pres-grid grid-4">
+        <div class="pres-card">
+          <h3 data-en="Member Surface" data-id="Layanan Pasien">Member Surface</h3>
+          <p data-en="Engages via WhatsApp. Receives booking codes, directions, and secure time-limited result links. No username/password required." data-id="Berinteraksi via WhatsApp. Menerima kode reservasi, panduan lokasi, dan tautan hasil bertenggat waktu tanpa login.">
+            Engages via WhatsApp. Receives booking codes, directions, and secure time-limited result links. No username/password required.
+          </p>
+        </div>
+        <div class="pres-card">
+          <h3 data-en="Temporary Site Workspace" data-id="Ruang Kerja Lokasi">Temporary Site Workspace</h3>
+          <p data-en="Shift-scoped interface for Reception, Basic Exam, and Radiography staff. Claims tickets, captures vitals, submits X-rays." data-id="Antarmuka khusus giliran kerja untuk Pendaftaran, Pemeriksaan Dasar, dan Radiografer. Mengelola antrean dan akuisisi citra.">
+            Shift-scoped interface for Reception, Basic Exam, and Radiography staff. Claims tickets, captures vitals, submits X-rays.
+          </p>
+        </div>
+        <div class="pres-card">
+          <h3 data-en="Temporary Clinical Workspace" data-id="Ruang Kerja Klinis">Temporary Clinical Workspace</h3>
+          <p data-en="Case-scoped DICOM viewer for remote Radiologists and Specialists. High-fidelity review, repeat requests, and report drafting." data-id="Penampil DICOM khusus per kasus untuk Radiolog dan Spesialis jarak jauh. Evaluasi citra dan penyusunan laporan klinis.">
+            Case-scoped DICOM viewer for remote Radiologists and Specialists. High-fidelity review, repeat requests, and report drafting.
+          </p>
+        </div>
+        <div class="pres-card">
+          <h3 data-en="Persistent Admin Web" data-id="Admin Web Terpadu">Persistent Admin Web</h3>
+          <p data-en="Multi-domain governance, audit trails, B2B quota allocations, staff credentialing, and exception handling for administrators." data-id="Tata kelola multi-domain, jejak audit, kuota korporasi B2B, verifikasi staf, dan resolusi kendala operasional.">
+            Multi-domain governance, audit trails, B2B quota allocations, staff credentialing, and exception handling for administrators.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 4: Current Service Slice -->
+    <section id="service-slice" class="pres-section" aria-labelledby="slice-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 4 · Focused Scope" data-id="Bagian 4 · Ruang Lingkup">Part 4 · Focused Scope</span>
+        <h2 id="slice-heading" data-en="The Current Service Slice: Examination to Result" data-id="Irisan Layanan Saat Ini: Dari Pemeriksaan ke Hasil">The Current Service Slice: Examination to Result</h2>
+        <p class="section-lead" data-en="The initial focused operational episode coordinates screening through result delivery, while preserving connectivity to longitudinal care." data-id="Episode operasional awal berfokus mengorkestrasi skrining hingga penyerahan hasil, seraya tetap terhubung ke alur perawatan berkelanjutan.">
+          The initial focused operational episode coordinates screening through result delivery, while preserving connectivity to longitudinal care.
+        </p>
+      </div>
+
+      <div class="slice-stepper">
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 01" data-id="Tahap 01">Stage 01</span>
+          <h4 data-en="Booking & Allocation" data-id="Reservasi & Alokasi">Booking & Allocation</h4>
+          <p data-en="B2C citizen booking or B2B enterprise quota allocation via Messaging Interaction Surface." data-id="Pendaftaran mandiri B2C atau alokasi kuota karyawan B2B melalui kanal perpesanan.">
+            B2C citizen booking or B2B enterprise quota allocation via Messaging Interaction Surface.
+          </p>
+        </div>
+
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 02" data-id="Tahap 02">Stage 02</span>
+          <h4 data-en="Check-in & Consent" data-id="Verifikasi & Persetujuan">Check-in & Consent</h4>
+          <p data-en="On-site photo identity verification and signed paper consent confirmation by Reception staff." data-id="Verifikasi fisik kartu identitas dan konfirmasi persetujuan tertulis oleh petugas resepsionis.">
+            On-site photo identity verification and signed paper consent confirmation by Reception staff.
+          </p>
+        </div>
+
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 03" data-id="Tahap 03">Stage 03</span>
+          <h4 data-en="Basic Examination" data-id="Pemeriksaan Dasar">Basic Examination</h4>
+          <p data-en="Vital signs recording, point-of-care blood screening, and structured interview before X-ray." data-id="Pengukuran tanda vital, skrining darah sederhana, dan wawancara terstruktur sebelum rontgen.">
+            Vital signs recording, point-of-care blood screening, and structured interview before X-ray.
+          </p>
+        </div>
+
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 04" data-id="Tahap 04">Stage 04</span>
+          <h4 data-en="Radiography Capture" data-id="Akuisisi Radiografi">Radiography Capture</h4>
+          <p data-en="Operator captures X-ray, reviews quality, retakes if justified, and submits study to Image Gateway." data-id="Radiografer mengambil citra, memeriksa kualitas, dan mengirimkannya ke Image Gateway.">
+            Operator captures X-ray, reviews quality, retakes if justified, and submits study to Image Gateway.
+          </p>
+        </div>
+
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 05" data-id="Tahap 05">Stage 05</span>
+          <h4 data-en="Processing & AI" data-id="Pemrosesan & AI">Processing & AI</h4>
+          <p data-en="Controlled conversion, secure storage, and optional assistive AI analysis (fails closed if offline)." data-id="Konversi terkontrol, penyimpanan aman, dan analisis AI opsional (aman walau offline).">
+            Controlled conversion, secure storage, and optional assistive AI analysis (fails closed if offline).
+          </p>
+        </div>
+
+        <div class="slice-step">
+          <span class="slice-step-num" data-en="Stage 06" data-id="Tahap 06">Stage 06</span>
+          <h4 data-en="Result & Specialist" data-id="Hasil & Spesialis">Result & Specialist</h4>
+          <p data-en="Temporary result delivery to member; optional remote Doctor review and formal radiology report." data-id="Tautan hasil sementara bagi pasien; opsi telaah Dokter spesialis dan laporan radiologi resmi.">
+            Temporary result delivery to member; optional remote Doctor review and formal radiology report.
+          </p>
+        </div>
+      </div>
+
+      <div class="pres-quote-box">
+        <p data-html data-en="<strong>Service Episode vs Healthcare Journey:</strong> In the designed workflow, an imaging service episode reaches its documented completion point when the finalized result is delivered through the intended result pathway. For members with notable findings, MHCS connects into downstream referral, specialized consultation, and continuous monitoring." data-id="<strong>Episode Layanan vs Perjalanan Kesehatan:</strong> Dalam alur kerja yang dirancang, episode pemeriksaan mencapai titik penyelesaian terdokumentasi saat hasil final diserahkan melalui jalur hasil yang dituju. Bagi pasien dengan temuan klinis, MHCS menghubungkan ke rujukan lanjutan, konsultasi spesialis, dan pemantauan berkelanjutan.">
+          <strong>Service Episode vs Healthcare Journey:</strong> In the designed workflow, an imaging service episode reaches its documented completion point when the finalized result is delivered through the intended result pathway. For members with notable findings, MHCS connects into downstream referral, specialized consultation, and continuous monitoring.
+        </p>
+      </div>
+    </section>
+
+    <!-- PART 5: Stakeholder Value Proposition -->
+    <section id="value" class="pres-section" aria-labelledby="value-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 5 · Value Creation" data-id="Bagian 5 · Nilai Tambah">Part 5 · Value Creation</span>
+        <h2 id="value-heading" data-en="Stakeholder Value Proposition" data-id="Proposisi Nilai Pemangku Kepentingan">Stakeholder Value Proposition</h2>
+        <p class="section-lead" data-en="MHCS is designed to offer potential value across participating groups in the healthcare ecosystem." data-id="MHCS dirancang untuk menawarkan potensi nilai manfaat bagi kelompok yang berpartisipasi dalam ekosistem kesehatan.">
+          MHCS is designed to offer potential value across participating groups in the healthcare ecosystem.
+        </p>
+      </div>
+
+      <div class="pres-grid grid-5">
+        <div class="pres-card">
+          <h3 data-en="Members (Citizens)" data-id="Pasien / Warga">Members (Citizens)</h3>
+          <ul class="card-list">
+            <li data-en="Familiar WhatsApp messaging for booking & notifications." data-id="Koordinasi mudah via WhatsApp untuk pendaftaran & notifikasi.">Familiar WhatsApp messaging for booking & notifications.</li>
+            <li data-en="Zero-login temporary result viewing via signed links." data-id="Akses hasil sementara bertenggat waktu tanpa login.">Zero-login temporary result viewing via signed links.</li>
+            <li data-en="Designed repeat-study workflow if retake is clinically requested." data-id="Alur pemeriksaan ulang terkoordinasi bila retake diminta secara klinis.">Designed repeat-study workflow if retake is clinically requested.</li>
+            <li data-en="Workflow designed around documented identity verification and consent controls." data-id="Alur kerja dirancang dengan kendali verifikasi identitas dan persetujuan terdokumentasi.">Workflow designed around documented identity verification and consent controls.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <h3 data-en="Healthcare Sites" data-id="Fasilitas (Puskesmas)">Healthcare Sites</h3>
+          <ul class="card-list">
+            <li data-en="Structured station queues & staff dispatch workflows." data-id="Antrean stasiun teratur dan alur penugasan staf.">Structured station queues & staff dispatch workflows.</li>
+            <li data-en="Aims to connect existing examination equipment to remote specialists." data-id="Menghubungkan fasilitas pemeriksaan yang ada dengan spesialis jauh.">Aims to connect existing examination equipment to remote specialists.</li>
+            <li data-en="Digital coordination designed without replacing local HIS/SIMRS." data-id="Koordinasi digital yang dirancang tanpa menggantikan SIMRS lokal.">Digital coordination designed without replacing local HIS/SIMRS.</li>
+            <li data-en="Designed to support efficient checkup throughput." data-id="Dirancang mendukung kapasitas pemeriksaan yang efisien.">Designed to support efficient checkup throughput.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <h3 data-en="Doctors & Specialists" data-id="Dokter & Spesialis">Doctors & Specialists</h3>
+          <ul class="card-list">
+            <li data-en="Flexible remote case claiming within authorized study queues." data-id="Klaim telaah kasus jarak jauh yang fleksibel dalam antrean terotorisasi.">Flexible remote case claiming within authorized study queues.</li>
+            <li data-en="Browser-based clinical DICOM workspace for study review." data-id="Ruang kerja DICOM berbasis browser untuk telaah studi klinis.">Browser-based clinical DICOM workspace for study review.</li>
+            <li data-en="Tracked per-study review accounting & reconciliation." data-id="Transparansi pencatatan telaah per kasus dan rekonsiliasi administratif.">Tracked per-study review accounting & reconciliation.</li>
+            <li data-en="Retains complete diagnostic authority." data-id="Memegang wewenang diagnostik klinis penuh.">Retains complete diagnostic authority.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <h3 data-en="B2B Enterprise" data-id="Perusahaan (B2B)">B2B Enterprise</h3>
+          <ul class="card-list">
+            <li data-en="Centrally coordinated employee screening quota allocations." data-id="Alokasi kuota pemeriksaan karyawan yang terkoordinasi terpusat.">Centrally coordinated employee screening quota allocations.</li>
+            <li data-en="Multi-location & shift quota management." data-id="Pengelolaan kuota multi-cabang dan giliran kerja.">Multi-location & shift quota management.</li>
+            <li data-en="Designed attendance tracking & usage reconciliation." data-id="Pelacakan kehadiran dan rekonsiliasi kuota terencana.">Designed attendance tracking & usage reconciliation.</li>
+            <li data-en="Intended to support proactive workforce preventive health." data-id="Mendukung inisiatif kesehatan preventif tenaga kerja.">Intended to support proactive workforce preventive health.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <h3 data-en="Collaboration Partners" data-id="Mitra Kolaborasi">Collaboration Partners</h3>
+          <ul class="card-list">
+            <li data-en="Potential reach across Indonesian healthcare workflows." data-id="Peluang jangkauan dalam orkestrasi layanan kesehatan Indonesia.">Potential reach across Indonesian healthcare workflows.</li>
+            <li data-en="Clean modular architecture & API boundaries." data-id="Arsitektur modular dengan batasan API yang rapi.">Clean modular architecture & API boundaries.</li>
+            <li data-en="Designed in alignment with Indonesian healthcare regulations." data-id="Dirancang selaras dengan regulasi kesehatan Indonesia.">Designed in alignment with Indonesian healthcare regulations.</li>
+            <li data-en="Architectural foundation for continuous care expansion." data-id="Fondasi arsitektural untuk perluasan perawatan berkelanjutan.">Architectural foundation for continuous care expansion.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 6: Safe Fictional Demonstrator -->
+    <section id="demonstrator" class="pres-section" aria-labelledby="demo-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 6 · Interactive Experience" data-id="Bagian 6 · Pengalaman Interaktif">Part 6 · Interactive Experience</span>
+        <h2 id="demo-heading" data-en="Safe Fictional Operational Demonstrator" data-id="Demonstrator Operasional yang Aman">Safe Fictional Operational Demonstrator</h2>
+        <p class="section-lead" data-en="Experience the full multi-actor service slice live in a self-contained, offline-safe interactive walkthrough." data-id="Rasakan alur layanan multi-aktor secara langsung dalam simulasi interaktif yang mandiri dan aman walau offline.">
+          Experience the full multi-actor service slice live in a self-contained, offline-safe interactive walkthrough.
+        </p>
+      </div>
+
+      <div class="demonstrator-callout">
+        <div>
+          <div class="fictional-notice-box">
+            <strong data-en="Fictional Demonstration Data · Case DEMO-001" data-id="Data Demonstrasi Fiktif · Kasus DEMO-001">Fictional Demonstration Data · Case DEMO-001</strong>
+            <p data-en="Not for clinical use · Illustrative simulated workflow · Completely decoupled from live patient records and runs safely without external AI dependencies." data-id="Bukan untuk penggunaan klinis · Alur simulasi ilustratif · Terpisah total dari rekam medis pasien riil dan berjalan aman tanpa ketergantungan server AI luar.">
+              Not for clinical use · Illustrative simulated workflow · Completely decoupled from live patient records and runs safely without external AI dependencies.
+            </p>
+          </div>
+          <h3 data-en="Interactive Multi-Actor Walkthrough" data-id="Simulasi Interaktif Multi-Aktor">Interactive Multi-Actor Walkthrough</h3>
+          <p data-en="Step through all four actor perspectives for Case DEMO-001: Member (WhatsApp care updates), Site Staff (X-ray capture & quality confirmation), Doctor (clinical DICOM study review), and Journey Overview (shared case progress)." data-id="Jelajahi empat sudut pandang aktor untuk Kasus DEMO-001: Pasien (pembaruan WhatsApp), Staf Lokasi (akuisisi & konfirmasi kualitas rontgen), Dokter (tinjauan studi DICOM), dan Ikhtisar Perjalanan (progres kasus bersama).">
+            Step through all four actor perspectives for Case DEMO-001: Member (WhatsApp care updates), Site Staff (X-ray capture & quality confirmation), Doctor (clinical DICOM study review), and Journey Overview (shared case progress).
+          </p>
+          <a class="demo-action-btn" href="./demonstrator/" target="_blank">
+            <span data-en="Open Operational Demonstrator" data-id="Buka Demonstrator Operasional">Open Operational Demonstrator</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="demo-features-card">
+          <h4 data-en="Demonstrator Highlights" data-id="Keunggulan Demonstrator">Demonstrator Highlights</h4>
+          <ul>
+            <li data-en="Bilingual support (English / Bahasa Indonesia toggle)" data-id="Dukungan dwibahasa (pilihan Bahasa Inggris / Indonesia)">Bilingual support (English / Bahasa Indonesia toggle)</li>
+            <li data-en="Zero external server requirement (runs 100% offline)" data-id="Tanpa ketergantungan server luar (100% aman offline)">Zero external server requirement (runs 100% offline)</li>
+            <li data-en="Safe fail-closed behavior for optional external AI" data-id="Perilaku aman fail-closed jika AI eksternal tidak aktif">Safe fail-closed behavior for optional external AI</li>
+            <li data-en="Realistic interaction surfaces (WhatsApp, Site, DICOM)" data-id="Permukaan interaksi realistis (WhatsApp, Ruang Kerja, DICOM)">Realistic interaction surfaces (WhatsApp, Site, DICOM)</li>
+            <li data-en="Simulated downstream referral & follow-up progression" data-id="Simulasi kelanjutan rujukan dan pemantauan">Simulated downstream referral & follow-up progression</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 7: Capability, Evidence, and Claim Boundaries -->
+    <section id="boundaries" class="pres-section" aria-labelledby="boundaries-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 7 · Transparency" data-id="Bagian 7 · Transparansi">Part 7 · Transparency</span>
+        <h2 id="boundaries-heading" data-en="Capability Maturity & Claim Boundaries" data-id="Maturitas Kapabilitas & Batasan Klaim">Capability Maturity & Claim Boundaries</h2>
+        <p class="section-lead" data-en="Rigorous transparency distinguishes documented and demonstrated workflows from prototypes, validation pilots, and future concepts." data-id="Transparansi menyeluruh membedakan alur kerja yang terdokumentasi dan terdemonstrasi dari prototipe, uji validasi, dan konsep masa depan.">
+          Rigorous transparency distinguishes documented and demonstrated workflows from prototypes, validation pilots, and future concepts.
+        </p>
+      </div>
+
+      <div class="matrix-wrap">
+        <table class="matrix-table" aria-label="Maturity and Claim Classification Matrix">
+          <thead>
+            <tr>
+              <th data-en="Maturity Level" data-id="Tingkat Kesiapan">Maturity Level</th>
+              <th data-en="Scope & Current Status" data-id="Ruang Lingkup & Status Saat Ini">Scope & Current Status</th>
+              <th data-en="Observed Evidence & Validation" data-id="Bukti Nyata & Validasi">Observed Evidence & Validation</th>
+              <th data-en="Permitted Claims" data-id="Klaim yang Diperbolehkan">Permitted Claims</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="maturity-chip verified" data-en="Documented / Demonstrated" data-id="Terdokumentasi / Terdemonstrasi">Documented / Demonstrated</span></td>
+              <td data-en="Designed examination slice: messaging coordination, on-site check-in & consent protocol, vital signs recording, radiography capture queue, and result link dispatch." data-id="Irisan pemeriksaan terancang: koordinasi pesan, protokol pendaftaran & persetujuan di lokasi, tanda vital, antrean radiografi, dan penyerahan tautan hasil.">
+                Designed examination slice: messaging coordination, on-site check-in & consent protocol, vital signs recording, radiography capture queue, and result link dispatch.
+              </td>
+              <td data-en="Automated repository test suites, documented journey maps, and simulated multi-actor walkthroughs. Production integration and field effectiveness not yet established." data-id="Uji repositori otomatis, peta alur terdokumentasi, dan simulasi alur multi-aktor. Integrasi produksi dan efektivitas lapangan belum ditetapkan.">
+                Automated repository test suites, documented journey maps, and simulated multi-actor walkthroughs. Production integration and field effectiveness not yet established.
+              </td>
+              <td data-en="Documented workflow orchestration, demonstrator-observed handoffs, zero-login result link delivery design." data-id="Orkestrasi alur kerja terdokumentasi, serah terima terdemonstrasi, rancangan penyerahan hasil tanpa login.">
+                Documented workflow orchestration, demonstrator-observed handoffs, zero-login result link delivery design.
+              </td>
+            </tr>
+            <tr>
+              <td><span class="maturity-chip prototype" data-en="Prototype / Demonstrator" data-id="Prototipe / Demonstrator">Prototype / Demonstrator</span></td>
+              <td data-en="Multi-actor interactive demonstrator (Case DEMO-001) illustrating Member, Site Staff, Radiologist, and shared journey steps." data-id="Demonstrator interaktif multi-aktor (Kasus DEMO-001) yang mengilustrasikan alur Pasien, Staf, Radiolog, dan progres bersama.">
+                Multi-actor interactive demonstrator (Case DEMO-001) illustrating Member, Site Staff, Radiologist, and shared journey steps.
+              </td>
+              <td data-en="Self-contained browser demonstrator running locally and on GitHub Pages with simulated progression. Handoff behavior demonstrated in the fictional operational demonstrator." data-id="Demonstrator browser mandiri berjalan lokal dan di GitHub Pages dengan simulasi progres. Perilaku serah terima terdemonstrasi dalam simulator operasional fiktif.">
+                Self-contained browser demonstrator running locally and on GitHub Pages with simulated progression. Handoff behavior demonstrated in the fictional operational demonstrator.
+              </td>
+              <td data-en="Fictional workflow visualization, interactive stakeholder experience, offline-safe demonstrator behavior." data-id="Visualisasi alur fiktif, pengalaman interaktif pemangku kepentingan, perilaku demonstrator aman offline.">
+                Fictional workflow visualization, interactive stakeholder experience, offline-safe demonstrator behavior.
+              </td>
+            </tr>
+            <tr>
+              <td><span class="maturity-chip validation" data-en="Validation Stage" data-id="Tahap Validasi">Validation Stage</span></td>
+              <td data-en="MPIPS image processing integration, optional external AI model inference, and field pilot operational protocols." data-id="Integrasi pemrosesan citra MPIPS, inferensi model AI luar opsional, dan protokol operasional uji coba lapangan.">
+                MPIPS image processing integration, optional external AI model inference, and field pilot operational protocols.
+              </td>
+              <td data-en="Staging pipeline verification, interface specifications, and planned pilot site protocols. Field validation and clinical effectiveness remain under evaluation." data-id="Verifikasi pipa pemrosesan staging, spesifikasi antarmuka, dan protokol uji lapangan terencana. Validasi lapangan dan efektivitas klinis masih dalam tahap evaluasi.">
+                Staging pipeline verification, interface specifications, and planned pilot site protocols. Field validation and clinical effectiveness remain under evaluation.
+              </td>
+              <td data-en="Validation-stage processing design, optional technical connectivity, field readiness preparation." data-id="Rancangan pemrosesan tahap validasi, konektivitas teknis opsional, persiapan kesiapan lapangan.">
+                Validation-stage processing design, optional technical connectivity, field readiness preparation.
+              </td>
+            </tr>
+            <tr>
+              <td><span class="maturity-chip concept" data-en="Future Concept" data-id="Konsep Masa Depan">Future Concept</span></td>
+              <td data-en="Multi-specialty clinical consultations, nationwide health interoperability, longitudinal health monitoring, and expanded modalities." data-id="Konsultasi multi-spesialis klinis, interoperabilitas nasional, pemantauan kesehatan berkala, dan modalitas lanjutan.">
+                Multi-specialty clinical consultations, nationwide health interoperability, longitudinal health monitoring, and expanded modalities.
+              </td>
+              <td data-en="Strategic concept mockups (v0.4), architecture boundary definitions, and health-system roadmap." data-id="Maket konsep strategis (v0.4), definisi batasan arsitektur, dan peta jalan sistem kesehatan.">
+                Strategic concept mockups (v0.4), architecture boundary definitions, and health-system roadmap.
+              </td>
+              <td data-en="Strategic architectural vision and directional collaboration opportunities." data-id="Visi arsitektur strategis dan peluang arah kolaborasi jangka panjang.">
+                Strategic architectural vision and directional collaboration opportunities.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pres-warning-box">
+        <h4 data-en="Explicit Boundaries and Non-Claims" data-id="Batasan Eksplisit dan Hal yang Tidak Diklaim">Explicit Boundaries and Non-Claims</h4>
+        <ul>
+          <li data-en="No Clinical Diagnostic Authority: Medical interpretation and clinical diagnostic conclusions remain solely with qualified licensed doctors. AI is purely assistive." data-id="Bukan Otoritas Diagnostik Medis: Interpretasi medis dan kesimpulan diagnosis sepenuhnya berada di tangan dokter berlisensi. AI bersifat pendukung teknis semata.">No Clinical Diagnostic Authority: Medical interpretation and clinical diagnostic conclusions remain solely with qualified licensed doctors. AI is purely assistive.</li>
+          <li data-en="Healthcare Coordination Only: MHCS coordinates care journeys and workflow handoffs. It does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT national infrastructure." data-id="Hanya Koordinasi Layanan Kesehatan: MHCS mengorkestrasi perjalanan perawatan dan serah terima alur kerja. Tidak menggantikan tenaga kesehatan atau pertimbangan klinis, fasilitas kesehatan, PACS, SIMRS/HIS, RME/EMR, atau infrastruktur nasional SATUSEHAT.">Healthcare Coordination Only: MHCS coordinates care journeys and workflow handoffs. It does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT national infrastructure.</li>
+          <li data-en="No Speculative Commercial Claims: No fee schedules, pricing guarantees, revenue projections, or investment commitments are implied by this presentation." data-id="Bukan Penawaran Komersial Spekulatif: Tidak ada daftar harga, jaminan pendapatan, proyeksi pasar, atau komitmen investasi dalam presentasi pengenalan ini.">No Speculative Commercial Claims: No fee schedules, pricing guarantees, revenue projections, or investment commitments are implied by this presentation.</li>
+          <li data-en="No Premature Certification Claims: Regulatory clearance and production certifications are pursued through formal Indonesian authorities and are not claimed prematurely." data-id="Bukan Klaim Sertifikasi Prematur: Izin edar dan sertifikasi resmi diproses melalui otoritas berwenang di Indonesia dan tidak diklaim sebelum waktunya.">No Premature Certification Claims: Regulatory clearance and production certifications are pursued through formal Indonesian authorities and are not claimed prematurely.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PART 8: Collaboration Opportunities -->
+    <section id="collaboration" class="pres-section" aria-labelledby="collab-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 8 · Ecosystem Partnerships" data-id="Bagian 8 · Kemitraan Ekosistem">Part 8 · Ecosystem Partnerships</span>
+        <h2 id="collab-heading" data-en="Collaboration Opportunities" data-id="Peluang Kolaborasi">Collaboration Opportunities</h2>
+        <p class="section-lead" data-en="MHCS is designed to help coordinate care across organizations by connecting local operational readiness with complementary technology and healthcare service partners." data-id="MHCS dirancang untuk membantu mengorkestrasi layanan lintas organisasi dengan memadukan kesiapan operasional lokal serta mitra teknologi dan layanan kesehatan pelengkap.">
+          MHCS is designed to help coordinate care across organizations by connecting local operational readiness with complementary technology and healthcare service partners.
+        </p>
+      </div>
+
+      <div class="pres-grid grid-2">
+        <div class="pres-card">
+          <h3 data-en="Local Operational Readiness & Governance" data-id="Kesiapan Operasional Lokal & Tata Kelola">Local Operational Readiness & Governance</h3>
+          <ul class="card-list">
+            <li data-en="Engineered for Indonesian Realities: Aligned with frontline healthcare workflows, Puskesmas realities, and nationwide health regulations." data-id="Dirancang untuk Realitas Indonesia: Selaras dengan alur kerja layanan kesehatan garis depan, realitas Puskesmas, dan regulasi nasional.">Engineered for Indonesian Realities: Aligned with frontline healthcare workflows, Puskesmas realities, and nationwide health regulations.</li>
+            <li data-en="Data Sovereignty & Privacy: Patient identification, physical consent, and clinical records respect national sovereignty boundaries." data-id="Kedaulatan & Privasi Data: Identifikasi pasien, persetujuan fisik, dan rekam medis mematuhi batas kedaulatan data nasional.">Data Sovereignty & Privacy: Patient identification, physical consent, and clinical records respect national sovereignty boundaries.</li>
+            <li data-en="Frontline Feasibility: Works with existing physical sites, radiography equipment, and messaging habits without forced operational disruption." data-id="Kelayakan Lapangan: Berfungsi optimal dengan fasilitas fisik, perangkat rontgen, dan kebiasaan perpesanan yang sudah ada tanpa disrupsi operasional.">Frontline Feasibility: Works with existing physical sites, radiography equipment, and messaging habits without forced operational disruption.</li>
+          </ul>
+        </div>
+
+        <div class="pres-card">
+          <h3 data-en="Potential Collaboration Models" data-id="Peluang Model Kemitraan">Potential Collaboration Models</h3>
+          <ul class="card-list">
+            <li data-en="Technology & Processing Integration: Connecting specialized imaging pipelines, processing intelligence, or assistive algorithms into care pathways." data-id="Integrasi Teknologi & Pemrosesan: Menghubungkan pipa pemrosesan citra khusus, analitik cerdas, atau algoritma pendukung ke dalam alur layanan.">Technology & Processing Integration: Connecting specialized imaging pipelines, processing intelligence, or assistive algorithms into care pathways.</li>
+            <li data-en="Facility & Diagnostic Networks: Enabling hospitals, clinics, and specialist reading groups to participate in distributed clinical review." data-id="Jejaring Fasilitas & Diagnostik: Membuka kesempatan bagi rumah sakit, klinik, dan kelompok dokter spesialis pembaca untuk berpartisipasi dalam telaah klinis terdistribusi.">Facility & Diagnostic Networks: Enabling hospitals, clinics, and specialist reading groups to participate in distributed clinical review.</li>
+            <li data-en="Enterprise & Institutional Screening: Partnering with employers, insurers, or regional health initiatives for structured, measurable preventive health check-ups." data-id="Skrining Institusi & Perusahaan: Bermitra dengan perusahaan, penjamin kesehatan, atau inisiatif daerah untuk pemeriksaan preventif yang terstruktur dan terukur.">Enterprise & Institutional Screening: Partnering with employers, insurers, or regional health initiatives for structured, measurable preventive health check-ups.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 9: Discussion and Next Steps -->
+    <section id="next-steps" class="pres-section" aria-labelledby="next-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Part 9 · Alignment & Next Actions" data-id="Bagian 9 · Penyelarasan & Tindak Lanjut">Part 9 · Alignment & Next Actions</span>
+        <h2 id="next-heading" data-en="Discussion and Next Steps" data-id="Diskusi dan Langkah Berikutnya">Discussion and Next Steps</h2>
+        <p class="section-lead" data-en="We welcome stakeholder feedback on the MHCS proposition and look forward to agreeing on constructive next steps together." data-id="Kami menyambut baik masukan para pemangku kepentingan mengenai proposisi MHCS dan siap menyepakati langkah tindak lanjut bersama.">
+          We welcome stakeholder feedback on the MHCS proposition and look forward to agreeing on constructive next steps together.
+        </p>
+      </div>
+
+      <div class="closing-ask-card">
+        <h3 data-en="Discussion & Alignment Framework" data-id="Kerangka Diskusi & Penyelarasan">Discussion & Alignment Framework</h3>
+        <p data-en="To guide our discussion, we invite feedback and explore aligned next steps across four collaborative areas:" data-id="Untuk memandu diskusi kita, kami mengundang masukan serta menjajaki langkah tindak lanjut dalam empat aspek kolaboratif berikut:">
+          To guide our discussion, we invite feedback and explore aligned next steps across four collaborative areas:
+        </p>
+
+        <div class="ask-steps-grid">
+          <div class="ask-step-card">
+            <span class="ask-step-badge" data-en="Proposition Feedback" data-id="Masukan Proposisi">Proposition Feedback</span>
+            <h4 data-en="1. Feedback on MHCS Proposition" data-id="1. Masukan atas Proposisi MHCS">1. Feedback on MHCS Proposition</h4>
+            <p data-en="Inviting your perspectives on the value proposition, continuous care model, and frontline healthcare coordination approach." data-id="Mengundang pandangan Anda mengenai proposisi nilai, model perawatan berkelanjutan, dan pendekatan orkestrasi layanan kesehatan.">
+              Inviting your perspectives on the value proposition, continuous care model, and frontline healthcare coordination approach.
+            </p>
+          </div>
+
+          <div class="ask-step-card">
+            <span class="ask-step-badge" data-en="Capability Evaluation" data-id="Evaluasi Kapabilitas">Capability Evaluation</span>
+            <h4 data-en="2. Capabilities Requiring Evaluation" data-id="2. Evaluasi Kapabilitas Lanjutan">2. Capabilities Requiring Evaluation</h4>
+            <p data-en="Identifying specific workflow handoffs, interaction models, or operational capabilities that warrant deeper technical evaluation." data-id="Mengidentifikasi serah terima alur kerja, model interaksi, atau kapabilitas operasional yang memerlukan evaluasi teknis lebih mendalam.">
+              Identifying specific workflow handoffs, interaction models, or operational capabilities that warrant deeper technical evaluation.
+            </p>
+          </div>
+
+          <div class="ask-step-card">
+            <span class="ask-step-badge" data-en="Collaboration Areas" data-id="Area Kolaborasi">Collaboration Areas</span>
+            <h4 data-en="3. Relevant Collaboration Areas" data-id="3. Area Kolaborasi yang Relevan">3. Relevant Collaboration Areas</h4>
+            <p data-en="Exploring potential alignment across healthcare facilities, diagnostic specialist networks, enterprise screening, or technology integration." data-id="Menjajaki keselarasan potensi kemitraan lintas fasilitas kesehatan, jejaring spesialis radiologi, skrining perusahaan, atau integrasi teknologi.">
+              Exploring potential alignment across healthcare facilities, diagnostic specialist networks, enterprise screening, or technology integration.
+            </p>
+          </div>
+
+          <div class="ask-step-card">
+            <span class="ask-step-badge" data-en="Next Alignment Step" data-id="Langkah Tindak Lanjut">Next Alignment Step</span>
+            <h4 data-en="4. Demonstration & Validation Roadmap" data-id="4. Demonstrasi & Validasi Alur">4. Demonstration & Validation Roadmap</h4>
+            <p data-en="Agreeing on an appropriate next demonstration, evidence review, workflow validation, technical assessment, or focused follow-up discussion." data-id="Menyepakati demonstrasi lanjutan yang sesuai, tinjauan bukti teknis, validasi alur kerja, asesmen teknis, atau sesi diskusi tindak lanjut.">
+              Agreeing on an appropriate next demonstration, evidence review, workflow validation, technical assessment, or focused follow-up discussion.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supporting Technical Evidence & Artifacts Section -->
+    <section id="supporting-evidence" class="supporting-section" aria-labelledby="evidence-heading">
+      <div class="section-head">
+        <span class="section-number" data-en="Supporting Materials" data-id="Materi Pendukung">Supporting Materials</span>
+        <h2 id="evidence-heading" data-en="Detailed Supporting Evidence & Technical Artifacts" data-id="Bukti Teknis & Artefak Pendukung">Detailed Supporting Evidence & Technical Artifacts</h2>
+        <p class="section-lead" data-en="For technical diligence and operational deep dives, all detailed actor journeys, infographics, and technical BPMN workflows remain fully accessible below." data-id="Untuk penelaahan teknis dan operasional mendalam, seluruh alur aktor rinci, infografik, dan BPMN teknis dapat diakses di bawah ini.">
+          For technical diligence and operational deep dives, all detailed actor journeys, infographics, and technical BPMN workflows remain fully accessible below.
+        </p>
+      </div>
+
+      <div class="cards" aria-label="Supporting MHCS Technical Artifacts">
+        <a class="card" href="./infographics/">
+          <span class="card-icon">INFO</span>
+          <h2>Infographics</h2>
+          <p>Quick visual understanding of MHCS, its actors, roles, outcomes, and Interaction Surfaces.</p>
+          <span class="card-cta">View infographics →</span>
+        </a>
+        <a class="card" href="./concept/">
+          <span class="card-icon">CON</span>
+          <h2>Strategic Concept</h2>
+          <p>Continuous-care orchestration, integration, localisation, and future validation framing.</p>
+          <span class="card-cta">Explore concept →</span>
+        </a>
+        <a class="card" href="./demonstrator/">
+          <span class="card-icon">DEM</span>
+          <h2>Operational demonstrator</h2>
+          <p>Fictional, non-clinical-use demonstration of Member, Radiography Site Staff, Radiologist, and broader follow-up stages.</p>
+          <span class="card-cta">Open demonstrator →</span>
+        </a>
+        <a class="card" href="./journeys/member/">
+          <span class="card-icon">MEM</span>
+          <h2>Member Journey</h2>
+          <p>WhatsApp booking, payment status, attendance, temporary result delivery, and allowed booking changes.</p>
+          <span class="card-cta">View journey →</span>
+        </a>
+        <a class="card" href="./journeys/operator/">
+          <span class="card-icon">OPR</span>
+          <h2>Site Staff Journey</h2>
+          <p>Role-eligible dispatch, temporary Site Workspace, one-ticket queues, capture, readiness status, and payout touchpoints.</p>
+          <span class="card-cta">View journey →</span>
+        </a>
+        <a class="card" href="./journeys/doctor/">
+          <span class="card-icon">DOC</span>
+          <h2>Doctor Journey</h2>
+          <p>Radiologist and Authorized Specialist paths, scoped offers, temporary clinical work, and earnings.</p>
+          <span class="card-cta">View target →</span>
+        </a>
+        <a class="card" href="./journeys/b2b/">
+          <span class="card-icon">B2B</span>
+          <h2>Authorized B2B Representative</h2>
+          <p>Messaging-based entitlement, member scope, booking coordination, changes, quota awareness, and reconciliation.</p>
+          <span class="card-cta">View journey →</span>
+        </a>
+        <a class="card" href="./journeys/admin/">
+          <span class="card-icon">ADM</span>
+          <h2>Global Admin / Super Admin</h2>
+          <p>Persistent Admin Web over domain-owned operations, audit, exceptions, configuration, and access administration.</p>
+          <span class="card-cta">View journey →</span>
+        </a>
+        <a class="card" href="./journeys/">
+          <span class="card-icon">ACT</span>
+          <h2>Actor Journeys</h2>
+          <p>Detailed human actions, decisions, handoffs, and Interaction Surfaces for every material actor and role.</p>
+          <span class="card-cta">Browse journeys →</span>
+        </a>
+        <a class="card" href="./bpmn/">
+          <span class="card-icon">BPMN</span>
+          <h2>Technical BPMN</h2>
+          <p>The editable cross-actor process with independent image, AI-report, and doctor-report branches.</p>
+          <span class="card-cta">View BPMN →</span>
+        </a>
+      </div>
+
+      <p class="site-note">
+        These supporting artifacts document <strong>MHCS Actor Journey Maps</strong> and technical processes for engineering and operational review.
+        The executive presentation above provides the business-first overview for strategic decision-makers.
+      </p>
+    </section>
   </main>
+
+  <script src="./assets/presentation.js"></script>
 </body>
 </html>
