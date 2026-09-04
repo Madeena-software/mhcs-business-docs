@@ -301,6 +301,19 @@ def main():
     ):
         assert chip_class in landing, chip_class
 
+    # Calibrated maturity chip text labels
+    for chip_label in (
+        "Documented / Demonstrated",
+        "Terdokumentasi / Terdemonstrasi",
+        "Prototype / Demonstrator",
+        "Prototipe / Demonstrator",
+        "Validation Stage",
+        "Tahap Validasi",
+        "Future Concept",
+        "Konsep Masa Depan",
+    ):
+        assert chip_label in landing, chip_label
+
     # Bilingual support markers and Indonesian parity across primary route
     assert 'data-lang-btn="en"' in landing and 'data-lang-btn="id"' in landing
     for id_marker in (

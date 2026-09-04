@@ -63,7 +63,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 - *"So what is MHCS? MHCS is an Indonesia-led healthcare orchestration and coordination platform."*
 - *"Our guiding design philosophy is simple: **Use existing capability; integrate where necessary; localise for the operating context; partner where appropriate; build only where capability is genuinely missing.**"*
 - *"Crucially: MHCS does **not** try to be another monolithic hospital information system (HIS). MHCS coordinates care journeys and workflow handoffs; it does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT / national health infrastructure."*
-- *"Instead, MHCS connects existing facilities (hospitals, Puskesmas, clinics), equipment operators, remote specialists, AI analysis tools, and communication channels into continuous, reliable healthcare pathways."*
+- *"Instead, MHCS is designed to connect existing facilities (hospitals, Puskesmas, clinics), equipment operators, remote specialists, AI analysis tools, and communication channels into more continuous and visible healthcare pathways. Reliability and field effectiveness require operational validation."*
 
 ---
 
@@ -87,7 +87,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 #### Executive Talking Points (English):
 - *"While the long-term vision spans continuous healthcare from prevention to longitudinal monitoring, we have strictly focused our current operational slice on the examination episode:*
   `booking → on-site check-in & consent → basic examination → radiography capture → processing coordination → finalized result & optional specialist review`.*"*
-- *"Each stage has a clear human actor and verified handoff. The booking code is only a reservation locator—on-site reception still verifies the physical photo ID and signed paper consent."*
+- *"Each stage has a defined human actor and designed handoff. The booking code is only a reservation locator—on-site reception is designed around physical photo ID verification and documented paper consent."*
 - *"Basic examination captures vitals and screening data before clearing the patient to the X-ray queue."*
 - *"Once captured, images enter our controlled processing pipeline. The member receives an automated notification, with an optional add-on for specialist doctor review if desired."*
 
@@ -99,7 +99,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 
 #### Executive Talking Points (English):
 - *"What potential value is MHCS designed to offer across participating stakeholder groups?"*
-  - **Members:** *Designed for frictionless WhatsApp coordination, expedited result access, and verified protocol safety.*
+  - **Members:** *Designed for familiar WhatsApp coordination, time-limited result access, and a workflow designed around documented safety and review controls.*
   - **Healthcare Facilities (Puskesmas & Clinics):** *Aims to help optimize staff utilization, streamline queue dispatch, and digitize handoffs without expensive infrastructure overhaul.*
   - **Doctors & Radiologists:** *Designed for flexible case claiming, browser-based DICOM review, structured case compensation, and retained clinical diagnostic authority.*
   - **B2B Enterprise Customers:** *Tools designed for centrally provisioned employee screening quotas, shift coordination, and transparent reconciliation.*
@@ -122,7 +122,7 @@ This document provides the structured 10–15 minute presentation and rehearsal 
    - Select the demo image (`DEMO X-Ray`).
    - Click *Confirm Image Acquisition*.
 4. **Offline / Decoupled Safety Note:**
-   - Point out the External AI analysis status: *"If external AI is offline or not configured, the system gracefully fails closed. The local operational demonstrator continues without interruption."*
+   - Point out the External AI analysis status: *"If external AI is offline or not configured, the system gracefully fails closed. The local operational demonstrator continues through its local simulated workflow."*
 5. **Doctor View (Radiologist):**
    - Switch to Doctor tab.
    - Show the claimed clinical case, image review, and finalization / referral creation.
@@ -136,14 +136,14 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 **Key Visual:** 4-Tier Maturity Matrix with Color-Coded Chips & Non-Claims Warning Box.
 
 #### Executive Talking Points (English):
-- *"We believe in complete transparency about what is ready today versus what is planned."*
+- *"We believe in complete transparency about documented and demonstrated capabilities versus validation-stage and planned work."*
 - *"We visibly distinguish four tiers:*
-  1. **Verified / Current Capability** (Green): *WhatsApp coordination, site check-in, vital signs, radiography capture queue, offline-safe pipeline, basic report delivery.*
-  2. **Prototype / Demonstrator Behavior** (Amber): *Multi-actor interactive demonstrator, simulated referrals.*
-  3. **Validation-Stage Work** (Blue): *MPIPS image processing integration, external AI inference integration, field POC pilots.*
-  4. **Future Strategic Concept** (Purple): *Multi-specialty consultations, nationwide interoperability, longitudinal health monitoring.*
+  1. **Documented / Demonstrated** (Green): *Documented workflow maps, repository test suites, and simulated multi-actor examination handoffs. Production integration and field effectiveness remain to be established.*
+  2. **Prototype / Demonstrator** (Amber): *Multi-actor interactive demonstrator (DEMO-001) showing fictional simulated handoffs and fail-closed offline safety.*
+  3. **Validation Stage** (Blue): *MPIPS image processing integration, optional external AI model inference, and field pilot protocol preparation.*
+  4. **Future Concept** (Purple): *Multi-specialty clinical consultations, nationwide health interoperability, and longitudinal health monitoring concepts.*
 - *"Equally important is what we **do not** claim:*
-  - *We do not provide clinical diagnostic advice—the medical judgement remains with licensed doctors.*
+  - *We do not provide clinical diagnostic advice—the medical judgement remains solely with licensed doctors.*
   - *We do not present speculative pricing, fee schedules, or revenue forecasts today.*
   - *We do not claim regulatory approvals or production certifications that are still in progress."*
 
@@ -192,6 +192,6 @@ This document provides the structured 10–15 minute presentation and rehearsal 
 |---|---|
 | **"Are you trying to compete with hospital PACS or hospital information systems?"** | *No. MHCS coordinates care journeys and workflow handoffs. It does not replace healthcare professionals or clinical judgment, healthcare facilities, PACS, HIS/SIMRS, EMR/RME, or SATUSEHAT national infrastructure. We coordinate workflows across facilities and integrate with existing systems rather than replacing their clinical repositories.* |
 | **"Why not build a native mobile app for patients?"** | *In preventive screening across distributed communities, requiring a dedicated mobile app often creates significant onboarding friction. Using familiar messaging channels with temporary web links is intended to reduce access friction and may support attendance and engagement. Its effect requires field validation.* |
-| **"What happens if the external AI server is disconnected?"** | *MHCS fails closed safely. The external AI is an optional assistive tool, not a blocker. The imaging study proceeds directly to the qualified radiologist for clinical evaluation without interruption.* |
+| **"What happens if the external AI server is disconnected?"** | *In the current demonstrator design, external AI is optional and failure is handled safely by keeping the human-review route available. Production continuity, routing, and recovery behavior require implementation and operational validation.* |
 | **"How do you handle patient data privacy and consent?"** | *The designed workflow includes on-site identity verification and documented consent. Production implementation and control effectiveness require validation in each operating context. The intended architecture keeps clinical DICOM binaries outside ordinary messaging chats and provides access through controlled clinical workspaces. Production enforcement remains subject to implementation and security validation.* |
 | **"What are the commercial or investment terms?"** | *Today's presentation focuses purely on business and strategic alignment. Commercial terms, fee models, and investment structures are handled through separate, formal discussions.* |
