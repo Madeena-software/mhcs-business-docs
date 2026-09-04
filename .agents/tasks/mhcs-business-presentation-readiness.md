@@ -1,15 +1,16 @@
 ---
 title: MHCS Business Presentation Readiness
 document_id: AGENT-TASK-MHCS-PRESENTATION-001
-version: 1.1
+version: 1.2
 status: candidate-task
 language: en-US
 last_updated: 2026-09-04
 scope:
   - website business-presentation readiness
-  - curated primary presentation route and executive narrative
-  - bilingual presentation support (English default, Bahasa Indonesia secondary)
+  - reusable general-audience presentation template and executive narrative
+  - bilingual presentation support (English default, Bahasa Indonesia parity)
   - external AI demo decoupling and failure-mode safety
+  - evidence-calibrated language and health-system positioning
   - supporting actor journey, infographic, and technical BPMN preservation
 authority_note: This task authorizes only the bounded website presentation and consistency work defined here in mhcs-business-docs. It does not authorize changes to mhcs-core, MPIPS, production clinical systems, patient data, business authority, release, or deployment.
 ---
@@ -39,32 +40,39 @@ The repository currently serves as the product and business authority for MHCS,
 with supporting journey maps, technical BPMN workflows, and an operational
 demonstrator under `website/`.
 
-Pak Wong, a business contact and relative of Stanley Wei, has been identified as a
-key audience for an executive introduction and strategic alignment presentation
-regarding MHCS's position in Indonesia–Oneness collaboration.
+Human Intent has established that the presentation must serve as a reusable,
+business-first MHCS presentation template for general business, healthcare,
+institutional, governmental, academic, and prospective collaboration stakeholders.
+It must not be personalized to any named person, organization, private relationship,
+or particular meeting.
 
-However, the existing `website/` is structured as an internal technical artifact
-viewer rather than an executive presentation:
+However, the existing `website/` was originally structured as an internal technical
+artifact viewer rather than an executive presentation:
 1. It opens with an artifact catalog and technical journey links that overwhelm a
    first-time business stakeholder with implementation-level detail before
    explaining the problem being solved or the business proposition.
 2. Technical BPMN diagrams and low-level operator/staff handoffs obstruct the
    strategic continuous-care narrative.
-3. The operational demonstrator currently hardcodes a literal external HTTP IP
+3. The operational demonstrator originally hardcoded a literal external HTTP IP
    endpoint (`http://124.225.183.175:8361/` in `website/demonstrator/config.js`)
-   and `.github/workflows/deploy-pages.yml` requires an `AI_DEMO_URL` secret,
+   and `.github/workflows/deploy-pages.yml` required an `AI_DEMO_URL` secret,
    creating a fragile external dependency that risks presentation failure if the
    external server is unreachable, unconfigured, or offline.
-4. The operational demonstrator and strategic concept already contain bilingual
+4. The operational demonstrator and strategic concept already contained bilingual
    English/Bahasa Indonesia support, but the main landing page, supporting journey
-   surfaces, and overall executive presentation route do not yet provide coherent
+   surfaces, and overall executive presentation route did not provide coherent
    bilingual coverage. The required outcome is complete bilingual parity for all
    material content in the primary business-presentation route, without unnecessary
    translation of every historical or deeply technical supporting artifact.
+5. Content formulations must use evidence-calibrated language rather than
+   unsupported absolute guarantees, and health-system positioning must explicitly
+   clarify that MHCS coordinates workflow handoffs without replacing clinicians,
+   facilities, PACS, HIS/RME, or national health infrastructure (SATUSEHAT).
 
 This task exists to transform `website/` into a curated, confident, 10–15 minute
-business-first presentation for Pak Wong, while preserving all existing detailed
-Actor Journeys, infographics, and Technical BPMN as supporting evidence.
+reusable business-first presentation template for general stakeholders, while
+preserving all existing detailed Actor Journeys, infographics, and Technical BPMN
+as supporting evidence.
 
 ## Baseline and task revision
 
@@ -85,16 +93,20 @@ materially affect this task, stop and return to planning.
 
 ## Objective
 
-**Objective:** Transform the existing `website/` into a curated business-presentation
-experience that can be confidently presented to Pak Wong in approximately 10–15
-minutes, communicating the complete business narrative in a coherent sequence while
-preserving existing detailed artifacts as accessible supporting evidence.
+**Objective:** Create a reusable, business-first MHCS presentation template for general
+business, healthcare, institutional, governmental, academic, and prospective
+collaboration stakeholders, presentable in approximately 10–15 minutes, communicating
+the complete business narrative in a coherent sequence while preserving existing
+detailed artifacts as accessible supporting evidence.
+
+The presentation must be understandable without knowledge of a particular person,
+relationship, organization, or meeting.
 
 The primary presentation route must communicate, in a coherent sequence:
-1. **The healthcare/service problem:** The structural geographical and specialist
-   distribution challenges in Indonesia (fragmented service handoffs, specialist
-   shortages at examination sites, citizen friction in preventive screening, and
-   safety/consent gaps).
+1. **The healthcare-service coordination problem:** The structural geographical and
+   specialist distribution challenges in Indonesia (fragmented service handoffs,
+   specialist shortages at examination sites, citizen friction in preventive
+   screening, and safety/consent gaps).
 2. **What MHCS is:** An Indonesia-led healthcare orchestration and coordination
    platform—coordinating existing healthcare capabilities into continuous, reliable
    pathways rather than replacing health infrastructure, PACS, HIS/RME, or clinical
@@ -104,20 +116,28 @@ The primary presentation route must communicate, in a coherent sequence:
    permanent portal logins or cumbersome app downloads.
 4. **The current service slice:** The focused initial operational episode:
    `booking → on-site check-in & consent → basic examination → radiography capture → processing coordination → finalized result & optional specialist review`.
-5. **Stakeholder value proposition:** Clear, articulated value for Members,
+5. **Potential stakeholder value:** Clear, articulated potential value for Members,
    healthcare sites (hospitals/Puskesmas), healthcare professionals
    (radiologists/specialists), business customers (B2B annual screening), and
    collaboration partners.
 6. **Safe fictional demonstrator:** A guided, self-contained walkthrough of the
    current service slice using explicitly labeled fictional, non-clinical data.
-7. **Evidence/status and claim boundaries:** Clear, transparent visual and textual
+7. **Capability maturity and claim boundaries:** Clear, transparent visual and textual
    distinction between verified/current capabilities, prototype/demonstrator behavior,
    validation-stage work, and future strategic continuous-care concepts.
-8. **Collaboration framing:** Framing MHCS within the broader Indonesia–Oneness
-   collaboration context.
-9. **Closing ask:** An explicit request for Pak Wong's feedback on MHCS's position
-   in Indonesia–Oneness collaboration and identifying an appropriate follow-up
-   discussion involving Stanley Wei.
+8. **General collaboration opportunities:** General collaboration opportunities
+   (English: `Collaboration Opportunities`, Bahasa Indonesia: `Peluang Kolaborasi`),
+   framing potential collaboration models without naming or implying a specific
+   recipient, organization, endorsement, commitment, or commercial agreement.
+9. **Neutral discussion and next steps:** A neutral closing section (English:
+   `Discussion and Next Steps`, Bahasa Indonesia: `Diskusi dan Langkah Berikutnya`)
+   whose purpose is to:
+   - invite feedback on the MHCS proposition;
+   - identify capabilities requiring further evaluation;
+   - identify relevant collaboration areas;
+   - agree on the next appropriate demonstration, evidence review, workflow
+     validation, technical assessment, or discussion.
+   Do not name or imply a specific recipient or organization.
 
 Detailed Actor Journeys, infographics, and Technical BPMN must remain reachable as
 supporting materials, but must not obstruct or replace the primary business
@@ -136,19 +156,68 @@ narrative.
 - `docs/business/02-user-stories.md` (User Stories and Acceptance Criteria)
 - `docs/business/03-system-responsibilities.md` (System Responsibilities and Architecture)
 - Human-approved presentation direction:
-  - Audience: Pak Wong, business contact and relative of Stanley Wei.
+  - Audience: General business, healthcare, institutional, governmental, academic,
+    and prospective collaboration stakeholders.
+  - Reusable template: A reusable general-audience presentation template understandable
+    without knowledge of a particular person, relationship, organization, or meeting.
   - Purpose: Business introduction and strategic alignment (not clinical validation,
-    technical acceptance, certification, or an investment offer).
-  - Desired closing outcome: Obtain Pak Wong's feedback on MHCS's position in
-    Indonesia–Oneness collaboration and identify an appropriate follow-up discussion
-    involving Stanley Wei.
+    technical acceptance, certification, commercial partnership commitment, or an
+    investment offer).
+  - Desired closing outcome: Neutral discussion and next steps—invite feedback on the
+    MHCS proposition, identify capabilities requiring further evaluation, identify
+    relevant collaboration areas, and agree on the next appropriate demonstration,
+    evidence review, workflow validation, technical assessment, or discussion.
+  - Required neutral section framing:
+    - English: `Collaboration Opportunities` / Bahasa Indonesia: `Peluang Kolaborasi`
+    - English: `Discussion and Next Steps` / Bahasa Indonesia: `Diskusi dan Langkah Berikutnya`
   - Default presentation language: English.
-  - Required additional language: Bahasa Indonesia.
+  - Required additional language: Bahasa Indonesia (complete parity for material
+    primary-route content).
   - Product abstraction: `Messaging Interaction Surface`.
   - WhatsApp positioning: Current reference channel for the Indonesian context, not an
     immutable universal product dependency.
   - Failure-mode safety: Fully usable without external AI server; live AI demo
     must be optional, explicitly labeled, and fail closed.
+
+### Evidence-calibrated language requirements
+
+Future implementation MUST use evidence-calibrated wording across all presentation
+surfaces:
+- Preferred formulations include:
+  - `MHCS is designed to help coordinate...`
+  - `MHCS aims to make responsibilities, service status, handoffs, and next actions more visible...`
+  - `MHCS may support collaboration...`
+  - `The current demonstrator illustrates...`
+  - `This capability remains under validation...`
+  - `Production integration has not been established unless verified evidence is available.`
+- Prohibited unsupported formulations include:
+  - `MHCS guarantees...`
+  - `MHCS eliminates...`
+  - `MHCS has proven...`
+  - `MHCS is fully integrated with...`
+  - `MHCS is officially partnered with...`
+  - `MHCS replaces...`
+  unless the exact claim is supported by approved authority and observed evidence.
+
+### Health-system positioning requirements
+
+The presentation MUST explicitly state that MHCS does not replace:
+- healthcare professionals or clinical judgement;
+- healthcare facilities;
+- PACS;
+- hospital information systems (HIS/SIMRS);
+- electronic medical records (EMR/RME);
+- SATUSEHAT or national health infrastructure.
+
+MHCS must be described as coordinating service journeys at the workflow and interaction
+level within its authorized scope.
+
+Any interoperability statement must remain conditional on applicable standards,
+authorization, governance, configuration, validation, and actual implementation
+evidence.
+
+Do not claim production SATUSEHAT integration merely because SATUSEHAT uses
+FHIR or because MHCS defines an interoperability direction.
 
 ### Requirement traceability
 
@@ -166,7 +235,10 @@ narrative.
   and human-approved presentation direction
 - Decoupling of external AI server and fail-closed demo behavior → Human-approved
   presentation direction and `.github/workflows/deploy-pages.yml`
-- Collaboration framing and closing discussion ask → Human-approved presentation direction
+- General collaboration framing and neutral closing discussion ask → Human-approved
+  presentation direction
+- Evidence calibration and health-system positioning boundaries → Human-approved
+  presentation direction
 
 ## Scope
 
@@ -174,13 +246,15 @@ narrative.
 
 Bounded modifications to:
 - `website/index.html`: Reorganize the primary landing page to deliver the curated
-  9-part business presentation narrative, with seamless navigation to supporting
-  evidence.
-- Existing shared website CSS and JavaScript (e.g., `website/assets/journey.css` or
-  modular presentation styles/scripts): Provide polished executive layout, responsive
+  9-part general-audience business presentation template, with neutral sections
+  (`Collaboration Opportunities` / `Peluang Kolaborasi` and `Discussion and Next Steps` /
+  `Diskusi dan Langkah Berikutnya`), with seamless navigation to supporting evidence.
+- Existing shared website CSS and JavaScript (e.g., `website/assets/presentation.css`
+  and `website/assets/presentation.js`): Provide polished executive layout, responsive
   stepper/navigation, claim-boundary visual chips, and language-toggling behavior.
 - Presentation-facing copy and navigation: Professional, executive-ready copy aligned
-  strictly with approved business definitions.
+  strictly with approved business definitions, free of individualized recipient names
+  or private relationship references, and using evidence-calibrated language.
 - Language resources: English as coherent default, with complete Bahasa Indonesia
   translations for all material primary presentation sections.
 - Existing demonstrator (`website/demonstrator/`): Safe configuration and failure-mode
@@ -189,15 +263,17 @@ Bounded modifications to:
   configured but unreachable, maintain explicit fictional non-clinical labeling).
 - Relevant infographics or journey pages: Minor copy or link adjustments only where
   required for presentation consistency.
-- `website/test_site.py`: Extend tests to assert presentation integrity, bilingual
-  support markers, clean configuration without literal IP dependencies, and local
-  link validity.
+- `website/test_site.py`: Extend tests to assert presentation integrity, general-audience
+  markers, absence of prohibited personalized names, calibrated language checks,
+  bilingual support markers, clean configuration without literal IP dependencies, and
+  local link validity.
 - `website/bpmn/test_bpmn.py`: Verify only if BPMN integration or link anchors change.
-- `.github/workflows/deploy-pages.yml`: Update workflow so deployment is safe and
-  deterministic even if `AI_DEMO_URL` is omitted (optional rather than mandatory secret).
+- `.github/workflows/deploy-pages.yml`: Ensure deployment is safe and deterministic even
+  if `AI_DEMO_URL` is omitted (optional rather than mandatory secret).
 - Concise presentation/rehearsal documentation: A concise guide (e.g.,
-  `website/PRESENTATION.md` or embedded presentation notes) providing a 10–15 minute
-  rehearsal outline and speaking points for Pak Wong.
+  `website/PRESENTATION.md` or embedded presentation notes) providing a general-audience
+  10–15 minute rehearsal outline and speaking points suitable for any prospective
+  business, healthcare, or institutional stakeholder.
 
 The Executor must discover and touch the smallest sufficient affected file set.
 
@@ -208,7 +284,7 @@ The Executor must discover and touch the smallest sufficient affected file set.
 - Introduction or storage of real patient data, clinical images, credentials, or secrets.
 - Invention of pricing schedules, fee amounts, revenue forecasts, market-size
   projections, formal investment terms, regulatory approvals, clinical diagnostic
-  claims, or production-readiness certifications.
+  claims, production-readiness certifications, or commercial partnership agreements.
 - Modifying approved business authority under `docs/business/` or `docs/project.md`
   merely to simplify website presentation copy.
 - Making WhatsApp the permanent universal product abstraction instead of
@@ -218,6 +294,9 @@ The Executor must discover and touch the smallest sufficient affected file set.
 - Merging to `main`, triggering production releases, or modifying server infrastructure.
 - Deletion of existing Actor Journeys, infographics, Technical BPMN, or concept
   materials.
+- Personalizing presentation materials to named individuals, private relationships,
+  or specific prospective partner entities.
+- Rewriting historical Git commits or force-pushing.
 
 ### Preserved behavior
 
@@ -239,7 +318,7 @@ The Executor must discover and touch the smallest sufficient affected file set.
 
 ### Approved assumptions
 
-- The primary audience (Pak Wong) will view the presentation in English, but
+- Prospective stakeholders will view the presentation in English, but
   Bahasa Indonesia must be readily switchable for strategic clarity and local
   Indonesian alignment.
 - The external AI demonstration server (`124.225.183.175` or similar) may be offline,
@@ -251,8 +330,8 @@ The Executor must discover and touch the smallest sufficient affected file set.
 ### Remaining approval requirements
 
 - Candidate task review and formal validation by designated Planner/Reviewer.
-- Review of executive presentation copy and Indonesian translation prior to
-  presenting to Pak Wong.
+- Review of general-audience presentation copy and Indonesian translation prior to
+  presenting to external stakeholders.
 - Designated human approval required before merging task branch to `main`,
   creating pull requests unless separately authorized, or deploying to public GitHub Pages
   (automatic fast-forward push to `origin/docs/mhcs-business-presentation-readiness`
@@ -283,54 +362,94 @@ The Executor must discover and touch the smallest sufficient affected file set.
 - **Fail-closed demonstrator:** The demonstrator must default to self-contained
   fictional data, explicitly indicate when external AI is disconnected, and fail
   closed without degrading the local experience.
+- **Evidence-calibrated language:** Use calibrated formulations (`designed to help coordinate`,
+  `aims to make visible`, `may support`, `under validation`, `illustrates`); strictly avoid
+  unsupported absolute claims (`guarantees`, `eliminates`, `fully integrated`, `official partner`,
+  `replaces`).
+- **Health-system positioning:** Clearly position MHCS as workflow coordination; explicitly
+  state non-replacement of clinicians, facilities, PACS, HIS/RME, and SATUSEHAT.
 
 ## Acceptance criteria
 
-- [ ] 1. A first-time business audience can follow the main story without opening
-  Technical BPMN;
-- [ ] 2. The main route clearly explains the business problem, MHCS proposition,
-  current service slice, stakeholder value, evidence boundary, collaboration framing,
-  and closing ask;
-- [ ] 3. `Messaging Interaction Surface` is the durable product abstraction and
-  WhatsApp is described only as the current/reference Indonesian channel where
-  appropriate;
-- [ ] 4. English is the coherent default and Bahasa Indonesia is available for all
-  material primary-presentation content;
-- [ ] 5. Terminology and claims remain consistent with current approved `docs/project.md`
-  and `docs/business/*`;
-- [ ] 6. Verified capability, prototype/demonstrator behavior, validation-stage work,
-  and future concept are visually and textually distinguishable;
-- [ ] 7. Fictional/non-clinical demonstration data remain explicit;
-- [ ] 8. The primary presentation has no dependency on a literal HTTP IP address or
-  an available external AI server;
-- [ ] 9. An optional external demo fails closed and does not break the local
-  presentation;
-- [ ] 10. Existing supporting journey, infographic, and BPMN materials remain reachable;
-- [ ] 11. All local links resolve;
-- [ ] 12. Desktop presentation and representative mobile/tablet layouts have no
-  material clipping, overflow, unreadable text, or broken navigation;
-- [ ] 13. The main presentation route has a documented and rehearsable order suitable
-  for approximately 10–15 minutes;
-- [ ] 14. No patient data, credentials, secrets, or unsupported business/clinical
-  claims are introduced.
+- [ ] 1. The primary presentation works as a reusable MHCS business template;
+- [ ] 2. It does not depend on knowledge of a named person, organization, private
+  relationship, or particular meeting;
+- [ ] 3. Active presentation content contains no references to:
+  - `Pak Wong`;
+  - `Stanley Wei`;
+  - `Oneness`;
+  - `Indonesia–Oneness`;
+- [ ] 4. The prohibited-name restriction applies across:
+  - English primary-route content;
+  - Bahasa Indonesia primary-route content;
+  - headings;
+  - metadata and descriptions;
+  - presentation/rehearsal notes;
+  - tests and expected markers;
+  - collaboration and closing sections;
+- [ ] 5. Collaboration content (English: `Collaboration Opportunities`, Bahasa Indonesia:
+  `Peluang Kolaborasi`) does not name specific partner entities and does not imply an
+  existing partnership, endorsement, commitment, or commercial agreement;
+- [ ] 6. The closing section (English: `Discussion and Next Steps`, Bahasa Indonesia:
+  `Diskusi dan Langkah Berikutnya`) neutrally invites feedback, identifies evaluation
+  capabilities, identifies collaboration areas, and agrees on next discussion/validation
+  steps without naming or implying a specific recipient or organization;
+- [ ] 7. Benefits are presented as intended or potential value using evidence-calibrated
+  language (`designed to help coordinate`, `aims to make visible`, `may support`,
+  `under validation`), avoiding unsupported absolute statements (`guarantees`, `eliminates`,
+  `fully integrated`, `official partner`, `replaces`);
+- [ ] 8. Health-system positioning explicitly states that MHCS does not replace healthcare
+  professionals, clinical judgement, healthcare facilities, PACS, HIS/SIMRS, EMR/RME,
+  or SATUSEHAT, and any interoperability statements remain conditional;
+- [ ] 9. Current capability, prototype/demonstrator behavior, validation-stage work,
+  and future concept remain visually and textually distinguishable;
+- [ ] 10. The reusable template retains English default and complete Bahasa Indonesia
+  parity across all material primary presentation sections;
+- [ ] 11. Technical supporting artifacts (Actor Journeys, infographics, Technical BPMN,
+  strategic concept) remain reachable and functional without obstructing the primary narrative;
+- [ ] 12. Fictional/non-clinical demonstration data remain explicit;
+- [ ] 13. Offline-safe demonstrator behavior and external-AI decoupling remain intact
+  with zero dependency on literal HTTP IP endpoints, and optional external demo fails closed;
+- [ ] 14. `Messaging Interaction Surface` is the durable product abstraction and
+  WhatsApp is described only as the reference Indonesian channel where appropriate;
+- [ ] 15. All local internal links resolve and automated test suites pass;
+- [ ] 16. Desktop presentation and representative mobile/tablet layouts render cleanly
+  with no horizontal overflow, clipped text, or broken navigation;
+- [ ] 17. The primary presentation route has a documented general-audience rehearsal outline
+  suitable for approximately 10–15 minutes;
+- [ ] 18. No patient data, credentials, secrets, or unsupported business/clinical claims
+  are introduced.
 
 ## Verification requirements
 
 ### Required checks
 
-- `git diff --check` (verify no trailing whitespace or formatting defects);
-- `python3 website/test_site.py` (verify all pages, links, and content markers);
-- `python3 website/bpmn/test_bpmn.py` (verify BPMN graph and flow integrity);
-- Repository consistency check: Search-based comparison between website terminology
-  and current approved `docs/project.md` and `docs/business/*`;
-- Literal endpoint scan: Verify that no literal HTTP IP address (such as
-  `124.225.183.175`) is required by `website/` or blocks execution;
-- Local link validation: Ensure zero broken internal links across all pages;
-- Responsive browser inspection: Rendered verification at presentation-laptop width
-  (1280px–1440px), tablet width (768px), and mobile width (375px);
-- Rehearsal walkthrough: Complete manual walkthrough following the 10–15 minute
-  documented presentation order;
-- `git status --short` and exact diff inspection.
+Future implementation remediation MUST perform and report:
+- Case-insensitive scan of current active deliverable files for prohibited names:
+  - `Pak Wong`
+  - `Stanley Wei`
+  - `Oneness`
+  - `Indonesia-Oneness` (and `Indonesia–Oneness`)
+  (Search findings must be evaluated contextually; prohibited names in historical immutable
+  Git commits or superseded task revisions are not current-deliverable defects and must
+  not trigger history rewriting);
+- Scan for unsupported absolute statements:
+  - `guarantees`
+  - `eliminates`
+  - `fully integrated`
+  - `official partner`
+  - `replaces`
+- English and Bahasa Indonesia parity verification across all primary presentation sections;
+- Automated test suite execution:
+  - `python3 website/test_site.py`
+  - `python3 website/bpmn/test_bpmn.py`
+- Local link verification ensuring zero broken internal links;
+- Literal endpoint scan verifying zero hardcoded literal HTTP IP addresses;
+- Rendered browser inspection across presentation laptop (1280px–1440px), tablet (768px),
+  and mobile (375px) viewports;
+- Complete generic-audience presentation walkthrough following the 10–15 minute
+  rehearsal order;
+- Exact diff and repository status inspection (`git diff --check`, `git status --short`).
 
 ### Required evidence
 
@@ -403,12 +522,12 @@ The Executor MUST stop implementation and return the issue to planning when:
 
 ### Review Required
 
-Use when the presentation route is fully implemented, bilingual support is active,
-the demonstrator is decoupled and fails closed, all 14 acceptance criteria are met,
-the implementation is committed and fast-forward pushed to
-`origin/docs/mhcs-business-presentation-readiness`, and all required execution evidence
-(including verified matching local and remote SHAs) is reported for Planner/Reviewer
-inspection.
+Use when the presentation route is fully implemented as a reusable general-audience
+template, bilingual support is active, the demonstrator is decoupled and fails closed,
+all 18 acceptance criteria are met, the implementation is committed and fast-forward
+pushed to `origin/docs/mhcs-business-presentation-readiness`, and all required execution
+evidence (including verified matching local and remote SHAs) is reported for
+Planner/Reviewer inspection.
 
 ### Planning Required
 
